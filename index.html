@@ -157,9 +157,8 @@
         }
 
         select, input, button { padding: 10px 14px; border: 2px solid #ddd; border-radius: 8px; font-size: 14px; background: white; }
-        /* keep generic buttons styling for controls */
-        .controls button { background: #4CAF50; color: white; border: none; cursor: pointer; transition: background 0.2s; }
-        .controls button:hover { background: #45a049; }
+        button { background: #4CAF50; color: white; border: none; cursor: pointer; transition: background 0.2s; }
+        button:hover { background: #45a049; }
         #search-input { width: 100%; max-width: 300px; direction: rtl; }
 
         .stats { display: flex; flex-wrap: wrap; gap: 12px; margin: 12px 0; }
@@ -179,11 +178,7 @@
         .discount-badge { background: #ff4444; color: white; padding: 3px 8px; border-radius: 4px; font-size: 12px; animation: pulse 1s infinite; }
         @keyframes pulse { 0%{transform:scale(1)}50%{transform:scale(1.05)}100%{transform:scale(1)} }
 
-        /* pagination improvements:
-           - ensure control buttons (First / Prev / Next / Last) are always visible
-           - page numbers occupy remaining space and are horizontally scrollable
-           - explicit text color so numbers are visible (avoids being white on white)
-        */
+        /* pagination improvements */
         .pagination {
             display: flex;
             align-items: center;
@@ -194,53 +189,12 @@
             border-radius: 10px;
             box-shadow: 0 6px 18px rgba(0,0,0,0.06);
             justify-content: center;
-            overflow: visible; /* allow children to be visible */
         }
-        .pagination .control-btn {
-            min-width: 52px;
-            height: 36px;
-            border-radius: 8px;
-            border: 1px solid #ddd;
-            background: white;
-            cursor: pointer;
-            padding: 6px 10px;
-            font-size: 14px;
-            color: #333; /* ensure visible number color */
-            flex: 0 0 auto;
-        }
+        .pagination .control-btn { min-width: 42px; height: 36px; border-radius: 8px; border: 1px solid #ddd; background: white; cursor: pointer; padding: 6px 10px; font-size: 14px; }
         .pagination .control-btn[disabled] { opacity: 0.5; cursor: not-allowed; }
-
-        .pagination .page-numbers {
-            display: flex;
-            gap: 8px;
-            overflow-x: auto;
-            padding: 4px;
-            -webkit-overflow-scrolling: touch;
-            flex: 1 1 auto;    /* take remaining space */
-            min-width: 120px;
-        }
-        .pagination .page-numbers button {
-            min-width: 44px;
-            height: 36px;
-            border-radius: 8px;
-            border: 1px solid #ddd;
-            background: white;
-            cursor: pointer;
-            padding: 6px 10px;
-            font-size: 14px;
-            white-space: nowrap;
-            color: #333; /* ensure numbers visible */
-            flex: 0 0 auto;
-        }
-        .pagination .page-numbers button.active {
-            background: #4CAF50;
-            color: white;
-            border-color: #4CAF50;
-        }
-
-        /* small scrollbar styling so user sees scroll area */
-        .pagination .page-numbers::-webkit-scrollbar { height: 8px; }
-        .pagination .page-numbers::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.15); border-radius: 8px; }
+        .pagination .page-numbers { display: flex; gap: 8px; overflow-x: auto; padding: 4px; max-width: 70%; -webkit-overflow-scrolling: touch; }
+        .pagination .page-numbers button { min-width: 40px; height: 36px; border-radius: 8px; border: 1px solid #ddd; background: white; cursor: pointer; padding: 6px 10px; font-size: 14px; white-space: nowrap; }
+        .pagination .page-numbers button.active { background: #4CAF50; color: white; border-color: #4CAF50; }
 
         .loading { text-align:center; padding: 24px; color: #fff; font-size: 16px; }
 
@@ -259,7 +213,7 @@
             <p>استرجاع بيانات ديناميكي من جداول Google</p>
         </header>
 
-        <!-- TOP: minimized first frame on the left + banner on the right -->
+        <!-- TOP: minimized first frame on the left + banner on the right (second frame removed) -->
         <div class="top-frames" role="region" aria-label="منطقة العروض العلوية">
             <!-- Minimized first frame -->
             <div class="carousel" id="carousel" aria-hidden="false">
@@ -301,12 +255,10 @@
 
             <input type="number" id="min-discount" placeholder="الحد الأدنى للخصم %" aria-label="الحد الأدنى للخصم">
 
-            <div style="display:flex;gap:8px;">
-                <button onclick="applyFilters()">🔍 تطبيق الفلاتر</button>
-                <button onclick="resetFilters()">🔄 إعادة ضبط</button>
-                <button onclick="exportToCSV()">📥 تصدير CSV</button>
-                <button onclick="toggleChart()">📊 عرض مخطط الإحصائيات</button>
-            </div>
+            <button onclick="applyFilters()">🔍 تطبيق الفلاتر</button>
+            <button onclick="resetFilters()">🔄 إعادة ضبط</button>
+            <button onclick="exportToCSV()">📥 تصدير CSV</button>
+            <button onclick="toggleChart()">📊 عرض مخطط الإحصائيات</button>
         </div>
 
         <div class="stats" role="region" aria-label="بطاقات الإحصائيات">
@@ -501,7 +453,7 @@
             setTimeout(()=>track.classList.add('scrolling'), 50);
         }
 
-        // pagination
+        // pagination (always show First / Prev / Next / Last)
         function updatePagination() {
             const pagination = document.getElementById('pagination');
             pagination.innerHTML = '';
