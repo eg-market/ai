@@ -8,272 +8,265 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/lz-string/1.4.4/lz-string.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
         body {
             font-family: Arial, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             padding: 20px;
-            color: #222;
         }
 
-        .container { max-width: 1400px; margin: 0 auto; }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
 
         header {
             text-align: center;
-            margin-bottom: 12px;
-            padding: 12px;
-            background: rgba(255,255,255,0.95);
-            border-radius: 12px;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+            margin-bottom: 30px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
         }
 
-        h1 { color: #333; margin-bottom: 6px; font-size: 20px; }
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+        }
 
-        /* --- Top minimized carousel (first frame) --- */
         .carousel {
             position: relative;
-            width: 100%;
-            height: 48px; /* minimized height */
-            margin-bottom: 8px;
+            max-width: 100%;
+            margin-bottom: 20px;
             overflow: hidden;
-            border-radius: 10px;
-            background: #ffffff;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.08);
-            display: flex;
-            align-items: center;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
         }
 
         .carousel-inner {
             display: flex;
             transition: transform 0.5s ease;
-            width: 100%;
-            height: 100%;
-            align-items: center;
         }
 
         .carousel-item {
             min-width: 100%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 6px 12px;
-            font-size: 14px;
-            color: #222;
-            gap: 8px;
-            white-space: nowrap;
-            overflow: hidden;
+            text-align: center;
+            padding: 30px;
+            background: white;
         }
 
-        .carousel-item .product-title {
-            font-weight: 600;
-            font-size: 14px;
-        }
-
-        .carousel-item .meta {
-            color: #666;
-            font-size: 13px;
+        .carousel-item h3 {
+            margin-bottom: 10px;
+            color: #333;
         }
 
         .carousel-prev, .carousel-next {
             position: absolute;
             top: 50%;
             transform: translateY(-50%);
-            background: rgba(0,0,0,0.15);
-            color: #fff;
+            background: rgba(0,0,0,0.5);
+            color: white;
             border: none;
-            padding: 6px 8px;
+            padding: 15px;
             cursor: pointer;
-            font-size: 16px;
-            border-radius: 6px;
-            width: 34px;
-            height: 34px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 5;
+            font-size: 24px;
         }
 
-        .carousel-prev { left: 6px; }
-        .carousel-next { right: 6px; }
+        .carousel-prev { left: 10px; }
+        .carousel-next { right: 10px; }
 
-        /* --- Big banner ticker (second frame) --- */
-        .banner-ticker {
-            width: 100%;
-            height: 64px;
-            background: #fff;
-            border-radius: 12px;
-            overflow: hidden;
-            box-shadow: 0 8px 24px rgba(0,0,0,0.12);
-            display: flex;
-            align-items: center;
-            margin-bottom: 18px;
-            direction: ltr; /* keep left-to-right scrolling (we'll format Arabic inside) */
-        }
-
-        .ticker-viewport {
-            width: 100%;
-            overflow: hidden;
-        }
-
-        .ticker-track {
-            display: flex;
-            gap: 48px;
-            align-items: center;
-            padding: 0 12px;
-            will-change: transform;
-        }
-
-        .ticker-item {
-            display: inline-flex;
-            align-items: center;
-            gap: 12px;
-            white-space: nowrap;
-            font-size: 15px;
-            color: #111;
-        }
-
-        .ticker-item a {
-            color: inherit;
-            text-decoration: none;
-            display: inline-flex;
-            gap: 8px;
-            align-items: center;
-        }
-
-        .ticker-item .badge {
-            background: #ff4444;
-            color: #fff;
-            padding: 4px 8px;
-            border-radius: 6px;
-            font-weight: 700;
-            font-size: 13px;
-        }
-
-        .ticker-item .price {
-            font-weight: 700;
-            color: #0b66a3;
-        }
-
-        @keyframes scroll-left {
-            0% { transform: translateX(0); }
-            100% { transform: translateX(-50%); } /* we duplicate content to create seamless loop */
-        }
-
-        .ticker-track.scrolling {
-            animation-name: scroll-left;
-            animation-timing-function: linear;
-            animation-iteration-count: infinite;
-        }
-
-        /* rest of the UI */
         .controls {
             display: flex;
             flex-wrap: wrap;
-            gap: 12px;
+            gap: 15px;
             justify-content: center;
-            margin: 8px 0 18px;
+            margin: 20px 0;
         }
 
         select, input, button {
-            padding: 10px 14px;
+            padding: 12px 20px;
             border: 2px solid #ddd;
             border-radius: 8px;
-            font-size: 14px;
+            font-size: 16px;
             background: white;
         }
 
-        button { background: #4CAF50; color: white; border: none; cursor: pointer; transition: background 0.2s; }
-        button:hover { background: #45a049; }
-
-        #search-input { width: 100%; max-width: 300px; direction: rtl; }
-
-        .stats { display: flex; flex-wrap: wrap; gap: 12px; margin: 12px 0; }
-        .stat-card { flex: 1; min-width: 160px; background: white; padding: 12px; border-radius: 10px; box-shadow: 0 6px 18px rgba(0,0,0,0.08); }
-        .stat-card h3 { color: #666; font-size: 13px; margin-bottom: 6px; }
-        .stat-card .value { font-size: 20px; font-weight: 700; color: #333; }
-
-        #chart-container { margin: 16px 0; display: none; background: white; padding: 16px; border-radius: 12px; box-shadow: 0 6px 18px rgba(0,0,0,0.08); }
-
-        #data-table { width: 100%; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.15); margin-top: 16px; }
-        #data-table table { width: 100%; border-collapse: collapse; }
-        #data-table th { background: #4CAF50; color: white; padding: 12px; text-align: left; position: sticky; top: 0; }
-        #data-table td { padding: 10px 12px; border-bottom: 1px solid #eee; }
-        #data-table tr:hover { background: #f0f8ff; cursor: pointer; }
-
-        .highlight { background: #fff7d6 !important; }
-        .discount-badge { background: #ff4444; color: white; padding: 3px 8px; border-radius: 4px; font-size: 12px; animation: pulse 1s infinite; }
-
-        @keyframes pulse { 0%{transform:scale(1)}50%{transform:scale(1.05)}100%{transform:scale(1)} }
-
-        /* Improved pagination layout:
-           - Always show First / Prev and Next / Last buttons
-           - Page numbers are horizontally scrollable so large counts don't overflow
-           - Active page is centered when created (we call scrollIntoView)
-        */
-        .pagination {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            margin: 12px 0;
-            padding: 8px;
-            background: rgba(255,255,255,0.95);
-            border-radius: 10px;
-            box-shadow: 0 6px 18px rgba(0,0,0,0.06);
-            justify-content: center;
-        }
-
-        .pagination .control-btn {
-            min-width: 42px;
-            height: 36px;
-            border-radius: 8px;
-            border: 1px solid #ddd;
-            background: white;
-            cursor: pointer;
-            padding: 6px 10px;
-            font-size: 14px;
-        }
-
-        .pagination .control-btn[disabled] {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-
-        .pagination .page-numbers {
-            display: flex;
-            gap: 8px;
-            overflow-x: auto;
-            padding: 4px;
-            max-width: 70%;
-            -webkit-overflow-scrolling: touch;
-        }
-
-        .pagination .page-numbers button {
-            min-width: 40px;
-            height: 36px;
-            border-radius: 8px;
-            border: 1px solid #ddd;
-            background: white;
-            cursor: pointer;
-            padding: 6px 10px;
-            font-size: 14px;
-            white-space: nowrap;
-        }
-
-        .pagination .page-numbers button.active {
+        button {
             background: #4CAF50;
             color: white;
-            border-color: #4CAF50;
+            border: none;
+            cursor: pointer;
+            transition: background 0.3s;
         }
 
-        .loading { text-align:center; padding: 24px; color: #fff; font-size: 16px; }
+        button:hover {
+            background: #45a049;
+        }
+
+        #search-input {
+            width: 100%;
+            max-width: 300px;
+            direction: rtl;
+        }
+
+        #autocomplete-list {
+            position: absolute;
+            background: white;
+            border: 1px solid #ddd;
+            max-height: 200px;
+            overflow-y: auto;
+            z-index: 1000;
+            width: 300px;
+            direction: rtl;
+        }
+
+        #autocomplete-list div {
+            padding: 10px;
+            cursor: pointer;
+        }
+
+        #autocomplete-list div:hover {
+            background: #f0f0f0;
+        }
+
+        #price-range {
+            display: flex;
+            gap: 10px;
+        }
+
+        .stats {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .stat-card {
+            flex: 1;
+            min-width: 200px;
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .stat-card h3 {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+
+        .stat-card .value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        #chart-container {
+            margin: 20px 0;
+            display: none;
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        #data-table {
+            width: 100%;
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            margin-top: 20px;
+        }
+
+        #data-table table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        #data-table th {
+            background: #4CAF50;
+            color: white;
+            padding: 15px;
+            text-align: left;
+            position: sticky;
+            top: 0;
+        }
+
+        #data-table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #eee;
+        }
+
+        #data-table tr:hover {
+            background: #f0f8ff;
+            cursor: pointer;
+        }
+
+        .highlight {
+            background: #ffffcc !important;
+        }
+
+        .discount-badge {
+            background: #ff4444;
+            color: white;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .pagination button {
+            padding: 8px 16px;
+            background: white;
+            color: #333;
+            border: 1px solid #ddd;
+        }
+
+        .pagination button.active {
+            background: #4CAF50;
+            color: white;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: white;
+            font-size: 18px;
+        }
 
         @media (max-width: 768px) {
-            .controls { flex-direction: column; }
-            .stats { flex-direction: column; }
-            .banner-ticker { height: 56px; }
-            .pagination .page-numbers { max-width: 60%; }
+            .controls {
+                flex-direction: column;
+            }
+            
+            .stats {
+                flex-direction: column;
+            }
+
+            #data-table {
+                overflow-x: auto;
+            }
         }
     </style>
 </head>
@@ -284,45 +277,37 @@
             <p>استرجاع بيانات ديناميكي من جداول Google</p>
         </header>
 
-        <!-- Minimized first frame (small rotating summary) -->
-        <div class="carousel" id="carousel" aria-hidden="false">
+        <div class="carousel" id="carousel">
             <div class="carousel-inner" id="carousel-inner"></div>
-            <button class="carousel-prev" aria-label="السابق" onclick="prevSlide()">‹</button>
-            <button class="carousel-next" aria-label="التالي" onclick="nextSlide()">›</button>
-        </div>
-
-        <!-- Second frame: big banner ticker (TV-news style) -->
-        <div class="banner-ticker" role="region" aria-label="شريط العروض المميزة">
-            <div class="ticker-viewport" id="ticker-viewport" aria-live="polite">
-                <div class="ticker-track" id="ticker-track"></div>
-            </div>
+            <button class="carousel-prev" onclick="prevSlide()">‹</button>
+            <button class="carousel-next" onclick="nextSlide()">›</button>
         </div>
 
         <div class="controls">
             <input type="text" id="search-input" placeholder="ابحث عن منتجات أو علامات تجارية..." aria-label="حقل البحث">
             <div id="autocomplete-list" role="listbox" aria-label="اقتراحات البحث"></div>
-
+            
             <select id="supermarket-filter" aria-label="تصفية حسب السوبر ماركت">
                 <option value="">كل السوبر ماركت</option>
             </select>
-
+            
             <select id="category-filter" aria-label="تصفية حسب الفئة">
                 <option value="">كل الفئات</option>
             </select>
-
+            
             <div id="price-range">
                 <input type="number" id="min-price" placeholder="الحد الأدنى للسعر" aria-label="الحد الأدنى للسعر">
                 <input type="number" id="max-price" placeholder="الحد الأعلى للسعر" aria-label="الحد الأعلى للسعر">
             </div>
-
+            
             <select id="sort-by" aria-label="فرز حسب">
                 <option value="">فرز حسب</option>
                 <option value="discount-desc">الخصم من الأكبر للأصغر</option>
                 <option value="price-asc">السعر من الأقل للأعلى</option>
             </select>
-
+            
             <input type="number" id="min-discount" placeholder="الحد الأدنى للخصم %" aria-label="الحد الأدنى للخصم">
-
+            
             <button onclick="applyFilters()">🔍 تطبيق الفلاتر</button>
             <button onclick="resetFilters()">🔄 إعادة ضبط</button>
             <button onclick="exportToCSV()">📥 تصدير CSV</button>
@@ -375,14 +360,12 @@
                     <!-- سيتم إدراج البيانات هنا -->
                 </tbody>
             </table>
-
-            <!-- Pagination: will be populated by JS -->
+            
             <div class="pagination" id="pagination" role="navigation" aria-label="تنقل الصفحات">
-                <!-- JS will inject: [First] [Prev] [page-numbers scrollable] [Next] [Last] -->
+                <!-- سيتم إدراج الصفحات هنا -->
             </div>
         </div>
     </div>
-
     <script>
         const DATA_URL = 'https://script.google.com/macros/s/AKfycbzD-TIVSoc4BxNhfytOM2Sbzs156Iht420hS2XCSRZkAuNIbBPnVYxQhTVEohgv0u-Fsg/exec';
         const CACHE_KEY = 'offersData';
@@ -494,37 +477,6 @@
             "Almahalawy Sons": "https://almahalawy.com/"
         };
 
-        // Helpers for parsing/formatting dates (used earlier)
-        function parseEndDate(period) {
-            if (!period) return null;
-            const parts = String(period).split(/to|إلى|حتى|–|—|-|~/i).map(p => p.trim()).filter(Boolean);
-            let candidate = parts.length > 1 ? parts[parts.length - 1] : parts[0];
-            candidate = candidate.replace(/^(من|إلى|حتى)\s*/i, '').trim();
-
-            let d = new Date(candidate);
-            if (!isValidDate(d)) {
-                const dm = candidate.match(/(\d{1,2})[\/\.-](\d{1,2})[\/\.-](\d{2,4})/);
-                if (dm) {
-                    let day = dm[1].padStart(2, '0');
-                    let month = dm[2].padStart(2, '0');
-                    let year = dm[3];
-                    if (year.length === 2) year = '20' + year;
-                    d = new Date(`${year}-${month}-${day}`);
-                    if (!isValidDate(d)) d = null;
-                } else {
-                    const ym = candidate.match(/(\d{4})[\/\.-](\d{1,2})[\/\.-](\d{1,2})/);
-                    if (ym) {
-                        d = new Date(`${ym[1]}-${ym[2].padStart(2,'0')}-${ym[3].padStart(2,'0')}`);
-                        if (!isValidDate(d)) d = null;
-                    } else d = null;
-                }
-            }
-            return isValidDate(d) ? d : null;
-        }
-        function isValidDate(d) { return d instanceof Date && !isNaN(d.getTime()); }
-        function isSameDate(a, b) { if (!a || !b) return false; return a.getFullYear()===b.getFullYear() && a.getMonth()===b.getMonth() && a.getDate()===b.getDate(); }
-        function formatDateShort(d) { if (!d) return 'غير متاح'; const y=d.getFullYear(), m=String(d.getMonth()+1).padStart(2,'0'), day=String(d.getDate()).padStart(2,'0'); return `${y}-${m}-${day}`; }
-
         let allData = [];
         let filteredData = [];
         let currentPage = 1;
@@ -535,7 +487,7 @@
         async function fetchData() {
             try {
                 document.getElementById('loading').style.display = 'block';
-                document.getElementById('loading').textContent = 'جارٍ تحميل البيانات من جداول Google...';
+                document.getElementById('loading').innerHTML = 'جارٍ تحميل البيانات من جداول Google...';
 
                 const cached = localStorage.getItem(CACHE_KEY);
                 const cachedTime = localStorage.getItem(`${CACHE_KEY}_time`);
@@ -543,32 +495,32 @@
                     allData = JSON.parse(LZString.decompressFromUTF16(cached));
                 } else {
                     const response = await fetch(DATA_URL);
-                    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    
                     const dataText = await response.text();
-                    const parsed = Papa.parse(dataText, { header: true, skipEmptyLines: true, trim: true, dynamicTyping: true });
-                    const data = parsed.data;
-
-                    allData = data.map(item => {
-                        const rawPeriod = item['فترة سريان العرض'] || item['Validity Period'] || '';
-                        const endDateObj = parseEndDate(String(rawPeriod));
-                        const validUntilStr = endDateObj ? formatDateShort(endDateObj) : (String(rawPeriod).split(/to|إلى|حتى|–|—|-|~/i).slice(-1)[0] || 'غير متاح');
-
-                        return {
-                            supermarket: item['اسم السوبر ماركت'] || 'غير متاح',
-                            product: item['الاسم بالعربية'] || item['اسم المنتج (الأساسي)'] || 'غير متاح',
-                            category: item['الفئة'] || 'غير متاح',
-                            brand: item['اسم العلامة التجارية'] || 'غير متاح',
-                            originalPrice: parseFloat(item['السعر الأصلي']) || 0,
-                            currentPrice: parseFloat(item['السعر الحالي']) || 0,
-                            discount: parseFloat(item['الخصم %']) || 0,
-                            promotion: item['العبارة الترويجية'] || 'غير متاح',
-                            rawPeriod: rawPeriod,
-                            endDate: endDateObj,
-                            validUntil: validUntilStr,
-                            currency: item['العملة'] || 'EGP'
-                        };
+                    const parsed = Papa.parse(dataText, {
+                        header: true,
+                        skipEmptyLines: true,
+                        trim: true,
+                        dynamicTyping: true
                     });
-
+                    const data = parsed.data;
+                    
+                    allData = data.map(item => ({
+                        supermarket: item['اسم السوبر ماركت'] || 'غير متاح',
+                        product: item['الاسم بالعربية'] || item['اسم المنتج (الأساسي)'] || 'غير متاح',
+                        category: item['الفئة'] || 'غير متاح',
+                        brand: item['اسم العلامة التجارية'] || 'غير متاح',
+                        originalPrice: parseFloat(item['السعر الأصلي']) || 0,
+                        currentPrice: parseFloat(item['السعر الحالي']) || 0,
+                        discount: parseFloat(item['الخصم %']) || 0,
+                        promotion: item['العبارة الترويجية'] || 'غير متاح',
+                        validUntil: String(item['فترة سريان العرض'] || '').split(' to ')[1] || 'غير متاح',
+                        currency: item['العملة'] || 'EGP'
+                    }));
+                    
                     try {
                         localStorage.setItem(CACHE_KEY, LZString.compressToUTF16(JSON.stringify(allData)));
                         localStorage.setItem(`${CACHE_KEY}_time`, Date.now());
@@ -576,234 +528,66 @@
                         console.log('Caching failed (data too large)', e);
                     }
                 }
-
+                
                 initializeFilters();
-                applyFilters(); // renders table & stats & banner & carousel
-
+                applyFilters();
+                updateStats();
+                renderCarousel();
+                
                 document.getElementById('loading').style.display = 'none';
                 document.getElementById('data-table').style.display = 'block';
+                
             } catch (error) {
                 console.error('Error fetching data:', error);
-                document.getElementById('loading').textContent = `حدث خطأ أثناء تحميل البيانات: ${error.message}`;
+                document.getElementById('loading').innerHTML = `حدث خطأ أثناء تحميل البيانات: ${error.message}`;
             }
         }
-
-        // --- first small carousel: show minimal info and keep rotating ---
+        
         function renderCarousel() {
             const inner = document.getElementById('carousel-inner');
             inner.innerHTML = '';
-            // choose top discounted items as candidates
-            let candidates = [...allData].filter(i => i.discount && i.discount > 0);
-            const today = new Date();
-
-            // Sort: items ending today first, then earliest endDate, then highest discount
-            candidates.sort((a,b) => {
-                const aToday = isSameDate(a.endDate, today) ? 1 : 0;
-                const bToday = isSameDate(b.endDate, today) ? 1 : 0;
-                if (aToday !== bToday) return bToday - aToday;
-
-                if (a.endDate && b.endDate) {
-                    if (a.endDate.getTime() !== b.endDate.getTime()) return a.endDate - b.endDate;
-                } else if (a.endDate && !b.endDate) return -1;
-                else if (!a.endDate && b.endDate) return 1;
-
-                return b.discount - a.discount;
-            });
-
-            // keep a few items to rotate
-            candidates = candidates.slice(0, 8);
-
-            if (candidates.length === 0) {
-                inner.innerHTML = `<div class="carousel-item"><div class="product-title">لا توجد عروض حالياً</div></div>`;
+            const hotDeals = allData.filter(item => item.discount > 20).slice(0, 5);
+            if (hotDeals.length === 0) {
+                inner.innerHTML = '<div class="carousel-item"><h3>لا توجد عروض حارة حالياً</h3></div>';
                 return;
             }
-
-            candidates.forEach(item => {
+            hotDeals.forEach(item => {
                 const div = document.createElement('div');
                 div.classList.add('carousel-item');
                 div.innerHTML = `
-                    <span class="product-title">${item.product}</span>
-                    <span class="meta">${item.supermarket} — ${item.discount}%</span>
+                    <h3>${item.product}</h3>
+                    <p><strong>${item.supermarket}</strong> — خصم ${item.discount}%</p>
+                    <p>كان ${item.originalPrice} ${item.currency} → الآن ${item.currentPrice} ${item.currency}</p>
+                    <p>${item.promotion}</p>
                 `;
-                div.onclick = () => {
-                    const url = supermarketUrls[item.supermarket] || (item.supermarket && supermarketUrls[item.supermarket.trim()]);
-                    if (url) window.open(url, '_blank');
-                };
                 inner.appendChild(div);
             });
-
-            // auto-rotate the minimized carousel every few seconds
-            if (window._carouselInterval) clearInterval(window._carouselInterval);
-            window._carouselInterval = setInterval(() => {
-                carouselIndex = (carouselIndex + 1) % Math.max(1, inner.children.length);
-                inner.style.transform = `translateX(-${carouselIndex * 100}%)`;
-            }, 3500);
+            showSlide(carouselIndex);
         }
 
-        // --- banner (TV-like ticker) ---
-        function renderBanner() {
-            const track = document.getElementById('ticker-track');
-            track.classList.remove('scrolling');
-            track.style.animationDuration = '';
-
-            // pick best items to show on banner:
-            const today = new Date();
-            const items = [...allData].filter(i => i.product).sort((a,b) => {
-                const aToday = isSameDate(a.endDate, today) ? 1 : 0;
-                const bToday = isSameDate(b.endDate, today) ? 1 : 0;
-                if (aToday !== bToday) return bToday - aToday;
-
-                if (b.discount !== a.discount) return b.discount - a.discount;
-                return a.currentPrice - b.currentPrice;
-            }).slice(0, 12);
-
-            if (items.length === 0) {
-                track.innerHTML = `<div class="ticker-item">لا توجد عروض لعرضها</div>`;
-                return;
-            }
-
-            const parts = items.map(it => {
-                const url = supermarketUrls[it.supermarket] || (it.supermarket && supermarketUrls[it.supermarket.trim()]) || '#';
-                const text = `${it.supermarket} — ${it.product} : الآن ${it.currentPrice ? it.currentPrice + ' ' + it.currency : 'غير متاح'} — خصم ${it.discount ? it.discount + '%' : '0%'}`;
-                return `<div class="ticker-item"><a href="${url}" target="_blank" rel="noreferrer noopener" title="${text}"><span class="price">${it.currentPrice ? it.currentPrice + ' ' + it.currency : 'غير متاح'}</span> <span>${it.product} — ${it.supermarket}</span> <span class="badge">${it.discount ? it.discount + '%' : ''}</span></a></div>`;
-            });
-
-            // Duplicate content to allow seamless looping
-            track.innerHTML = parts.join('') + parts.join('');
-
-            const duration = Math.max(16, items.length * 4); // seconds
-            track.style.animationDuration = `${duration}s`;
-            setTimeout(() => track.classList.add('scrolling'), 50);
+        function showSlide(index) {
+            const inner = document.getElementById('carousel-inner');
+            const items = inner.children;
+            if (items.length === 0) return;
+            carouselIndex = (index + items.length) % items.length;
+            inner.style.transform = `translateX(-${carouselIndex * 100}%)`;
         }
 
-        // --- pagination: improved UI so First / Prev / Next / Last are always visible ---
-        function updatePagination() {
-            const pagination = document.getElementById('pagination');
-            pagination.innerHTML = '';
+        function prevSlide() { showSlide(carouselIndex - 1); }
+        function nextSlide() { showSlide(carouselIndex + 1); }
 
-            const totalPages = Math.max(1, Math.ceil(filteredData.length / itemsPerPage));
-
-            // First button
-            const firstBtn = document.createElement('button');
-            firstBtn.className = 'control-btn';
-            firstBtn.textContent = 'الأولى';
-            firstBtn.title = 'الصفحة الأولى';
-            firstBtn.onclick = () => {
-                if (currentPage !== 1) {
-                    currentPage = 1;
-                    renderTable();
-                    updatePagination();
-                    centerActivePageButton();
-                }
-            };
-            firstBtn.disabled = currentPage === 1;
-            pagination.appendChild(firstBtn);
-
-            // Previous button
-            const prevBtn = document.createElement('button');
-            prevBtn.className = 'control-btn';
-            prevBtn.textContent = 'السابق';
-            prevBtn.title = 'الصفحة السابقة';
-            prevBtn.onclick = () => {
-                if (currentPage > 1) {
-                    currentPage--;
-                    renderTable();
-                    updatePagination();
-                    centerActivePageButton();
-                }
-            };
-            prevBtn.disabled = currentPage === 1;
-            pagination.appendChild(prevBtn);
-
-            // Page numbers scrollable container
-            const pageNumbers = document.createElement('div');
-            pageNumbers.className = 'page-numbers';
-            pageNumbers.id = 'page-numbers';
-
-            // Create buttons for all pages but they will be horizontally scrollable.
-            // If total pages are extremely many, we still create them but you can refine to windowed pages later.
-            for (let i = 1; i <= totalPages; i++) {
-                const btn = document.createElement('button');
-                btn.textContent = i;
-                btn.setAttribute('aria-label', 'الصفحة ' + i);
-                if (i === currentPage) btn.classList.add('active');
-                btn.onclick = ((page) => () => {
-                    if (currentPage !== page) {
-                        currentPage = page;
-                        renderTable();
-                        updatePagination();
-                        centerActivePageButton();
-                    }
-                })(i);
-                pageNumbers.appendChild(btn);
-            }
-
-            pagination.appendChild(pageNumbers);
-
-            // Next button
-            const nextBtn = document.createElement('button');
-            nextBtn.className = 'control-btn';
-            nextBtn.textContent = 'التالي';
-            nextBtn.title = 'الصفحة التالية';
-            nextBtn.onclick = () => {
-                if (currentPage < totalPages) {
-                    currentPage++;
-                    renderTable();
-                    updatePagination();
-                    centerActivePageButton();
-                }
-            };
-            nextBtn.disabled = currentPage === totalPages;
-            pagination.appendChild(nextBtn);
-
-            // Last button
-            const lastBtn = document.createElement('button');
-            lastBtn.className = 'control-btn';
-            lastBtn.textContent = 'الأخيرة';
-            lastBtn.title = 'الصفحة الأخيرة';
-            lastBtn.onclick = () => {
-                if (currentPage !== totalPages) {
-                    currentPage = totalPages;
-                    renderTable();
-                    updatePagination();
-                    centerActivePageButton();
-                }
-            };
-            lastBtn.disabled = currentPage === totalPages;
-            pagination.appendChild(lastBtn);
-
-            // Small helper: ensure active page button is visible (centered)
-            setTimeout(centerActivePageButton, 80);
-        }
-
-        // Scroll the page-numbers container so the active page button is visible
-        function centerActivePageButton() {
-            const container = document.getElementById('page-numbers');
-            if (!container) return;
-            const active = container.querySelector('button.active');
-            if (!active) return;
-            // try to center the active button in the scroll area
-            const containerRect = container.getBoundingClientRect();
-            const activeRect = active.getBoundingClientRect();
-            const offset = (activeRect.left + activeRect.right) / 2 - (containerRect.left + containerRect.right) / 2;
-            container.scrollBy({ left: offset, behavior: 'smooth' });
-        }
-
-        // --- rest of UI (filtering, table, pagination, etc.) ---
         function initializeFilters() {
-            const supermarketSelect = document.getElementById('supermarket-filter');
-            supermarketSelect.innerHTML = '<option value="">كل السوبر ماركت</option>';
             const supermarkets = [...new Set(allData.map(item => item.supermarket))].filter(Boolean);
+            const supermarketSelect = document.getElementById('supermarket-filter');
             supermarkets.forEach(supermarket => {
                 const option = document.createElement('option');
                 option.value = supermarket;
                 option.textContent = supermarket;
                 supermarketSelect.appendChild(option);
             });
-
-            const categorySelect = document.getElementById('category-filter');
-            categorySelect.innerHTML = '<option value="">كل الفئات</option>';
+            
             const categories = [...new Set(allData.map(item => item.category))].filter(Boolean);
+            const categorySelect = document.getElementById('category-filter');
             categories.forEach(category => {
                 const option = document.createElement('option');
                 option.value = category;
@@ -813,10 +597,7 @@
 
             const searchInput = document.getElementById('search-input');
             searchInput.addEventListener('input', showAutocomplete);
-            document.addEventListener('click', (e) => {
-                const list = document.getElementById('autocomplete-list');
-                if (!e.target.closest('#autocomplete-list') && e.target.id !== 'search-input') list.innerHTML = '';
-            });
+            document.addEventListener('click', () => document.getElementById('autocomplete-list').innerHTML = '');
 
             document.getElementById('sort-by').addEventListener('change', applyFilters);
         }
@@ -826,7 +607,7 @@
             const list = document.getElementById('autocomplete-list');
             list.innerHTML = '';
             if (!val) return;
-            const suggestions = [...new Set(allData.map(item => item.product).concat(allData.map(item => item.brand)))].filter(s => s && s.toLowerCase().includes(val)).slice(0, 10);
+            const suggestions = [...new Set(allData.map(item => item.product).concat(allData.map(item => item.brand)))].filter(s => s.toLowerCase().includes(val)).slice(0, 10);
             suggestions.forEach(s => {
                 const div = document.createElement('div');
                 div.textContent = s;
@@ -847,7 +628,7 @@
             const minPrice = parseFloat(document.getElementById('min-price').value) || 0;
             const maxPrice = parseFloat(document.getElementById('max-price').value) || Infinity;
             const sort = document.getElementById('sort-by').value;
-
+            
             filteredData = allData.filter(item => {
                 const matchesSearch = !search || (item.product && item.product.toLowerCase().includes(search)) || (item.brand && item.brand.toLowerCase().includes(search));
                 const matchesSupermarket = !supermarket || item.supermarket === supermarket;
@@ -856,20 +637,19 @@
                 const matchesPrice = item.currentPrice >= minPrice && item.currentPrice <= maxPrice;
                 return matchesSearch && matchesSupermarket && matchesCategory && matchesDiscount && matchesPrice;
             });
-
-            if (sort === 'discount-desc') filteredData.sort((a, b) => b.discount - a.discount);
-            else if (sort === 'price-asc') filteredData.sort((a, b) => a.currentPrice - b.currentPrice);
-
+            
+            if (sort === 'discount-desc') {
+                filteredData.sort((a, b) => b.discount - a.discount);
+            } else if (sort === 'price-asc') {
+                filteredData.sort((a, b) => a.currentPrice - b.currentPrice);
+            }
+            
             currentPage = 1;
             renderTable();
             updateStats();
             updatePagination();
-
-            // Update banner & carousel
-            renderBanner();
-            renderCarousel();
         }
-
+        
         function resetFilters() {
             document.getElementById('search-input').value = '';
             document.getElementById('supermarket-filter').value = '';
@@ -880,24 +660,25 @@
             document.getElementById('sort-by').value = '';
             applyFilters();
         }
-
+        
         function renderTable() {
             const tableBody = document.getElementById('table-body');
             tableBody.innerHTML = '';
-
+            
             const startIndex = (currentPage - 1) * itemsPerPage;
-            const pageData = filteredData.slice(startIndex, startIndex + itemsPerPage);
-
+            const endIndex = startIndex + itemsPerPage;
+            const pageData = filteredData.slice(startIndex, endIndex);
+            
             pageData.forEach(item => {
                 const row = document.createElement('tr');
-
-                const url = supermarketUrls[item.supermarket] || (item.supermarket && supermarketUrls[item.supermarket.trim()]);
+                
+                const url = supermarketUrls[item.supermarket] || supermarketUrls[item.supermarket.trim()];
                 if (url) {
                     row.style.cursor = 'pointer';
                     row.title = `زيارة موقع ${item.supermarket}`;
                     row.onclick = () => window.open(url, '_blank');
                 }
-
+                
                 row.innerHTML = `
                     <td>${item.supermarket || 'غير متاح'}</td>
                     <td>${item.product || 'غير متاح'}</td>
@@ -909,30 +690,41 @@
                     <td>${item.promotion || 'غير متاح'}</td>
                     <td>${item.validUntil || 'غير متاح'}</td>
                 `;
-
-                if (item.discount && item.discount > 20) row.classList.add('highlight');
-
+                
+                if (item.discount && item.discount > 20) {
+                    row.classList.add('highlight');
+                }
+                
                 tableBody.appendChild(row);
             });
         }
-
+        
         function updateStats() {
             document.getElementById('total-offers').textContent = filteredData.length;
+            
             const discounts = filteredData.filter(item => item.discount).map(item => item.discount);
-            const avgDiscount = discounts.length > 0 ? Math.round(discounts.reduce((a, b) => a + b) / discounts.length) : 0;
+            const avgDiscount = discounts.length > 0 ? 
+                Math.round(discounts.reduce((a, b) => a + b) / discounts.length) : 0;
             document.getElementById('avg-discount').textContent = `${avgDiscount}%`;
+            
             const supermarkets = [...new Set(filteredData.map(item => item.supermarket).filter(Boolean))];
             document.getElementById('supermarket-count').textContent = supermarkets.length;
+            
             const categories = [...new Set(filteredData.map(item => item.category).filter(Boolean))];
             document.getElementById('category-count').textContent = categories.length;
         }
-
+        
         function toggleChart() {
             const container = document.getElementById('chart-container');
             container.style.display = container.style.display === 'none' ? 'block' : 'none';
             if (chart) chart.destroy();
             const ctx = document.getElementById('stats-chart').getContext('2d');
-            const discountRanges = { '0-10%': 0, '11-20%': 0, '21-30%': 0, '30+%': 0 };
+            const discountRanges = {
+                '0-10%': 0,
+                '11-20%': 0,
+                '21-30%': 0,
+                '30+%': 0
+            };
             filteredData.forEach(item => {
                 if (item.discount <= 10) discountRanges['0-10%']++;
                 else if (item.discount <= 20) discountRanges['11-20%']++;
@@ -941,13 +733,63 @@
             });
             chart = new Chart(ctx, {
                 type: 'pie',
-                data: { labels: Object.keys(discountRanges), datasets: [{ data: Object.values(discountRanges), backgroundColor: ['#ff6384','#36a2eb','#ffce56','#4bc0c0'] }] },
+                data: {
+                    labels: Object.keys(discountRanges),
+                    datasets: [{ data: Object.values(discountRanges), backgroundColor: ['#ff6384', '#36a2eb', '#ffce56', '#4bc0c0'] }]
+                },
                 options: { responsive: true }
             });
         }
-
+        
+        function updatePagination() {
+            const pagination = document.getElementById('pagination');
+            pagination.innerHTML = '';
+            
+            const totalPages = Math.ceil(filteredData.length / itemsPerPage);
+            
+            if (totalPages <= 1) return;
+            
+            const prevButton = document.createElement('button');
+            prevButton.textContent = '←';
+            prevButton.disabled = currentPage === 1;
+            prevButton.onclick = () => {
+                if (currentPage > 1) {
+                    currentPage--;
+                    renderTable();
+                    updatePagination();
+                }
+            };
+            pagination.appendChild(prevButton);
+            
+            for (let i = 1; i <= totalPages; i++) {
+                const button = document.createElement('button');
+                button.textContent = i;
+                if (i === currentPage) {
+                    button.classList.add('active');
+                }
+                button.onclick = () => {
+                    currentPage = i;
+                    renderTable();
+                    updatePagination();
+                };
+                pagination.appendChild(button);
+            }
+            
+            const nextButton = document.createElement('button');
+            nextButton.textContent = '→';
+            nextButton.disabled = currentPage === totalPages;
+            nextButton.onclick = () => {
+                if (currentPage < totalPages) {
+                    currentPage++;
+                    renderTable();
+                    updatePagination();
+                }
+            };
+            pagination.appendChild(nextButton);
+        }
+        
         function exportToCSV() {
-            const headers = ['اسم السوبر ماركت','المنتج','الفئة','العلامة التجارية','السعر الأصلي','السعر الحالي','الخصم','العبارة الترويجية','ساري حتى'];
+            const headers = ['اسم السوبر ماركت', 'المنتج', 'الفئة', 'العلامة التجارية', 'السعر الأصلي', 'السعر الحالي', 'الخصم', 'العبارة الترويجية', 'ساري حتى'];
             const csvData = [
                 headers.join(','),
                 ...filteredData.map(item => [
@@ -962,27 +804,21 @@
                     item.validUntil
                 ].join(','))
             ].join('\n');
-
+            
             const blob = new Blob([csvData], { type: 'text/csv;charset=utf-8;' });
             const link = document.createElement('a');
             const url = URL.createObjectURL(blob);
+            
             link.setAttribute('href', url);
             link.setAttribute('download', 'supermarket_offers.csv');
             link.style.visibility = 'hidden';
+            
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
         }
-
+        
         document.addEventListener('DOMContentLoaded', fetchData);
-
-        // Recompute banner & carousel if window/tab becomes visible (to resume animation)
-        document.addEventListener('visibilitychange', () => {
-            if (!document.hidden) {
-                renderBanner();
-                renderCarousel();
-            }
-        });
     </script>
 </body>
 </html>
