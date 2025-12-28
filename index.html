@@ -269,7 +269,7 @@
                 <button class="carousel-next" aria-label="التالي" onclick="nextSlide()">›</button>
             </div>
 
-            <!-- Banner ticker (single banner only) -->
+            <!-- Banner ticker (kept as is) -->
             <div class="banner-ticker" role="region" aria-label="شريط العروض المميزة">
                 <div class="ticker-viewport" id="ticker-viewport" aria-live="polite">
                     <div class="ticker-track" id="ticker-track"></div>
@@ -329,7 +329,7 @@
                         <th>السعر الأصلي</th>
                         <th>السعر الحالي</th>
                         <th>الخصم</th>
-                        <th>العبارة الترويجية</th>
+                        <th>اسم المنتج (الأساسي)</th>
                         <th>ساري حتى</th>
                     </tr>
                 </thead>
@@ -388,7 +388,6 @@
             return isValidDate(d) ? d : null;
         }
         function isValidDate(d) { return d instanceof Date && !isNaN(d.getTime()); }
-        // robust isSameDate to avoid calling getFullYear on non-Date
         function isSameDate(a,b){ if(!isValidDate(a)||!isValidDate(b)) return false; return a.getFullYear()===b.getFullYear() && a.getMonth()===b.getMonth() && a.getDate()===b.getDate(); }
         function formatDateShort(d){ if(!isValidDate(d)) return 'غير متاح'; const y=d.getFullYear(), m=String(d.getMonth()+1).padStart(2,'0'), day=String(d.getDate()).padStart(2,'0'); return `${y}-${m}-${day}`; }
 
@@ -412,6 +411,27 @@
             });
         }
 
+        function computeCombinedScore(arr){
+            // normalize _saved and _discount_pct into 0..1 and compute score = max(norm_saved, norm_pct)
+            const savedValues = arr.map(i=>i._saved||0);
+            const pctValues = arr.map(i=>i._discount_pct||0);
+
+            const maxSaved = Math.max(...savedValues, 0);
+            const minSaved = Math.min(...savedValues, 0);
+            const maxPct = Math.max(...pctValues, 0);
+            const minPct = Math.min(...pctValues, 0);
+
+            const savedRange = (maxSaved - minSaved) || 1;
+            const pctRange = (maxPct - minPct) || 1;
+
+            arr.forEach(item=>{
+                const normSaved = ((item._saved||0) - minSaved) / savedRange;
+                const normPct = ((item._discount_pct||0) - minPct) / pctRange;
+                // score selects the stronger signal between absolute saving and percentage saving
+                item._score = Math.max(normSaved, normPct);
+            });
+        }
+
         async function fetchData() {
             try {
                 document.getElementById('loading').style.display = 'block';
@@ -419,14 +439,8 @@
                 const cached = localStorage.getItem(CACHE_KEY);
                 const cachedTime = localStorage.getItem(`${CACHE_KEY}_time`);
                 if (cached && cachedTime && Date.now() - cachedTime < CACHE_EXPIRY) {
-                    try {
-                        const decompressed = LZString.decompressFromUTF16(cached);
-                        allData = JSON.parse(decompressed);
-                    } catch(e){
-                        console.warn('Cache decompress/parse failed, fetching fresh', e);
-                    }
-                }
-                if(!allData || !allData.length){
+                    allData = JSON.parse(LZString.decompressFromUTF16(cached));
+                } else {
                     const response = await fetch(DATA_URL);
                     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
                     const dataText = await response.text();
@@ -438,7 +452,8 @@
                         const validUntilStr = endDateObj ? formatDateShort(endDateObj) : (String(rawPeriod).split(/to|إلى|حتى|–|—|-|~/i).slice(-1)[0] || 'غير متاح');
                         return {
                             supermarket: item['اسم السوبر ماركت'] || 'غير متاح',
-                            product: item['الاسم بالعربية'] || item['اسم المنتج (الأساسي)'] || 'غير متاح',
+                            product: item['الاسم بالعربية'] || 'غير متاح',
+                            primaryName: item['اسم المنتج (الأساسي)'] || item['اسم المنتج'] || item['Product'] || 'غير متاح',
                             category: item['الفئة'] || 'غير متاح',
                             brand: item['اسم العلامة التجارية'] || 'غير متاح',
                             originalPrice: parseFloat(item['السعر الأصلي']) || 0,
@@ -447,21 +462,24 @@
                             promotion: item['العبارة الترويجية'] || 'غير متاح',
                             rawPeriod, endDate: endDateObj, validUntil: validUntilStr,
                             currency: item['العملة'] || 'EGP',
-                            solution_key: (item['solution_key'] || item['solution key'] || item['Solution_key'] || item['solutionKey'] || '')  // <- added solution_key
+                            solution_key: (item['solution_key'] || item['solution key'] || item['Solution_key'] || item['solutionKey'] || '') 
                         };
                     });
                     try { localStorage.setItem(CACHE_KEY, LZString.compressToUTF16(JSON.stringify(allData))); localStorage.setItem(`${CACHE_KEY}_time`, Date.now()); }
                     catch(e){ console.log('Caching failed', e); }
                 }
 
-                // --- NEW: compute saved & discount once and sort allData so initial screen shows biggest savings first ---
+                // compute saved & discount
                 computeSavedAndDiscount(allData);
-                // Sort by saved value desc, then discount pct desc (so biggest monetary saving appears first)
+                // compute combined score that picks the stronger signal (amount or percent)
+                computeCombinedScore(allData);
+
+                // Sort by combined score desc, then by absolute saved, then by percent
                 allData.sort((a,b)=>{
+                    if((b._score||0) !== (a._score||0)) return (b._score||0) - (a._score||0);
                     if((b._saved||0) !== (a._saved||0)) return (b._saved||0) - (a._saved||0);
                     return (b._discount_pct||0) - (a._discount_pct||0);
                 });
-                // End NEW
 
                 initializeFilters();
                 applyFilters(); // renders table + pagination + banner + carousel
@@ -477,18 +495,15 @@
         function renderCarousel() {
             const inner = document.getElementById('carousel-inner');
             inner.innerHTML = '';
-            // use sorted allData so carousel shows top saved items first
-            let candidates = [...allData].filter(i => i._saved && i._saved > 0);
+            // use sorted allData by _score so carousel shows best items first
+            let candidates = [...allData].filter(i => (i._score && i._score > 0) || (i._saved && i._saved>0));
             const today = new Date();
             candidates.sort((a,b) => {
                 const aToday = isSameDate(a.endDate, today) ? 1 : 0;
                 const bToday = isSameDate(b.endDate, today) ? 1 : 0;
                 if (aToday !== bToday) return bToday - aToday;
-                if (isValidDate(a.endDate) && isValidDate(b.endDate)) {
-                    if (a.endDate.getTime() !== b.endDate.getTime()) return a.endDate - b.endDate;
-                } else if (isValidDate(a.endDate) && !isValidDate(b.endDate)) return -1;
-                else if (!isValidDate(a.endDate) && isValidDate(b.endDate)) return 1;
-                // keep primary order by _saved (already sorted), but ensure stable sorting
+                // primary: _score (already sorted), ensure stable ordering
+                if((b._score||0) !== (a._score||0)) return (b._score||0) - (a._score||0);
                 if((b._saved||0) !== (a._saved||0)) return (b._saved||0) - (a._saved||0);
                 return (b._discount_pct||0) - (a._discount_pct||0);
             });
@@ -501,9 +516,8 @@
                 const div = document.createElement('div');
                 div.className = 'carousel-item';
                 div.innerHTML = `<span class="product-title">${item.product}</span><span class="meta">${item.supermarket} — ${item._discount_pct}%</span>`;
-                // compute flyer URL (preferred) else fallback
-                const flyerUrl = item.solution_key ? `https://www.yabalashoffers.com/flyer.php?d=${encodeURIComponent(item.solution_key)}&c=eg` : (supermarketUrls[item.supermarket] || (item.supermarket && supermarketUrls[item.supermarket.trim()]) || null);
-                if(flyerUrl) div.onclick = ()=>window.open(flyerUrl,'_blank');
+                const url = item.solution_key ? `https://www.yabalashoffers.com/flyer.php?d=${encodeURIComponent(item.solution_key)}&c=eg` : (supermarketUrls[item.supermarket] || (item.supermarket && supermarketUrls[item.supermarket.trim()]));
+                if(url) div.onclick = ()=>window.open(url,'_blank');
                 inner.appendChild(div);
             });
             if (window._carouselInterval) clearInterval(window._carouselInterval);
@@ -513,7 +527,7 @@
             }, 3500);
         }
 
-        // Choose banner items by largest saved amount (we already computed _saved) and show top 20
+        // Choose banner items by combined score (top 20)
         function renderBanner() {
             const track = document.getElementById('ticker-track');
             if(!track) return;
@@ -521,11 +535,11 @@
             track.style.animationDuration = '';
             const today = new Date();
 
-            // use precomputed _saved/_discount_pct values and pick top 20
+            // pick top 20 by _score
             const items = [...allData].filter(i=>i.product).sort((a,b)=>{
+                if((b._score||0)!==(a._score||0)) return (b._score||0)-(a._score||0);
                 if((b._saved||0)!==(a._saved||0)) return (b._saved||0)-(a._saved||0);
-                if((b._discount_pct||0)!==(a._discount_pct||0)) return (b._discount_pct||0)-(a._discount_pct||0);
-                return (a._curr||0)-(b._curr||0);
+                return (b._discount_pct||0)-(a._discount_pct||0);
             }).slice(0,20);
 
             if(items.length===0){ track.innerHTML = `<div class="ticker-item">لا توجد عروض لعرضها</div>`; return; }
@@ -540,16 +554,13 @@
                 return `<div class="ticker-item"><a href="${url}" target="_blank" rel="noreferrer noopener" title="${title}"><span class="price">${priceText}</span> <span>${it.product} — ${it.supermarket}</span> ${badge}${savedBadge}</a></div>`;
             });
 
-            // duplicate for seamless loop
             track.innerHTML = parts.join('') + parts.join('');
-
-            // faster animation for 20 items: base 10s + 0.9s per item, cap 35s
             const duration = Math.min(35, Math.max(8, items.length * 0.9 + 10));
             track.style.animationDuration = `${duration}s`;
             setTimeout(()=>track.classList.add('scrolling'), 50);
         }
 
-        // pagination
+        // pagination, filters, table rendering unchanged except table already shows primaryName column
         function updatePagination() {
             const pagination = document.getElementById('pagination');
             pagination.innerHTML = '';
@@ -653,10 +664,9 @@
                 return matchesSearch && matchesSupermarket && matchesCategory && matchesDiscount && matchesPrice;
             });
 
-            // Respect user sort selection; if none, keep the initial ordering (which is by saved value)
+            // Respect user sort selection. If user didn't select a sort, keep pre-sorted by _score.
             if(sort==='discount-desc') filteredData.sort((a,b)=>b._discount_pct-a._discount_pct);
             else if(sort==='price-asc') filteredData.sort((a,b)=>a.currentPrice-b.currentPrice);
-            // else: do not reorder (keep pre-sorted by saved value)
 
             currentPage = 1;
             renderTable();
@@ -684,10 +694,8 @@
             const pageData = filteredData.slice(start, start+itemsPerPage);
             pageData.forEach(item=>{
                 const tr = document.createElement('tr');
-                // compute flyer URL (preferred) else fallback
-                const flyerUrl = item.solution_key ? `https://www.yabalashoffers.com/flyer.php?d=${encodeURIComponent(item.solution_key)}&c=eg` :
-                    (supermarketUrls[item.supermarket] || (item.supermarket && supermarketUrls[item.supermarket.trim()]) || null);
-                if(flyerUrl){ tr.style.cursor='pointer'; tr.title=`زيارة العروض`; tr.onclick = ()=>window.open(flyerUrl,'_blank'); }
+                const url = item.solution_key ? `https://www.yabalashoffers.com/flyer.php?d=${encodeURIComponent(item.solution_key)}&c=eg` : (supermarketUrls[item.supermarket] || (item.supermarket && supermarketUrls[item.supermarket.trim()]));
+                if(url){ tr.style.cursor='pointer'; tr.title=`زيارة العروض`; tr.onclick = ()=>window.open(url,'_blank'); }
                 tr.innerHTML = `
                     <td>${item.supermarket || 'غير متاح'}</td>
                     <td>${item.product || 'غير متاح'}</td>
@@ -696,7 +704,7 @@
                     <td>${item.originalPrice ? item.originalPrice + ' ' + item.currency : 'غير متاح'}</td>
                     <td>${item.currentPrice ? item.currentPrice + ' ' + item.currency : 'غير متاح'}</td>
                     <td>${item._discount_pct ? `<span class="discount-badge">${item._discount_pct}%</span>` : 'غير متاح'}</td>
-                    <td>${item.promotion || 'غير متاح'}</td>
+                    <td>${item.primaryName || 'غير متاح'}</td>
                     <td>${item.validUntil || 'غير متاح'}</td>
                 `;
                 if(item._discount_pct && item._discount_pct>20) tr.classList.add('highlight');
@@ -731,7 +739,7 @@
         }
 
         function exportToCSV(){
-            const headers = ['اسم السوبر ماركت','المنتج','الفئة','العلامة التجارية','السعر الأصلي','السعر الحالي','الخصم','العبارة الترويجية','ساري حتى'];
+            const headers = ['اسم السوبر ماركت','المنتج','الفئة','العلامة التجارية','السعر الأصلي','السعر الحالي','الخصم','اسم المنتج (الأساسي)','ساري حتى'];
             const csvData = [ headers.join(','), ...filteredData.map(item=>[
                 item.supermarket,
                 `"${(item.product||'').replace(/"/g,'""')}"`,
@@ -740,7 +748,7 @@
                 item.originalPrice,
                 item.currentPrice,
                 item._discount_pct,
-                `"${(item.promotion||'').replace(/"/g,'""')}"`,
+                `"${(item.primaryName||'').replace(/"/g,'""')}"`,
                 item.validUntil
             ].join(',')) ].join('\n');
             const blob = new Blob([csvData], { type:'text/csv;charset=utf-8;' });
@@ -754,7 +762,6 @@
             document.body.removeChild(link);
         }
 
-        // simple handlers for carousel prev/next
         function prevSlide(){
             const inner = document.getElementById('carousel-inner');
             if(!inner) return;
