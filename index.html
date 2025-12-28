@@ -430,7 +430,8 @@
                             discount: parseFloat(item['الخصم %']) || 0,
                             promotion: item['العبارة الترويجية'] || 'غير متاح',
                             rawPeriod, endDate: endDateObj, validUntil: validUntilStr,
-                            currency: item['العملة'] || 'EGP'
+                            currency: item['العملة'] || 'EGP',
+                            solution_key: (item['solution_key'] || item['solution key'] || item['Solution_key'] || item['solutionKey'] || '')  // <- added solution_key
                         };
                     });
                     try { localStorage.setItem(CACHE_KEY, LZString.compressToUTF16(JSON.stringify(allData))); localStorage.setItem(`${CACHE_KEY}_time`, Date.now()); }
@@ -471,7 +472,9 @@
                 const div = document.createElement('div');
                 div.className = 'carousel-item';
                 div.innerHTML = `<span class="product-title">${item.product}</span><span class="meta">${item.supermarket} — ${item.discount}%</span>`;
-                div.onclick = ()=>{ const url = supermarketUrls[item.supermarket] || (item.supermarket && supermarketUrls[item.supermarket.trim()]); if(url) window.open(url,'_blank'); };
+                // compute flyer URL (preferred) else fallback
+                const flyerUrl = item.solution_key ? `https://www.yabalashoffers.com/flyer.php?d=${encodeURIComponent(item.solution_key)}&c=eg` : (supermarketUrls[item.supermarket] || (item.supermarket && supermarketUrls[item.supermarket.trim()]) || null);
+                if(flyerUrl) div.onclick = ()=>window.open(flyerUrl,'_blank');
                 inner.appendChild(div);
             });
             if (window._carouselInterval) clearInterval(window._carouselInterval);
@@ -515,25 +518,25 @@
             }
 
             const parts = chosen.map(it=>{
-                const url = supermarketUrls[it.supermarket] || (it.supermarket && supermarketUrls[it.supermarket.trim()]) || '#';
+                // flyer URL preferred when solution_key exists
+                const flyerUrl = it.solution_key ? `https://www.yabalashoffers.com/flyer.php?d=${encodeURIComponent(it.solution_key)}&c=eg` :
+                    (supermarketUrls[it.supermarket] || (it.supermarket && supermarketUrls[it.supermarket.trim()]) || '#');
                 const priceText = (it.currentPrice && !isNaN(it.currentPrice)) ? `${Number(it.currentPrice).toFixed(2)} ${it.currency||'EGP'}` : 'غير متاح';
                 const savedText = (it._saved && !isNaN(it._saved) && it._saved > 0) ? `${Number(it._saved).toFixed(2)} ${it.currency||'EGP'}` : '';
                 const badge = it.discount ? `<span class="badge">${it.discount}%</span>` : '';
                 const savedBadge = savedText ? `<span class="saved">${savedText}</span>` : '';
                 const title = `${it.product} — ${it.supermarket} — الآن ${priceText} — خصم ${it.discount||0}% — وفر ${savedText||'غير متاح'}`;
-                return `<div class="ticker-item"><a href="${url}" target="_blank" rel="noreferrer noopener" title="${title}"><span class="price">${priceText}</span><span>${it.product}</span>${badge}${savedBadge}</a></div>`;
+                return `<div class="ticker-item"><a href="${flyerUrl}" target="_blank" rel="noreferrer noopener" title="${title}"><span class="price">${priceText}</span> <span>${it.product} — ${it.supermarket}</span> ${badge}${savedBadge}</a></div>`;
             });
-
             // duplicate for seamless loop
             track.innerHTML = parts.join('') + parts.join('');
-
             // animation duration: base 18s + 1.8s per item, capped
             const duration = Math.min(90, Math.max(18, chosen.length * 1.8));
             track.style.animationDuration = `${duration}s`;
             setTimeout(()=>track.classList.add('scrolling'), 50);
         }
 
-        // -- remaining functions are unchanged --
+        // pagination
         function updatePagination() {
             const pagination = document.getElementById('pagination');
             pagination.innerHTML = '';
@@ -666,8 +669,10 @@
             const pageData = filteredData.slice(start, start+itemsPerPage);
             pageData.forEach(item=>{
                 const tr = document.createElement('tr');
-                const url = supermarketUrls[item.supermarket] || (item.supermarket && supermarketUrls[item.supermarket.trim()]);
-                if(url){ tr.style.cursor='pointer'; tr.title=`زيارة موقع ${item.supermarket}`; tr.onclick = ()=>window.open(url,'_blank'); }
+                // compute flyer URL (preferred) else fallback
+                const flyerUrl = item.solution_key ? `https://www.yabalashoffers.com/flyer.php?d=${encodeURIComponent(item.solution_key)}&c=eg` :
+                    (supermarketUrls[item.supermarket] || (item.supermarket && supermarketUrls[item.supermarket.trim()]) || null);
+                if(flyerUrl){ tr.style.cursor='pointer'; tr.title=`زيارة العروض`; tr.onclick = ()=>window.open(flyerUrl,'_blank'); }
                 tr.innerHTML = `
                     <td>${item.supermarket || 'غير متاح'}</td>
                     <td>${item.product || 'غير متاح'}</td>
