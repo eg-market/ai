@@ -4,59 +4,107 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
 <title>لوحة عروض السوبرماركت — مصحح</title>
-<!-- External libs kept as in original for CSV parsing and compression -->
+
+<!-- External libs used by original file -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.0/papaparse.min.js" defer></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/lz-string/1.4.4/lz-string.min.js" defer></script>
-<script src="https://cdn.jsdelivr.net/npm/chart.js" defer></script>
+
 <style>
-  :root{ --bg-1: linear-gradient(135deg,#667eea 0%,#764ba2 100%); --card-bg:#fff; --muted:#666; --accent:#4caf50; --danger:#ff4444; --gap:12px; --radius:12px; --text:#222; --control-height:46px; --base-font:15px; }
+  :root{
+    --bg-1: linear-gradient(135deg,#667eea 0%,#764ba2 100%);
+    --card-bg:#fff;
+    --muted:#666;
+    --accent:#4caf50;
+    --danger:#ff4444;
+    --gap:12px;
+    --radius:12px;
+    --text:#222;
+    --control-height:46px;
+    --base-font:15px;
+    --highlight-yellow:#fff3b0;
+  }
   *{box-sizing:border-box}
-  body{ margin:0; font-family:Inter, "Segoe UI", Roboto, Arial, sans-serif; background:var(--bg-1); color:var(--text); padding:16px; }
+  html,body{height:100%}
+  body{
+    margin:0;
+    font-family:Inter, "Segoe UI", Roboto, Arial, sans-serif;
+    background:var(--bg-1);
+    color:var(--text);
+    padding:16px;
+    -webkit-font-smoothing:antialiased;
+  }
   .container{ max-width:1200px; margin:0 auto; }
-  header{ background:rgba(255,255,255,0.95); border-radius:12px; padding:12px; margin-bottom:12px; text-align:center; box-shadow:0 8px 20px rgba(0,0,0,0.12); }
+  header{ background:rgba(255,255,255,0.95); border-radius:12px; padding:12px; text-align:center; margin-bottom:12px; box-shadow:0 8px 20px rgba(0,0,0,0.12); }
   .controls{ display:flex; gap:8px; flex-wrap:wrap; align-items:center; margin-bottom:12px; }
   input,select,button{ height:var(--control-height); padding:0 12px; border-radius:10px; border:2px solid #eee; background:white; font-size:15px; }
+  .row{ display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
   #data-table{ background:var(--card-bg); border-radius:12px; box-shadow:0 10px 30px rgba(0,0,0,0.12); overflow:hidden; margin-top:12px; padding:8px; }
   table{ width:100%; border-collapse:collapse; font-size:14px; }
   thead th{ background:var(--accent); color:#fff; padding:12px; text-align:left; position:sticky; top:0; }
   tbody td{ padding:10px 12px; border-bottom:1px solid #f0f0f0; }
   .card-list{ display:none }
-  .highlight{ background:#fff3b0 !important; }
+  .highlight{ background:var(--highlight-yellow) !important; }
   #loading{ text-align:center; padding:18px; color:#fff; }
-  #query-log{ height:160px; overflow:auto; border:1px solid #ddd; padding:8px; background:#f9f9f9; white-space:pre-wrap; font-family:monospace; font-size:13px; }
   #autocomplete-list{ position:absolute; z-index:9999; background:white; border-radius:8px; box-shadow:0 6px 18px rgba(0,0,0,0.12); max-height:240px; overflow:auto; }
-  @media (max-width:900px){ .controls{ flex-direction:column; align-items:stretch } .card-list{ display:flex; flex-direction:column } table{ display:none } }
+  .price-controls{ display:flex; gap:8px; align-items:center; }
+  .price-controls button{ width:36px; height:36px; padding:0; font-size:18px; line-height:1; }
+  @media (max-width:900px){
+    .card-list{ display:flex; flex-direction:column }
+    table{ display:none }
+    .controls{ flex-direction:column; align-items:stretch }
+  }
 </style>
 </head>
 <body>
 <div class="container">
   <header>
     <h1>🛒 لوحة عروض السوبرماركت — مصحح</h1>
-    <p>نسخة مُعدّلة: إصلاح بحث العناصر وتسجيل الاستعلامات</p>
+    <p>إصدار مُعدّل: إصلاح البحث وأزرار السعر</p>
   </header>
 
   <div class="controls" role="region" aria-label="عناصر التحكم">
-    <input id="search-input" type="text" placeholder="ابحث عن منتجات أو علامات تجارية..." aria-label="حقل البحث" />
-    <select id="supermarket-filter" aria-label="تصفية حسب السوبر ماركت"><option value="">كل السوبر ماركت</option></select>
-    <select id="category-filter" aria-label="تصفية حسب الفئة"><option value="">كل الفئات</option></select>
-    <input id="min-price" type="number" placeholder="الحد الأدنى للسعر" aria-label="الحد الأدنى للسعر" />
-    <input id="max-price" type="number" placeholder="الحد الأعلى للسعر" aria-label="الحد الأعلى للسعر" />
-    <select id="sort-by" aria-label="فرز حسب">
-      <option value="">فرز حسب</option>
-      <option value="discount-desc">الخصم % - تنازلي</option>
-      <option value="price-asc">السعر - تصاعدي</option>
-    </select>
-    <input id="min-discount" type="number" placeholder="الحد الأدنى للخصم %" aria-label="الحد الأدنى للخصم" />
-    <button id="apply-btn" aria-label="تطبيق الفلاتر">🔍 تطبيق</button>
-    <button id="reset-btn" aria-label="إعادة تعيين">إعادة تعيين</button>
+    <div class="row" style="flex:1;">
+      <input id="search-input" type="text" placeholder="ابحث عن منتجات أو علامات تجارية..." aria-label="حقل البحث" />
+      <select id="supermarket-filter" aria-label="تصفية حسب السوبر ماركت"><option value="">كل السوبر ماركت</option></select>
+      <select id="category-filter" aria-label="تصفية حسب الفئة"><option value="">كل الفئات</option></select>
+    </div>
+
+    <div class="row" style="width:100%; gap:6px;">
+      <!-- Min price with controls -->
+      <div class="price-controls" style="align-items:center;">
+        <button id="min-decrease" type="button" aria-label="نقص الحد الأدنى">−</button>
+        <input id="min-price" type="number" placeholder="الحد الأدنى للسعر" aria-label="الحد الأدنى للسعر" step="0.5" min="0" />
+        <button id="min-increase" type="button" aria-label="زيادة الحد الأدنى">+</button>
+      </div>
+
+      <!-- Max price with controls -->
+      <div class="price-controls" style="align-items:center;">
+        <button id="max-decrease" type="button" aria-label="نقص الحد الأقصى">−</button>
+        <input id="max-price" type="number" placeholder="الحد الأعلى للسعر" aria-label="الحد الأعلى للسعر" step="0.5" min="0" />
+        <button id="max-increase" type="button" aria-label="زيادة الحد الأقصى">+</button>
+      </div>
+
+      <select id="sort-by" aria-label="فرز حسب">
+        <option value="">فرز حسب</option>
+        <option value="discount-desc">الخصم % - تنازلي</option>
+        <option value="price-asc">السعر - تصاعدي</option>
+      </select>
+
+      <input id="min-discount" type="number" placeholder="الحد الأدنى للخصم %" aria-label="الحد الأدنى للخصم" />
+
+      <div style="display:flex;gap:8px;">
+        <!-- Apply button removed as requested -->
+        <button id="reset-btn" aria-label="إعادة تعيين">إعادة تعيين</button>
+      </div>
+    </div>
   </div>
 
   <div class="stats" style="display:flex;gap:12px;margin-bottom:12px;">
-    <div style="background:var(--card-bg);padding:10px;border-radius:10px;box-shadow:0 6px 18px rgba(0,0,0,0.06);min-width:120px;">
+    <div style="background:var(--card-bg);padding:10px;border-radius:10px;min-width:120px;">
       <div style="font-size:13px;color:var(--muted)">إجمالي العروض</div>
       <div id="total-offers" style="font-weight:700;font-size:18px">0</div>
     </div>
-    <div style="background:var(--card-bg);padding:10px;border-radius:10px;box-shadow:0 6px 18px rgba(0,0,0,0.06);min-width:120px;">
+    <div style="background:var(--card-bg);padding:10px;border-radius:10px;min-width:120px;">
       <div style="font-size:13px;color:var(--muted)">متوسط الخصم</div>
       <div id="avg-discount" style="font-weight:700;font-size:18px">0%</div>
     </div>
@@ -84,63 +132,45 @@
     <div class="card-list" id="card-list" aria-hidden="true"></div>
     <div class="pagination" id="pagination" role="navigation" aria-label="تنقل الصفحات"></div>
   </div>
-
-  <h3>سجل الاستعلامات (Query Log)</h3>
-  <div id="query-log">لا توجد سجلات بعد.</div>
 </div>
 
 <script>
-/* ======= Configuration (keep your DATA_URL) ======= */
+/* ================= Configuration ================= */
 const DATA_URL = 'https://script.google.com/macros/s/AKfycbzD-TIVSoc4BxNhfytOM2Sbzs156Iht420hS2XCSRZkAuNIbBPnVYxQhTVEohgv0u-Fsg/exec';
 const CACHE_KEY = 'offersData';
 const CACHE_EXPIRY = 3600000; // 1 hour
 /* ================================================= */
 
-/* State */
 let allData = [];
 let filteredData = [];
 let currentPage = 1;
 const itemsPerPage = 20;
-let carouselInterval = null;
+let debounceTimer = null;
 
-/* Query log */
-const logStore = [];
-const logEl = document.getElementById('query-log');
-
-/* Utility helpers */
-function nowISO(){ return new Date().toISOString(); }
-function appendLog(entry){
-  logStore.push({ts: nowISO(), ...entry});
-  renderLogs();
-  console.log('[QueryLog]', JSON.stringify(logStore[logStore.length-1]));
-}
-function renderLogs(){
-  if(!logStore.length){ logEl.textContent = 'لا توجد سجلات بعد.'; return; }
-  logEl.textContent = logStore.map(l => `${l.ts} | q="${l.query}" supermarket="${l.supermarket}" category="${l.category}" minPrice=${l.minPrice} maxPrice=${l.maxPrice} minDiscount=${l.minDiscount} sort="${l.sort}" results=${l.results}`).join('\\n');
-}
-
-/* Debounce */
+/* Debounce helper */
 function debounce(fn, wait=250){
-  let t;
-  return function(...a){ clearTimeout(t); t = setTimeout(()=>fn.apply(this,a), wait); };
+  return function(...args){
+    clearTimeout(debounceTimer);
+    debounceTimer = setTimeout(()=>fn.apply(this,args), wait);
+  };
 }
 
-/* Date helpers (kept from original) */
+/* Date parsing helpers */
 function parseEndDate(period){
   if (!period) return null;
   const s = String(period);
   const parts = s.split(/to|إلى|حتى|–|—|-|~/i).map(p=>p.trim()).filter(Boolean);
   let candidate = parts.length>1 ? parts[parts.length-1] : parts[0];
-  candidate = candidate.replace(/^(من|إلى|حتى)\\s*/i,'').trim();
+  candidate = candidate.replace(/^(من|إلى|حتى)\s*/i,'').trim();
   let d = new Date(candidate);
   if (isNaN(d)) {
-    const dm = candidate.match(/(\\d{1,2})[\\/\\.-](\\d{1,2})[\\/\\.-](\\d{2,4})/);
+    const dm = candidate.match(/(\d{1,2})[\/\.-](\d{1,2})[\/\.-](\d{2,4})/);
     if (dm){
       let day=dm[1].padStart(2,'0'), month=dm[2].padStart(2,'0'), year=dm[3];
       if (year.length===2) year='20'+year;
       d = new Date(`${year}-${month}-${day}`);
     } else {
-      const ym = candidate.match(/(\\d{4})[\\/\\.-](\\d{1,2})[\\/\\.-](\\d{1,2})/);
+      const ym = candidate.match(/(\d{4})[\/\.-](\d{1,2})[\/\.-](\d{1,2})/);
       if (ym) d = new Date(`${ym[1]}-${ym[2].padStart(2,'0')}-${ym[3].padStart(2,'0')}`);
     }
   }
@@ -176,11 +206,7 @@ function computeCombinedScore(arr){
   });
 }
 
-/* Flyer helper */
-const supermarketUrls = { "2B":"https://2b.com.eg/", "BIM":"https://www.bim.eg/", "Carrefour":"https://www.carrefouregypt.com/mafegy/ar" };
-function flyerFor(item){ if(item.solution_key) return `https://www.yabalashoffers.com/flyer.php?d=${encodeURIComponent(item.solution_key)}&c=eg`; return supermarketUrls[item.supermarket] || '#'; }
-
-/* Rendering */
+/* Rendering functions */
 function renderTable(){
   const tbody = document.getElementById('table-body');
   tbody.innerHTML = '';
@@ -188,7 +214,7 @@ function renderTable(){
   const pageData = filteredData.slice(start, start+itemsPerPage);
   pageData.forEach(item=>{
     const tr = document.createElement('tr');
-    const url = flyerFor(item);
+    const url = item.solution_key ? `https://www.yabalashoffers.com/flyer.php?d=${encodeURIComponent(item.solution_key)}&c=eg` : '#';
     if(url && url!=='#'){ tr.style.cursor='pointer'; tr.title='زيارة العروض'; tr.onclick = ()=>window.open(url, '_blank'); }
     if(item._discount_pct && item._discount_pct >= 20) tr.classList.add('highlight');
     tr.innerHTML = `
@@ -203,50 +229,26 @@ function renderTable(){
     `;
     tbody.appendChild(tr);
   });
-  renderCardList();
+  updatePagination();
 }
-function renderCardList(){
-  const list = document.getElementById('card-list');
-  list.innerHTML = '';
-  const start = (currentPage-1)*itemsPerPage;
-  const pageData = filteredData.slice(start, start+itemsPerPage);
-  pageData.forEach(item=>{
-    const card = document.createElement('article');
-    card.className = 'offer-card';
-    const url = flyerFor(item);
-    if(item._discount_pct && item._discount_pct >= 20) card.classList.add('highlight-card');
-    card.innerHTML = `
-      <div class="left">
-        <h4>${item.product || 'غير متاح'}</h4>
-        <div class="offer-meta">${item.supermarket || 'غير متاح'} — ${item.category || ''}</div>
-        <div style="margin-top:8px">
-          <span class="offer-price">${item.currentPrice ? item.currentPrice + ' ' + (item.currency||'EGP') : 'غير متاح'}</span>
-          ${item._saved ? `<span class="offer-saved">وفر ${item._saved} ${item.currency||'EGP'}</span>` : ''}
-          ${item._discount_pct ? `<span style="margin-left:8px" class="discount-badge">${item._discount_pct}%</span>` : ''}
-        </div>
-      </div>
-    `;
-    if(url && url!=='#') card.addEventListener('click', ()=> window.open(url, '_blank'));
-    list.appendChild(card);
-  });
-}
+
 function updatePagination(){
   const pagination = document.getElementById('pagination');
   pagination.innerHTML = '';
   const totalPages = Math.max(1, Math.ceil(filteredData.length / itemsPerPage));
   const btn = (text, disabled, onClick) => { const b = document.createElement('button'); b.textContent = text; b.disabled = !!disabled; b.addEventListener('click', onClick); return b; };
-  pagination.appendChild(btn('الأولى', currentPage===1, ()=>{ currentPage=1; renderTable(); updatePagination(); }));
-  pagination.appendChild(btn('السابق', currentPage===1, ()=>{ if(currentPage>1){ currentPage--; renderTable(); updatePagination(); }}));
+  pagination.appendChild(btn('الأولى', currentPage===1, ()=>{ currentPage=1; renderTable(); }));
+  pagination.appendChild(btn('السابق', currentPage===1, ()=>{ if(currentPage>1){ currentPage--; renderTable(); }}));
   const pageNumbers = document.createElement('div'); pageNumbers.style.display='flex'; pageNumbers.style.gap='6px'; pageNumbers.style.overflowX='auto';
   for(let i=1;i<=totalPages;i++){
     const p = document.createElement('button'); p.textContent = i;
     if(i===currentPage){ p.style.background = 'var(--accent)'; p.style.color='white'; }
-    p.addEventListener('click', ()=>{ currentPage=i; renderTable(); updatePagination(); });
+    p.addEventListener('click', ()=>{ currentPage=i; renderTable(); });
     pageNumbers.appendChild(p);
   }
   pagination.appendChild(pageNumbers);
-  pagination.appendChild(btn('التالي', currentPage===totalPages, ()=>{ if(currentPage<totalPages){ currentPage++; renderTable(); updatePagination(); }}));
-  pagination.appendChild(btn('الأخيرة', currentPage===totalPages, ()=>{ currentPage=totalPages; renderTable(); updatePagination(); }));
+  pagination.appendChild(btn('التالي', currentPage===totalPages, ()=>{ if(currentPage<totalPages){ currentPage++; renderTable(); }}));
+  pagination.appendChild(btn('الأخيرة', currentPage===totalPages, ()=>{ currentPage=totalPages; renderTable(); }));
 }
 
 /* Stats */
@@ -257,7 +259,7 @@ function updateStats(){
   document.getElementById('avg-discount').textContent = `${avgDiscount}%`;
 }
 
-/* Autocomplete (stable) */
+/* Autocomplete */
 function clearAutocomplete(){
   const list = document.getElementById('autocomplete-list');
   if(list) list.remove();
@@ -283,7 +285,6 @@ function showAutocomplete(){
     });
     list.appendChild(d);
   });
-  // position under input (works for RTL too)
   const rect = document.getElementById('search-input').getBoundingClientRect();
   list.style.left = `${Math.max(8, rect.left + window.scrollX)}px`;
   list.style.top = `${rect.bottom + window.scrollY}px`;
@@ -291,14 +292,23 @@ function showAutocomplete(){
 }
 
 /* Core filtering function */
-function applyFilters(logInvocation = true){
+function applyFilters(){
   const search = (document.getElementById('search-input').value || '').trim().toLowerCase();
   const supermarket = document.getElementById('supermarket-filter').value || '';
   const category = document.getElementById('category-filter').value || '';
   const minDiscount = parseFloat(document.getElementById('min-discount').value) || 0;
-  const minPrice = parseFloat(document.getElementById('min-price').value) || 0;
-  const maxPrice = parseFloat(document.getElementById('max-price').value) || Infinity;
+  const minPriceRaw = document.getElementById('min-price').value;
+  const maxPriceRaw = document.getElementById('max-price').value;
+  const minPrice = minPriceRaw === '' ? 0 : (parseFloat(minPriceRaw) || 0);
+  const maxPrice = maxPriceRaw === '' ? Infinity : (parseFloat(maxPriceRaw) || Infinity);
   const sort = document.getElementById('sort-by').value || '';
+
+  // Normalize min/max: if min > max, swap to keep consistent UX
+  if(isFinite(minPrice) && isFinite(maxPrice) && minPrice > maxPrice){
+    const tmp = document.getElementById('min-price').value;
+    document.getElementById('min-price').value = document.getElementById('max-price').value;
+    document.getElementById('max-price').value = tmp;
+  }
 
   filteredData = allData.filter(item=>{
     const prod = (item.product||'').toString().toLowerCase();
@@ -319,24 +329,62 @@ function applyFilters(logInvocation = true){
   currentPage = 1;
   renderTable();
   updateStats();
-  updatePagination();
-
-  if(logInvocation){
-    appendLog({
-      query: document.getElementById('search-input').value || '',
-      supermarket, category,
-      minPrice: isFinite(minPrice) ? minPrice : '',
-      maxPrice: isFinite(maxPrice) ? (maxPrice===Infinity ? '' : maxPrice) : '',
-      minDiscount, sort,
-      results: filteredData.length
-    });
-  }
 }
 
 /* Debounced wrapper */
-const debouncedApplyFilters = debounce(()=>applyFilters(true), 250);
+const debouncedApplyFilters = debounce(()=>applyFilters(), 250);
 
-/* Initialize filters and event wiring (fix: wire all inputs) */
+/* Price controls wiring and helpers */
+function parseNumberInput(el){
+  const v = parseFloat(el.value);
+  return isFinite(v) ? v : NaN;
+}
+function adjustNumberInput(el, delta){
+  const step = parseFloat(el.step) || 1;
+  const cur = parseNumberInput(el);
+  const base = isNaN(cur) ? 0 : cur;
+  const next = Math.max(0, +(base + delta * step).toFixed(2));
+  el.value = next;
+  debouncedApplyFilters();
+}
+function normalizeMinMax(minEl, maxEl){
+  const minV = parseNumberInput(minEl);
+  const maxV = parseNumberInput(maxEl);
+  if(!isNaN(minV) && !isNaN(maxV) && minV > maxV){
+    const tmp = minEl.value;
+    minEl.value = maxEl.value;
+    maxEl.value = tmp;
+  }
+}
+function wirePriceControls(){
+  const minEl = document.getElementById('min-price');
+  const maxEl = document.getElementById('max-price');
+  const minDec = document.getElementById('min-decrease');
+  const minInc = document.getElementById('min-increase');
+  const maxDec = document.getElementById('max-decrease');
+  const maxInc = document.getElementById('max-increase');
+
+  minDec.addEventListener('click', ()=>{ adjustNumberInput(minEl, -1); });
+  minInc.addEventListener('click', ()=>{ adjustNumberInput(minEl, +1); });
+  maxDec.addEventListener('click', ()=>{ adjustNumberInput(maxEl, -1); });
+  maxInc.addEventListener('click', ()=>{ adjustNumberInput(maxEl, +1); });
+
+  ['input','change','keyup'].forEach(evt=>{
+    minEl.addEventListener(evt, ()=>{
+      normalizeMinMax(minEl, maxEl);
+      debouncedApplyFilters();
+    });
+    maxEl.addEventListener(evt, ()=>{
+      normalizeMinMax(minEl, maxEl);
+      debouncedApplyFilters();
+    });
+  });
+
+  minEl.addEventListener('blur', ()=>{ if(parseNumberInput(minEl) < 0 || isNaN(parseNumberInput(minEl))) minEl.value=''; debouncedApplyFilters(); });
+  maxEl.addEventListener('blur', ()=>{ if(parseNumberInput(maxEl) < 0 || isNaN(parseNumberInput(maxEl))) maxEl.value=''; debouncedApplyFilters(); });
+}
+
+/* Initialize filters and event wiring */
 function initializeFilters(){
   const supermarketSelect = document.getElementById('supermarket-filter');
   supermarketSelect.innerHTML = '<option value="">كل السوبر ماركت</option>';
@@ -350,21 +398,8 @@ function initializeFilters(){
 
   const search = document.getElementById('search-input');
   search.addEventListener('input', ()=>{ showAutocomplete(); debouncedApplyFilters(); });
-  search.addEventListener('keydown', (e)=>{ if(e.key === 'Enter'){ e.preventDefault(); clearAutocomplete(); applyFilters(true); } });
+  search.addEventListener('keydown', (e)=>{ if(e.key === 'Enter'){ e.preventDefault(); clearAutocomplete(); applyFilters(); } });
 
-  // --- FIX: wire numeric inputs and discount to trigger filtering consistently ---
-  document.getElementById('min-price').addEventListener('input', debouncedApplyFilters);
-  document.getElementById('max-price').addEventListener('input', debouncedApplyFilters);
-  document.getElementById('min-discount').addEventListener('input', debouncedApplyFilters);
-
-  supermarketSelect.addEventListener('change', debouncedApplyFilters);
-  categorySelect.addEventListener('change', debouncedApplyFilters);
-  document.getElementById('sort-by').addEventListener('change', debouncedApplyFilters);
-
-  document.getElementById('apply-btn').addEventListener('click', ()=>{ clearAutocomplete(); applyFilters(true); });
-  document.getElementById('reset-btn').addEventListener('click', ()=>{ resetFilters(); appendLog({query:'', supermarket:'', category:'', minPrice:'', maxPrice:'', minDiscount:'', sort:'', results:filteredData.length, note:'reset'}); });
-
-  // clear autocomplete only when clicking outside both input and the list
   document.addEventListener('click', (e)=>{
     const list = document.getElementById('autocomplete-list');
     const input = document.getElementById('search-input');
@@ -373,9 +408,14 @@ function initializeFilters(){
     clearAutocomplete();
   });
 
-  // reposition autocomplete on resize/scroll
-  window.addEventListener('resize', clearAutocomplete);
-  window.addEventListener('scroll', clearAutocomplete);
+  supermarketSelect.addEventListener('change', debouncedApplyFilters);
+  categorySelect.addEventListener('change', debouncedApplyFilters);
+  document.getElementById('sort-by').addEventListener('change', debouncedApplyFilters);
+  document.getElementById('min-discount').addEventListener('input', debouncedApplyFilters);
+
+  document.getElementById('reset-btn').addEventListener('click', ()=>{ resetFilters(); });
+
+  wirePriceControls();
 }
 
 /* Reset filters */
@@ -387,10 +427,10 @@ function resetFilters(){
   document.getElementById('min-price').value='';
   document.getElementById('max-price').value='';
   document.getElementById('sort-by').value='';
-  applyFilters(true);
+  applyFilters();
 }
 
-/* Fetch and prepare data (keeps original CSV parsing + caching logic) */
+/* Fetch and prepare data */
 async function fetchData(){
   try{
     document.getElementById('loading').style.display = 'block';
@@ -436,14 +476,13 @@ async function fetchData(){
     allData.sort((a,b)=>{ if((b._score||0)!==(a._score||0)) return (b._score||0)-(a._score||0); if((b._saved||0)!==(a._saved||0)) return (b._saved||0)-(a._saved||0); return (b._discount_pct||0)-(a._discount_pct||0); });
 
     initializeFilters();
-    applyFilters(true);
+    applyFilters();
 
     document.getElementById('loading').style.display = 'none';
     document.getElementById('data-table').style.display = 'block';
   } catch(err){
     console.error(err);
     document.getElementById('loading').textContent = `حدث خطأ أثناء تحميل البيانات: ${err.message}`;
-    appendLog({query:'<load-error>', supermarket:'', category:'', minPrice:'', maxPrice:'', minDiscount:'', sort:'', results:0, error:err.message});
   }
 }
 
