@@ -3,9 +3,9 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-<title>لوحة عروض السوبرماركت — مصحح</title>
+<title>🛒 لوحة عروض السوبرماركت</title>
 
-<!-- External libs used by original file -->
+<!-- External libs -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.0/papaparse.min.js" defer></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/lz-string/1.4.4/lz-string.min.js" defer></script>
 
@@ -15,13 +15,20 @@
     --card-bg:#fff;
     --muted:#666;
     --accent:#4caf50;
-    --danger:#ff4444;
+    --danger:#d32f2f;
     --gap:12px;
     --radius:12px;
     --text:#222;
     --control-height:46px;
     --base-font:15px;
+    --ticker-bg:#0b3b6f;
+    --ticker-text:#fff;
+    --ticker-accent:#ffd54f;
     --highlight-yellow:#fff3b0;
+    --icon-size:18px;
+    --brand-col-width:120px;
+    --unit-col-width:80px;
+    --primary-col-width:180px;
   }
   *{box-sizing:border-box}
   html,body{height:100%}
@@ -34,32 +41,60 @@
     -webkit-font-smoothing:antialiased;
   }
   .container{ max-width:1200px; margin:0 auto; }
-  header{ background:rgba(255,255,255,0.95); border-radius:12px; padding:12px; text-align:center; margin-bottom:12px; box-shadow:0 8px 20px rgba(0,0,0,0.12); }
+  header{ background:rgba(255,255,255,0.95); border-radius:12px; padding:12px; text-align:center; margin-bottom:12px; box-shadow:0 8px 20px rgba(0,0,0,0.12); position:relative; overflow:hidden; }
+  header h1{ margin:6px 0; font-size:22px; display:inline-flex; align-items:center; gap:8px; }
+
+  /* Ticker */
+  .ticker-wrap{ width:100%; background:var(--ticker-bg); color:var(--ticker-text); border-radius:10px; overflow:hidden; display:flex; align-items:center; padding:6px 12px; box-shadow:0 6px 18px rgba(0,0,0,0.12); margin-top:8px; }
+  .ticker-label{ flex:0 0 auto; font-weight:700; margin-left:12px; color:var(--ticker-accent); background:rgba(255,255,255,0.04); padding:6px 10px; border-radius:8px; }
+  .ticker-viewport{ flex:1 1 auto; overflow:hidden; position:relative; height:40px; display:flex; align-items:center; }
+  .ticker-track{ display:inline-flex; white-space:nowrap; will-change:transform; align-items:center; gap:28px; transform:translateX(0); }
+  .ticker-item{ display:inline-flex; gap:8px; align-items:center; padding:6px 10px; background:transparent; color:var(--ticker-text); font-size:15px; }
+  .ticker-item .badge{ background:var(--danger); color:#fff; padding:6px 8px; border-radius:6px; font-weight:700; min-width:44px; text-align:center; }
+  .ticker-item .market{ opacity:.85; margin-inline-start:6px; }
+
   .controls{ display:flex; gap:8px; flex-wrap:wrap; align-items:center; margin-bottom:12px; }
   input,select,button{ height:var(--control-height); padding:0 12px; border-radius:10px; border:2px solid #eee; background:white; font-size:15px; }
   .row{ display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
   #data-table{ background:var(--card-bg); border-radius:12px; box-shadow:0 10px 30px rgba(0,0,0,0.12); overflow:hidden; margin-top:12px; padding:8px; }
-  table{ width:100%; border-collapse:collapse; font-size:14px; }
+  table{ width:100%; border-collapse:collapse; font-size:14px; table-layout:fixed; }
   thead th{ background:var(--accent); color:#fff; padding:12px; text-align:left; position:sticky; top:0; }
-  tbody td{ padding:10px 12px; border-bottom:1px solid #f0f0f0; }
+  tbody td{ padding:10px 12px; border-bottom:1px solid #f0f0f0; vertical-align:middle; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
   .card-list{ display:none }
   .highlight{ background:var(--highlight-yellow) !important; }
   #loading{ text-align:center; padding:18px; color:#fff; }
   #autocomplete-list{ position:absolute; z-index:9999; background:white; border-radius:8px; box-shadow:0 6px 18px rgba(0,0,0,0.12); max-height:240px; overflow:auto; }
   .price-controls{ display:flex; gap:8px; align-items:center; }
   .price-controls button{ width:36px; height:36px; padding:0; font-size:18px; line-height:1; }
+  .supermarket-icon{ width:var(--icon-size); height:var(--icon-size); vertical-align:middle; display:inline-block; margin-inline-start:6px; }
+  .discount-badge{ background:var(--danger); color:#fff; padding:6px 8px; border-radius:6px; font-weight:700; min-width:44px; text-align:center; display:inline-block; }
+  th.brand-col, td.brand-col { width: var(--brand-col-width); max-width: var(--brand-col-width); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  th.unit-col, td.unit-col { width: var(--unit-col-width); max-width: var(--unit-col-width); text-align:center; }
+  th.primary-col, td.primary-col { width: var(--primary-col-width); max-width: var(--primary-col-width); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
   @media (max-width:900px){
     .card-list{ display:flex; flex-direction:column }
     table{ display:none }
     .controls{ flex-direction:column; align-items:stretch }
+    .ticker-label{ display:none; }
   }
 </style>
 </head>
 <body>
 <div class="container">
   <header>
-    <h1>🛒 لوحة عروض السوبرماركت — مصحح</h1>
-    <p>إصدار مُعدّل: إصلاح البحث وأزرار السعر</p>
+    <h1>
+      <span aria-hidden="true">🛒</span>
+      لوحة عروض السوبرماركت
+    </h1>
+
+    <div class="ticker-wrap" aria-live="polite" aria-atomic="true" role="region" aria-label="أفضل العروض">
+      <div class="ticker-label">عروض مميزة</div>
+      <div class="ticker-viewport" id="ticker-viewport">
+        <div class="ticker-track" id="ticker-track" aria-hidden="false">
+          <div class="ticker-item"><span class="badge">20%</span> مثال عرض — سوبرماركت</div>
+        </div>
+      </div>
+    </div>
   </header>
 
   <div class="controls" role="region" aria-label="عناصر التحكم">
@@ -70,14 +105,12 @@
     </div>
 
     <div class="row" style="width:100%; gap:6px;">
-      <!-- Min price with controls -->
       <div class="price-controls" style="align-items:center;">
         <button id="min-decrease" type="button" aria-label="نقص الحد الأدنى">−</button>
         <input id="min-price" type="number" placeholder="الحد الأدنى للسعر" aria-label="الحد الأدنى للسعر" step="0.5" min="0" />
         <button id="min-increase" type="button" aria-label="زيادة الحد الأدنى">+</button>
       </div>
 
-      <!-- Max price with controls -->
       <div class="price-controls" style="align-items:center;">
         <button id="max-decrease" type="button" aria-label="نقص الحد الأقصى">−</button>
         <input id="max-price" type="number" placeholder="الحد الأعلى للسعر" aria-label="الحد الأعلى للسعر" step="0.5" min="0" />
@@ -93,7 +126,6 @@
       <input id="min-discount" type="number" placeholder="الحد الأدنى للخصم %" aria-label="الحد الأدنى للخصم" />
 
       <div style="display:flex;gap:8px;">
-        <!-- Apply button removed as requested -->
         <button id="reset-btn" aria-label="إعادة تعيين">إعادة تعيين</button>
       </div>
     </div>
@@ -117,9 +149,11 @@
       <thead>
         <tr>
           <th>اسم السوبر ماركت</th>
-          <th>المنتج</th>
+          <th>الاسم العربي</th>
+          <th class="primary-col">اسم المنتج (الأساسي)</th>
+          <th class="unit-col">الوحدة</th>
           <th>الفئة</th>
-          <th>العلامة التجارية</th>
+          <th class="brand-col">العلامة التجارية</th>
           <th>السعر الأصلي</th>
           <th>السعر الحالي</th>
           <th>الخصم</th>
@@ -146,6 +180,13 @@ let filteredData = [];
 let currentPage = 1;
 const itemsPerPage = 20;
 let debounceTimer = null;
+
+/* Marquee control variables */
+let marqueeRAF = null;
+let marqueePos = 0;
+let marqueeSpeed = 80; // px/s
+let marqueeTrackWidth = 0;
+let marqueeViewportWidth = 0;
 
 /* Debounce helper */
 function debounce(fn, wait=250){
@@ -206,6 +247,91 @@ function computeCombinedScore(arr){
   });
 }
 
+/* Small inline SVG for supermarket car icon */
+function supermarketCarSVG(){
+  return `<svg class="supermarket-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <path d="M3 6h2l1.5 4h11l1.5-4h2" stroke="#333" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+    <circle cx="8.5" cy="17" r="1.5" fill="#333"/>
+    <circle cx="17.5" cy="17" r="1.5" fill="#333"/>
+    <path d="M5 10v4h14v-4" stroke="#333" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+  </svg>`;
+}
+
+/* Marquee helpers */
+function stopMarquee(){
+  if(marqueeRAF !== null){
+    cancelAnimationFrame(marqueeRAF);
+    marqueeRAF = null;
+  }
+}
+function startMarquee(){
+  stopMarquee();
+  const track = document.getElementById('ticker-track');
+  const viewport = document.getElementById('ticker-viewport');
+  marqueePos = 0;
+  marqueeTrackWidth = track.scrollWidth;
+  marqueeViewportWidth = viewport.clientWidth || 600;
+
+  if(marqueeTrackWidth < marqueeViewportWidth * 1.2){
+    const children = Array.from(track.children);
+    let attempts = 0;
+    while(track.scrollWidth < marqueeViewportWidth * 1.2 && attempts < 8){
+      children.forEach(c => track.appendChild(c.cloneNode(true)));
+      attempts++;
+    }
+    marqueeTrackWidth = track.scrollWidth;
+  }
+
+  let lastTs = performance.now();
+  function step(ts){
+    const dt = (ts - lastTs) / 1000;
+    lastTs = ts;
+    marqueePos -= marqueeSpeed * dt;
+    if(Math.abs(marqueePos) >= marqueeTrackWidth / 2){
+      marqueePos += marqueeTrackWidth / 2;
+    }
+    track.style.transform = `translateX(${marqueePos}px)`;
+    marqueeRAF = requestAnimationFrame(step);
+  }
+  marqueeRAF = requestAnimationFrame(step);
+}
+
+/* Populate ticker */
+function populateTicker(){
+  const track = document.getElementById('ticker-track');
+  track.style.transform = 'translateX(0)';
+  stopMarquee();
+  track.innerHTML = '';
+
+  const top = [...allData].filter(i=>i._discount_pct>0).sort((a,b)=>{
+    if((b._discount_pct||0)!==(a._discount_pct||0)) return (b._discount_pct||0)-(a._discount_pct||0);
+    return (b._saved||0)-(a._saved||0);
+  }).slice(0,12);
+
+  if(!top.length){
+    track.innerHTML = '<div class="ticker-item">لا توجد عروض مميزة حالياً</div>';
+    return;
+  }
+
+  const fragment = document.createDocumentFragment();
+  top.forEach(item=>{
+    const el = document.createElement('div');
+    el.className = 'ticker-item';
+    const name = item.product || 'منتج';
+    const market = item.supermarket || '';
+    const discount = item._discount_pct ? `${item._discount_pct}%` : '';
+    const saved = item._saved ? `${item._saved} ${item.currency||'EGP'}` : '';
+    el.innerHTML = `${supermarketCarSVG()} <span class="badge">${discount}</span> <span>${name}</span> <span class="market">— ${market}</span> <span style="color:var(--ticker-accent); margin-inline-start:8px;">وفر ${saved}</span>`;
+    fragment.appendChild(el);
+  });
+
+  track.appendChild(fragment.cloneNode(true));
+  track.appendChild(fragment.cloneNode(true));
+  track.appendChild(fragment.cloneNode(true));
+
+  setTimeout(()=> startMarquee(), 60);
+}
+
 /* Rendering functions */
 function renderTable(){
   const tbody = document.getElementById('table-body');
@@ -217,14 +343,20 @@ function renderTable(){
     const url = item.solution_key ? `https://www.yabalashoffers.com/flyer.php?d=${encodeURIComponent(item.solution_key)}&c=eg` : '#';
     if(url && url!=='#'){ tr.style.cursor='pointer'; tr.title='زيارة العروض'; tr.onclick = ()=>window.open(url, '_blank'); }
     if(item._discount_pct && item._discount_pct >= 20) tr.classList.add('highlight');
+    const marketHtml = `${supermarketCarSVG()} ${item.supermarket || 'غير متاح'}`;
+    const primaryHtml = item.primaryName || '';
+    const unitHtml = item.unit || '';
+    const discountHtml = item._discount_pct ? `<span class="discount-badge">${item._discount_pct}%</span>` : 'غير متاح';
     tr.innerHTML = `
-      <td>${item.supermarket || 'غير متاح'}</td>
+      <td>${marketHtml}</td>
       <td>${item.product || 'غير متاح'}</td>
+      <td class="primary-col">${primaryHtml}</td>
+      <td class="unit-col">${unitHtml}</td>
       <td>${item.category || 'غير متاح'}</td>
-      <td>${item.brand || 'غير متاح'}</td>
+      <td class="brand-col">${item.brand || 'غير متاح'}</td>
       <td>${item.originalPrice ? item.originalPrice + ' ' + (item.currency||'EGP') : 'غير متاح'}</td>
       <td>${item.currentPrice ? item.currentPrice + ' ' + (item.currency||'EGP') : 'غير متاح'}</td>
-      <td>${item._discount_pct ? `<span class="discount-badge">${item._discount_pct}%</span>` : 'غير متاح'}</td>
+      <td>${discountHtml}</td>
       <td>${item.validUntil || 'غير متاح'}</td>
     `;
     tbody.appendChild(tr);
@@ -303,7 +435,6 @@ function applyFilters(){
   const maxPrice = maxPriceRaw === '' ? Infinity : (parseFloat(maxPriceRaw) || Infinity);
   const sort = document.getElementById('sort-by').value || '';
 
-  // Normalize min/max: if min > max, swap to keep consistent UX
   if(isFinite(minPrice) && isFinite(maxPrice) && minPrice > maxPrice){
     const tmp = document.getElementById('min-price').value;
     document.getElementById('min-price').value = document.getElementById('max-price').value;
@@ -416,6 +547,8 @@ function initializeFilters(){
   document.getElementById('reset-btn').addEventListener('click', ()=>{ resetFilters(); });
 
   wirePriceControls();
+
+  window.addEventListener('resize', ()=>{ stopMarquee(); populateTicker(); });
 }
 
 /* Reset filters */
@@ -447,14 +580,20 @@ async function fetchData(){
       if(!res.ok) throw new Error('HTTP ' + res.status);
       const txt = await res.text();
       const parsed = Papa.parse(txt, { header:true, skipEmptyLines:true, trim:true, dynamicTyping:true });
+
       allData = parsed.data.map(item=>{
         const raw = item['فترة سريان العرض'] || item['Validity Period'] || '';
         const end = parseEndDate(String(raw));
         const validUntilStr = end ? formatDateShort(end) : (String(raw).split(/to|إلى|حتى|–|—|-|~/i).slice(-1)[0]||'غير متاح');
+
+        // Try multiple possible headers for English / primary name and unit
+        const primaryName = item['اسم المنتج (الأساسي)'] || item['Primary Name'] || item['Product EN'] || item['product_en'] || item['Product'] || '';
+        const unit = item['الوحدة'] || item['unit'] || item['Unit'] || item['unit_name'] || '';
+
         return {
           supermarket: item['اسم السوبر ماركت'] || item['supermarket'] || 'غير متاح',
-          product: item['الاسم بالعربية'] || item['اسم المنتج (الأساسي)'] || item['اسم المنتج'] || item['Product'] || 'غير متاح',
-          primaryName: item['اسم المنتج (الأساسي)'] || item['اسم المنتج'] || item['Product'] || '',
+          product: item['الاسم بالعربية'] || item['اسم المنتج'] || item['Product AR'] || item['Product'] || 'غير متاح',
+          primaryName: primaryName,
           category: item['الفئة'] || item['category'] || 'غير متاح',
           brand: item['اسم العلامة التجارية'] || item['brand'] || 'غير متاح',
           originalPrice: parseFloat(item['السعر الأصلي']) || 0,
@@ -465,9 +604,11 @@ async function fetchData(){
           endDate: end,
           validUntil: validUntilStr,
           currency: item['العملة'] || 'EGP',
+          unit: unit,
           solution_key: (item['solution_key']||item['solution key']||item['Solution_key']||item['solutionKey']||'')
         };
       });
+
       try{ localStorage.setItem(CACHE_KEY, LZString.compressToUTF16(JSON.stringify(allData))); localStorage.setItem(`${CACHE_KEY}_time`, Date.now()); } catch(e){ console.warn('cache save failed', e); }
     }
 
@@ -478,11 +619,15 @@ async function fetchData(){
     initializeFilters();
     applyFilters();
 
+    populateTicker();
+
     document.getElementById('loading').style.display = 'none';
     document.getElementById('data-table').style.display = 'block';
   } catch(err){
     console.error(err);
     document.getElementById('loading').textContent = `حدث خطأ أثناء تحميل البيانات: ${err.message}`;
+    const track = document.getElementById('ticker-track');
+    track.innerHTML = '<div class="ticker-item">تعذر تحميل العروض</div>';
   }
 }
 
