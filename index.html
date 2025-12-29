@@ -20,6 +20,9 @@
     --success-green: #28A745; /* Ok Market green */
     --warning-yellow: #FFC107;
     --danger-red: #DC3545;
+    --info-teal: #17a2b8;
+    --purple: #6f42c1;
+    --pink: #e83e8c;
     --light-bg: #F8F9FA;
     --card-shadow: 0 8px 30px rgba(0,0,0,0.08);
     --border-radius: 16px;
@@ -144,7 +147,7 @@
     color: var(--muted);
   }
   
-  /* Quick Filter Chips */
+  /* Quick Filter Chips - Colored */
   .filter-chips {
     display: flex;
     flex-wrap: wrap;
@@ -166,17 +169,91 @@
     display: flex;
     align-items: center;
     gap: 8px;
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .chip::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: currentColor;
+    opacity: 0;
+    transition: var(--transition);
+    z-index: 0;
+  }
+  
+  .chip > * {
+    position: relative;
+    z-index: 1;
   }
   
   .chip:hover {
-    border-color: var(--primary-blue);
-    color: var(--primary-blue);
+    border-color: currentColor;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
   }
   
   .chip.active {
-    background: var(--primary-blue);
     color: white;
-    border-color: var(--primary-blue);
+    border-color: transparent;
+  }
+  
+  .chip.active::after {
+    opacity: 1;
+  }
+  
+  /* Specific chip colors */
+  .chip[data-filter="all"] {
+    color: var(--primary-blue);
+  }
+  .chip[data-filter="all"]::after {
+    background: var(--primary-blue);
+  }
+  
+  .chip[data-filter="hot"] {
+    color: var(--danger-red);
+  }
+  .chip[data-filter="hot"]::after {
+    background: var(--danger-red);
+  }
+  
+  .chip[data-filter="ending"] {
+    color: var(--warning-yellow);
+  }
+  .chip[data-filter="ending"]::after {
+    background: var(--warning-yellow);
+  }
+  
+  .chip[data-filter="discount"] {
+    color: var(--success-green);
+  }
+  .chip[data-filter="discount"]::after {
+    background: var(--success-green);
+  }
+  
+  .chip[data-filter="carrefour"] {
+    color: #004080;
+  }
+  .chip[data-filter="carrefour"]::after {
+    background: #004080;
+  }
+  
+  .chip[data-filter="hyperone"] {
+    color: var(--accent-orange);
+  }
+  .chip[data-filter="hyperone"]::after {
+    background: var(--accent-orange);
+  }
+  
+  .chip[data-filter="food"] {
+    color: var(--info-teal);
+  }
+  .chip[data-filter="food"]::after {
+    background: var(--info-teal);
   }
   
   /* View Toggle */
@@ -450,7 +527,7 @@
     to { transform: translateX(-50%); }
   }
   
-  /* Controls */
+  /* Controls - RESTORED TO ORIGINAL EXACT TEXT */
   .controls{ 
     background: white;
     border-radius: var(--border-radius);
@@ -510,6 +587,9 @@
   #reset-btn {
     background: #f0f0f0;
     color: #666;
+    display: flex;
+    align-items: center;
+    gap: 8px;
   }
   
   #reset-btn:hover {
@@ -879,7 +959,7 @@
     </div>
   </div>
 
-  <!-- Quick Filter Chips -->
+  <!-- Quick Filter Chips - Now with Colors! -->
   <div class="filter-chips" id="filter-chips">
     <button class="chip active" data-filter="all"><i class="fas fa-fire"></i> جميع العروض</button>
     <button class="chip" data-filter="hot"><i class="fas fa-bolt"></i> العروض الساخنة</button>
@@ -899,13 +979,13 @@
   <!-- Products Grid -->
   <div class="products-grid" id="products-grid"></div>
 
-  <!-- Controls - ALL RESTORED -->
+  <!-- Controls - RESTORED TO ORIGINAL EXACT TEXT -->
   <div class="controls" role="region" aria-label="عناصر التحكم">
     <div class="row" style="flex:1;">
-      <input id="search-input" type="text" placeholder="🔍 ابحث عن منتج، علامة تجارية، أو سوبرماركت..." aria-label="حقل البحث" />
-      <select id="supermarket-filter" aria-label="تصفية حسب السوبر ماركت"><option value="">🏪 كل السوبر ماركت</option></select>
-      <select id="category-filter" aria-label="تصفية حسب الفئة"><option value="">📂 كل الفئات</option></select>
-      <select id="brand-filter" aria-label="تصفية حسب العلامة التجارية"><option value="">🏷️ كل العلامات</option></select>
+      <input id="search-input" type="text" placeholder="ابحث عن منتجات أو علامات تجارية..." aria-label="حقل البحث" />
+      <select id="supermarket-filter" aria-label="تصفية حسب السوبر ماركت"><option value="">كل السوبر ماركت</option></select>
+      <select id="category-filter" aria-label="تصفية حسب الفئة"><option value="">كل الفئات</option></select>
+      <select id="brand-filter" aria-label="تصفية حسب العلامة التجارية"><option value="">كل العلامات</option></select>
     </div>
 
     <div class="row" style="width:100%; gap:8px;">
@@ -924,17 +1004,17 @@
       </div>
 
       <select id="sort-by" aria-label="فرز حسب">
-        <option value="">📊 فرز حسب</option>
-        <option value="discount-desc">📉 الخصم % - تنازلي</option>
-        <option value="price-asc">💰 السعر - تصاعدي</option>
-        <option value="price-desc">💰 السعر - تنازلي</option>
-        <option value="saved-desc">💸 التوفير - تنازلي</option>
+        <option value="">فرز حسب</option>
+        <option value="discount-desc">الخصم % - تنازلي</option>
+        <option value="price-asc">السعر - تصاعدي</option>
+        <option value="price-desc">السعر - تنازلي</option>
+        <option value="saved-desc">التوفير - تنازلي</option>
       </select>
 
       <input id="min-discount" type="number" placeholder="الحد الأدنى للخصم %" aria-label="الحد الأدنى للخصم" />
 
       <div style="display:flex;gap:8px;">
-        <button id="reset-btn" aria-label="إعادة تعيين"><i class="fas fa-redo"></i> إعادة تعيين</button>
+        <button id="reset-btn" aria-label="إعادة تعيين">🔄 إعادة تعيين</button>
         <button id="share-app" aria-label="مشاركة التطبيق"><i class="fas fa-share-alt"></i> مشاركة</button>
         <button id="compare-mode-btn" aria-label="وضع المقارنة"><i class="fas fa-balance-scale"></i> المقارنة</button>
       </div>
@@ -1802,7 +1882,7 @@ function wirePriceControls(){
 /* Initialize filters and event wiring */
 function initializeFilters(){
   const supermarketSelect = document.getElementById('supermarket-filter');
-  supermarketSelect.innerHTML = '<option value="">🏪 كل السوبر ماركت</option>';
+  supermarketSelect.innerHTML = '<option value="">كل السوبر ماركت</option>';
   const supermarkets = [...new Set(allData.map(i=>i.supermarket))].filter(Boolean);
   supermarkets.forEach(s=>{ 
     const o=document.createElement('option'); 
@@ -1812,7 +1892,7 @@ function initializeFilters(){
   });
 
   const categorySelect = document.getElementById('category-filter');
-  categorySelect.innerHTML = '<option value="">📂 كل الفئات</option>';
+  categorySelect.innerHTML = '<option value="">كل الفئات</option>';
   const categories = [...new Set(allData.map(i=>i.category))].filter(Boolean);
   categories.forEach(c=>{ 
     const o=document.createElement('option'); 
@@ -1822,7 +1902,7 @@ function initializeFilters(){
   });
 
   const brandSelect = document.getElementById('brand-filter');
-  brandSelect.innerHTML = '<option value="">🏷️ كل العلامات</option>';
+  brandSelect.innerHTML = '<option value="">كل العلامات</option>';
   const brands = [...new Set(allData.map(i=>i.brand))].filter(Boolean);
   brands.forEach(b=>{ 
     const o=document.createElement('option'); 
