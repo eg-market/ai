@@ -107,10 +107,10 @@
     margin-bottom: 25px;
   }
   
-  /* Stats Dashboard */
+  /* Stats Dashboard - UPDATED: Horizontal layout */
   .stats-dashboard {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
     gap: 16px;
     margin: 25px 0;
   }
@@ -118,11 +118,14 @@
   .stat-card {
     background: white;
     border-radius: 12px;
-    padding: 18px 15px;
-    text-align: center;
+    padding: 15px;
     box-shadow: var(--card-shadow);
     transition: var(--transition);
     border: 1px solid #f0f0f0;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-height: 80px;
   }
   
   .stat-card:hover {
@@ -131,20 +134,41 @@
   }
   
   .stat-icon {
-    font-size: 2rem;
-    margin-bottom: 10px;
+    font-size: 1.8rem;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+  }
+  
+  .stat-content {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    flex: 1;
+    min-width: 0;
   }
   
   .stat-value {
-    font-size: 1.8rem;
+    font-size: 1.4rem;
     font-weight: 700;
     color: var(--primary-blue);
-    margin-bottom: 5px;
+    margin-bottom: 2px;
+    line-height: 1.2;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
   
   .stat-label {
-    font-size: 0.9rem;
+    font-size: 0.8rem;
     color: var(--muted);
+    line-height: 1.2;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
   
   /* Quick Filter Chips - Colored */
@@ -256,7 +280,7 @@
     background: var(--info-teal);
   }
   
-  /* View Toggle */
+  /* View Toggle - Updated with colors */
   .view-toggle {
     display: flex;
     background: white;
@@ -266,12 +290,13 @@
     margin: 20px 0;
     box-shadow: var(--card-shadow);
     border: 1px solid #f0f0f0;
+    overflow: hidden;
   }
   
   .view-btn {
     padding: 10px 20px;
-    border: none;
-    background: transparent;
+    border: 2px solid #e0e0e0;
+    background: white;
     font-family: 'Cairo', sans-serif;
     font-weight: 600;
     cursor: pointer;
@@ -279,11 +304,56 @@
     display: flex;
     align-items: center;
     gap: 8px;
+    color: var(--primary-blue);
+    transition: var(--transition);
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .view-btn::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: var(--primary-blue);
+    opacity: 0;
+    transition: var(--transition);
+    z-index: 0;
+  }
+  
+  .view-btn > * {
+    position: relative;
+    z-index: 1;
+  }
+  
+  .view-btn:hover {
+    border-color: var(--primary-blue);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
   }
   
   .view-btn.active {
-    background: var(--primary-blue);
     color: white;
+    border-color: transparent;
+  }
+  
+  .view-btn.active::after {
+    opacity: 1;
+  }
+  
+  /* Specific colors for view buttons */
+  #view-grid-btn {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+    border-right: none;
+  }
+  
+  #view-table-btn {
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+    border-left: none;
   }
   
   /* Products Grid */
@@ -846,6 +916,7 @@
     
     .stats-dashboard {
       grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
     }
     
     .products-grid {
@@ -880,11 +951,23 @@
     }
     
     .stat-card {
-      padding: 15px 10px;
+      padding: 12px 10px;
+      gap: 10px;
+      min-height: 70px;
+    }
+    
+    .stat-icon {
+      font-size: 1.5rem;
+      width: 35px;
+      height: 35px;
     }
     
     .stat-value {
-      font-size: 1.5rem;
+      font-size: 1.2rem;
+    }
+    
+    .stat-label {
+      font-size: 0.75rem;
     }
     
     .filter-chips {
@@ -895,6 +978,26 @@
     
     .chip {
       white-space: nowrap;
+    }
+    
+    .view-btn {
+      padding: 8px 12px;
+      font-size: 0.9rem;
+    }
+    
+    .stats-dashboard {
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+    }
+  }
+  
+  @media (max-width: 400px){
+    .stats-dashboard {
+      grid-template-columns: 1fr;
+    }
+    
+    .stat-card {
+      padding: 10px;
     }
   }
   
@@ -934,28 +1037,38 @@
   <div class="stats-dashboard">
     <div class="stat-card">
       <div class="stat-icon">💰</div>
-      <div id="total-offers" class="stat-value">0</div>
-      <div class="stat-label">إجمالي العروض</div>
+      <div class="stat-content">
+        <div id="total-offers" class="stat-value">0</div>
+        <div class="stat-label">إجمالي العروض</div>
+      </div>
     </div>
     <div class="stat-card">
       <div class="stat-icon">📉</div>
-      <div id="avg-discount" class="stat-value">0%</div>
-      <div class="stat-label">متوسط الخصم</div>
+      <div class="stat-content">
+        <div id="avg-discount" class="stat-value">0%</div>
+        <div class="stat-label">متوسط الخصم</div>
+      </div>
     </div>
     <div class="stat-card">
       <div class="stat-icon">🔥</div>
-      <div id="hot-deals" class="stat-value">0</div>
-      <div class="stat-label">عروض ساخنة</div>
+      <div class="stat-content">
+        <div id="hot-deals" class="stat-value">0</div>
+        <div class="stat-label">عروض ساخنة</div>
+      </div>
     </div>
     <div class="stat-card">
       <div class="stat-icon">⏰</div>
-      <div id="ending-soon" class="stat-value">0</div>
-      <div class="stat-label">تنتهي قريباً</div>
+      <div class="stat-content">
+        <div id="ending-soon" class="stat-value">0</div>
+        <div class="stat-label">تنتهي قريباً</div>
+      </div>
     </div>
     <div class="stat-card">
       <div class="stat-icon">💸</div>
-      <div id="total-savings" class="stat-value">0 ج.م</div>
-      <div class="stat-label">إجمالي التوفير</div>
+      <div class="stat-content">
+        <div id="total-savings" class="stat-value">0 ج.م</div>
+        <div class="stat-label">إجمالي التوفير</div>
+      </div>
     </div>
   </div>
 
@@ -1260,7 +1373,7 @@ function switchView(view) {
   }
 }
 
-/* Apply filter from chips */
+/* Apply filter from chips - FIXED: Food filter logic */
 function applyFilterChip(filterType) {
   switch(filterType) {
     case 'hot':
@@ -1284,8 +1397,13 @@ function applyFilterChip(filterType) {
       filteredData = allData.filter(item => item.supermarket && item.supermarket.includes('هايبر'));
       break;
     case 'food':
-      filteredData = allData.filter(item => item.category && 
-        (item.category.includes('غذائي') || item.category.includes('طعام') || item.category.includes('مأكولات')));
+      // FIXED: Filter items where category starts with "أطعمة" (case-insensitive)
+      filteredData = allData.filter(item => {
+        if (!item.category) return false;
+        const category = String(item.category).trim();
+        // Check if category starts with "أطعمة" (case-insensitive)
+        return category.toLowerCase().startsWith('أطعمة');
+      });
       break;
     default:
       filteredData = [...allData];
