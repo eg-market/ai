@@ -280,6 +280,13 @@
     background: var(--info-teal);
   }
   
+  .chip[data-filter="recent"] {
+    color: var(--purple);
+  }
+  .chip[data-filter="recent"]::after {
+    background: var(--purple);
+  }
+  
   /* View Toggle - Updated with colors */
   .view-toggle {
     display: flex;
@@ -447,12 +454,6 @@
     align-items: center;
     justify-content: space-between;
     margin: 15px 0;
-  }
-  
-  .old-price {
-    text-decoration: line-through;
-    color: var(--muted);
-    font-size: 0.9rem;
   }
   
   .current-price {
@@ -895,6 +896,28 @@
     color: white;
   }
   
+  /* User Guide Banner */
+  .user-guide-banner {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 10px 15px;
+    border-radius: 8px;
+    margin: 15px 0;
+    text-align: center;
+    font-weight: 600;
+    font-size: 0.95rem;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    animation: pulse 2s infinite;
+  }
+  
+  .user-guide-banner i {
+    font-size: 1.2rem;
+  }
+  
   /* Responsive */
   @media (max-width: 900px){
     .container {
@@ -943,6 +966,11 @@
     }
     
     .ticker-label{ display:none; }
+    
+    .user-guide-banner {
+      font-size: 0.85rem;
+      padding: 8px 12px;
+    }
   }
   
   @media (max-width: 600px){
@@ -989,6 +1017,11 @@
       grid-template-columns: repeat(2, 1fr);
       gap: 10px;
     }
+    
+    .user-guide-banner {
+      font-size: 0.8rem;
+      padding: 6px 10px;
+    }
   }
   
   @media (max-width: 400px){
@@ -1033,6 +1066,12 @@
     </div>
   </div>
 
+  <!-- User Guide Banner -->
+  <div class="user-guide-banner" id="user-guide">
+    <i class="fas fa-info-circle"></i>
+    <span>انقر على أي منتج لعرض التفاصيل، أو اضغط على الصورة الثانية للذهاب إلى موقع الشراء</span>
+  </div>
+
   <!-- Stats Dashboard -->
   <div class="stats-dashboard">
     <div class="stat-card">
@@ -1063,11 +1102,12 @@
         <div class="stat-label">تنتهي قريباً</div>
       </div>
     </div>
+    <!-- Changed from total-savings to total-supermarkets -->
     <div class="stat-card">
-      <div class="stat-icon">💸</div>
+      <div class="stat-icon">🛒</div>
       <div class="stat-content">
-        <div id="total-savings" class="stat-value">0 ج.م</div>
-        <div class="stat-label">إجمالي التوفير</div>
+        <div id="total-supermarkets" class="stat-value">0</div>
+        <div class="stat-label">عدد السوبرماركات</div>
       </div>
     </div>
   </div>
@@ -1081,6 +1121,7 @@
     <button class="chip" data-filter="carrefour"><i class="fas fa-shopping-cart"></i> كارفور</button>
     <button class="chip" data-filter="hyperone"><i class="fas fa-store"></i> هايبر وان</button>
     <button class="chip" data-filter="food"><i class="fas fa-utensils"></i> منتجات غذائية</button>
+    <button class="chip" data-filter="recent"><i class="fas fa-calendar-day"></i> أحدث العروض (آخر يومين)</button>
   </div>
 
   <!-- View Toggle -->
@@ -1118,11 +1159,12 @@
 
       <select id="sort-by" aria-label="فرز حسب">
         <option value="">فرز حسب</option>
+        <option value="name-asc">الاسم (أ-ي)</option>
+        <option value="name-desc">الاسم (ي-أ)</option>
         <option value="discount-desc">الخصم % - تنازلي</option>
         <option value="price-asc">السعر - تصاعدي</option>
         <option value="price-desc">السعر - تنازلي</option>
-        <option value="saved-desc">التوفير - تنازلي</option>
-      </select>
+        </select>
 
       <input id="min-discount" type="number" placeholder="الحد الأدنى للخصم %" aria-label="الحد الأدنى للخصم" />
 
@@ -1147,10 +1189,9 @@
           <th>📦 الوحدة</th>
           <th>📂 الفئة</th>
           <th>🏷️ العلامة التجارية</th>
-          <th>💰 السعر الأصلي</th>
+          <!-- تم إزالة عمود السعر الأصلي -->
           <th>💵 السعر الحالي</th>
           <th>📉 الخصم</th>
-          <th>💸 التوفير</th>
           <th>⏰ ساري حتى</th>
         </tr>
       </thead>
@@ -1220,6 +1261,8 @@ let favorites = JSON.parse(localStorage.getItem('favorites')) || [];
 let comparisonItems = JSON.parse(localStorage.getItem('comparison')) || [];
 let currentView = 'grid';
 let activeChipFilter = 'all'; // لتخزين الفلتر النشط من الأزرار
+let latestTwoDates = []; // أحدث تاريخين في البيانات
+let supermarketFilterCache = {}; // لحفظ نتائج فلتر السوبرماركت
 
 /* Initialize the app */
 function initApp() {
@@ -1233,22 +1276,12 @@ function wireEventListeners() {
   document.getElementById('view-grid-btn').addEventListener('click', () => switchView('grid'));
   document.getElementById('view-table-btn').addEventListener('click', () => switchView('table'));
   
-  // Filter chips - UPDATED: دمج مجموعتي التصفية
+  // Filter chips - إصلاح مشكلة الأزرار
   document.querySelectorAll('.chip').forEach(chip => {
     chip.addEventListener('click', function() {
       document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
       this.classList.add('active');
       activeChipFilter = this.dataset.filter;
-      
-      // التحقق من نوع الفلتر
-      if (activeChipFilter === 'carrefour' || activeChipFilter === 'hyperone') {
-        // إذا كان الفلتر خاص بالسوبرماركت، نسخ الاسم إلى قائمة السوبرماركت
-        if (activeChipFilter === 'carrefour') {
-          document.getElementById('supermarket-filter').value = 'كارفور';
-        } else if (activeChipFilter === 'hyperone') {
-          document.getElementById('supermarket-filter').value = 'هايبر وان';
-        }
-      }
       
       // تطبيق جميع الفلاتر
       applyAllFilters();
@@ -1271,6 +1304,69 @@ function wireEventListeners() {
       this.classList.add('active');
     });
   });
+}
+
+/* دالة لاستخراج أحدث تاريخين من البيانات */
+function findLatestTwoDates(data) {
+  // استخراج جميع التواريخ الصالحة
+  const allDates = [];
+  
+  data.forEach(item => {
+    let dateFound = null;
+    
+    // أولاً: من updateDate إذا كان موجوداً
+    if (item.updateDate) {
+      dateFound = item.updateDate;
+    }
+    // ثانياً: من endDate إذا كان موجوداً
+    else if (item.endDate) {
+      dateFound = item.endDate;
+    }
+    // ثالثاً: من validUntil النصي
+    else if (item.validUntil && item.validUntil !== 'غير متاح') {
+      const parsedDate = parseEndDate(item.validUntil);
+      if (parsedDate) {
+        dateFound = parsedDate;
+      }
+    }
+    
+    if (dateFound && dateFound instanceof Date && !isNaN(dateFound.getTime())) {
+      const year = dateFound.getFullYear();
+      const month = String(dateFound.getMonth() + 1).padStart(2, '0');
+      const day = String(dateFound.getDate()).padStart(2, '0');
+      const dateStr = `${year}-${month}-${day}`;
+      
+      allDates.push({
+        date: dateFound,
+        dateStr: dateStr,
+        item: item
+      });
+    }
+  });
+  
+  if (allDates.length === 0) return [];
+  
+  // ترتيب التواريخ تنازلياً
+  allDates.sort((a, b) => b.date - a.date);
+  
+  // استخراج التواريخ الفريدة
+  const uniqueDateStrs = [];
+  const uniqueDates = [];
+  
+  for (const dateObj of allDates) {
+    if (!uniqueDateStrs.includes(dateObj.dateStr)) {
+      uniqueDateStrs.push(dateObj.dateStr);
+      uniqueDates.push(dateObj.dateStr);
+    }
+    
+    // التوقف عند الحصول على تاريخين مختلفين
+    if (uniqueDates.length >= 2) break;
+  }
+  
+  console.log('أحدث تاريخين في البيانات:', uniqueDates);
+  console.log('عدد العناصر بتاريخ:', allDates.length);
+  
+  return uniqueDates;
 }
 
 /* Comparison Mode - Compare up to 4 products side-by-side */
@@ -1340,7 +1436,6 @@ function updateComparisonPanel() {
       </div>
       <div style="font-size: 0.85rem; color: #666; margin-bottom: 8px;">${item.supermarket}</div>
       <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 10px;">
-        ${item.originalPrice ? `<span style="text-decoration: line-through; color: #999;">${item.originalPrice} ${item.currency||'EGP'}</span>` : ''}
         <span style="font-weight: 700; color: var(--primary-blue);">${item.currentPrice || 0} ${item.currency||'EGP'}</span>
       </div>
       ${item._discount_pct ? `<div style="background: var(--danger-red); color: white; padding: 3px 8px; border-radius: 4px; font-size: 0.8rem; font-weight: 700; text-align: center;">خصم ${item._discount_pct}%</div>` : ''}
@@ -1401,7 +1496,7 @@ function hasActiveFilters() {
          brand !== '' || minDiscount !== '' || minPrice !== '' || maxPrice !== '';
 }
 
-/* Apply ALL filters together - UPDATED: دمج كامل لمجموعتي التصفية */
+/* Apply ALL filters together - إصلاح نهائي لمشكلة الأزرار */
 function applyAllFilters() {
   // 1. الحصول على قيم جميع حقول البحث والتصفية
   const search = (document.getElementById('search-input').value || '').trim().toLowerCase();
@@ -1444,16 +1539,67 @@ function applyAllFilters() {
         case 'food':
           if (item.category) {
             const category = String(item.category).trim();
-            chipFilterPass = category.toLowerCase().startsWith('أطعمة');
+            chipFilterPass = category.toLowerCase().includes('طعام') || 
+                            category.toLowerCase().includes('غذائ') ||
+                            category.toLowerCase().includes('أطعمة') ||
+                            category.toLowerCase().includes('مأكولات');
+          }
+          break;
+        case 'recent':
+          // فلتر أحدث العروض - يبحث في أحدث تاريخين
+          if (latestTwoDates.length === 0) {
+            chipFilterPass = false;
+          } else {
+            let itemDate = null;
+            
+            if (item.updateDate) {
+              itemDate = item.updateDate;
+            }
+            else if (item.endDate) {
+              itemDate = item.endDate;
+            }
+            else if (item.validUntil && item.validUntil !== 'غير متاح') {
+              itemDate = parseEndDate(item.validUntil);
+            }
+            
+            if (itemDate) {
+              const year = itemDate.getFullYear();
+              const month = String(itemDate.getMonth() + 1).padStart(2, '0');
+              const day = String(itemDate.getDate()).padStart(2, '0');
+              const itemDateStr = `${year}-${month}-${day}`;
+              
+              chipFilterPass = latestTwoDates.includes(itemDateStr);
+            } else {
+              chipFilterPass = false;
+            }
           }
           break;
         case 'carrefour':
-          // تم نسخ هذا إلى قائمة السوبرماركت، سيتم تطبيقه في الخطوة التالية
-          chipFilterPass = true;
+          // فلتر كارفور - بحث مرن في اسم السوبرماركت
+          // حفظ في الكاش للاستخدام المستقبلي
+          if (!supermarketFilterCache.carrefour) {
+            supermarketFilterCache.carrefour = allData.filter(i => {
+              const carrefourName = String(i.supermarket || '').toLowerCase();
+              return carrefourName.includes('كارفور') || 
+                     carrefourName.includes('carrefour');
+            }).map(i => i.product);
+          }
+          chipFilterPass = supermarketFilterCache.carrefour.includes(item.product);
           break;
         case 'hyperone':
-          // تم نسخ هذا إلى قائمة السوبرماركت، سيتم تطبيقه في الخطوة التالية
-          chipFilterPass = true;
+          // فلتر هايبر وان - بحث مرن في اسم السوبرماركت
+          if (!supermarketFilterCache.hyperone) {
+            supermarketFilterCache.hyperone = allData.filter(i => {
+              const hyperoneName = String(i.supermarket || '').toLowerCase();
+              return hyperoneName.includes('هايبر وان') || 
+                     hyperoneName.includes('هايبروان') ||
+                     hyperoneName.includes('هايبر') ||
+                     hyperoneName.includes('hyper one') ||
+                     hyperoneName.includes('hyperone') ||
+                     hyperoneName.includes('hyper');
+            }).map(i => i.product);
+          }
+          chipFilterPass = supermarketFilterCache.hyperone.includes(item.product);
           break;
         default:
           chipFilterPass = true;
@@ -1466,7 +1612,7 @@ function applyAllFilters() {
     const primary = (item.primaryName||'').toString().toLowerCase();
     const itemBrand = (item.brand||'').toString().toLowerCase();
     
-    // فلتر السوبرماركت (يشمل اختيارات الأزرار)
+    // فلتر السوبرماركت من القائمة المنسدلة
     if (supermarket && item.supermarket !== supermarket) return false;
     
     // فلتر الفئة
@@ -1501,6 +1647,20 @@ function applyAllFilters() {
     filteredData.sort((a,b)=> (b.currentPrice||0)-(a.currentPrice||0));
   } else if(sort === 'saved-desc') {
     filteredData.sort((a,b)=> (b._saved||0)-(a._saved||0));
+  } else if(sort === 'name-asc') {
+    // الترتيب الأبجدي تصاعدي (أ-ي) - تم التصحيح
+    filteredData.sort((a,b)=> {
+      const nameA = (a.product || '').toString().toLowerCase();
+      const nameB = (b.product || '').toString().toLowerCase();
+      return nameA.localeCompare(nameB, 'ar');
+    });
+  } else if(sort === 'name-desc') {
+    // الترتيب الأبجدي تنازلي (ي-أ) - تم التصحيح
+    filteredData.sort((a,b)=> {
+      const nameA = (a.product || '').toString().toLowerCase();
+      const nameB = (b.product || '').toString().toLowerCase();
+      return nameB.localeCompare(nameA, 'ar');
+    });
   }
 
   // 5. تحديث الواجهة
@@ -1655,6 +1815,7 @@ function renderProductsGrid() {
         <i class="fas fa-search" style="font-size: 3rem; margin-bottom: 20px; opacity: 0.3;"></i>
         <h3>لا توجد عروض مطابقة</h3>
         <p>حاول استخدام مصطلحات بحث مختلفة أو إزالة بعض الفلاتر</p>
+        ${activeChipFilter === 'recent' ? '<p style="color: var(--purple); margin-top: 10px;"><i class="fas fa-info-circle"></i> ملاحظة: فلتر "أحدث العروض" يبحث عن المنتجات في أحدث تاريخين في البيانات</p>' : ''}
       </div>
     `;
     return;
@@ -1690,8 +1851,15 @@ function renderProductsGrid() {
       else if (item.supermarket.includes('هايبر')) marketIcon = 'fa-store-alt';
     }
     
+    // إضافة علامة "جديد" للمنتجات الحديثة
+    let newBadge = '';
+    if (activeChipFilter === 'recent' && (item.updateDate || item.endDate)) {
+      newBadge = '<div class="product-badge" style="background: var(--purple);"><i class="fas fa-star"></i> حديث</div>';
+    }
+    
     card.innerHTML = `
       ${item._discount_pct > 50 ? '<div class="product-badge"><i class="fas fa-fire"></i> عروض ساخنة</div>' : ''}
+      ${newBadge}
       <div class="favorite-btn ${isFavorite ? 'active' : ''}" data-id="${item.product}">
         <i class="fas fa-heart"></i>
       </div>
@@ -1709,7 +1877,6 @@ function renderProductsGrid() {
         ${item.primaryName ? `<div style="font-size: 0.9rem; color: #666; margin-bottom: 5px;">${item.primaryName}</div>` : ''}
         ${item.unit ? `<div class="product-unit"><i class="fas fa-weight"></i> ${item.unit}</div>` : ''}
         <div class="price-container">
-          ${item.originalPrice ? `<span class="old-price">${item.originalPrice} ${item.currency||'EGP'}</span>` : ''}
           <span class="current-price">${item.currentPrice ? `${item.currentPrice} ${item.currency||'EGP'}` : 'غير متاح'}</span>
           ${item._discount_pct ? `<span class="discount-badge pulse">-${item._discount_pct}%</span>` : ''}
         </div>
@@ -1720,6 +1887,11 @@ function renderProductsGrid() {
           </div>
           ${countdownHtml}
         </div>
+        ${activeChipFilter === 'recent' && (item.updateDate || item.endDate) ? `
+          <div style="font-size: 0.8rem; color: var(--purple); margin-top: 10px; padding: 5px; background: rgba(111, 66, 193, 0.1); border-radius: 5px;">
+            <i class="fas fa-calendar-alt"></i> ${item.updateDate ? `تم التحديث: ${formatDateShort(item.updateDate)}` : `تنتهي: ${item.validUntil}`}
+          </div>
+        ` : ''}
         <div class="action-buttons">
           <button class="btn btn-secondary view-details-btn" data-id="${item.product}">
             <i class="fas fa-eye"></i> تفاصيل
@@ -1770,11 +1942,10 @@ function attachCardEventListeners() {
           <strong>السوبرماركت:</strong> ${product.supermarket || 'غير متاح'}<br>
           <strong>الفئة:</strong> ${product.category || 'غير متاح'}<br>
           <strong>العلامة التجارية:</strong> ${product.brand || 'غير متاح'}<br>
-          <strong>السعر الأصلي:</strong> ${product.originalPrice ? `${product.originalPrice} ${product.currency||'EGP'}` : 'غير متاح'}<br>
           <strong>السعر الحالي:</strong> ${product.currentPrice ? `${product.currentPrice} ${product.currency||'EGP'}` : 'غير متاح'}<br>
           <strong>الخصم:</strong> ${product._discount_pct ? `${product._discount_pct}%` : 'غير متاح'}<br>
-          <strong>التوفير:</strong> ${product._saved ? `${product._saved} ${product.currency||'EGP'}` : 'غير متاح'}<br>
-          <strong>ساري حتى:</strong> ${product.validUntil || 'غير متاح'}
+          <strong>ساري حتى:</strong> ${product.validUntil || 'غير متاح'}<br>
+          ${product.updateDate ? `<strong>تاريخ التحديث:</strong> ${formatDateShort(product.updateDate)}<br>` : ''}
         `;
         alert(details);
       }
@@ -1787,7 +1958,10 @@ function attachCardEventListeners() {
       const productId = this.dataset.id;
       const product = allData.find(p => p.product === productId);
       if (product && product.solution_key) {
-        window.open(`https://www.yabalashoffers.com/flyer.php?d=${encodeURIComponent(product.solution_key)}&c=eg`, '_blank');
+        // عرض رسالة إرشادية بدلاً من الانتقال المباشر
+        alert("اضغط على الصورة الثانية للذهاب إلى موقع الشراء");
+        // يمكنك إلغاء التعليق عن السطر التالي إذا أردت الحفاظ على الانتقال
+        // window.open(`https://www.yabalashoffers.com/flyer.php?d=${encodeURIComponent(product.solution_key)}&c=eg`, '_blank');
       }
     });
   });
@@ -1833,10 +2007,11 @@ function renderTable(){
   if (pageData.length === 0) {
     tbody.innerHTML = `
       <tr>
-        <td colspan="11" style="text-align: center; padding: 40px; color: #666;">
+        <td colspan="10" style="text-align: center; padding: 40px; color: #666;">
           <i class="fas fa-search" style="font-size: 2rem; margin-bottom: 10px; opacity: 0.3; display: block;"></i>
           <h3 style="margin: 0 0 10px 0;">لا توجد عروض مطابقة</h3>
           <p style="margin: 0;">حاول استخدام مصطلحات بحث مختلفة أو إزالة بعض الفلاتر</p>
+          ${activeChipFilter === 'recent' ? '<p style="color: var(--purple); margin-top: 10px;"><i class="fas fa-info-circle"></i> ملاحظة: فلتر "أحدث العروض" يبحث عن المنتجات في أحدث تاريخين في البيانات</p>' : ''}
         </td>
       </tr>
     `;
@@ -1850,10 +2025,11 @@ function renderTable(){
     if(url && url!=='#'){ 
       tr.style.cursor='pointer'; 
       tr.title='انقر لزيارة صفحة العرض'; 
-      tr.onclick = ()=>window.open(url, '_blank'); 
+      tr.onclick = ()=>{ openWithOverlay(url); };
     }
-    
+
     if(item._discount_pct && item._discount_pct >= 20) tr.classList.add('highlight');
+    if(activeChipFilter === 'recent') tr.style.borderLeft = '3px solid var(--purple)';
     
     tr.innerHTML = `
       <td>${item.supermarket || 'غير متاح'}</td>
@@ -1862,10 +2038,8 @@ function renderTable(){
       <td>${item.unit ? `<span class="unit-badge">${item.unit}</span>` : 'غير متاح'}</td>
       <td>${item.category || 'غير متاح'}</td>
       <td>${item.brand || 'غير متاح'}</td>
-      <td>${item.originalPrice ? item.originalPrice + ' ' + (item.currency||'EGP') : 'غير متاح'}</td>
       <td><strong style="color: var(--primary-blue);">${item.currentPrice ? item.currentPrice + ' ' + (item.currency||'EGP') : 'غير متاح'}</strong></td>
       <td>${item._discount_pct ? `<span class="discount-badge" style="display: inline-block; padding: 3px 8px; background: var(--danger-red); color: white; border-radius: 4px; font-weight: 700;">${item._discount_pct}%</span>` : 'غير متاح'}</td>
-      <td>${item._saved ? `<span style="color: var(--success-green); font-weight: 600;">${item._saved} ${item.currency||'EGP'}</span>` : 'غير متاح'}</td>
       <td>${item.validUntil || 'غير متاح'}</td>
     `;
     tbody.appendChild(tr);
@@ -1930,6 +2104,39 @@ function updatePagination(){
   pagination.appendChild(btn('الأخيرة', currentPage===totalPages, ()=>{ currentPage=totalPages; renderContent(); }));
 }
 
+function openWithOverlay(url) {
+  const newWin = window.open('', '_blank');
+  if (newWin) {
+    newWin.document.write(`
+      <!DOCTYPE html>
+      <html lang="ar" dir="rtl">
+      <head>
+        <meta charset="utf-8">
+        <title>عرض المنتج</title>
+        <style>
+          body { margin: 0; padding: 0; overflow: hidden; font-family: 'Cairo', sans-serif; }
+          iframe { width: 100vw; height: 100vh; border: none; }
+          .overlay { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: rgba(255, 255, 255, 0.95); padding: 15px 25px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); z-index: 9999; font-size: 1.1rem; color: #333; display: flex; align-items: center; gap: 10px; }
+          .overlay button { background: #00539F; color: white; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer; font-weight: 600; }
+          .overlay button:hover { background: #004080; }
+        </style>
+      </head>
+      <body>
+        <iframe src="${url}"></iframe>
+        <div class="overlay" id="guide-overlay">
+          اضغط على الصورة الثانية
+          <button onclick="document.getElementById('guide-overlay').style.display='none';">حسناً</button>
+        </div>
+      </body>
+      </html>
+    `);
+    newWin.document.close();
+  } else {
+    // Fallback if popup blocked
+    window.open(url, '_blank');
+  }
+}
+
 function renderContent() {
   if (currentView === 'grid') {
     renderProductsGrid();
@@ -1957,8 +2164,9 @@ function updateStats(){
   }).length;
   document.getElementById('ending-soon').textContent = endingSoon.toLocaleString();
   
-  const totalSavings = filteredData.reduce((sum, item) => sum + (item._saved || 0), 0);
-  document.getElementById('total-savings').textContent = `${totalSavings.toFixed(0)} ج.م`;
+  // حساب عدد السوبرماركات الفريدة بدلاً من إجمالي التوفير
+  const uniqueSupermarkets = [...new Set(filteredData.map(item => item.supermarket).filter(Boolean))].length;
+  document.getElementById('total-supermarkets').textContent = uniqueSupermarkets.toLocaleString();
 }
 
 /* Autocomplete */
@@ -2064,6 +2272,12 @@ function initializeFilters(){
   const categorySelect = document.getElementById('category-filter');
   categorySelect.innerHTML = '<option value="">كل الفئات</option>';
   const categories = [...new Set(allData.map(i=>i.category))].filter(Boolean);
+  
+  // ✅ ترتيب الفئات أبجدياً تصاعدي (أ-ي)
+  categories.sort((a, b) => {
+    return a.localeCompare(b, 'ar');
+  });
+  
   categories.forEach(c=>{ 
     const o=document.createElement('option'); 
     o.value=c; 
@@ -2074,6 +2288,12 @@ function initializeFilters(){
   const brandSelect = document.getElementById('brand-filter');
   brandSelect.innerHTML = '<option value="">كل العلامات</option>';
   const brands = [...new Set(allData.map(i=>i.brand))].filter(Boolean);
+  
+  // ✅ ترتيب العلامات التجارية أبجدياً تصاعدي (أ-ي)
+  brands.sort((a, b) => {
+    return a.localeCompare(b, 'ar');
+  });
+  
   brands.forEach(b=>{ 
     const o=document.createElement('option'); 
     o.value=b; 
@@ -2156,10 +2376,41 @@ async function fetchData(){
       if(!res.ok) throw new Error('HTTP ' + res.status);
       const txt = await res.text();
       const parsed = Papa.parse(txt, { header:true, skipEmptyLines:true, trim:true, dynamicTyping:true });
+      
+      console.log('أسماء الأعمدة في البيانات:', parsed.meta.fields);
+      
       allData = parsed.data.map(item=>{
         const raw = item['فترة سريان العرض'] || item['Validity Period'] || '';
         const end = parseEndDate(String(raw));
         const validUntilStr = end ? formatDateShort(end) : (String(raw).split(/to|إلى|حتى|–|—|-|~/i).slice(-1)[0]||'غير متاح');
+        
+        const updateDateStr = item['تاريخ تعديل ملف الفلاير'] || 
+                              item['Update Date'] || 
+                              item['تاريخ التحديث'] ||
+                              item['تاريخ التعديل'] ||
+                              item['آخر تحديث'] ||
+                              item['تاريخ'] ||
+                              '';
+        
+        let updateDate = null;
+        if (updateDateStr && updateDateStr !== 'غير متاح' && updateDateStr.trim() !== '') {
+          try {
+            updateDate = new Date(updateDateStr);
+            
+            if (isNaN(updateDate.getTime())) {
+              const dateMatch = updateDateStr.match(/\d{4}[\/\-]\d{1,2}[\/\-]\d{1,2}|\d{1,2}[\/\-]\d{1,2}[\/\-]\d{4}/);
+              if (dateMatch) {
+                updateDate = new Date(dateMatch[0].replace(/\//g, '-'));
+              }
+            }
+            
+            if (isNaN(updateDate.getTime())) updateDate = null;
+          } catch (e) {
+            console.warn('فشل تحليل تاريخ التحديث:', updateDateStr, e);
+            updateDate = null;
+          }
+        }
+        
         return {
           supermarket: item['اسم السوبر ماركت'] || item['supermarket'] || 'غير متاح',
           product: item['الاسم بالعربية'] || item['اسم المنتج (الأساسي)'] || item['اسم المنتج'] || item['Product'] || 'غير متاح',
@@ -2174,9 +2425,19 @@ async function fetchData(){
           endDate: end,
           validUntil: validUntilStr,
           currency: item['العملة'] || 'EGP',
-          solution_key: (item['solution_key']||item['solution key']||item['Solution_key']||item['solutionKey']||'')
+          solution_key: (item['solution_key']||item['solution key']||item['Solution_key']||item['solutionKey']||''),
+          updateDate: updateDate,
+          rawUpdateDate: updateDateStr
         };
       });
+      
+      // تسجيل أسماء السوبرماركت المختلفة
+      const supermarkets = [...new Set(allData.map(i=>i.supermarket))];
+      console.log('السوبرماركت الموجودة في البيانات:', supermarkets);
+      
+      // حفظ نتائج فلاتر السوبرماركت في الكاش
+      supermarketFilterCache = {};
+      
       try{ 
         localStorage.setItem(CACHE_KEY, LZString.compressToUTF16(JSON.stringify(allData))); 
         localStorage.setItem(`${CACHE_KEY}_time`, Date.now()); 
@@ -2187,14 +2448,38 @@ async function fetchData(){
 
     computeSavedAndDiscount(allData);
     computeCombinedScore(allData);
-    allData.sort((a,b)=>{ 
-      if((b._score||0)!==(a._score||0)) return (b._score||0)-(a._score||0); 
-      if((b._saved||0)!==(a._saved||0)) return (b._saved||0)-(a._saved||0); 
-      return (b._discount_pct||0)-(a._discount_pct||0); 
+    
+    // حساب أحدث تاريخين من البيانات
+    latestTwoDates = findLatestTwoDates(allData);
+    
+    // إذا لم توجد تواريخ، استخدم التواريخ البديلة
+    if (latestTwoDates.length === 0) {
+      console.log('لم يتم العثور على تواريخ في البيانات، استخدام تواريخ بديلة');
+      const today = new Date();
+      const yesterday = new Date(today);
+      yesterday.setDate(yesterday.getDate() - 1);
+      
+      latestTwoDates = [
+        today.toISOString().split('T')[0],
+        yesterday.toISOString().split('T')[0]
+      ];
+    }
+    
+    console.log('أحدث تاريخين سيتم استخدامهم:', latestTwoDates);
+    
+    // تسجيل إحصائية
+    const itemsWithDate = allData.filter(item => item.updateDate || item.endDate || (item.validUntil && item.validUntil !== 'غير متاح')).length;
+    console.log(`عدد العناصر بتاريخ: ${itemsWithDate} من ${allData.length}`);
+    
+    // الترتيب الافتراضي أبجدي - تم التصحيح
+    allData.sort((a,b)=> {
+      const nameA = (a.product || '').toString().toLowerCase();
+      const nameB = (b.product || '').toString().toLowerCase();
+      return nameA.localeCompare(nameB, 'ar');
     });
 
     initializeFilters();
-    applyAllFilters(); // استخدام الدالة الجديدة
+    applyAllFilters();
 
     populateTicker();
 
