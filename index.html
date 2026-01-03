@@ -1069,7 +1069,7 @@
   <!-- User Guide Banner -->
   <div class="user-guide-banner" id="user-guide">
     <i class="fas fa-info-circle"></i>
-    <span>انقر على أي منتج لعرض التفاصيل، أو اضغط على الصورة الثانية للذهاب إلى موقع الشراء</span>
+    <span>انقر على أي منتج لعرض التفاصيل، واضغط على زر "عرض جدول"  لعرض الاصناف في جدول - وزر"عرض شبكي" للعرض التفصيلي  </span>
   </div>
 
   <!-- Stats Dashboard -->
@@ -2057,6 +2057,7 @@ function attachCardEventListeners() {
         const product = allData.find(p => p.product === productId);
         if (product) {
           let details = `
+            <strong>اسم ملف الفلاير:</strong> ${product.pageNo || 'غير متاح'}<br>
             <strong>اسم المنتج:</strong> ${product.product || 'غير متاح'}<br>
             <strong>الاسم الأساسي:</strong> ${product.primaryName || 'غير متاح'}<br>
             <strong>الوحدة:</strong> ${product.unit || 'غير متاح'}<br>
@@ -2080,7 +2081,17 @@ function attachCardEventListeners() {
         const productId = this.dataset.id;
         const product = allData.find(p => p.product === productId);
         if (product && product.solution_key) {
-          alert("اضغط على الصورة الثانية للذهاب إلى موقع الشراء");
+          const url = `https://www.yabalashoffers.com/flyer.php?d=${encodeURIComponent(product.solution_key)}&c=eg`;
+
+//          alert (product.pageNo || 'producttttttttt');
+  //        alert (item.pageNo || 'itemmmmmmmm');
+//          const flyerCurrency = product.currency || '';
+//          const flyerFileName = product.solution_key || '';
+          const flyerPageNo= product.pageNo.indexOf("page_") || '';
+          const flyerFileName =  product.pageNo.substring(flyerPageNo);
+          
+
+          openWithOverlay(url, flyerFileName);
         }
       });
     });
@@ -2150,10 +2161,15 @@ function renderTable(){
       try {
         const tr = document.createElement('tr');
         const url = item.solution_key ? `https://www.yabalashoffers.com/flyer.php?d=${encodeURIComponent(item.solution_key)}&c=eg` : '#';
+//        const flyerFileName = item.solution_key || '';
+ 
+        const flyerPageNo= item.pageNo.indexOf("page_") || '';
+        const flyerFileName =  item.pageNo.substring(flyerPageNo);
+       
         if(url && url!=='#'){ 
           tr.style.cursor='pointer'; 
           tr.title='انقر لزيارة صفحة العرض'; 
-          tr.onclick = ()=>{ openWithOverlay(url); };
+          tr.onclick = ()=>{ openWithOverlay(url, flyerFileName); };
         }
 
         if(item._discount_pct && item._discount_pct >= 20) tr.classList.add('highlight');
@@ -2179,6 +2195,79 @@ function renderTable(){
     updatePagination();
   } catch (error) {
     console.error('Error in renderTable:', error);
+  }
+}
+
+/* Open overlay with specific message */
+function openWithOverlay(url, flyerFileName) {
+  try {
+    const newWin = window.open('', '_blank');
+    if (newWin) {
+      newWin.document.write(`
+        <!DOCTYPE html>
+        <html lang="ar" dir="rtl">
+        <head>
+          <meta charset="utf-8">
+          <title>عرض المنتج</title>
+          <style>
+            body { margin: 0; padding: 0; overflow: hidden; font-family: 'Cairo', sans-serif; }
+            iframe { width: 100vw; height: 100vh; border: none; }
+            .overlay { 
+              position: fixed; 
+              top: 20px; 
+              left: 50%; 
+              transform: translateX(-50%); 
+              background: rgba(255, 255, 255, 0.95); 
+              padding: 15px 25px; 
+              border-radius: 8px; 
+              box-shadow: 0 4px 15px rgba(0,0,0,0.2); 
+              z-index: 9999; 
+              font-size: 1.1rem; 
+              color: #333; 
+              display: flex; 
+              align-items: center; 
+              gap: 10px; 
+              animation: slideDown 0.3s ease-out;
+            }
+            .overlay button { 
+              background: #00539F; 
+              color: white; 
+              border: none; 
+              padding: 8px 15px; 
+              border-radius: 5px; 
+              cursor: pointer; 
+              font-weight: 600; 
+            }
+            .overlay button:hover { background: #004080; }
+            @keyframes slideDown {
+              from { top: -100px; opacity: 0; }
+              to { top: 20px; opacity: 1; }
+            }
+          </style>
+          <script>
+            window.addEventListener('load', function() {
+              setTimeout(function() {
+                document.getElementById('guide-overlay').style.display = 'flex';
+              }, 1000);
+            });
+          <\/script>
+        </head>
+        <body>
+          <iframe src="${url}" onload="document.getElementById('guide-overlay').style.display='flex';"></iframe>
+          <div class="overlay" id="guide-overlay" style="display: none;">
+            اضغط على الصورة رقم ${flyerFileName || ''}
+            <button onclick="document.getElementById('guide-overlay').style.display='none';">حسناً</button>
+          </div>
+        </body>
+        </html>
+      `);
+      newWin.document.close();
+    } else {
+      window.open(url, '_blank');
+    }
+  } catch (error) {
+    console.error('Error in openWithOverlay:', error);
+    window.open(url, '_blank');
   }
 }
 
@@ -2240,43 +2329,6 @@ function updatePagination(){
     pagination.appendChild(btn('الأخيرة', currentPage===totalPages, ()=>{ currentPage=totalPages; renderContent(); }));
   } catch (error) {
     console.error('Error in updatePagination:', error);
-  }
-}
-
-function openWithOverlay(url) {
-  try {
-    const newWin = window.open('', '_blank');
-    if (newWin) {
-      newWin.document.write(`
-        <!DOCTYPE html>
-        <html lang="ar" dir="rtl">
-        <head>
-          <meta charset="utf-8">
-          <title>عرض المنتج</title>
-          <style>
-            body { margin: 0; padding: 0; overflow: hidden; font-family: 'Cairo', sans-serif; }
-            iframe { width: 100vw; height: 100vh; border: none; }
-            .overlay { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: rgba(255, 255,255, 0.95); padding: 15px 25px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); z-index: 9999; font-size: 1.1rem; color: #333; display: flex; align-items: center; gap: 10px; }
-            .overlay button { background: #00539F; color: white; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer; font-weight: 600; }
-            .overlay button:hover { background: #004080; }
-          </style>
-        </head>
-        <body>
-          <iframe src="${url}"></iframe>
-          <div class="overlay" id="guide-overlay">
-            اضغط على الصورة الثانية
-            <button onclick="document.getElementById('guide-overlay').style.display='none';">حسناً</button>
-          </div>
-        </body>
-        </html>
-      `);
-      newWin.document.close();
-    } else {
-      window.open(url, '_blank');
-    }
-  } catch (error) {
-    console.error('Error in openWithOverlay:', error);
-    window.open(url, '_blank');
   }
 }
 
@@ -2342,12 +2394,6 @@ function showAutocomplete(){
       d.style.cursor='pointer';
       d.style.borderBottom='1px solid #f0f0f0';
       d.addEventListener('click', ()=>{
-
-
-
-
-
-
         document.getElementById('search-input').value = s;
         clearAutocomplete();
         debouncedApplyAllFilters();
@@ -2624,6 +2670,7 @@ async function fetchData(){
             rawPeriod: raw,
             endDate: end,
             validUntil: validUntilStr,
+            pageNo: String(item['اسم ملف الفلاير'] || ''),
             currency: String(item['العملة'] || 'EGP'),
             solution_key: String(item['solution_key']||item['solution key']||item['Solution_key']||item['solutionKey']||''),
             updateDate: updateDate,
