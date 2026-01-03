@@ -2835,5 +2835,45 @@ function checkUrlForSearch() {
 // Call this function when the page loads
 document.addEventListener('DOMContentLoaded', checkUrlForSearch);
 
+<script>
+/**
+ * Catch search query from URL (e.g., ?q=milk) 
+ * and apply it to the AI page search bar automatically.
+ */
+function handleUrlSearch() {
+    // 1. Parse the URL parameters
+    const urlParams = new URLSearchParams(window.location.search);
+    const query = urlParams.get('q');
+
+    if (query) {
+        // 2. Find the search input in your index.html
+        const searchInput = document.getElementById('search-input');
+        
+        if (searchInput) {
+            // 3. Set the text in the box
+            searchInput.value = decodeURIComponent(query);
+            
+            // 4. Trigger the search logic
+            // We wait a tiny bit to ensure the data has finished loading
+            setTimeout(() => {
+                if (typeof applyAllFilters === 'function') {
+                    applyAllFilters();
+                } else {
+                    // Fallback: trigger an 'input' event so existing listeners catch it
+                    searchInput.dispatchEvent(new Event('input', { bubbles: true }));
+                }
+            }, 500); 
+        }
+    }
+}
+
+// Run the check as soon as the page is ready
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', handleUrlSearch);
+} else {
+    handleUrlSearch();
+}
+</script>
+
 </body>
 </html>
