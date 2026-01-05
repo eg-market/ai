@@ -2875,5 +2875,26 @@ if (document.readyState === 'loading') {
 }
 </script>
 
+<script>
+  // 1. قراءة الـ parameters
+  const urlParams = new URLSearchParams(window.location.search);
+  const market = urlParams.get('market');
+
+  if (market) {
+    // 2. حقل البحث عن السوبرماركت
+    const marketInput = document.getElementById('supermarket-search');
+
+    if (marketInput) {
+      // 3. وضع القيمة في الحقل
+      marketInput.value = market;
+
+      // 4. تشغيل البحث تلقائيًا
+      marketInput.dispatchEvent(new Event('input', { bubbles: true }));
+      marketInput.dispatchEvent(new Event('change', { bubbles: true }));
+    }
+  }
+</script>
+
+
 </body>
 </html>
