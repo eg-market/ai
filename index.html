@@ -2876,24 +2876,22 @@ if (document.readyState === 'loading') {
 </script>
 
 <script>
-  // 1. قراءة الـ parameters
-  const urlParams = new URLSearchParams(window.location.search);
-  const market = urlParams.get('market');
+document.addEventListener("DOMContentLoaded", function () {
+  const params = new URLSearchParams(window.location.search);
+  const market = params.get("market");
 
-  if (market) {
-    // 2. حقل البحث عن السوبرماركت
-    const marketInput = document.getElementById('supermarket-filter');
+  if (!market) return;
 
-    if (marketInput) {
-      // 3. وضع القيمة في الحقل
-      marketInput.value = market;
+  const select = document.getElementById("supermarket-filter");
+  if (!select) return;
 
-      // 4. تشغيل البحث تلقائيًا
-      marketInput.dispatchEvent(new Event('input', { bubbles: true }));
-      marketInput.dispatchEvent(new Event('change', { bubbles: true }));
-    }
-  }
+  select.value = market;
+
+  // لو عندك فلترة تلقائية
+  select.dispatchEvent(new Event("change"));
+});
 </script>
+
 
 
 </body>
