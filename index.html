@@ -2862,7 +2862,8 @@ document.addEventListener("DOMContentLoaded", function () {
   // لو عندك فلترة تلقائية
   select.dispatchEvent(new Event("change"));
 });
-</script> <script>
+    
+<!-- </script> <script>
 document.addEventListener("DOMContentLoaded", function () {
   const params = new URLSearchParams(window.location.search);
   const percent = params.get("discount");
@@ -2877,6 +2878,21 @@ document.addEventListener("DOMContentLoaded", function () {
   // لو عندك فلترة تلقائية
   select.dispatchEvent(new Event("change"));
 });
-</script>
+</script>  --->
+    
+    document.querySelectorAll('.chip').forEach(chip => {
+  chip.addEventListener('click', () => {
+    document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+    chip.classList.add('active');
+    activeChipFilter = chip.dataset.filter;
+
+    // Set supermarket filter for specific chips
+    const supermarketSelect = document.getElementById('min-discount');
+   
+
+    applyAllFilters();
+  });
+});
+    
   </body>
 </html>
