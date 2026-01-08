@@ -1,19 +1,23 @@
-<!doctype html>
-<html lang="ar" dir="rtl">
-<head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-<title>عروض السوبرماركت - أفضل العروض اليومية</title>
+<!DOCTYPE html>
+<html dir="rtl" lang="ar">
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+    <title>عروض السوبرماركت - أفضل العروض اليومية</title>
+    <!-- External libs used by original file -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.0/papaparse.min.js"
 
-<!-- External libs used by original file -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.0/papaparse.min.js" defer></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/lz-string/1.4.4/lz-string.min.js" defer></script>
-<!-- Font Awesome for icons -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-<!-- Google Fonts for Arabic -->
-<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+defer="defer"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lz-string/1.4.4/lz-string.min.js"
 
-<style>
+defer="defer"></script>
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts for Arabic -->
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;800&amp;display=swap"
+
+      rel="stylesheet">
+    <style>
   :root{
     --primary-blue: #00539F;  /* Carrefour blue */
     --accent-orange: #FF6B00; /* Hyper Panda orange */
@@ -1044,209 +1048,197 @@
   .discount-badge.pulse {
     animation: pulse 2s infinite;
   }
-</style>
-</head>
-<body>
-<div class="container">
-  <!-- Hero Banner -->
-  <div class="hero-banner">
-    <div class="hero-content">
-      <h1>🛒 أفضل عروض السوبرماركت اليومية</h1>
-      <p class="hero-subtitle">قارن الأسعار بين كارفور، هايبر وان، سعودي ماركت وغيرها - وفر حتى 70%</p>
-      
-      <!-- Ticker banner -->
-      <div class="ticker-wrap" aria-live="polite" aria-atomic="true" role="region" aria-label="أفضل العروض">
-        <div class="ticker-label"><i class="fas fa-bolt"></i> عروض مميزة</div>
-        <div class="ticker-viewport" id="ticker-viewport">
-          <div class="ticker-track" id="ticker-track" aria-hidden="false">
-            <div class="ticker-item">جارٍ تحميل العروض...</div>
+</style> </head>
+  <body>
+    <div class="container">
+      <!-- Hero Banner -->
+      <div class="hero-banner">
+        <div class="hero-content">
+          <h1>🛒 أفضل عروض السوبرماركت اليومية</h1>
+          <p class="hero-subtitle">قارن الأسعار بين كارفور، هايبر وان، سعودي
+            ماركت وغيرها - وفر حتى 70%</p>
+          <!-- Ticker banner -->
+          <div class="ticker-wrap" aria-live="polite" aria-atomic="true" role="region"
+
+            aria-label="أفضل العروض">
+            <div class="ticker-label"><i class="fas fa-bolt"></i> عروض مميزة</div>
+            <div class="ticker-viewport" id="ticker-viewport">
+              <div class="ticker-track" id="ticker-track" aria-hidden="false">
+                <div class="ticker-item">جارٍ تحميل العروض...</div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
-    </div>
-  </div>
+      <!-- User Guide Banner -->
+      <div class="user-guide-banner" id="user-guide"> <i class="fas fa-info-circle"></i>
+        <span>انقر على أي منتج لعرض التفاصيل، واضغط على زر "عرض جدول" لعرض
+          الاصناف في جدول - وزر"عرض شبكي" للعرض التفصيلي </span> </div>
+      <!-- Stats Dashboard -->
+      <div class="stats-dashboard">
+        <div class="stat-card">
+          <div class="stat-icon">💰</div>
+          <div class="stat-content">
+            <div id="total-offers" class="stat-value">0</div>
+            <div class="stat-label">إجمالي العروض</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">📉</div>
+          <div class="stat-content">
+            <div id="avg-discount" class="stat-value">0%</div>
+            <div class="stat-label">متوسط الخصم</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">🔥</div>
+          <div class="stat-content">
+            <div id="hot-deals" class="stat-value">0</div>
+            <div class="stat-label">عروض ساخنة</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">⏰</div>
+          <div class="stat-content">
+            <div id="ending-soon" class="stat-value">0</div>
+            <div class="stat-label">تنتهي قريباً</div>
+          </div>
+        </div>
+        <!-- Changed from total-savings to total-supermarkets -->
+        <div class="stat-card">
+          <div class="stat-icon">🛒</div>
+          <div class="stat-content">
+            <div id="total-supermarkets" class="stat-value">0</div>
+            <div class="stat-label">عدد السوبرماركات</div>
+          </div>
+        </div>
+      </div>
+      <!-- Quick Filter Chips -->
+      <div class="filter-chips" id="filter-chips"> <button class="chip active"
 
-  <!-- User Guide Banner -->
-  <div class="user-guide-banner" id="user-guide">
-    <i class="fas fa-info-circle"></i>
-    <span>انقر على أي منتج لعرض التفاصيل، واضغط على زر "عرض جدول"  لعرض الاصناف في جدول - وزر"عرض شبكي" للعرض التفصيلي  </span>
-  </div>
+          data-filter="all"><i class="fas fa-fire"></i> جميع العروض</button> <button
 
-  <!-- Stats Dashboard -->
-  <div class="stats-dashboard">
-    <div class="stat-card">
-      <div class="stat-icon">💰</div>
-      <div class="stat-content">
-        <div id="total-offers" class="stat-value">0</div>
-        <div class="stat-label">إجمالي العروض</div>
+          class="chip" data-filter="hot"><i class="fas fa-bolt"></i> العروض
+          الساخنة</button> <button class="chip" data-filter="ending"><i class="fas fa-clock"></i>
+          تنتهي قريباً</button> <button class="chip" data-filter="discount"><i
+
+            class="fas fa-percentage"></i> خصومات كبيرة</button> <button class="chip"
+
+          data-filter="carrefour"><i class="fas fa-shopping-cart"></i> كارفور</button>
+        <button class="chip" data-filter="hyperone"><i class="fas fa-store"></i>
+          هايبر وان</button> <button class="chip" data-filter="food"><i class="fas fa-utensils"></i>
+          منتجات غذائية</button> <button class="chip" data-filter="recent"><i class="fas fa-calendar-day"></i>
+          أحدث العروض (آخر يومين)</button> </div>
+      <!-- View Toggle -->
+      <div class="view-toggle"> <button class="view-btn active" id="view-grid-btn"><i
+
+            class="fas fa-th-large"></i> عرض شبكي</button> <button class="view-btn"
+
+          id="view-table-btn"><i class="fas fa-table"></i> عرض جدول</button> </div>
+      <!-- Products Grid -->
+      <div class="products-grid" id="products-grid"></div>
+      <!-- Controls -->
+      <div class="controls" role="region" aria-label="عناصر التحكم">
+        <div class="row" style="flex:1;"> <input id="search-input" placeholder="ابحث عن منتجات أو علامات تجارية..."
+
+            aria-label="حقل البحث" type="text">
+          <select id="supermarket-filter" aria-label="تصفية حسب السوبر ماركت">
+            <option value="">كل السوبر ماركت</option>
+          </select>
+          <select id="category-filter" aria-label="تصفية حسب الفئة">
+            <option value="">كل الفئات</option>
+          </select>
+          <select id="brand-filter" aria-label="تصفية حسب العلامة التجارية">
+            <option value="">كل العلامات</option>
+          </select>
+        </div>
+        <div class="row" style="width:100%; gap:8px;">
+          <!-- Min price with controls -->
+          <div class="price-controls" style="align-items:center;"> <button id="min-decrease"
+
+              type="button" aria-label="نقص الحد الأدنى">−</button> <input id="min-price"
+
+              placeholder="الحد الأدنى للسعر" aria-label="الحد الأدنى للسعر" step="0.5"
+
+              min="0" type="number"> <button id="min-increase" type="button" aria-label="زيادة الحد الأدنى">+</button>
+          </div>
+          <!-- Max price with controls -->
+          <div class="price-controls" style="align-items:center;"> <button id="max-decrease"
+
+              type="button" aria-label="نقص الحد الأقصى">−</button> <input id="max-price"
+
+              placeholder="الحد الأعلى للسعر" aria-label="الحد الأعلى للسعر" step="0.5"
+
+              min="0" type="number"> <button id="max-increase" type="button" aria-label="زيادة الحد الأقصى">+</button>
+          </div>
+          <select id="sort-by" aria-label="فرز حسب">
+            <option value="best-deals" selected="selected">أفضل العروض (مركب)</option>
+            <option value="discount-desc">الخصم % - تنازلي</option>
+            <option value="saved-desc">قيمة التوفير - تنازلي</option>
+            <option value="price-asc">السعر - تصاعدي</option>
+            <option value="price-desc">السعر - تنازلي</option>
+            <option value="name-asc">الاسم (أ-ي)</option>
+            <option value="name-desc">الاسم (ي-أ)</option>
+          </select>
+          <input id="min-discount" placeholder="الحد الأدنى للخصم %"
+
+            aria-label="الحد الأدنى للخصم" type="number">
+          <div style="display:flex;gap:8px;"> <button id="reset-btn" aria-label="إعادة تعيين">🔄
+              إعادة تعيين</button> <button id="share-app" aria-label="مشاركة التطبيق"><i
+
+                class="fas fa-share-alt"></i> مشاركة</button> <button id="compare-mode-btn"
+
+              aria-label="وضع المقارنة"><i class="fas fa-balance-scale"></i>
+              المقارنة</button> </div>
+        </div>
+      </div>
+      <!-- Data Table -->
+      <div id="loading">جارٍ تحميل البيانات...</div>
+      <div id="data-table" role="region" aria-label="جدول العروض" style="display:none;">
+        <table aria-label="قائمة العروض">
+          <thead>
+            <tr>
+              <th>🏪 السوبر ماركت</th>
+              <th>🛒 المنتج</th>
+              <th>📝 اسم المنتج (الأساسي)</th>
+              <th>📦 الوحدة</th>
+              <th>📂 الفئة</th>
+              <th>🏷️ العلامة التجارية</th>
+              <th>💵 السعر الحالي</th>
+              <th>📉 الخصم</th>
+              <th>💰 التوفير</th>
+              <th>⏰ ساري حتى</th>
+            </tr>
+          </thead>
+          <tbody id="table-body">
+          </tbody>
+        </table>
+        <div class="card-list" id="card-list" aria-hidden="true"></div>
+        <div class="pagination" id="pagination" role="navigation" aria-label="تنقل الصفحات"></div>
       </div>
     </div>
-    <div class="stat-card">
-      <div class="stat-icon">📉</div>
-      <div class="stat-content">
-        <div id="avg-discount" class="stat-value">0%</div>
-        <div class="stat-label">متوسط الخصم</div>
+    <!-- Comparison Panel -->
+    <div class="comparison-panel" id="comparison-panel">
+      <div class="comparison-header">
+        <h3 style="margin:0;"><i class="fas fa-balance-scale"></i> مقارنة
+          المنتجات (<span id="comparison-count">0</span>/4)</h3>
+        <div> <button id="clear-comparison" style="margin-left:10px; background:#dc3545; color:white; border:none; padding:8px 16px; border-radius:6px; cursor:pointer;">
+            <i class="fas fa-trash"></i> مسح الكل </button> <button id="close-comparison"
+
+            style="background:#6c757d; color:white; border:none; padding:8px 16px; border-radius:6px; cursor:pointer;">
+            <i class="fas fa-times"></i> إغلاق </button> </div>
       </div>
+      <div class="comparison-items" id="comparison-items">
+        <!-- Comparison items will be added here --> </div>
     </div>
-    <div class="stat-card">
-      <div class="stat-icon">🔥</div>
-      <div class="stat-content">
-        <div id="hot-deals" class="stat-value">0</div>
-        <div class="stat-label">عروض ساخنة</div>
-      </div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-icon">⏰</div>
-      <div class="stat-content">
-        <div id="ending-soon" class="stat-value">0</div>
-        <div class="stat-label">تنتهي قريباً</div>
-      </div>
-    </div>
-    <!-- Changed from total-savings to total-supermarkets -->
-    <div class="stat-card">
-      <div class="stat-icon">🛒</div>
-      <div class="stat-content">
-        <div id="total-supermarkets" class="stat-value">0</div>
-        <div class="stat-label">عدد السوبرماركات</div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Quick Filter Chips -->
-  <div class="filter-chips" id="filter-chips">
-    <button class="chip active" data-filter="all"><i class="fas fa-fire"></i> جميع العروض</button>
-    <button class="chip" data-filter="hot"><i class="fas fa-bolt"></i> العروض الساخنة</button>
-    <button class="chip" data-filter="ending"><i class="fas fa-clock"></i> تنتهي قريباً</button>
-    <button class="chip" data-filter="discount"><i class="fas fa-percentage"></i> خصومات كبيرة</button>
-    <button class="chip" data-filter="carrefour"><i class="fas fa-shopping-cart"></i> كارفور</button>
-    <button class="chip" data-filter="hyperone"><i class="fas fa-store"></i> هايبر وان</button>
-    <button class="chip" data-filter="food"><i class="fas fa-utensils"></i> منتجات غذائية</button>
-    <button class="chip" data-filter="recent"><i class="fas fa-calendar-day"></i> أحدث العروض (آخر يومين)</button>
-  </div>
-
-  <!-- View Toggle -->
-  <div class="view-toggle">
-    <button class="view-btn active" id="view-grid-btn"><i class="fas fa-th-large"></i> عرض شبكي</button>
-    <button class="view-btn" id="view-table-btn"><i class="fas fa-table"></i> عرض جدول</button>
-  </div>
-
-  <!-- Products Grid -->
-  <div class="products-grid" id="products-grid"></div>
-
-  <!-- Controls -->
-  <div class="controls" role="region" aria-label="عناصر التحكم">
-    <div class="row" style="flex:1;">
-      <input id="search-input" type="text" placeholder="ابحث عن منتجات أو علامات تجارية..." aria-label="حقل البحث" />
-      <select id="supermarket-filter" aria-label="تصفية حسب السوبر ماركت"><option value="">كل السوبر ماركت</option></select>
-      <select id="category-filter" aria-label="تصفية حسب الفئة"><option value="">كل الفئات</option></select>
-      <select id="brand-filter" aria-label="تصفية حسب العلامة التجارية"><option value="">كل العلامات</option></select>
-    </div>
-
-    <div class="row" style="width:100%; gap:8px;">
-      <!-- Min price with controls -->
-      <div class="price-controls" style="align-items:center;">
-        <button id="min-decrease" type="button" aria-label="نقص الحد الأدنى">−</button>
-        <input id="min-price" type="number" placeholder="الحد الأدنى للسعر" aria-label="الحد الأدنى للسعر" step="0.5" min="0" />
-        <button id="min-increase" type="button" aria-label="زيادة الحد الأدنى">+</button>
-      </div>
-
-      <!-- Max price with controls -->
-      <div class="price-controls" style="align-items:center;">
-        <button id="max-decrease" type="button" aria-label="نقص الحد الأقصى">−</button>
-        <input id="max-price" type="number" placeholder="الحد الأعلى للسعر" aria-label="الحد الأعلى للسعر" step="0.5" min="0" />
-        <button id="max-increase" type="button" aria-label="زيادة الحد الأقصى">+</button>
-      </div>
-
-      <select id="sort-by" aria-label="فرز حسب">
-        <option value="best-deals" selected>أفضل العروض (مركب)</option>
-        <option value="discount-desc">الخصم % - تنازلي</option>
-        <option value="saved-desc">قيمة التوفير - تنازلي</option>
-        <option value="price-asc">السعر - تصاعدي</option>
-        <option value="price-desc">السعر - تنازلي</option>
-        <option value="name-asc">الاسم (أ-ي)</option>
-        <option value="name-desc">الاسم (ي-أ)</option>
-        </select>
-
-      <input id="min-discount" type="number" placeholder="الحد الأدنى للخصم %" aria-label="الحد الأدنى للخصم" />
-
-      <div style="display:flex;gap:8px;">
-        <button id="reset-btn" aria-label="إعادة تعيين">🔄 إعادة تعيين</button>
-        <button id="share-app" aria-label="مشاركة التطبيق"><i class="fas fa-share-alt"></i> مشاركة</button>
-        <button id="compare-mode-btn" aria-label="وضع المقارنة"><i class="fas fa-balance-scale"></i> المقارنة</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Data Table -->
-  <div id="loading">جارٍ تحميل البيانات...</div>
-
-  <div id="data-table" role="region" aria-label="جدول العروض" style="display:none;">
-    <table aria-label="قائمة العروض">
-      <thead>
-        <tr>
-          <th>🏪 السوبر ماركت</th>
-          <th>🛒 المنتج</th>
-          <th>📝 اسم المنتج (الأساسي)</th>
-          <th>📦 الوحدة</th>
-          <th>📂 الفئة</th>
-          <th>🏷️ العلامة التجارية</th>
-          <th>💵 السعر الحالي</th>
-          <th>📉 الخصم</th>
-          <th>💰 التوفير</th>
-          <th>⏰ ساري حتى</th>
-        </tr>
-      </thead>
-      <tbody id="table-body"></tbody>
-    </table>
-
-    <div class="card-list" id="card-list" aria-hidden="true"></div>
-    <div class="pagination" id="pagination" role="navigation" aria-label="تنقل الصفحات"></div>
-  </div>
-</div>
-
-<!-- Comparison Panel -->
-<div class="comparison-panel" id="comparison-panel">
-  <div class="comparison-header">
-    <h3 style="margin:0;"><i class="fas fa-balance-scale"></i> مقارنة المنتجات (<span id="comparison-count">0</span>/4)</h3>
-    <div>
-      <button id="clear-comparison" style="margin-left:10px; background:#dc3545; color:white; border:none; padding:8px 16px; border-radius:6px; cursor:pointer;">
-        <i class="fas fa-trash"></i> مسح الكل
-      </button>
-      <button id="close-comparison" style="background:#6c757d; color:white; border:none; padding:8px 16px; border-radius:6px; cursor:pointer;">
-        <i class="fas fa-times"></i> إغلاق
-      </button>
-    </div>
-  </div>
-  <div class="comparison-items" id="comparison-items">
-    <!-- Comparison items will be added here -->
-  </div>
-</div>
-
-<!-- Mobile Navigation -->
-<div class="mobile-nav">
-  <a href="#" class="mobile-nav-item active">
-    <i class="fas fa-home"></i>
-    <span>الرئيسية</span>
-  </a>
-  <a href="#" class="mobile-nav-item">
-    <i class="fas fa-percentage"></i>
-    <span>العروض</span>
-  </a>
-  <a href="#" class="mobile-nav-item">
-    <i class="fas fa-search"></i>
-    <span>بحث</span>
-  </a>
-  <a href="#" class="mobile-nav-item">
-    <i class="fas fa-heart"></i>
-    <span>المفضلة</span>
-  </a>
-  <a href="#" class="mobile-nav-item">
-    <i class="fas fa-user"></i>
-    <span>حسابي</span>
-  </a>
-</div>
-
-<script>
+    <!-- Mobile Navigation -->
+    <div class="mobile-nav"> <a href="#" class="mobile-nav-item active"> <i class="fas fa-home"></i>
+        <span>الرئيسية</span> </a> <a href="#" class="mobile-nav-item"> <i class="fas fa-percentage"></i>
+        <span>العروض</span> </a> <a href="#" class="mobile-nav-item"> <i class="fas fa-search"></i>
+        <span>بحث</span> </a> <a href="#" class="mobile-nav-item"> <i class="fas fa-heart"></i>
+        <span>المفضلة</span> </a> <a href="#" class="mobile-nav-item"> <i class="fas fa-user"></i>
+        <span>حسابي</span> </a> </div>
+    <script>
 /* ================= Configuration ================= */
 const DATA_URL = 'https://script.google.com/macros/s/AKfycbzD-TIVSoc4BxNhfytOM2Sbzs156Iht420hS2XCSRZkAuNIbBPnVYxQhTVEohgv0u-Fsg/exec';
 const CACHE_KEY = 'offersData';
@@ -2805,37 +2797,19 @@ document.addEventListener('visibilitychange', ()=>{
     fetchData(); 
   } 
 });
-</script>
-
-// Add this to your index.html script
-
-function checkUrlForSearch() {
-    // 1. Get the URL parameters
-    const urlParams = new URLSearchParams(window.location.search);
-    
-    // 2. Look for the 'q' parameter we set in the Carrefour page
-    const query = urlParams.get('q');
-    
-    // 3. If found, put it in the search box and trigger the search
-    if (query) {
-        const searchInput = document.getElementById('search-input');
-        if (searchInput) {
-            // Set the value
-            searchInput.value = decodeURIComponent(query);
-            
-            // Trigger the search logic (assuming you have this function from your previous code)
-            // If you are using the 'applyAllFilters' function from your provided index.html:
-            if (typeof applyAllFilters === 'function') {
-                applyAllFilters();
-            }
-        }
-    }
-}
-
-// Call this function when the page loads
-document.addEventListener('DOMContentLoaded', checkUrlForSearch);
-
-<script>
+</script>// Add this to your index.html script function checkUrlForSearch() { //
+    1. Get the URL parameters const urlParams = new
+    URLSearchParams(window.location.search); // 2. Look for the 'q' parameter we
+    set in the Carrefour page const query = urlParams.get('q'); // 3. If found,
+    put it in the search box and trigger the search if (query) { const
+    searchInput = document.getElementById('search-input'); if (searchInput) { //
+    Set the value searchInput.value = decodeURIComponent(query); // Trigger the
+    search logic (assuming you have this function from your previous code) // If
+    you are using the 'applyAllFilters' function from your provided index.html:
+    if (typeof applyAllFilters === 'function') { applyAllFilters(); } } } } //
+    Call this function when the page loads
+    document.addEventListener('DOMContentLoaded', checkUrlForSearch);
+    <script>
 /**
  * Catch search query from URL (e.g., ?q=milk) 
  * and apply it to the AI page search bar automatically.
@@ -2873,9 +2847,7 @@ if (document.readyState === 'loading') {
 } else {
     handleUrlSearch();
 }
-</script>
-
-<script>
+</script> <script>
 document.addEventListener("DOMContentLoaded", function () {
   const params = new URLSearchParams(window.location.search);
   const market = params.get("market");
@@ -2890,9 +2862,21 @@ document.addEventListener("DOMContentLoaded", function () {
   // لو عندك فلترة تلقائية
   select.dispatchEvent(new Event("change"));
 });
+</script> <script>
+document.addEventListener("DOMContentLoaded", function () {
+  const params = new URLSearchParams(window.location.search);
+  const percent = params.get("percent");
+
+  if (!percent) return;
+
+  const select = document.getElementById("min-discount");
+  if (!select) return;
+
+  select.value = percent;
+
+  // لو عندك فلترة تلقائية
+  select.dispatchEvent(new Event("change"));
+});
 </script>
-
-
-
-</body>
+  </body>
 </html>
