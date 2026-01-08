@@ -2879,7 +2879,7 @@ document.addEventListener("DOMContentLoaded", function () {
   select.dispatchEvent(new Event("change"));
 });
 </script>  --->
-    
+    <script>
     document.querySelectorAll('.chip').forEach(chip => {
   chip.addEventListener('click', () => {
     document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
@@ -2892,9 +2892,9 @@ document.addEventListener("DOMContentLoaded", function () {
       discount.value = '';  // Reset for other chips
     
 
-
+    applyAllFilters();
   });
 });
-      applyAllFilters();  
+   </script> 
   </body>
 </html>
