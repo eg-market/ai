@@ -2888,7 +2888,13 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // Set supermarket filter for specific chips
     const supermarketSelect = document.getElementById('min-discount');
-   
+    if (activeChipFilter === 'carrefour') {
+      supermarketSelect.value = 'كارفور';  // Match exact name from CSV/data
+    } else if (activeChipFilter === 'hyperone') {
+      supermarketSelect.value = 'هايبر1hyper 1';  // Match exact name from CSV
+    } else {
+      supermarketSelect.value = '';  // Reset for other chips
+    }
 
     applyAllFilters();
   });
