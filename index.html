@@ -1601,7 +1601,8 @@ function applyAllFilters() {
                  if (itemDate && !isNaN(newestDateInDB.getTime())) {
                     // Calculate difference in days
                     const diffTime = Math.abs(newestDateInDB - itemDate);
-                    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); 
+                   
+                   const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); 
                     // Pass if within 7 days
                     chipFilterPass = diffDays <= 7;
                  } else {
@@ -1618,16 +1619,19 @@ function applyAllFilters() {
                  // Get the newest date from your existing logic (first item in latestTwoDates)
                  const newestDateInDB2 = new Date(latestTwoDates[0]);
                  let itemDate = null;
-                 
+ alert   newestDateInDB2          
                  // Extract date from item (same logic as above)
                  if (item.updateDate) itemDate = item.updateDate;
                  else if (item.endDate) itemDate = item.endDate;
                  else if (item.validUntil && item.validUntil !== 'غير متاح') itemDate = parseEndDate(item.validUntil);
-
+consol itemdate
                  if (itemDate && !isNaN(newestDateInDB2.getTime())) {
                     // Calculate difference in days
                     const diffTime = Math.abs(newestDateInDB - itemDate);
-                    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); 
+                    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
+alert diffTime
+console diffdate
+                    
                     // Pass if within 7 days
                     chipFilterPass = diffDays <= 1;
                  } else {
@@ -2981,14 +2985,14 @@ document.addEventListener("DOMContentLoaded", function () {
 document.addEventListener("DOMContentLoaded", function () {
   const params = new URLSearchParams(window.location.search);
   const percent2 = params.get("one_day");
-
+Alert percent2
   if (percent2) {
    
     const discountInput2 = document.getElementById("updateDateStr");
     if (discountInput2) {
         discountInput2.value = percent2;
     }
-
+console discountInput2
     // 2. Set the internal filter variable to our new day mode
     // Note: We are setting the global variable 'activeChipFilter' defined in your main script
     activeChipFilter = 'recent_day';
