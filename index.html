@@ -1180,9 +1180,9 @@ defer="defer"></script>
             <option value="name-asc">الاسم (أ-ي)</option>
             <option value="name-desc">الاسم (ي-أ)</option>
           </select>
-          <input id="min-discount" placeholder="الحد الأدنى للخصم %"
+          <input id="min-discount" placeholder="الحد الأدنى للخصم %" aria-label="الحد الأدنى للخصم"
 
-            aria-label="الحد الأدنى للخصم" type="number">
+            type="number">
           <div style="display:flex;gap:8px;"> <button id="reset-btn" aria-label="إعادة تعيين">🔄
               إعادة تعيين</button> <button id="share-app" aria-label="مشاركة التطبيق"><i
 
@@ -1526,11 +1526,11 @@ function applyAllFilters() {
       try {
         if (activeChipFilter !== 'all') {
           let chipFilterPass = false;
+       // ... inside applyAllFilters function ...
+
           switch(activeChipFilter) {
             case 'hot':
-              // REMOVED: chipFilterPass = item._discount_pct > 30;
-              // Now we just return true and let sorting handle it
-              chipFilterPass = true;
+              chipFilterPass = true; // Sorting handles this
               break;
             case 'ending':
               if (item.endDate) {
@@ -1540,9 +1540,7 @@ function applyAllFilters() {
               }
               break;
             case 'discount':
-              // REMOVED: chipFilterPass = item._discount_pct > 50;
-              // Now we just return true and let sorting handle it
-              chipFilterPass = true;
+              chipFilterPass = true; // Sorting handles this
               break;
             case 'food':
               if (item.category) {
@@ -1553,60 +1551,73 @@ function applyAllFilters() {
                                 category.includes('مأكولات');
               }
               break;
+            
+            // --- EXISTING 2-DAY FILTER ---
             case 'recent':
               if (latestTwoDates.length === 0) {
                 chipFilterPass = false;
               } else {
                 let itemDate = null;
-                
-                if (item.updateDate) {
-                  itemDate = item.updateDate;
-                }
-                else if (item.endDate) {
-                  itemDate = item.endDate;
-                }
-                else if (item.validUntil && item.validUntil !== 'غير متاح') {
-                  itemDate = parseEndDate(item.validUntil);
-                }
+                if (item.updateDate) itemDate = item.updateDate;
+                else if (item.endDate) itemDate = item.endDate;
+                else if (item.validUntil && item.validUntil !== 'غير متاح') itemDate = parseEndDate(item.validUntil);
                 
                 if (itemDate) {
                   const year = itemDate.getFullYear();
                   const month = String(itemDate.getMonth() + 1).padStart(2, '0');
                   const day = String(itemDate.getDate()).padStart(2, '0');
                   const itemDateStr = `${year}-${month}-${day}`;
-                  
                   chipFilterPass = latestTwoDates.includes(itemDateStr);
                 } else {
                   chipFilterPass = false;
                 }
               }
               break;
+
+            // --- NEW 17-DAY FILTER ADDITION ---
+            case 'recent_extended':
+              // Logic: Check if item is within 17 days of the newest date in the dataset
+              if (latestTwoDates.length === 0) {
+                 chipFilterPass = false;
+              } else {
+                 // Get the newest date from your existing logic (first item in latestTwoDates)
+                 const newestDateInDB = new Date(latestTwoDates[0]);
+                 let itemDate = null;
+                 
+                 // Extract date from item (same logic as above)
+                 if (item.updateDate) itemDate = item.updateDate;
+                 else if (item.endDate) itemDate = item.endDate;
+                 else if (item.validUntil && item.validUntil !== 'غير متاح') itemDate = parseEndDate(item.validUntil);
+
+                 if (itemDate && !isNaN(newestDateInDB.getTime())) {
+                    // Calculate difference in days
+                    const diffTime = Math.abs(newestDateInDB - itemDate);
+                    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); 
+                    // Pass if within 17 days
+                    chipFilterPass = diffDays <= 17;
+                 } else {
+                    chipFilterPass = false;
+                 }
+              }
+              break;
+
             case 'carrefour':
-              if (!supermarketFilterCache.carrefour) {
-                supermarketFilterCache.carrefour = allData.filter(i => {
-                  const carrefourName = String(i.supermarket || '').toLowerCase();
-                  return carrefourName.includes('كارفور') || 
-                         carrefourName.includes('carrefour');
-                }).map(i => i.product);
-              }
-              chipFilterPass = supermarketFilterCache.carrefour.includes(item.product);
-              break;
+               // ... (keep existing carrefour logic) ...
+               if (!supermarketFilterCache.carrefour) {
+                 // ... existing code ...
+               }
+               chipFilterPass = supermarketFilterCache.carrefour.includes(item.product);
+               break;
             case 'hyperone':
-              if (!supermarketFilterCache.hyperone) {
-                supermarketFilterCache.hyperone = allData.filter(i => {
-                  const hyperoneName = String(i.supermarket || '').toLowerCase();
-                  return hyperoneName.includes('هايبر وان') || 
-                         hyperoneName.includes('هايبروان') ||
-                         hyperoneName.includes('هايبر') ||
-                         hyperoneName.includes('hyper one') ||
-                         hyperoneName.includes('hyperone') ||
-                         hyperoneName.includes('hyper');
-                }).map(i => i.product);
-              }
-              chipFilterPass = supermarketFilterCache.hyperone.includes(item.product);
-              break;
+               // ... (keep existing hyperone logic) ...
+               if (!supermarketFilterCache.hyperone) {
+                 // ... existing code ...
+               }
+               chipFilterPass = supermarketFilterCache.hyperone.includes(item.product);
+               break;
             default:
               chipFilterPass = true;
+          }
           }
           if (!chipFilterPass) return false;
         }
@@ -2797,9 +2808,7 @@ document.addEventListener('visibilitychange', ()=>{
     fetchData(); 
   } 
 });
-</script>
-    <!--  Add this to your index.html script function checkUrlForSearch() {     1. Get the URL parameters const urlParams = new    URLSearchParams(window.location.search); // 2. Look for the 'q' parameter we    set in the Carrefour page const query = urlParams.get('q'); // 3. If found,    put it in the search box and trigger the search if (query) { const    searchInput = document.getElementById('search-input'); if (searchInput) { //    Set the value searchInput.value = decodeURIComponent(query); // Trigger the    search logic (assuming you have this function from your previous code) // If    you are using the 'applyAllFilters' function from your provided index.html:    if (typeof applyAllFilters === 'function') { applyAllFilters(); } } } } //    Call this function when the page loads    document.addEventListener('DOMContentLoaded', checkUrlForSearch);   -->
-    
+</script> <!--  Add this to your index.html script function checkUrlForSearch() {     1. Get the URL parameters const urlParams = new    URLSearchParams(window.location.search); // 2. Look for the 'q' parameter we    set in the Carrefour page const query = urlParams.get('q'); // 3. If found,    put it in the search box and trigger the search if (query) { const    searchInput = document.getElementById('search-input'); if (searchInput) { //    Set the value searchInput.value = decodeURIComponent(query); // Trigger the    search logic (assuming you have this function from your previous code) // If    you are using the 'applyAllFilters' function from your provided index.html:    if (typeof applyAllFilters === 'function') { applyAllFilters(); } } } } //    Call this function when the page loads    document.addEventListener('DOMContentLoaded', checkUrlForSearch);   -->
     <script>
 /**
  * Catch search query from URL (e.g., ?q=milk) 
@@ -2854,9 +2863,7 @@ document.addEventListener("DOMContentLoaded", function () {
   select.dispatchEvent(new Event("change"));
 });
     
-</script> 
-    
-    <script>
+</script> <script>
 document.addEventListener("DOMContentLoaded", function () {
   const params = new URLSearchParams(window.location.search);
   const percent = params.get("discount");
@@ -2872,25 +2879,57 @@ document.addEventListener("DOMContentLoaded", function () {
   select.dispatchEvent(new Event("change"));
 });
     
-   </script> 
+   </script>
+
     
-      <script>
+    <script>
 document.addEventListener("DOMContentLoaded", function () {
   const params = new URLSearchParams(window.location.search);
-  const percent = params.get("week_discount");
+  const weekPercent = params.get("week_percent");
 
-  if (!percent) return;
+  if (weekPercent) {
+    // 1. Set the Discount Percentage Input
+    const discountInput = document.getElementById("min-discount");
+    if (discountInput) {
+        discountInput.value = weekPercent;
+    }
 
-  const select = document.getElementById("min-discount");
-  if (!select) return;
+    // 2. Set the internal filter variable to our new 17-day mode
+    // Note: We are setting the global variable 'activeChipFilter' defined in your main script
+    activeChipFilter = 'recent_extended';
 
-  select.value = percent;
+    // 3. Set sorting to "Best Deals" (to satisfy "display best offers")
+    const sortSelect = document.getElementById("sort-by");
+    if(sortSelect) {
+        sortSelect.value = "best-deals";
+    }
 
-  // لو عندك فلترة تلقائية
-  select.dispatchEvent(new Event("change"));
+    // 4. Visual Feedback: Create a temporary visual "Chip" to show this mode is active
+    const chipsContainer = document.getElementById('filter-chips');
+    if(chipsContainer){
+        // Remove active class from others
+        document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+        
+        // Add a temporary chip for UI clarity
+        const tempChip = document.createElement('button');
+        tempChip.className = 'chip active';
+        tempChip.innerHTML = '<i class="fas fa-calendar-week"></i> عروض الـ 17 يوم';
+        // Insert it at the beginning
+        chipsContainer.insertBefore(tempChip, chipsContainer.firstChild);
+    }
+
+    // 5. Trigger the filter update
+    // We assume fetchData() will call applyAllFilters() when data loads.
+    // However, if data is already cached/loaded, we force an update.
+    setTimeout(() => {
+        if (typeof applyAllFilters === 'function') {
+            applyAllFilters();
+        }
+    }, 1000); // Small delay to ensure data is ready
+  }
 });
+</script>
     
-   </script> 
     
   </body>
 </html>
