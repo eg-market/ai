@@ -2797,7 +2797,8 @@ document.addEventListener('visibilitychange', ()=>{
     fetchData(); 
   } 
 });
-</script>// Add this to your index.html script function checkUrlForSearch() { //
+</script>
+    <!--  Add this to your index.html script function checkUrlForSearch() { //
     1. Get the URL parameters const urlParams = new
     URLSearchParams(window.location.search); // 2. Look for the 'q' parameter we
     set in the Carrefour page const query = urlParams.get('q'); // 3. If found,
@@ -2808,7 +2809,8 @@ document.addEventListener('visibilitychange', ()=>{
     you are using the 'applyAllFilters' function from your provided index.html:
     if (typeof applyAllFilters === 'function') { applyAllFilters(); } } } } //
     Call this function when the page loads
-    document.addEventListener('DOMContentLoaded', checkUrlForSearch);
+    document.addEventListener('DOMContentLoaded', checkUrlForSearch);   -->
+    
     <script>
 /**
  * Catch search query from URL (e.g., ?q=milk) 
@@ -2882,17 +2884,7 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 
     
-    document.querySelectorAll('.chip').forEach(chip => {
-  chip.addEventListener('click', () => {
-    document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
-    chip.classList.add('active');
-    activeChipFilter = chip.dataset.filter;
-
-    // Set supermarket filter for specific chips
-    const discount = document.getElementById('min-discount');
-       applyAllFilters();
-  });
-});
+    
    </script> 
     
     
