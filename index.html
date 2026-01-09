@@ -1575,31 +1575,38 @@ function applyAllFilters() {
               break;
 
             // --- NEW 17-DAY FILTER ADDITION ---
+          // ... existing cases ...
+
             case 'recent_extended':
               // Logic: Check if item is within 17 days of the newest date in the dataset
               if (latestTwoDates.length === 0) {
                  chipFilterPass = false;
               } else {
-                 // Get the newest date from your existing logic (first item in latestTwoDates)
+                 // 1. Get the newest date from your database (Reference Point)
                  const newestDateInDB = new Date(latestTwoDates[0]);
                  let itemDate = null;
                  
-                 // Extract date from item (same logic as above)
+                 // 2. Extract date from item (Prioritizing Update Date, then End Date)
                  if (item.updateDate) itemDate = item.updateDate;
                  else if (item.endDate) itemDate = item.endDate;
                  else if (item.validUntil && item.validUntil !== 'غير متاح') itemDate = parseEndDate(item.validUntil);
 
+                 // 3. Compare dates
                  if (itemDate && !isNaN(newestDateInDB.getTime())) {
-                    // Calculate difference in days
+                    // Calculate difference in milliseconds
                     const diffTime = Math.abs(newestDateInDB - itemDate);
+                    // Convert to days
                     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); 
-                    // Pass if within 17 days
+                    
+                    // 4. Allow if within 17 days
                     chipFilterPass = diffDays <= 17;
                  } else {
                     chipFilterPass = false;
                  }
               }
               break;
+
+            // ... other cases ...
 
             case 'carrefour':
                // ... (keep existing carrefour logic) ...
@@ -2882,54 +2889,51 @@ document.addEventListener("DOMContentLoaded", function () {
    </script>
 
     
-    <script>
+<script>
 document.addEventListener("DOMContentLoaded", function () {
+  // 1. Get the parameter from URL
   const params = new URLSearchParams(window.location.search);
   const weekPercent = params.get("week_percent");
 
   if (weekPercent) {
-    // 1. Set the Discount Percentage Input
+    // 2. Set the Discount Percentage Input
     const discountInput = document.getElementById("min-discount");
     if (discountInput) {
         discountInput.value = weekPercent;
     }
 
-    // 2. Set the internal filter variable to our new 17-day mode
-    // Note: We are setting the global variable 'activeChipFilter' defined in your main script
+    // 3. Set the filter mode to our new 17-day logic
     activeChipFilter = 'recent_extended';
 
-    // 3. Set sorting to "Best Deals" (to satisfy "display best offers")
+    // 4. FORCE Sorting to "Best Deals" (Req: "display best offers")
     const sortSelect = document.getElementById("sort-by");
     if(sortSelect) {
         sortSelect.value = "best-deals";
     }
 
-    // 4. Visual Feedback: Create a temporary visual "Chip" to show this mode is active
+    // 5. Visual Feedback: Add a temporary button to show user what is happening
     const chipsContainer = document.getElementById('filter-chips');
     if(chipsContainer){
-        // Remove active class from others
+        // Turn off other active buttons
         document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
         
-        // Add a temporary chip for UI clarity
+        // Add a new visual chip
         const tempChip = document.createElement('button');
         tempChip.className = 'chip active';
+        // Using a calendar icon to indicate the date range
         tempChip.innerHTML = '<i class="fas fa-calendar-week"></i> عروض الـ 17 يوم';
-        // Insert it at the beginning
         chipsContainer.insertBefore(tempChip, chipsContainer.firstChild);
     }
 
-    // 5. Trigger the filter update
-    // We assume fetchData() will call applyAllFilters() when data loads.
-    // However, if data is already cached/loaded, we force an update.
+    // 6. Apply the filters after a short delay to ensure data is loaded
     setTimeout(() => {
         if (typeof applyAllFilters === 'function') {
             applyAllFilters();
         }
-    }, 1000); // Small delay to ensure data is ready
+    }, 1000); 
   }
 });
-</script>
-    
+</script>  
     
   </body>
 </html>
