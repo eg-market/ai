@@ -1522,11 +1522,31 @@ function applyAllFilters() {
       document.getElementById('max-price').value = tmp;
     }
 
+  function applyAllFilters() {
+  try {
+    const search = (document.getElementById('search-input').value || '').trim().toLowerCase();
+    const supermarket = document.getElementById('supermarket-filter').value || '';
+    const category = document.getElementById('category-filter').value || '';
+    const brand = document.getElementById('brand-filter').value || '';
+    const minDiscount = parseFloat(document.getElementById('min-discount').value) || 0;
+    const minPriceRaw = document.getElementById('min-price').value;
+    const maxPriceRaw = document.getElementById('max-price').value;
+    const minPrice = minPriceRaw === '' ? 0 : (parseFloat(minPriceRaw) || 0);
+    const maxPrice = maxPriceRaw === '' ? Infinity : (parseFloat(maxPriceRaw) || Infinity);
+    const sort = document.getElementById('sort-by').value || 'best-deals';
+
+    // Normalize min/max if user swapped them
+    if(isFinite(minPrice) && isFinite(maxPrice) && minPrice > maxPrice){
+      const tmp = document.getElementById('min-price').value;
+      document.getElementById('min-price').value = document.getElementById('max-price').value;
+      document.getElementById('max-price').value = tmp;
+    }
+
     filteredData = allData.filter(item => {
       try {
+        // --- START OF FILTER LOGIC ---
         if (activeChipFilter !== 'all') {
           let chipFilterPass = false;
-       // ... inside applyAllFilters function ...
 
           switch(activeChipFilter) {
             case 'hot':
@@ -1544,15 +1564,15 @@ function applyAllFilters() {
               break;
             case 'food':
               if (item.category) {
-                const category = String(item.category || '').trim().toLowerCase();
-                chipFilterPass = category.includes('طعام') || 
-                                category.includes('غذائ') ||
-                                category.includes('أطعمة') ||
-                                category.includes('مأكولات');
+                const cat = String(item.category || '').trim().toLowerCase();
+                chipFilterPass = cat.includes('طعام') || 
+                                cat.includes('غذائ') ||
+                                cat.includes('أطعمة') ||
+                                cat.includes('مأكولات');
               }
               break;
             
-            // --- EXISTING 2-DAY FILTER ---
+            // --- 2-DAY FILTER ---
             case 'recent':
               if (latestTwoDates.length === 0) {
                 chipFilterPass = false;
@@ -1574,31 +1594,22 @@ function applyAllFilters() {
               }
               break;
 
-            // --- NEW 17-DAY FILTER ADDITION ---
-          // ... existing cases ...
-
+            // --- 17-DAY FILTER (NEW REQUIREMENT) ---
             case 'recent_extended':
-              // Logic: Check if item is within 17 days of the newest date in the dataset
               if (latestTwoDates.length === 0) {
                  chipFilterPass = false;
               } else {
-                 // 1. Get the newest date from your database (Reference Point)
                  const newestDateInDB = new Date(latestTwoDates[0]);
                  let itemDate = null;
                  
-                 // 2. Extract date from item (Prioritizing Update Date, then End Date)
                  if (item.updateDate) itemDate = item.updateDate;
                  else if (item.endDate) itemDate = item.endDate;
                  else if (item.validUntil && item.validUntil !== 'غير متاح') itemDate = parseEndDate(item.validUntil);
 
-                 // 3. Compare dates
                  if (itemDate && !isNaN(newestDateInDB.getTime())) {
-                    // Calculate difference in milliseconds
                     const diffTime = Math.abs(newestDateInDB - itemDate);
-                    // Convert to days
                     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); 
-                    
-                    // 4. Allow if within 17 days
+                    // Allow if within 17 days
                     chipFilterPass = diffDays <= 17;
                  } else {
                     chipFilterPass = false;
@@ -1606,38 +1617,37 @@ function applyAllFilters() {
               }
               break;
 
-            // ... other cases ...
-
             case 'carrefour':
-               // ... (keep existing carrefour logic) ...
                if (!supermarketFilterCache.carrefour) {
-                 // ... existing code ...
+                  // Basic caching for supermarket names if not done elsewhere
+                  supermarketFilterCache.carrefour = allData
+                    .filter(i => String(i.supermarket).toLowerCase().includes('كارفور'))
+                    .map(i => i.product);
                }
-               chipFilterPass = supermarketFilterCache.carrefour.includes(item.product);
+               // Since we are filtering 'item', we just check the name directly for efficiency
+               chipFilterPass = String(item.supermarket || '').toLowerCase().includes('كارفور');
                break;
+
             case 'hyperone':
-               // ... (keep existing hyperone logic) ...
-               if (!supermarketFilterCache.hyperone) {
-                 // ... existing code ...
-               }
-               chipFilterPass = supermarketFilterCache.hyperone.includes(item.product);
+               chipFilterPass = String(item.supermarket || '').toLowerCase().includes('هايبر');
                break;
+
             default:
               chipFilterPass = true;
           }
-          }
+
+          // ** FIX WAS HERE: This check MUST be inside the 'if' block **
           if (!chipFilterPass) return false;
         }
-        
-        // Rest of the filtering logic remains the same...
+        // --- END OF FILTER LOGIC ---
+
+        // Standard Text/Price Filters
         const prod = String(item.product || '').toLowerCase();
         const primary = String(item.primaryName || '').toLowerCase();
         const itemBrand = String(item.brand || '').toLowerCase();
         
         if (supermarket && String(item.supermarket || '') !== supermarket) return false;
-        
         if (category && String(item.category || '') !== category) return false;
-        
         if (brand && String(item.brand || '') !== brand) return false;
         
         const priceVal = Number(item.currentPrice) || 0;
@@ -1657,46 +1667,25 @@ function applyAllFilters() {
       }
     });
 
-    // تطبيق الترتيب - UPDATED with improved combined sorting
-    // The sorting logic remains the same, it will use the sort value set by the chips
-    
-    // ... rest of the sorting code remains the same
-
-
-    // تطبيق الترتيب - UPDATED with improved combined sorting
+    // --- SORTING LOGIC ---
     if(sort === 'best-deals') {
-      // أفضل العروض: مزيج مرجح من الخصم النسبي وقيمة التوفير
       const maxSavings = Math.max(...filteredData.map(i => i._saved || 0), 500);
-      
       filteredData.sort((a,b)=> {
-        // Normalize discount percentage (0-100%)
         const discountA = Math.min((a._discount_pct || 0), 100) / 100;
         const discountB = Math.min((b._discount_pct || 0), 100) / 100;
-        
-        // Normalize savings amount
         const savedA = (a._saved || 0) / maxSavings;
         const savedB = (b._saved || 0) / maxSavings;
         
-        // Calculate weighted scores
         const scoreA = (discountA * WEIGHT_DISCOUNT) + (savedA * WEIGHT_SAVINGS);
         const scoreB = (discountB * WEIGHT_DISCOUNT) + (savedB * WEIGHT_SAVINGS);
         
-        // Sort by combined score (descending)
         const scoreDiff = scoreB - scoreA;
-        if (Math.abs(scoreDiff) > 0.0001) {
-          return scoreDiff;
-        }
+        if (Math.abs(scoreDiff) > 0.0001) return scoreDiff;
         
-        // If scores are very close, prioritize higher discount
         const discountDiff = discountB - discountA;
-        if (Math.abs(discountDiff) > 0.01) {
-          return discountDiff;
-        }
+        if (Math.abs(discountDiff) > 0.01) return discountDiff;
         
-        // Finally, sort alphabetically
-        const nameA = String(a.product || '');
-        const nameB = String(b.product || '');
-        return nameA.localeCompare(nameB, 'ar');
+        return String(a.product||'').localeCompare(String(b.product||''), 'ar');
       });
     } else if(sort === 'discount-desc') {
       filteredData.sort((a,b)=> (b._discount_pct||0)-(a._discount_pct||0));
@@ -1707,17 +1696,9 @@ function applyAllFilters() {
     } else if(sort === 'price-desc') {
       filteredData.sort((a,b)=> (b.currentPrice||0)-(a.currentPrice||0));
     } else if(sort === 'name-asc') {
-      filteredData.sort((a,b)=> {
-        const nameA = String(a.product || '');
-        const nameB = String(b.product || '');
-        return nameA.localeCompare(nameB, 'ar');
-      });
+      filteredData.sort((a,b)=> String(a.product||'').localeCompare(String(b.product||''), 'ar'));
     } else if(sort === 'name-desc') {
-      filteredData.sort((a,b)=> {
-        const nameA = String(a.product || '');
-        const nameB = String(b.product || '');
-        return nameB.localeCompare(nameA, 'ar');
-      });
+      filteredData.sort((a,b)=> String(b.product||'').localeCompare(String(a.product||''), 'ar'));
     }
 
     currentPage = 1;
@@ -1727,9 +1708,7 @@ function applyAllFilters() {
     console.error('Error in applyAllFilters:', error);
     showError('حدث خطأ في تطبيق الفلاتر: ' + error.message);
   }
-}
-
-/* Share app */
+}/* Share app */
 function shareApp() {
   try {
     if (navigator.share) {
