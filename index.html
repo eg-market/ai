@@ -1053,7 +1053,8 @@ defer="defer"></script>
   }
 </style> </head>
   <body>
-    <div class="container"> <!-- Hero Banner -->
+    <div class="container">
+      <!-- Hero Banner -->
       <div class="hero-banner">
         <div class="hero-content">
           <h1>🛒 أفضل عروض السوبرماركت اليومية</h1>
@@ -1619,18 +1620,15 @@ function applyAllFilters() {
                  // Get the newest date from your existing logic (first item in latestTwoDates)
                  const newestDateInDB2 = new Date(latestTwoDates[0]);
                  let itemDate = null;
- alert  ( newestDateInDB2          );
                  // Extract date from item (same logic as above)
                  if (item.updateDate) itemDate = item.updateDate;
                  else if (item.endDate) itemDate = item.endDate;
                  else if (item.validUntil && item.validUntil !== 'غير متاح') itemDate = parseEndDate(item.validUntil);
-consol.log ( itemdate);
                  if (itemDate && !isNaN(newestDateInDB2.getTime())) {
                     // Calculate difference in days
                     const diffTime = Math.abs(newestDateInDB - itemDate);
                     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
-alert (diffTime);
-console.log( diffdate );
+
                     
                     // Pass if within 7 days
                     chipFilterPass = diffDays <= 1;
@@ -2857,8 +2855,7 @@ document.addEventListener('visibilitychange', ()=>{
     fetchData(); 
   } 
 });
-</script>
-<!--    // Add this to your index.html script function checkUrlForSearch() { //     1. Get the URL parameters const urlParams = new    URLSearchParams(window.location.search); // 2. Look for the 'q' parameter we    set in the Carrefour page const query = urlParams.get('q'); // 3. If found,    put it in the search box and trigger the search if (query) { const    searchInput = document.getElementById('search-input'); if (searchInput) { //    Set the value searchInput.value = decodeURIComponent(query); // Trigger the    search logic (assuming you have this function from your previous code) // If    you are using the 'applyAllFilters' function from your provided index.html:    if (typeof applyAllFilters === 'function') { applyAllFilters(); } } } } //    Call this function when the page loads    document.addEventListener('DOMContentLoaded', checkUrlForSearch); -->
+</script><!--    // Add this to your index.html script function checkUrlForSearch() { //     1. Get the URL parameters const urlParams = new    URLSearchParams(window.location.search); // 2. Look for the 'q' parameter we    set in the Carrefour page const query = urlParams.get('q'); // 3. If found,    put it in the search box and trigger the search if (query) { const    searchInput = document.getElementById('search-input'); if (searchInput) { //    Set the value searchInput.value = decodeURIComponent(query); // Trigger the    search logic (assuming you have this function from your previous code) // If    you are using the 'applyAllFilters' function from your provided index.html:    if (typeof applyAllFilters === 'function') { applyAllFilters(); } } } } //    Call this function when the page loads    document.addEventListener('DOMContentLoaded', checkUrlForSearch); -->
     <script>
 /**
  * Catch search query from URL (e.g., ?q=milk) 
@@ -2932,8 +2929,7 @@ document.addEventListener("DOMContentLoaded", function () {
          
   </script>
     <!---&gt; document.querySelectorAll('.chip').forEach(chip =&gt; {    chip.addEventListener('click', () =&gt; {    document.querySelectorAll('.chip').forEach(c =&gt;    c.classList.remove('active')); chip.classList.add('active');    activeChipFilter = chip.dataset.filter; // Set supermarket filter for    specific chips const discount = document.getElementById('min-discount');    applyAllFilters(); }); -->
-
-        <script>
+    <script>
 document.addEventListener("DOMContentLoaded", function () {
   const params = new URLSearchParams(window.location.search);
   const weekPercent = params.get("week_percent");
@@ -2979,20 +2975,16 @@ document.addEventListener("DOMContentLoaded", function () {
     }, 1000); // Small delay to ensure data is ready
   }
 });
-</script>
-    
-    <script>
+</script> <script>
 document.addEventListener("DOMContentLoaded", function () {
   const params = new URLSearchParams(window.location.search);
   const percent2 = params.get("one_day");
-Alert (percent2);
   if (percent2) {
    
     const discountInput2 = document.getElementById("updateDateStr");
     if (discountInput2) {
         discountInput2.value = percent2;
     }
-console.log ( discountInput2);
     // 2. Set the internal filter variable to our new day mode
     // Note: We are setting the global variable 'activeChipFilter' defined in your main script
     activeChipFilter = 'recent_day';
@@ -3028,6 +3020,5 @@ console.log ( discountInput2);
   }
 });
 </script>
-    
   </body>
 </html>
