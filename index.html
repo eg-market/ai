@@ -2854,7 +2854,7 @@ document.addEventListener('visibilitychange', ()=>{
   } 
 });
 </script>
-    // Add this to your index.html script function checkUrlForSearch() { //     1. Get the URL parameters const urlParams = new    URLSearchParams(window.location.search); // 2. Look for the 'q' parameter we    set in the Carrefour page const query = urlParams.get('q'); // 3. If found,    put it in the search box and trigger the search if (query) { const    searchInput = document.getElementById('search-input'); if (searchInput) { //    Set the value searchInput.value = decodeURIComponent(query); // Trigger the    search logic (assuming you have this function from your previous code) // If    you are using the 'applyAllFilters' function from your provided index.html:    if (typeof applyAllFilters === 'function') { applyAllFilters(); } } } } //    Call this function when the page loads    document.addEventListener('DOMContentLoaded', checkUrlForSearch);
+<!--    // Add this to your index.html script function checkUrlForSearch() { //     1. Get the URL parameters const urlParams = new    URLSearchParams(window.location.search); // 2. Look for the 'q' parameter we    set in the Carrefour page const query = urlParams.get('q'); // 3. If found,    put it in the search box and trigger the search if (query) { const    searchInput = document.getElementById('search-input'); if (searchInput) { //    Set the value searchInput.value = decodeURIComponent(query); // Trigger the    search logic (assuming you have this function from your previous code) // If    you are using the 'applyAllFilters' function from your provided index.html:    if (typeof applyAllFilters === 'function') { applyAllFilters(); } } } } //    Call this function when the page loads    document.addEventListener('DOMContentLoaded', checkUrlForSearch); -->
     <script>
 /**
  * Catch search query from URL (e.g., ?q=milk) 
@@ -2984,9 +2984,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
   if (percent2) {
    
-    const period = document.getElementById("updateDateStr");
-    if (period) {
-        discountInput.value = percent2;
+    const discountInput2 = document.getElementById("updateDateStr");
+    if (discountInput2) {
+        discountInput2.value = percent2;
     }
 
     // 2. Set the internal filter variable to our new day mode
