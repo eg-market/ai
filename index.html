@@ -1053,8 +1053,7 @@ defer="defer"></script>
   }
 </style> </head>
   <body>
-    <div class="container">
-      <!-- Hero Banner -->
+    <div class="container"> <!-- Hero Banner -->
       <div class="hero-banner">
         <div class="hero-content">
           <h1>🛒 أفضل عروض السوبرماركت اليومية</h1>
@@ -1601,7 +1600,7 @@ function applyAllFilters() {
 
                  if (itemDate && !isNaN(newestDateInDB.getTime())) {
                     // Calculate difference in days
-                    const diffTime = Math.abs(newestDateInDB - itemDate);
+                 const diffTime = newestDateInDB2 - itemDate;
                    
                    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); 
                     // Pass if within 7 days
@@ -1612,7 +1611,7 @@ function applyAllFilters() {
               }
               break;
             
-              case 'recent_extended':
+              case 'recent_day':
               // Logic: Check if item is within 1 days of the newest date in the dataset
               if (latestTwoDates.length === 0) {
                  chipFilterPass = false;
@@ -1626,7 +1625,7 @@ function applyAllFilters() {
                  else if (item.validUntil && item.validUntil !== 'غير متاح') itemDate = parseEndDate(item.validUntil);
                  if (itemDate && !isNaN(newestDateInDB2.getTime())) {
                     // Calculate difference in days
-                    const diffTime = Math.abs(newestDateInDB - itemDate);
+                 const diffTime = newestDateInDB2 - itemDate;
                     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
 
                     
@@ -1844,6 +1843,14 @@ function formatDateShort(d){
 function computeSavedAndDiscount(arr){
   try {
     arr.forEach(item=>{
+      
+console.log({
+  newestDateInDB,
+  itemDate,
+  diffDays,
+  chipFilterPass
+});
+
       const orig = Number(item.originalPrice) || 0;
       const curr = Number(item.currentPrice) || 0;
       let saved = 0;
