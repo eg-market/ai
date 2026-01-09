@@ -2867,52 +2867,7 @@ document.addEventListener("DOMContentLoaded", function () {
     
    </script>
 
-    
-<script>
-document.addEventListener("DOMContentLoaded", function () {
-  // 1. Get the parameter from URL
-  const params = new URLSearchParams(window.location.search);
-  const weekPercent = params.get("week_percent");
 
-  if (weekPercent) {
-    // 2. Set the Discount Percentage Input
-    const discountInput = document.getElementById("min-discount");
-    if (discountInput) {
-        discountInput.value = weekPercent;
-    }
-
-    // 3. Set the filter mode to our new 17-day logic
-    activeChipFilter = 'recent_extended';
-
-    // 4. FORCE Sorting to "Best Deals" (Req: "display best offers")
-    const sortSelect = document.getElementById("sort-by");
-    if(sortSelect) {
-        sortSelect.value = "best-deals";
-    }
-
-    // 5. Visual Feedback: Add a temporary button to show user what is happening
-    const chipsContainer = document.getElementById('filter-chips');
-    if(chipsContainer){
-        // Turn off other active buttons
-        document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
-        
-        // Add a new visual chip
-        const tempChip = document.createElement('button');
-        tempChip.className = 'chip active';
-        // Using a calendar icon to indicate the date range
-        tempChip.innerHTML = '<i class="fas fa-calendar-week"></i> عروض الـ 17 يوم';
-        chipsContainer.insertBefore(tempChip, chipsContainer.firstChild);
-    }
-
-    // 6. Apply the filters after a short delay to ensure data is loaded
-    setTimeout(() => {
-        if (typeof applyAllFilters === 'function') {
-            applyAllFilters();
-        }
-    }, 1000); 
-  }
-});
-</script>  
     
   </body>
 </html>
