@@ -1264,6 +1264,21 @@ let latestTwoDates = []; // أحدث تاريخين في البيانات
 let supermarketFilterCache = {}; // لحفظ نتائج فلتر السوبرماركت
 
 /* Initialize the app */
+      
+function normalizeDate(d){
+  if (!d) return null;
+
+  // Excel serial number
+  if (typeof d === 'number') {
+    return new Date(Math.round((d - 25569) * 86400 * 1000));
+  }
+
+  // String or Date
+  const parsed = new Date(d);
+  return isNaN(parsed.getTime()) ? null : parsed;
+}
+      
+      
 function initApp() {
   try {
     wireEventListeners();
@@ -1586,31 +1601,35 @@ function applyAllFilters() {
               
               case 'recent_extended':
               // Logic: Check if item is within 7 days of the newest date in the dataset
-              if (latestTwoDates.length === 0) {
-                 chipFilterPass = false;
-              } else {
+              <!-- if (latestTwoDates.length === 0) {chipFilterPass = false;}   -->
+              
+              if (!latestTwoDates.length === 0) {chipFilterPass = false; breake;}   
+                
+           <!--     else { -->
                  // Get the newest date from your existing logic (first item in latestTwoDates)
                  const newestDateInDB = new Date(latestTwoDates[0]);
                  let itemDate = null;
                  
                  // Extract date from item (same logic as above)
-                 if (item.updateDate) itemDate = item.updateDate;
-                 else if (item.endDate) itemDate = item.endDate;
-                 else if (item.validUntil && item.validUntil !== 'غير متاح') itemDate = parseEndDate(item.validUntil);
+                 if (item.updateDate) itemDate = normalizeDate(item.updateDate);
+                 else if (item.endDate) itemDate = normalizeDate(item.endDate);
+                 else if (item.validUntil && item.validUntil !== 'غير متاح') normalizeDate(parseEndDate(item.validUntil));
 
                  if (itemDate && !isNaN(newestDateInDB.getTime())) {
-                    // Calculate difference in days
-                 const diffTime = newestDateInDB2 - itemDate;
                    
+        chipFilterPass = false;
+        break;
+                   
+                    // Calculate difference in days
+                 const diffTime = newestDateInDB2 - itemDate;                 
                    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); 
                     // Pass if within 7 days
                     chipFilterPass = diffDays <= 7;
-                 } else {
-                    chipFilterPass = false;
-                 }
-              }
+               <!--  } else {               chipFilterPass = false;  -->
+              
               break;
-            
+            }
+                   
               case 'recent_day':
               // Logic: Check if item is within 1 days of the newest date in the dataset
               if (latestTwoDates.length === 0) {
