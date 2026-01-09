@@ -1582,7 +1582,7 @@ function applyAllFilters() {
               break;
               
               case 'recent_extended':
-              // Logic: Check if item is within 17 days of the newest date in the dataset
+              // Logic: Check if item is within 7 days of the newest date in the dataset
               if (latestTwoDates.length === 0) {
                  chipFilterPass = false;
               } else {
@@ -1599,8 +1599,8 @@ function applyAllFilters() {
                     // Calculate difference in days
                     const diffTime = Math.abs(newestDateInDB - itemDate);
                     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); 
-                    // Pass if within 17 days
-                    chipFilterPass = diffDays <= 17;
+                    // Pass if within 7 days
+                    chipFilterPass = diffDays <= 7;
                  } else {
                     chipFilterPass = false;
                  }
@@ -2921,7 +2921,7 @@ document.addEventListener("DOMContentLoaded", function () {
         discountInput.value = weekPercent;
     }
 
-    // 2. Set the internal filter variable to our new 17-day mode
+    // 2. Set the internal filter variable to our new 7-day mode
     // Note: We are setting the global variable 'activeChipFilter' defined in your main script
     activeChipFilter = 'recent_extended';
 
@@ -2940,7 +2940,7 @@ document.addEventListener("DOMContentLoaded", function () {
         // Add a temporary chip for UI clarity
         const tempChip = document.createElement('button');
         tempChip.className = 'chip active';
-        tempChip.innerHTML = '<i class="fas fa-calendar-week"></i> عروض الـ 17 يوم';
+        tempChip.innerHTML = '<i class="fas fa-calendar-week"></i> عروض الـ 1 يوم';
         // Insert it at the beginning
         chipsContainer.insertBefore(tempChip, chipsContainer.firstChild);
     }
