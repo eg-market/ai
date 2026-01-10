@@ -2961,66 +2961,51 @@ document.addEventListener("DOMContentLoaded", function () {
   </script>
     <!---&gt; document.querySelectorAll('.chip').forEach(chip =&gt; {    chip.addEventListener('click', () =&gt; {    document.querySelectorAll('.chip').forEach(c =&gt;    c.classList.remove('active')); chip.classList.add('active');    activeChipFilter = chip.dataset.filter; // Set supermarket filter for    specific chips const discount = document.getElementById('min-discount');    applyAllFilters(); }); -->
    
-    
-    <script>
+<script>
 document.addEventListener("DOMContentLoaded", function () {
+
   const params = new URLSearchParams(window.location.search);
   const weekPercent = params.get("week_percent");
+  if (!weekPercent) return;
 
-  if (!Array.isArray(allItems) || allItems.length === 0) {
-    hideLoadingMessage(); // أو whatever hides "جارٍ تحميل البيانات"
-    return;
-}
-
-  
-  if (weekPercent) {
-    // 1. Set the Discount Percentage Input
-    const discountInput = document.getElementById("min-discount");
-    if (discountInput) {
-        discountInput.value = weekPercent;
-    }
-
-    // 2. Set the internal filter variable to our new 7-day mode
-    // Note: We are setting the global variable 'activeChipFilter' defined in your main script
-    fetchData().then(() => {
-    activeChipFilter = 'recent_extended';
-    applyAllFilters();
-   
-
-});
-
-
-    // 3. Set sorting to "Best Deals" (to satisfy "display best offers")
-    const sortSelect = document.getElementById("sort-by");
-    if(sortSelect) {
-        sortSelect.value = "best-deals";
-    }
-
-    // 4. Visual Feedback: Create a temporary visual "Chip" to show this mode is active
-    const chipsContainer = document.getElementById('filter-chips');
-    if(chipsContainer){
-        // Remove active class from others
-        document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
-        
-        // Add a temporary chip for UI clarity
-        const tempChip = document.createElement('button');
-        tempChip.className = 'chip active';
-        tempChip.innerHTML = '<i class="fas fa-calendar-week"></i> عروض الـ  7يوم';
-        // Insert it at the beginning
-        chipsContainer.insertBefore(tempChip, chipsContainer.firstChild);
-    }
-
-    // 5. Trigger the filter update
-    // We assume fetchData() will call applyAllFilters() when data loads.
-    // However, if data is already cached/loaded, we force an update.
-    if (dataLoaded === true) {
-    applyAllFilters();  document.getElementById('loading-message')?.style.display = 'none';
-
-}
-
+  // 1️⃣ Set discount filter
+  const discountInput = document.getElementById("min-discount");
+  if (discountInput) {
+    discountInput.value = weekPercent;
   }
+
+  // 2️⃣ Fetch data ثم طبّق الفلتر مرة واحدة فقط
+  fetchData().then(() => {
+
+    activeChipFilter = 'recent_extended';
+
+    // sorting
+    const sortSelect = document.getElementById("sort-by");
+    if (sortSelect) {
+      sortSelect.value = "best-deals";
+    }
+
+    // UI chip
+    const chipsContainer = document.getElementById('filter-chips');
+    if (chipsContainer) {
+      document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+
+      const tempChip = document.createElement('button');
+      tempChip.className = 'chip active';
+      tempChip.innerHTML = '<i class="fas fa-calendar-week"></i> عروض الـ 7 يوم';
+      chipsContainer.insertBefore(tempChip, chipsContainer.firstChild);
+    }
+
+    // 3️⃣ Apply filters مرة واحدة فقط
+    applyAllFilters();
+
+    // 4️⃣ Always hide loading
+    document.getElementById('loading-message')?.style.display = 'none';
+  });
+
 });
-</script> <script>
+</script>
+ <script>
 document.addEventListener("DOMContentLoaded", function () {
   const params = new URLSearchParams(window.location.search);
   const percent2 = params.get("one_day");
