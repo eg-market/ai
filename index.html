@@ -1599,41 +1599,42 @@ function applyAllFilters() {
               }
               break;
               
- case 'recent_extended': {
+try {
+    filteredItems = allItems.filter(item => {
+        let chipFilterPass = true;
 
-    if (!latestTwoDates || latestTwoDates.length === 0) {
-        chipFilterPass = false;
-        break;
-    }
+        switch (activeChipFilter) {
 
-    const newestDateInDB = new Date(latestTwoDates[0]);
-    let itemDate = null;
+            case 'recent_extended': {
+                if (!latestTwoDates || latestTwoDates.length === 0) {
+                    return false;
+                }
 
-    if (item.updateDate) itemDate = normalizeDate(item.updateDate);
-    else if (item.endDate) itemDate = normalizeDate(item.endDate);
-    else if (item.validUntil && item.validUntil !== 'غير متاح') {
-        itemDate = normalizeDate(parseEndDate(item.validUntil));
-    }
+                const newestDateInDB = new Date(latestTwoDates[0]);
+                let itemDate = null;
 
-    if (!itemDate || isNaN(newestDateInDB.getTime())) {
-        chipFilterPass = false;
-        break;
-    }
+                if (item.updateDate) itemDate = normalizeDate(item.updateDate);
+                else if (item.endDate) itemDate = normalizeDate(item.endDate);
+                else if (item.validUntil && item.validUntil !== 'غير متاح') {
+                    itemDate = normalizeDate(parseEndDate(item.validUntil));
+                }
 
-    const diffTime = newestDateInDB - itemDate;
-    const diffDays = diffTime / (1000 * 60 * 60 * 24);
+                if (!itemDate || isNaN(newestDateInDB)) return false;
 
-    // 🔍 ضع الـ console.log هنا بالضبط
+                const diffDays =
+                    (newestDateInDB - itemDate) / (1000 * 60 * 60 * 24);
 
-    window.__loggedOnce = true;
-}
+                return diffDays >= 0 && diffDays <= 7;
+            }
 
+            default:
+                return true;
+        }
+    });
 
-    chipFilterPass = diffDays >= 0 && diffDays <= 7;
-
-    break;
-}
-
+} catch (e) {
+    console.error('FILTER ERROR:', e);
+    filteredItems = [];
 }
 
                    
