@@ -1605,37 +1605,35 @@ try {
 
         switch (activeChipFilter) {
 
-            case 'recent_extended': {
-                if (!latestTwoDates || latestTwoDates.length === 0) {
-                    return false;
-                }
+case 'recent_extended': {
 
-                const newestDateInDB = new Date(latestTwoDates[0]);
-                let itemDate = null;
+    if (!latestTwoDates || latestTwoDates.length === 0) {
+        return false;
+    }
 
-                if (item.updateDate) itemDate = normalizeDate(item.updateDate);
-                else if (item.endDate) itemDate = normalizeDate(item.endDate);
-                else if (item.validUntil && item.validUntil !== 'غير متاح') {
-                    itemDate = normalizeDate(parseEndDate(item.validUntil));
-                }
+    const newestRaw = new Date(latestTwoDates[0]);
+    if (isNaN(newestRaw)) return false;
 
-                if (!itemDate || isNaN(newestDateInDB)) return false;
+    const newestDate = stripTime(newestRaw);
 
-                const diffDays =
-                    (newestDateInDB - itemDate) / (1000 * 60 * 60 * 24);
+    let itemDate = null;
+    if (item.updateDate) itemDate = normalizeDate(item.updateDate);
+    else if (item.endDate) itemDate = normalizeDate(item.endDate);
+    else if (item.validUntil && item.validUntil !== 'غير متاح') {
+        itemDate = normalizeDate(parseEndDate(item.validUntil));
+    }
 
-                return diffDays >= 0 && diffDays <= 7;
-            }
+    if (!itemDate) return false;
 
-            default:
-                return true;
-        }
-    });
+    itemDate = stripTime(itemDate);
 
-} catch (e) {
-    console.error('FILTER ERROR:', e);
-    filteredItems = [];
+    const diffDays =
+      (newestDate - itemDate) / (1000 * 60 * 60 * 24);
+
+    // ✅ آخر 7 أيام حقيقية
+    return diffDays >= 0 && diffDays <= 7;
 }
+
 
                    
               case 'recent_day':
