@@ -1570,35 +1570,63 @@ function applyAllFilters() {
                                 category.includes('مأكولات');
               }
               break;
-            case 'recent':
-              if (latestTwoDates.length === 0) {
-                chipFilterPass = false;
-              } else {
-                let itemDate = null;
-                
-                if (item.updateDate) {
-                  itemDate = item.updateDate;
-                }
-                else if (item.endDate) {
-                  itemDate = item.endDate;
-                }
-                else if (item.validUntil && item.validUntil !== 'غير متاح') {
-                  itemDate = parseEndDate(item.validUntil);
-                }
-                
-                if (itemDate) {
-                  const year = itemDate.getFullYear();
-                  const month = String(itemDate.getMonth() + 1).padStart(2, '0');
-                  const day = String(itemDate.getDate()).padStart(2, '0');
-                  const itemDateStr = `${year}-${month}-${day}`;
-                  
-                  chipFilterPass = latestTwoDates.includes(itemDateStr);
-                } else {
-                  chipFilterPass = false;
-                }
-              }
-              break;
-              
+           case 'recent':
+  // Check if we have date information
+  let itemDate = null;
+  
+  if (item.updateDate) {
+    itemDate = item.updateDate;
+  }
+  else if (item.endDate) {
+    itemDate = item.endDate;
+  }
+  else if (item.validUntil && item.validUntil !== 'غير متاح') {
+    itemDate = parseEndDate(item.validUntil);
+  }
+  
+  if (itemDate) {
+    // Get the newest date in the data
+    const datesWithItems = allData
+      .filter(d => d.updateDate || d.endDate || (d.validUntil && d.validUntil !== 'غير متاح'))
+      .map(d => {
+        if (d.updateDate) return d.updateDate;
+        if (d.endDate) return d.endDate;
+        return parseEndDate(d.validUntil);
+      })
+      .filter(d => d instanceof Date && !isNaN(d.getTime()));
+    
+    if (datesWithItems.length > 0) {
+      const newestDate = datesWithItems.sort((a, b) => b - a)[0];
+      const diffTime = Math.abs(newestDate - itemDate);
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+      
+      // For custom filters, check if special chips are active
+      const is7DayChip = document.querySelector('.chip[data-filter="recent_7day"]')?.classList.contains('active');
+      const is1DayChip = document.querySelector('.chip[data-filter="recent_1day"]')?.classList.contains('active');
+      
+      if (is7DayChip) {
+        // 7-day filter
+        chipFilterPass = diffDays <= 7;
+      } else if (is1DayChip) {
+        // 1-day filter
+        chipFilterPass = diffDays <= 1;
+      } else {
+        // Original 2-day filter
+        chipFilterPass = latestTwoDates.some(dateStr => {
+          const year = itemDate.getFullYear();
+          const month = String(itemDate.getMonth() + 1).padStart(2, '0');
+          const day = String(itemDate.getDate()).padStart(2, '0');
+          const itemDateStr = `${year}-${month}-${day}`;
+          return dateStr === itemDateStr;
+        });
+      }
+    } else {
+      chipFilterPass = false;
+    }
+  } else {
+    chipFilterPass = false;
+  }
+  break;
 try {
     filteredItems = allItems.filter(item => {
         let chipFilterPass = true;
