@@ -1611,7 +1611,8 @@ case 'recent_extended': {
         return false;
     }
 
-    const newestRaw = new Date(latestTwoDates[0]);
+    const newestRaw = new Date(const newestRaw = new Date(latestTwoDates.at(-1));
+);
     if (isNaN(newestRaw)) return false;
 
     const newestDate = stripTime(newestRaw);
