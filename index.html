@@ -1328,17 +1328,15 @@ function findLatestTwoDates(data) {
     data.forEach(item => {
       let dateFound = null;
       
+      // Try multiple date sources
       if (item.updateDate) {
-        dateFound = item.updateDate;
+        dateFound = normalizeDate(item.updateDate);
       }
-      else if (item.endDate) {
-        dateFound = item.endDate;
+      if (!dateFound && item.endDate) {
+        dateFound = normalizeDate(item.endDate);
       }
-      else if (item.validUntil && item.validUntil !== 'غير متاح') {
-        const parsedDate = parseEndDate(item.validUntil);
-        if (parsedDate) {
-          dateFound = parsedDate;
-        }
+      if (!dateFound && item.validUntil && item.validUntil !== 'غير متاح') {
+        dateFound = parseEndDate(item.validUntil);
       }
       
       if (dateFound && dateFound instanceof Date && !isNaN(dateFound.getTime())) {
@@ -1357,30 +1355,31 @@ function findLatestTwoDates(data) {
     
     if (allDates.length === 0) return [];
     
+    // Sort by date descending
     allDates.sort((a, b) => b.date - a.date);
     
+    // Get unique dates
     const uniqueDateStrs = [];
-    const uniqueDates = [];
+    const resultDates = [];
     
     for (const dateObj of allDates) {
       if (!uniqueDateStrs.includes(dateObj.dateStr)) {
         uniqueDateStrs.push(dateObj.dateStr);
-        uniqueDates.push(dateObj.dateStr);
+        resultDates.push(dateObj.dateStr);
       }
       
-      if (uniqueDates.length >= 2) break;
+      if (resultDates.length >= 2) break;
     }
     
-    console.log('أحدث تاريخين في البيانات:', uniqueDates);
+    console.log('أحدث تاريخين في البيانات:', resultDates);
     console.log('عدد العناصر بتاريخ:', allDates.length);
     
-    return uniqueDates;
+    return resultDates;
   } catch (error) {
     console.error('Error in findLatestTwoDates:', error);
     return [];
   }
 }
-
 /* Comparison Mode */
 function toggleComparisonPanel() {
   try {
@@ -2858,7 +2857,7 @@ document.addEventListener('visibilitychange', ()=>{
   } 
 });
 </script><!--    // Add this to your index.html script function checkUrlForSearch() { //     1. Get the URL parameters const urlParams = new    URLSearchParams(window.location.search); // 2. Look for the 'q' parameter we    set in the Carrefour page const query = urlParams.get('q'); // 3. If found,    put it in the search box and trigger the search if (query) { const    searchInput = document.getElementById('search-input'); if (searchInput) { //    Set the value searchInput.value = decodeURIComponent(query); // Trigger the    search logic (assuming you have this function from your previous code) // If    you are using the 'applyAllFilters' function from your provided index.html:    if (typeof applyAllFilters === 'function') { applyAllFilters(); } } } } //    Call this function when the page loads    document.addEventListener('DOMContentLoaded', checkUrlForSearch); -->
-<script>
+    <script>
 // Global variable to track URL parameters that need to be applied after data loads
 let pendingUrlFilters = {};
 
@@ -2978,5 +2977,5 @@ function activateCustomFilter(filterId, label, icon, daysThreshold) {
   }
 }
 </script>
-    </body>
+  </body>
 </html>
