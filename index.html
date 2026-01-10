@@ -1599,14 +1599,14 @@ function applyAllFilters() {
               }
               break;
               
-  case 'recent_extended': {
+ case 'recent_extended': {
 
     if (!latestTwoDates || latestTwoDates.length === 0) {
         chipFilterPass = false;
         break;
     }
 
-    const newestDateInDB0 = new Date(latestTwoDates[0]);
+    const newestDateInDB = new Date(latestTwoDates[0]);
     let itemDate = null;
 
     if (item.updateDate) itemDate = normalizeDate(item.updateDate);
@@ -1615,28 +1615,28 @@ function applyAllFilters() {
         itemDate = normalizeDate(parseEndDate(item.validUntil));
     }
 
-    if (!itemDate || isNaN(newestDateInDB0.getTime())) {
+    if (!itemDate || isNaN(newestDateInDB.getTime())) {
         chipFilterPass = false;
         break;
     }
 
-    // الفرق بدون abs (آخر يوم فقط)
-    const diffTime0 = newestDateInDB0 - itemDate;
-    const diffDays0 = diffTime0 / (1000 * 60 * 60 * 24);
-    
+    const diffTime = newestDateInDB - itemDate;
+    const diffDays = diffTime / (1000 * 60 * 60 * 24);
+
+    // 🔍 ضع الـ console.log هنا بالضبط
     console.log(
-  item.updateDate,
-  itemDate,
-  newestDateInDB,
-  diffDays,
-  chipFilterPass
-);
+        item.updateDate,
+        itemDate,
+        newestDateInDB,
+        diffDays,
+        chipFilterPass
+    );
 
-
-    // ✅ آخر 24 ساعة فقط
-    chipFilterPass = diffDays0 >= 0 && diffDays0 <= 7;
+    chipFilterPass = diffDays >= 0 && diffDays <= 7;
 
     break;
+}
+
 }
 
                    
