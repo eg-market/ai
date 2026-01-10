@@ -1622,7 +1622,7 @@ function applyAllFilters() {
 
     // الفرق بدون abs (آخر يوم فقط)
     const diffTime0 = newestDateInDB0 - itemDate;
-    const diffDays0 = diffTime0 / (1000 * 60 * 60 * 24);
+    const diffDays0 = Math.ceil(diffTime0 / (1000 * 60 * 60 * 24));
 
     // ✅ آخر 24 ساعة فقط
     chipFilterPass = diffDays0 >= 0 && diffDays0 < 7;
@@ -1646,7 +1646,7 @@ function applyAllFilters() {
                  if (itemDate && !isNaN(newestDateInDB2.getTime())) {
                     // Calculate difference in days
                  const diffTime = newestDateInDB2 - itemDate;
-                    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
+                    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
                     
                     // Pass if within 1 days
