@@ -1624,6 +1624,8 @@ function applyAllFilters() {
     const diffDays = diffTime / (1000 * 60 * 60 * 24);
 
     // 🔍 ضع الـ console.log هنا بالضبط
+
+   if (!window.__loggedOnce) {
     console.log(
         item.updateDate,
         itemDate,
@@ -1631,6 +1633,9 @@ function applyAllFilters() {
         diffDays,
         chipFilterPass
     );
+    window.__loggedOnce = true;
+}
+
 
     chipFilterPass = diffDays >= 0 && diffDays <= 7;
 
@@ -2970,6 +2975,12 @@ document.addEventListener("DOMContentLoaded", function () {
   const params = new URLSearchParams(window.location.search);
   const weekPercent = params.get("week_percent");
 
+  if (!Array.isArray(allItems) || allItems.length === 0) {
+    hideLoadingMessage(); // أو whatever hides "جارٍ تحميل البيانات"
+    return;
+}
+
+  
   if (weekPercent) {
     // 1. Set the Discount Percentage Input
     const discountInput = document.getElementById("min-discount");
@@ -2979,7 +2990,14 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // 2. Set the internal filter variable to our new 7-day mode
     // Note: We are setting the global variable 'activeChipFilter' defined in your main script
+    fetchData().then(() => {
     activeChipFilter = 'recent_extended';
+    applyAllFilters();
+      
+      console.log('Filters finished');
+
+});
+
 
     // 3. Set sorting to "Best Deals" (to satisfy "display best offers")
     const sortSelect = document.getElementById("sort-by");
