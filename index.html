@@ -2953,10 +2953,15 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // لو عندك فلترة تلقائية
   select.dispatchEvent(new Event("change"));
+  
+  applyAllFilters();
+  
 });
          
   </script>
     <!---&gt; document.querySelectorAll('.chip').forEach(chip =&gt; {    chip.addEventListener('click', () =&gt; {    document.querySelectorAll('.chip').forEach(c =&gt;    c.classList.remove('active')); chip.classList.add('active');    activeChipFilter = chip.dataset.filter; // Set supermarket filter for    specific chips const discount = document.getElementById('min-discount');    applyAllFilters(); }); -->
+   
+    
     <script>
 document.addEventListener("DOMContentLoaded", function () {
   const params = new URLSearchParams(window.location.search);
@@ -2980,8 +2985,7 @@ document.addEventListener("DOMContentLoaded", function () {
     fetchData().then(() => {
     activeChipFilter = 'recent_extended';
     applyAllFilters();
-      
-      console.log('Filters finished');
+   
 
 });
 
