@@ -5,17 +5,14 @@
     <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
     <title>عروض السوبرماركت - أفضل العروض اليومية</title>
     <!-- External libs used by original file -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.0/papaparse.min.js"
-
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.0/papaparse.min.js"
 defer="defer"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/lz-string/1.4.4/lz-string.min.js"
-
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lz-string/1.4.4/lz-string.min.js"
 defer="defer"></script>
     <!-- Font Awesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Google Fonts for Arabic -->
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;800&amp;display=swap"
-
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;800&amp;display=swap"
       rel="stylesheet">
     <style>
   :root{
@@ -1053,15 +1050,15 @@ defer="defer"></script>
   }
 </style> </head>
   <body>
-    <div class="container"> <!-- Hero Banner -->
+    <div class="container">
+      <!-- Hero Banner -->
       <div class="hero-banner">
         <div class="hero-content">
           <h1>🛒 أفضل عروض السوبرماركت اليومية</h1>
           <p class="hero-subtitle">قارن الأسعار بين كارفور، هايبر وان، سعودي
             ماركت وغيرها - وفر حتى 70%</p>
           <!-- Ticker banner -->
-          <div class="ticker-wrap" aria-live="polite" aria-atomic="true" role="region"
-
+          <div class="ticker-wrap" aria-live="polite" aria-atomic="true" role="region"
             aria-label="أفضل العروض">
             <div class="ticker-label"><i class="fas fa-bolt"></i> عروض مميزة</div>
             <div class="ticker-viewport" id="ticker-viewport">
@@ -1116,33 +1113,26 @@ defer="defer"></script>
         </div>
       </div>
       <!-- Quick Filter Chips -->
-      <div class="filter-chips" id="filter-chips"> <button class="chip active"
-
-          data-filter="all"><i class="fas fa-fire"></i> جميع العروض</button> <button
-
+      <div class="filter-chips" id="filter-chips"> <button class="chip active"
+          data-filter="all"><i class="fas fa-fire"></i> جميع العروض</button> <button
           class="chip" data-filter="hot"><i class="fas fa-bolt"></i> العروض
           الساخنة</button> <button class="chip" data-filter="ending"><i class="fas fa-clock"></i>
-          تنتهي قريباً</button> <button class="chip" data-filter="discount"><i
-
-            class="fas fa-percentage"></i> خصومات كبيرة</button> <button class="chip"
-
+          تنتهي قريباً</button> <button class="chip" data-filter="discount"><i
+            class="fas fa-percentage"></i> خصومات كبيرة</button> <button class="chip"
           data-filter="carrefour"><i class="fas fa-shopping-cart"></i> كارفور</button>
         <button class="chip" data-filter="hyperone"><i class="fas fa-store"></i>
           هايبر وان</button> <button class="chip" data-filter="food"><i class="fas fa-utensils"></i>
           منتجات غذائية</button> <button class="chip" data-filter="recent"><i class="fas fa-calendar-day"></i>
           أحدث العروض (آخر يومين)</button> </div>
       <!-- View Toggle -->
-      <div class="view-toggle"> <button class="view-btn active" id="view-grid-btn"><i
-
-            class="fas fa-th-large"></i> عرض شبكي</button> <button class="view-btn"
-
+      <div class="view-toggle"> <button class="view-btn active" id="view-grid-btn"><i
+            class="fas fa-th-large"></i> عرض شبكي</button> <button class="view-btn"
           id="view-table-btn"><i class="fas fa-table"></i> عرض جدول</button> </div>
       <!-- Products Grid -->
       <div class="products-grid" id="products-grid"></div>
       <!-- Controls -->
       <div class="controls" role="region" aria-label="عناصر التحكم">
-        <div class="row" style="flex:1;"> <input id="search-input" placeholder="ابحث عن منتجات أو علامات تجارية..."
-
+        <div class="row" style="flex:1;"> <input id="search-input" placeholder="ابحث عن منتجات أو علامات تجارية..."
             aria-label="حقل البحث" type="text">
           <select id="supermarket-filter" aria-label="تصفية حسب السوبر ماركت">
             <option value="">كل السوبر ماركت</option>
@@ -1156,21 +1146,15 @@ defer="defer"></script>
         </div>
         <div class="row" style="width:100%; gap:8px;">
           <!-- Min price with controls -->
-          <div class="price-controls" style="align-items:center;"> <button id="min-decrease"
-
-              type="button" aria-label="نقص الحد الأدنى">−</button> <input id="min-price"
-
-              placeholder="الحد الأدنى للسعر" aria-label="الحد الأدنى للسعر" step="0.5"
-
+          <div class="price-controls" style="align-items:center;"> <button id="min-decrease"
+              type="button" aria-label="نقص الحد الأدنى">−</button> <input id="min-price"
+              placeholder="الحد الأدنى للسعر" aria-label="الحد الأدنى للسعر" step="0.5"
               min="0" type="number"> <button id="min-increase" type="button" aria-label="زيادة الحد الأدنى">+</button>
           </div>
           <!-- Max price with controls -->
-          <div class="price-controls" style="align-items:center;"> <button id="max-decrease"
-
-              type="button" aria-label="نقص الحد الأقصى">−</button> <input id="max-price"
-
-              placeholder="الحد الأعلى للسعر" aria-label="الحد الأعلى للسعر" step="0.5"
-
+          <div class="price-controls" style="align-items:center;"> <button id="max-decrease"
+              type="button" aria-label="نقص الحد الأقصى">−</button> <input id="max-price"
+              placeholder="الحد الأعلى للسعر" aria-label="الحد الأعلى للسعر" step="0.5"
               min="0" type="number"> <button id="max-increase" type="button" aria-label="زيادة الحد الأقصى">+</button>
           </div>
           <select id="sort-by" aria-label="فرز حسب">
@@ -1182,14 +1166,11 @@ defer="defer"></script>
             <option value="name-asc">الاسم (أ-ي)</option>
             <option value="name-desc">الاسم (ي-أ)</option>
           </select>
-          <input id="min-discount" placeholder="الحد الأدنى للخصم %" aria-label="الحد الأدنى للخصم"
-
+          <input id="min-discount" placeholder="الحد الأدنى للخصم %" aria-label="الحد الأدنى للخصم"
             type="number">
           <div style="display:flex;gap:8px;"> <button id="reset-btn" aria-label="إعادة تعيين">🔄
-              إعادة تعيين</button> <button id="share-app" aria-label="مشاركة التطبيق"><i
-
-                class="fas fa-share-alt"></i> مشاركة</button> <button id="compare-mode-btn"
-
+              إعادة تعيين</button> <button id="share-app" aria-label="مشاركة التطبيق"><i
+                class="fas fa-share-alt"></i> مشاركة</button> <button id="compare-mode-btn"
               aria-label="وضع المقارنة"><i class="fas fa-balance-scale"></i>
               المقارنة</button> </div>
         </div>
@@ -1225,8 +1206,7 @@ defer="defer"></script>
         <h3 style="margin:0;"><i class="fas fa-balance-scale"></i> مقارنة
           المنتجات (<span id="comparison-count">0</span>/4)</h3>
         <div> <button id="clear-comparison" style="margin-left:10px; background:#dc3545; color:white; border:none; padding:8px 16px; border-radius:6px; cursor:pointer;">
-            <i class="fas fa-trash"></i> مسح الكل </button> <button id="close-comparison"
-
+            <i class="fas fa-trash"></i> مسح الكل </button> <button id="close-comparison"
             style="background:#6c757d; color:white; border:none; padding:8px 16px; border-radius:6px; cursor:pointer;">
             <i class="fas fa-times"></i> إغلاق </button> </div>
       </div>
@@ -1522,202 +1502,276 @@ function switchView(view) {
 /* Apply ALL filters together - UPDATED with improved combined sorting */
 function applyAllFilters() {
   try {
-    /* =======================
-       1) READ INPUTS
-    ======================= */
-    const search = (document.getElementById('search-input')?.value || '')
-      .trim().toLowerCase();
+    const search = (document.getElementById('search-input').value || '').trim().toLowerCase();
+    const supermarket = document.getElementById('supermarket-filter').value || '';
+    const category = document.getElementById('category-filter').value || '';
+    const brand = document.getElementById('brand-filter').value || '';
+    const minDiscount = parseFloat(document.getElementById('min-discount').value) || 0;
+    const minPriceRaw = document.getElementById('min-price').value;
+    const maxPriceRaw = document.getElementById('max-price').value;
+    const minPrice = minPriceRaw === '' ? 0 : (parseFloat(minPriceRaw) || 0);
+    const maxPrice = maxPriceRaw === '' ? Infinity : (parseFloat(maxPriceRaw) || Infinity);
+    const sort = document.getElementById('sort-by').value || 'best-deals';
 
-    const supermarket = document.getElementById('supermarket-filter')?.value || '';
-    const category = document.getElementById('category-filter')?.value || '';
-    const brand = document.getElementById('brand-filter')?.value || '';
+    if(isFinite(minPrice) && isFinite(maxPrice) && minPrice > maxPrice){
+      const tmp = document.getElementById('min-price').value;
+      document.getElementById('min-price').value = document.getElementById('max-price').value;
+      document.getElementById('max-price').value = tmp;
+    }
 
-    const minDiscount =
-      parseFloat(document.getElementById('min-discount')?.value) || 0;
-
-    const minPriceRaw = document.getElementById('min-price')?.value;
-    const maxPriceRaw = document.getElementById('max-price')?.value;
-
-    const minPrice =
-      minPriceRaw === '' ? 0 : (parseFloat(minPriceRaw) || 0);
-
-    const maxPrice =
-      maxPriceRaw === '' ? Infinity : (parseFloat(maxPriceRaw) || Infinity);
-
-    const sort =
-      document.getElementById('sort-by')?.value || 'best-deals';
-
-    /* =======================
-       2) FILTER DATA
-    ======================= */
     filteredData = allData.filter(item => {
       try {
-        /* ---------- CHIP FILTER ---------- */
-        let chipFilterPass = true;
-
-        if (activeChipFilter && activeChipFilter !== 'all') {
-          switch (activeChipFilter) {
-
+        if (activeChipFilter !== 'all') {
+          let chipFilterPass = false;
+          switch(activeChipFilter) {
             case 'hot':
-            case 'discount':
+              // REMOVED: chipFilterPass = item._discount_pct > 30;
+              // Now we just return true and let sorting handle it
               chipFilterPass = true;
               break;
-
-            case 'ending': {
-              if (!item.endDate) return false;
-              const now = new Date();
-              const diffDays = Math.ceil((item.endDate - now) / 86400000);
-              chipFilterPass = diffDays >= 0 && diffDays <= 3;
-              break;
-            }
-
-            case 'food': {
-              const cat = String(item.category || '').toLowerCase();
-              chipFilterPass =
-                cat.includes('طعام') ||
-                cat.includes('غذائ') ||
-                cat.includes('أطعمة') ||
-                cat.includes('مأكولات');
-              break;
-            }
-
-            case 'recent_day':
-            case 'recent_extended': {
-              if (!latestTwoDates || latestTwoDates.length === 0) return false;
-
-              const newestDate = new Date(latestTwoDates.at(-1));
-              if (isNaN(newestDate)) return false;
-
-              let itemDate = null;
-              if (item.updateDate) itemDate = normalizeDate(item.updateDate);
-              else if (item.endDate) itemDate = normalizeDate(item.endDate);
-              else if (item.validUntil && item.validUntil !== 'غير متاح') {
-                itemDate = normalizeDate(parseEndDate(item.validUntil));
+            case 'ending':
+              if (item.endDate) {
+                const now = new Date();
+                const diffDays = Math.ceil((item.endDate - now) / (1000 * 60 * 60 * 24));
+                chipFilterPass = diffDays <= 3 && diffDays >= 0;
               }
-
-              if (!itemDate || isNaN(itemDate)) return false;
-
-              const diffDays =
-                (newestDate - itemDate) / 86400000;
-
-              chipFilterPass =
-                activeChipFilter === 'recent_day'
-                  ? diffDays >= 0 && diffDays <= 1
-                  : diffDays >= 0 && diffDays <= 7;
               break;
+            case 'discount':
+              // REMOVED: chipFilterPass = item._discount_pct > 50;
+              // Now we just return true and let sorting handle it
+              chipFilterPass = true;
+              break;
+            case 'food':
+              if (item.category) {
+                const category = String(item.category || '').trim().toLowerCase();
+                chipFilterPass = category.includes('طعام') || 
+                                category.includes('غذائ') ||
+                                category.includes('أطعمة') ||
+                                category.includes('مأكولات');
+              }
+              break;
+            case 'recent':
+              if (latestTwoDates.length === 0) {
+                chipFilterPass = false;
+              } else {
+                let itemDate = null;
+                
+                if (item.updateDate) {
+                  itemDate = item.updateDate;
+                }
+                else if (item.endDate) {
+                  itemDate = item.endDate;
+                }
+                else if (item.validUntil && item.validUntil !== 'غير متاح') {
+                  itemDate = parseEndDate(item.validUntil);
+                }
+                
+                if (itemDate) {
+                  const year = itemDate.getFullYear();
+                  const month = String(itemDate.getMonth() + 1).padStart(2, '0');
+                  const day = String(itemDate.getDate()).padStart(2, '0');
+                  const itemDateStr = `${year}-${month}-${day}`;
+                  
+                  chipFilterPass = latestTwoDates.includes(itemDateStr);
+                } else {
+                  chipFilterPass = false;
+                }
+              }
+              break;
+              
+try {
+    filteredItems = allItems.filter(item => {
+        let chipFilterPass = true;
+
+        switch (activeChipFilter) {
+
+            case 'recent_extended': {
+                if (!latestTwoDates || latestTwoDates.length === 0) {
+                    return false;
+                }
+
+                const newestDateInDB = new Date(latestTwoDates[0]);
+                let itemDate = null;
+
+                if (item.updateDate) itemDate = normalizeDate(item.updateDate);
+                else if (item.endDate) itemDate = normalizeDate(item.endDate);
+                else if (item.validUntil && item.validUntil !== 'غير متاح') {
+                    itemDate = normalizeDate(parseEndDate(item.validUntil));
+                }
+
+                if (!itemDate || isNaN(newestDateInDB)) return false;
+
+                const diffDays =
+                    (newestDateInDB - itemDate) / (1000 * 60 * 60 * 24);
+
+                return diffDays >= 0 && diffDays <= 7;
             }
 
+            default:
+                return true;
+        }
+    });
+
+} catch (e) {
+    console.error('FILTER ERROR:', e);
+    filteredItems = [];
+}
+
+                   
+              case 'recent_day':
+              // Logic: Check if item is within 1 days of the newest date in the dataset
+              if (latestTwoDates.length === 0) {
+                 chipFilterPass = false;
+              } else {
+                 // Get the newest date from your existing logic (first item in latestTwoDates)
+                 const newestDateInDB2 = new Date(latestTwoDates[0]);
+                 let itemDate = null;
+                 // Extract date from item (same logic as above)
+                 if (item.updateDate) itemDate = item.updateDate;
+                 else if (item.endDate) itemDate = item.endDate;
+                 else if (item.validUntil && item.validUntil !== 'غير متاح') itemDate = parseEndDate(item.validUntil);
+                 if (itemDate && !isNaN(newestDateInDB2.getTime())) {
+                    // Calculate difference in days
+                 const diffTime = newestDateInDB2 - itemDate;
+                    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+                    
+                    // Pass if within 1 days
+                    chipFilterPass = diffDays <= 1;
+                 } else {
+                    chipFilterPass = false;
+                 }
+              }
+              break;
+                
+              
             case 'carrefour':
-              chipFilterPass =
-                supermarketFilterCache.carrefour?.includes(item.product);
+              if (!supermarketFilterCache.carrefour) {
+                supermarketFilterCache.carrefour = allData.filter(i => {
+                  const carrefourName = String(i.supermarket || '').toLowerCase();
+                  return carrefourName.includes('كارفور') || 
+                         carrefourName.includes('carrefour');
+                }).map(i => i.product);
+              }
+              chipFilterPass = supermarketFilterCache.carrefour.includes(item.product);
               break;
-
             case 'hyperone':
-              chipFilterPass =
-                supermarketFilterCache.hyperone?.includes(item.product);
+              if (!supermarketFilterCache.hyperone) {
+                supermarketFilterCache.hyperone = allData.filter(i => {
+                  const hyperoneName = String(i.supermarket || '').toLowerCase();
+                  return hyperoneName.includes('هايبر وان') || 
+                         hyperoneName.includes('هايبروان') ||
+                         hyperoneName.includes('هايبر') ||
+                         hyperoneName.includes('hyper one') ||
+                         hyperoneName.includes('hyperone') ||
+                         hyperoneName.includes('hyper');
+                }).map(i => i.product);
+              }
+              chipFilterPass = supermarketFilterCache.hyperone.includes(item.product);
               break;
-
             default:
               chipFilterPass = true;
           }
-
           if (!chipFilterPass) return false;
         }
-
-        /* ---------- NORMAL FILTERS ---------- */
-        if (supermarket && String(item.supermarket || '') !== supermarket)
-          return false;
-
-        if (category && String(item.category || '') !== category)
-          return false;
-
-        if (brand && String(item.brand || '') !== brand)
-          return false;
-
+        
+        // Rest of the filtering logic remains the same...
+        const prod = String(item.product || '').toLowerCase();
+        const primary = String(item.primaryName || '').toLowerCase();
+        const itemBrand = String(item.brand || '').toLowerCase();
+        
+        if (supermarket && String(item.supermarket || '') !== supermarket) return false;
+        
+        if (category && String(item.category || '') !== category) return false;
+        
+        if (brand && String(item.brand || '') !== brand) return false;
+        
         const priceVal = Number(item.currentPrice) || 0;
-        if (priceVal < minPrice || priceVal > maxPrice)
+        if (priceVal < minPrice || priceVal > maxPrice) return false;
+        
+        if ((item._discount_pct||0) < minDiscount) return false;
+        
+        if (search && !prod.includes(search) && !primary.includes(search) && 
+            !itemBrand.includes(search) && !String(item.supermarket || '').toLowerCase().includes(search)) {
           return false;
-
-        if ((item._discount_pct || 0) < minDiscount)
-          return false;
-
-        if (search) {
-          const prod = String(item.product || '').toLowerCase();
-          const primary = String(item.primaryName || '').toLowerCase();
-          const itemBrand = String(item.brand || '').toLowerCase();
-          const market = String(item.supermarket || '').toLowerCase();
-
-          if (
-            !prod.includes(search) &&
-            !primary.includes(search) &&
-            !itemBrand.includes(search) &&
-            !market.includes(search)
-          ) {
-            return false;
-          }
         }
-
+        
         return true;
-
-      } catch (e) {
-        console.error('Filter item error:', e, item);
+      } catch (filterError) {
+        console.error('Error filtering item:', filterError, item);
         return false;
       }
     });
 
-    /* =======================
-       3) SORTING
-    ======================= */
-    if (sort === 'best-deals') {
-      const maxSavings =
-        Math.max(...filteredData.map(i => i._saved || 0), 1);
+    // تطبيق الترتيب - UPDATED with improved combined sorting
+    // The sorting logic remains the same, it will use the sort value set by the chips
+    
+    // ... rest of the sorting code remains the same
 
-      filteredData.sort((a, b) => {
-        const discountA = Math.min(a._discount_pct || 0, 100) / 100;
-        const discountB = Math.min(b._discount_pct || 0, 100) / 100;
 
+    // تطبيق الترتيب - UPDATED with improved combined sorting
+    if(sort === 'best-deals') {
+      // أفضل العروض: مزيج مرجح من الخصم النسبي وقيمة التوفير
+      const maxSavings = Math.max(...filteredData.map(i => i._saved || 0), 500);
+      
+      filteredData.sort((a,b)=> {
+        // Normalize discount percentage (0-100%)
+        const discountA = Math.min((a._discount_pct || 0), 100) / 100;
+        const discountB = Math.min((b._discount_pct || 0), 100) / 100;
+        
+        // Normalize savings amount
         const savedA = (a._saved || 0) / maxSavings;
         const savedB = (b._saved || 0) / maxSavings;
-
-        const scoreA =
-          discountA * WEIGHT_DISCOUNT +
-          savedA * WEIGHT_SAVINGS;
-
-        const scoreB =
-          discountB * WEIGHT_DISCOUNT +
-          savedB * WEIGHT_SAVINGS;
-
-        return scoreB - scoreA;
+        
+        // Calculate weighted scores
+        const scoreA = (discountA * WEIGHT_DISCOUNT) + (savedA * WEIGHT_SAVINGS);
+        const scoreB = (discountB * WEIGHT_DISCOUNT) + (savedB * WEIGHT_SAVINGS);
+        
+        // Sort by combined score (descending)
+        const scoreDiff = scoreB - scoreA;
+        if (Math.abs(scoreDiff) > 0.0001) {
+          return scoreDiff;
+        }
+        
+        // If scores are very close, prioritize higher discount
+        const discountDiff = discountB - discountA;
+        if (Math.abs(discountDiff) > 0.01) {
+          return discountDiff;
+        }
+        
+        // Finally, sort alphabetically
+        const nameA = String(a.product || '');
+        const nameB = String(b.product || '');
+        return nameA.localeCompare(nameB, 'ar');
       });
-
-    } else if (sort === 'discount-desc') {
-      filteredData.sort((a, b) =>
-        (b._discount_pct || 0) - (a._discount_pct || 0));
-
-    } else if (sort === 'saved-desc') {
-      filteredData.sort((a, b) =>
-        (b._saved || 0) - (a._saved || 0));
-
-    } else if (sort === 'price-asc') {
-      filteredData.sort((a, b) =>
-        (a.currentPrice || 0) - (b.currentPrice || 0));
-
-    } else if (sort === 'price-desc') {
-      filteredData.sort((a, b) =>
-        (b.currentPrice || 0) - (a.currentPrice || 0));
+    } else if(sort === 'discount-desc') {
+      filteredData.sort((a,b)=> (b._discount_pct||0)-(a._discount_pct||0));
+    } else if(sort === 'saved-desc') {
+      filteredData.sort((a,b)=> (b._saved||0)-(a._saved||0));
+    } else if(sort === 'price-asc') {
+      filteredData.sort((a,b)=> (a.currentPrice||0)-(b.currentPrice||0));
+    } else if(sort === 'price-desc') {
+      filteredData.sort((a,b)=> (b.currentPrice||0)-(a.currentPrice||0));
+    } else if(sort === 'name-asc') {
+      filteredData.sort((a,b)=> {
+        const nameA = String(a.product || '');
+        const nameB = String(b.product || '');
+        return nameA.localeCompare(nameB, 'ar');
+      });
+    } else if(sort === 'name-desc') {
+      filteredData.sort((a,b)=> {
+        const nameA = String(a.product || '');
+        const nameB = String(b.product || '');
+        return nameB.localeCompare(nameA, 'ar');
+      });
     }
 
-    /* =======================
-       4) RENDER
-    ======================= */
     currentPage = 1;
     renderContent();
     updateStats();
-
-  } catch (err) {
-    console.error('applyAllFilters failed:', err);
-  } finally {
-    hideLoadingMessage?.();
+  } catch (error) {
+    console.error('Error in applyAllFilters:', error);
+    showError('حدث خطأ في تطبيق الفلاتر: ' + error.message);
   }
 }
 
@@ -2886,52 +2940,65 @@ document.addEventListener("DOMContentLoaded", function () {
          
   </script>
     <!---&gt; document.querySelectorAll('.chip').forEach(chip =&gt; {    chip.addEventListener('click', () =&gt; {    document.querySelectorAll('.chip').forEach(c =&gt;    c.classList.remove('active')); chip.classList.add('active');    activeChipFilter = chip.dataset.filter; // Set supermarket filter for    specific chips const discount = document.getElementById('min-discount');    applyAllFilters(); }); -->
-   
-<script>
+    <script>
 document.addEventListener("DOMContentLoaded", function () {
-
   const params = new URLSearchParams(window.location.search);
   const weekPercent = params.get("week_percent");
-  if (!weekPercent) return;
 
-  // 1️⃣ Set discount filter
-  const discountInput = document.getElementById("min-discount");
-  if (discountInput) {
-    discountInput.value = weekPercent;
-  }
+  if (!Array.isArray(allItems) || allItems.length === 0) {
+    hideLoadingMessage(); // أو whatever hides "جارٍ تحميل البيانات"
+    return;
+}
 
-  // 2️⃣ Fetch data ثم طبّق الفلتر مرة واحدة فقط
-  fetchData().then(() => {
+  
+  if (weekPercent) {
+    // 1. Set the Discount Percentage Input
+    const discountInput = document.getElementById("min-discount");
+    if (discountInput) {
+        discountInput.value = weekPercent;
+    }
 
+    // 2. Set the internal filter variable to our new 7-day mode
+    // Note: We are setting the global variable 'activeChipFilter' defined in your main script
+    fetchData().then(() => {
     activeChipFilter = 'recent_extended';
-
-    // sorting
-    const sortSelect = document.getElementById("sort-by");
-    if (sortSelect) {
-      sortSelect.value = "best-deals";
-    }
-
-    // UI chip
-    const chipsContainer = document.getElementById('filter-chips');
-    if (chipsContainer) {
-      document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
-
-      const tempChip = document.createElement('button');
-      tempChip.className = 'chip active';
-      tempChip.innerHTML = '<i class="fas fa-calendar-week"></i> عروض الـ 7 يوم';
-      chipsContainer.insertBefore(tempChip, chipsContainer.firstChild);
-    }
-
-    // 3️⃣ Apply filters مرة واحدة فقط
     applyAllFilters();
-
-    // 4️⃣ Always hide loading
-    document.getElementById('loading-message')?.style.display = 'none';
-  });
+   
 
 });
-</script>
- <script>
+
+
+    // 3. Set sorting to "Best Deals" (to satisfy "display best offers")
+    const sortSelect = document.getElementById("sort-by");
+    if(sortSelect) {
+        sortSelect.value = "best-deals";
+    }
+
+    // 4. Visual Feedback: Create a temporary visual "Chip" to show this mode is active
+    const chipsContainer = document.getElementById('filter-chips');
+    if(chipsContainer){
+        // Remove active class from others
+        document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+        
+        // Add a temporary chip for UI clarity
+        const tempChip = document.createElement('button');
+        tempChip.className = 'chip active';
+        tempChip.innerHTML = '<i class="fas fa-calendar-week"></i> عروض الـ  7يوم';
+        // Insert it at the beginning
+        chipsContainer.insertBefore(tempChip, chipsContainer.firstChild);
+    }
+
+    // 5. Trigger the filter update
+    // We assume fetchData() will call applyAllFilters() when data loads.
+    // However, if data is already cached/loaded, we force an update.
+    if (dataLoaded === true) {
+    applyAllFilters();  document.getElementById('loading-message')?.style.display = 'none';
+
+}
+
+  }
+});
+</script> <script>
 document.addEventListener("DOMContentLoaded", function () {
   const params = new URLSearchParams(window.location.search);
   const percent2 = params.get("one_day");
@@ -2975,6 +3042,5 @@ document.addEventListener("DOMContentLoaded", function () {
     }, 1000); // Small delay to ensure data is ready
   }
 });
-</script>
-  </body>
+</script> </body>
 </html>
