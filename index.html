@@ -2923,8 +2923,8 @@ if (document.readyState === 'loading') {
 }
 </script> <script>
 document.addEventListener("DOMContentLoaded", function () {
-  const params = new URLSearchParams(window.location.search);
-  const market = params.get("market");
+  const params0 = new URLSearchParams(window.location.search);
+  const market = params0.get("market");
 
   if (!market) return;
 
@@ -2940,8 +2940,8 @@ document.addEventListener("DOMContentLoaded", function () {
 <!-- </script>
     <script>
 document.addEventListener("DOMContentLoaded", function () {
-  const params = new URLSearchParams(window.location.search);
-  const percent = params.get("discount");
+  const paramsA = new URLSearchParams(window.location.search);
+  const percent = paramsA.get("discount");
 
   if (!percent) return;
 
@@ -3004,8 +3004,8 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 </script> <script>
 document.addEventListener("DOMContentLoaded", function () {
-  const params = new URLSearchParams(window.location.search);
-  const percent2 = params.get("one_day");
+  const params2 = new URLSearchParams(window.location.search);
+  const percent2 = params2.get("one_day");
   if (percent2) {
    
     const discountInput2 = document.getElementById("updateDateStr");
@@ -3024,16 +3024,16 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // 4. Visual Feedback: Create a temporary visual "Chip" to show this mode is active
     const chipsContainer2 = document.getElementById('filter-chips');
-    if(chipsContainer){
+    if(chipsContainer2){
         // Remove active class from others
         document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
         
         // Add a temporary chip for UI clarity
-        const tempChip = document.createElement('button');
-        tempChip.className = 'chip active';
-        tempChip.innerHTML = '<i class="fas fa-calendar-day"></i> عروض الـ 1 يوم';
+        const tempChip2 = document.createElement('button');
+        tempChip2.className = 'chip active';
+        tempChip2.innerHTML = '<i class="fas fa-calendar-day"></i> عروض الـ 1 يوم';
         // Insert it at the beginning
-        chipsContainer.insertBefore(tempChip, chipsContainer.firstChild);
+        chipsContainer2.insertBefore(tempChip2, chipsContainer2.firstChild);
     }
 
     // 5. Trigger the filter update
