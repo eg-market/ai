@@ -1605,37 +1605,55 @@ try {
 
         switch (activeChipFilter) {
 
-            case 'recent_extended': {
-                if (!latestTwoDates || latestTwoDates.length === 0) {
-                    return false;
+     case 'recent_extended':
+              if (latestTwoDates.length > 0) {
+                const newestDate = new Date(latestTwoDates[0]);
+                let itemDate = item.updateDate || item.endDate || (item.validUntil !== 'غير متاح' ? parseEndDate(item.validUntil) : null);
+                
+                if (itemDate && !isNaN(newestDate.getTime())) {
+                  const diffDays = Math.ceil(Math.abs(newestDate - itemDate) / (1000 * 60 * 60 * 24));
+                  
+                  if (activeChipFilter === 'recent_day') chipFilterPass = diffDays <= 1;
+                  else if (activeChipFilter === 'recent_extended') chipFilterPass = diffDays <= 17;
+                  else chipFilterPass = diffDays <= 2; // Default 'recent'
                 }
-
-                const newestDateInDB = new Date(latestTwoDates[0]);
-                let itemDate = null;
-
-                if (item.updateDate) itemDate = normalizeDate(item.updateDate);
-                else if (item.endDate) itemDate = normalizeDate(item.endDate);
-                else if (item.validUntil && item.validUntil !== 'غير متاح') {
-                    itemDate = normalizeDate(parseEndDate(item.validUntil));
-                }
-
-                if (!itemDate || isNaN(newestDateInDB)) return false;
-
-                const diffDays =
-                    (newestDateInDB - itemDate) / (1000 * 60 * 60 * 24);
-
-                return diffDays >= 0 && diffDays <= 7;
-            }
+              }
+              break;
 
             default:
-                return true;
+              chipFilterPass = true;
+          }
+
+          if (!chipFilterPass) return false;
         }
+
+        // Standard Text/Price Filters
+        const prod = String(item.product || '').toLowerCase();
+        const primary = String(item.primaryName || '').toLowerCase();
+        
+        if (supermarket && String(item.supermarket || '') !== supermarket) return false;
+        if (category && String(item.category || '') !== category) return false;
+        if (brand && String(item.brand || '') !== brand) return false;
+        
+        const priceVal = Number(item.currentPrice) || 0;
+        if (priceVal < minPrice || priceVal > maxPrice) return false;
+        if ((item._discount_pct || 0) < minDiscount) return false;
+        
+        if (search && !prod.includes(search) && !primary.includes(search)) return false;
+        
+        return true;
+      } catch (e) {
+        return false;
+      }
     });
 
-} catch (e) {
-    console.error('FILTER ERROR:', e);
-    filteredItems = [];
-}
+    // Re-run sorting and rendering
+    currentPage = 1;
+    renderContent();
+    updateStats();
+  } catch (error) {
+    console.error('Filter Error:', error);
+  }
 
                    
               case 'recent_day':
@@ -2897,7 +2915,7 @@ document.addEventListener("DOMContentLoaded", function () {
       if (searchInput) {
         searchInput.value = decodeURIComponent(query);
         if (typeof applyAllFilters === 'function') {
-          setTimeout(() => applyAllFilters(), 1000);
+          setTimeout(() => applyAllFilters(), 1500);
         }
       }
     }
