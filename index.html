@@ -1601,7 +1601,7 @@ function applyAllFilters() {
               
   case 'recent_extended': {
 
-    if (latestTwoDates || latestTwoDates.length === 0) {
+    if (!latestTwoDates || latestTwoDates.length === 0) {
         chipFilterPass = false;
         break;
     }
@@ -1615,7 +1615,7 @@ function applyAllFilters() {
         itemDate = normalizeDate(parseEndDate(item.validUntil));
     }
 
-    if (!itemDate || isNaN(newestDateInDB0.getTime())) {
+    if (itemDate || !isNaN(newestDateInDB0.getTime())) {
         chipFilterPass = false;
         break;
     }
