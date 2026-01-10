@@ -3009,11 +3009,11 @@ document.addEventListener("DOMContentLoaded", function () {
     // 5. Trigger the filter update
     // We assume fetchData() will call applyAllFilters() when data loads.
     // However, if data is already cached/loaded, we force an update.
-    setTimeout(() => {
-        if (typeof applyAllFilters === 'function') {
-            applyAllFilters();
-        }
-    }, 1000); // Small delay to ensure data is ready
+    if (dataLoaded === true) {
+    applyAllFilters();  document.getElementById('loading-message')?.style.display = 'none';
+
+}
+
   }
 });
 </script> <script>
