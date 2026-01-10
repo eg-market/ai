@@ -1522,191 +1522,202 @@ function switchView(view) {
 /* Apply ALL filters together - UPDATED with improved combined sorting */
 function applyAllFilters() {
   try {
-    const search = (document.getElementById('search-input').value || '').trim().toLowerCase();
-    const supermarket = document.getElementById('supermarket-filter').value || '';
-    const category = document.getElementById('category-filter').value || '';
-    const brand = document.getElementById('brand-filter').value || '';
-    const minDiscount = parseFloat(document.getElementById('min-discount').value) || 0;
-    const minPriceRaw = document.getElementById('min-price').value;
-    const maxPriceRaw = document.getElementById('max-price').value;
-    const minPrice = minPriceRaw === '' ? 0 : (parseFloat(minPriceRaw) || 0);
-    const maxPrice = maxPriceRaw === '' ? Infinity : (parseFloat(maxPriceRaw) || Infinity);
-    const sort = document.getElementById('sort-by').value || 'best-deals';
+    /* =======================
+       1) READ INPUTS
+    ======================= */
+    const search = (document.getElementById('search-input')?.value || '')
+      .trim().toLowerCase();
 
-    if(isFinite(minPrice) && isFinite(maxPrice) && minPrice > maxPrice){
-      const tmp = document.getElementById('min-price').value;
-      document.getElementById('min-price').value = document.getElementById('max-price').value;
-      document.getElementById('max-price').value = tmp;
-    }
+    const supermarket = document.getElementById('supermarket-filter')?.value || '';
+    const category = document.getElementById('category-filter')?.value || '';
+    const brand = document.getElementById('brand-filter')?.value || '';
 
+    const minDiscount =
+      parseFloat(document.getElementById('min-discount')?.value) || 0;
+
+    const minPriceRaw = document.getElementById('min-price')?.value;
+    const maxPriceRaw = document.getElementById('max-price')?.value;
+
+    const minPrice =
+      minPriceRaw === '' ? 0 : (parseFloat(minPriceRaw) || 0);
+
+    const maxPrice =
+      maxPriceRaw === '' ? Infinity : (parseFloat(maxPriceRaw) || Infinity);
+
+    const sort =
+      document.getElementById('sort-by')?.value || 'best-deals';
+
+    /* =======================
+       2) FILTER DATA
+    ======================= */
     filteredData = allData.filter(item => {
       try {
-        if (activeChipFilter !== 'all') {
-          let chipFilterPass = false;
-switch (activeChipFilter) {
+        /* ---------- CHIP FILTER ---------- */
+        let chipFilterPass = true;
 
-  case 'hot':
-  case 'discount':
-    chipFilterPass = true;
-    break;
+        if (activeChipFilter && activeChipFilter !== 'all') {
+          switch (activeChipFilter) {
 
-  case 'ending': {
-    if (!item.endDate) return false;
-    const now = new Date();
-    const diffDays = Math.ceil((item.endDate - now) / 86400000);
-    chipFilterPass = diffDays >= 0 && diffDays <= 3;
-    break;
-  }
+            case 'hot':
+            case 'discount':
+              chipFilterPass = true;
+              break;
 
-  case 'food': {
-    const cat = String(item.category || '').toLowerCase();
-    chipFilterPass =
-      cat.includes('طعام') ||
-      cat.includes('غذائ') ||
-      cat.includes('أطعمة') ||
-      cat.includes('مأكولات');
-    break;
-  }
+            case 'ending': {
+              if (!item.endDate) return false;
+              const now = new Date();
+              const diffDays = Math.ceil((item.endDate - now) / 86400000);
+              chipFilterPass = diffDays >= 0 && diffDays <= 3;
+              break;
+            }
 
-  case 'recent_day':
-  case 'recent_extended': {
+            case 'food': {
+              const cat = String(item.category || '').toLowerCase();
+              chipFilterPass =
+                cat.includes('طعام') ||
+                cat.includes('غذائ') ||
+                cat.includes('أطعمة') ||
+                cat.includes('مأكولات');
+              break;
+            }
 
-    if (!latestTwoDates || latestTwoDates.length === 0) return false;
+            case 'recent_day':
+            case 'recent_extended': {
+              if (!latestTwoDates || latestTwoDates.length === 0) return false;
 
-    const newestDate = new Date(latestTwoDates.at(-1));
-    let itemDate = null;
+              const newestDate = new Date(latestTwoDates.at(-1));
+              if (isNaN(newestDate)) return false;
 
-    if (item.updateDate) itemDate = normalizeDate(item.updateDate);
-    else if (item.endDate) itemDate = normalizeDate(item.endDate);
-    else if (item.validUntil && item.validUntil !== 'غير متاح') {
-      itemDate = normalizeDate(parseEndDate(item.validUntil));
-    }
+              let itemDate = null;
+              if (item.updateDate) itemDate = normalizeDate(item.updateDate);
+              else if (item.endDate) itemDate = normalizeDate(item.endDate);
+              else if (item.validUntil && item.validUntil !== 'غير متاح') {
+                itemDate = normalizeDate(parseEndDate(item.validUntil));
+              }
 
-    if (!itemDate || isNaN(itemDate)) return false;
+              if (!itemDate || isNaN(itemDate)) return false;
 
-    const diffDays =
-      (newestDate - itemDate) / 86400000;
+              const diffDays =
+                (newestDate - itemDate) / 86400000;
 
-    chipFilterPass =
-      activeChipFilter === 'recent_day'
-        ? diffDays >= 0 && diffDays <= 1
-        : diffDays >= 0 && diffDays <= 7;
+              chipFilterPass =
+                activeChipFilter === 'recent_day'
+                  ? diffDays >= 0 && diffDays <= 1
+                  : diffDays >= 0 && diffDays <= 7;
+              break;
+            }
 
-    break;
-  }
+            case 'carrefour':
+              chipFilterPass =
+                supermarketFilterCache.carrefour?.includes(item.product);
+              break;
 
-  case 'carrefour':
-    chipFilterPass = supermarketFilterCache.carrefour?.includes(item.product);
-    break;
+            case 'hyperone':
+              chipFilterPass =
+                supermarketFilterCache.hyperone?.includes(item.product);
+              break;
 
-  case 'hyperone':
-    chipFilterPass = supermarketFilterCache.hyperone?.includes(item.product);
-    break;
-
-  default:
-    chipFilterPass = true;
-}
+            default:
+              chipFilterPass = true;
+          }
 
           if (!chipFilterPass) return false;
         }
-        
-        // Rest of the filtering logic remains the same...
-        const prod = String(item.product || '').toLowerCase();
-        const primary = String(item.primaryName || '').toLowerCase();
-        const itemBrand = String(item.brand || '').toLowerCase();
-        
-        if (supermarket && String(item.supermarket || '') !== supermarket) return false;
-        
-        if (category && String(item.category || '') !== category) return false;
-        
-        if (brand && String(item.brand || '') !== brand) return false;
-        
-        const priceVal = Number(item.currentPrice) || 0;
-        if (priceVal < minPrice || priceVal > maxPrice) return false;
-        
-        if ((item._discount_pct||0) < minDiscount) return false;
-        
-        if (search && !prod.includes(search) && !primary.includes(search) && 
-            !itemBrand.includes(search) && !String(item.supermarket || '').toLowerCase().includes(search)) {
+
+        /* ---------- NORMAL FILTERS ---------- */
+        if (supermarket && String(item.supermarket || '') !== supermarket)
           return false;
+
+        if (category && String(item.category || '') !== category)
+          return false;
+
+        if (brand && String(item.brand || '') !== brand)
+          return false;
+
+        const priceVal = Number(item.currentPrice) || 0;
+        if (priceVal < minPrice || priceVal > maxPrice)
+          return false;
+
+        if ((item._discount_pct || 0) < minDiscount)
+          return false;
+
+        if (search) {
+          const prod = String(item.product || '').toLowerCase();
+          const primary = String(item.primaryName || '').toLowerCase();
+          const itemBrand = String(item.brand || '').toLowerCase();
+          const market = String(item.supermarket || '').toLowerCase();
+
+          if (
+            !prod.includes(search) &&
+            !primary.includes(search) &&
+            !itemBrand.includes(search) &&
+            !market.includes(search)
+          ) {
+            return false;
+          }
         }
-        
+
         return true;
-      } catch (filterError) {
-        console.error('Error filtering item:', filterError, item);
+
+      } catch (e) {
+        console.error('Filter item error:', e, item);
         return false;
       }
     });
 
-    // تطبيق الترتيب - UPDATED with improved combined sorting
-    // The sorting logic remains the same, it will use the sort value set by the chips
-    
-    // ... rest of the sorting code remains the same
+    /* =======================
+       3) SORTING
+    ======================= */
+    if (sort === 'best-deals') {
+      const maxSavings =
+        Math.max(...filteredData.map(i => i._saved || 0), 1);
 
+      filteredData.sort((a, b) => {
+        const discountA = Math.min(a._discount_pct || 0, 100) / 100;
+        const discountB = Math.min(b._discount_pct || 0, 100) / 100;
 
-    // تطبيق الترتيب - UPDATED with improved combined sorting
-    if(sort === 'best-deals') {
-      // أفضل العروض: مزيج مرجح من الخصم النسبي وقيمة التوفير
-      const maxSavings = Math.max(...filteredData.map(i => i._saved || 0), 500);
-      
-      filteredData.sort((a,b)=> {
-        // Normalize discount percentage (0-100%)
-        const discountA = Math.min((a._discount_pct || 0), 100) / 100;
-        const discountB = Math.min((b._discount_pct || 0), 100) / 100;
-        
-        // Normalize savings amount
         const savedA = (a._saved || 0) / maxSavings;
         const savedB = (b._saved || 0) / maxSavings;
-        
-        // Calculate weighted scores
-        const scoreA = (discountA * WEIGHT_DISCOUNT) + (savedA * WEIGHT_SAVINGS);
-        const scoreB = (discountB * WEIGHT_DISCOUNT) + (savedB * WEIGHT_SAVINGS);
-        
-        // Sort by combined score (descending)
-        const scoreDiff = scoreB - scoreA;
-        if (Math.abs(scoreDiff) > 0.0001) {
-          return scoreDiff;
-        }
-        
-        // If scores are very close, prioritize higher discount
-        const discountDiff = discountB - discountA;
-        if (Math.abs(discountDiff) > 0.01) {
-          return discountDiff;
-        }
-        
-        // Finally, sort alphabetically
-        const nameA = String(a.product || '');
-        const nameB = String(b.product || '');
-        return nameA.localeCompare(nameB, 'ar');
+
+        const scoreA =
+          discountA * WEIGHT_DISCOUNT +
+          savedA * WEIGHT_SAVINGS;
+
+        const scoreB =
+          discountB * WEIGHT_DISCOUNT +
+          savedB * WEIGHT_SAVINGS;
+
+        return scoreB - scoreA;
       });
-    } else if(sort === 'discount-desc') {
-      filteredData.sort((a,b)=> (b._discount_pct||0)-(a._discount_pct||0));
-    } else if(sort === 'saved-desc') {
-      filteredData.sort((a,b)=> (b._saved||0)-(a._saved||0));
-    } else if(sort === 'price-asc') {
-      filteredData.sort((a,b)=> (a.currentPrice||0)-(b.currentPrice||0));
-    } else if(sort === 'price-desc') {
-      filteredData.sort((a,b)=> (b.currentPrice||0)-(a.currentPrice||0));
-    } else if(sort === 'name-asc') {
-      filteredData.sort((a,b)=> {
-        const nameA = String(a.product || '');
-        const nameB = String(b.product || '');
-        return nameA.localeCompare(nameB, 'ar');
-      });
-    } else if(sort === 'name-desc') {
-      filteredData.sort((a,b)=> {
-        const nameA = String(a.product || '');
-        const nameB = String(b.product || '');
-        return nameB.localeCompare(nameA, 'ar');
-      });
+
+    } else if (sort === 'discount-desc') {
+      filteredData.sort((a, b) =>
+        (b._discount_pct || 0) - (a._discount_pct || 0));
+
+    } else if (sort === 'saved-desc') {
+      filteredData.sort((a, b) =>
+        (b._saved || 0) - (a._saved || 0));
+
+    } else if (sort === 'price-asc') {
+      filteredData.sort((a, b) =>
+        (a.currentPrice || 0) - (b.currentPrice || 0));
+
+    } else if (sort === 'price-desc') {
+      filteredData.sort((a, b) =>
+        (b.currentPrice || 0) - (a.currentPrice || 0));
     }
 
+    /* =======================
+       4) RENDER
+    ======================= */
     currentPage = 1;
     renderContent();
     updateStats();
-  } catch (error) {
-    console.error('Error in applyAllFilters:', error);
-    showError('حدث خطأ في تطبيق الفلاتر: ' + error.message);
+
+  } catch (err) {
+    console.error('applyAllFilters failed:', err);
+  } finally {
+    hideLoadingMessage?.();
   }
 }
 
