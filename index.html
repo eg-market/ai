@@ -1625,14 +1625,6 @@ function applyAllFilters() {
 
     // 🔍 ضع الـ console.log هنا بالضبط
 
-   if (!window.__loggedOnce) {
-    console.log(
-        item.updateDate,
-        itemDate,
-        newestDateInDB,
-        diffDays,
-        chipFilterPass
-    );
     window.__loggedOnce = true;
 }
 
@@ -1877,13 +1869,7 @@ function formatDateShort(d){
 function computeSavedAndDiscount(arr){
   try {
     arr.forEach(item=>{
-      
-console.log({
-  newestDateInDB,
-  itemDate,
-  diffDays,
-  chipFilterPass
-});
+
 
       const orig = Number(item.originalPrice) || 0;
       const curr = Number(item.currentPrice) || 0;
