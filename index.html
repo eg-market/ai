@@ -1615,17 +1615,26 @@ function applyAllFilters() {
         itemDate = normalizeDate(parseEndDate(item.validUntil));
     }
 
-    if (itemDate || !isNaN(newestDateInDB0.getTime())) {
+    if (!itemDate || isNaN(newestDateInDB0.getTime())) {
         chipFilterPass = false;
         break;
     }
 
     // الفرق بدون abs (آخر يوم فقط)
     const diffTime0 = newestDateInDB0 - itemDate;
-    const diffDays0 = Math.ceil(diffTime0 / (1000 * 60 * 60 * 24));
+    const diffDays0 = diffTime0 / (1000 * 60 * 60 * 24);
+    
+    console.log(
+  item.updateDate,
+  itemDate,
+  newestDateInDB,
+  diffDays,
+  chipFilterPass
+);
+
 
     // ✅ آخر 24 ساعة فقط
-    chipFilterPass = diffDays0 >= 0 && diffDays0 < 7;
+    chipFilterPass = diffDays0 >= 0 && diffDays0 <= 7;
 
     break;
 }
