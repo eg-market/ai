@@ -1290,12 +1290,6 @@ function initApp() {
 }
 
 /* Wire all event listeners */
-      
-      function stripTime(d) {
-  return new Date(d.getFullYear(), d.getMonth(), d.getDate());
-}
-
-      
 function wireEventListeners() {
   try {
     // View toggle
@@ -1611,35 +1605,37 @@ try {
 
         switch (activeChipFilter) {
 
-case 'recent_extended': {
+            case 'recent_extended': {
+                if (!latestTwoDates || latestTwoDates.length === 0) {
+                    return false;
+                }
 
-    if (!latestTwoDates || latestTwoDates.length === 0) {
-        return false;
-    }
+                const newestDateInDB = new Date(latestTwoDates[0]);
+                let itemDate = null;
 
-    const newestRaw = new Date(latestTwoDates[0]);
-    if (isNaN(newestRaw)) return false;
+                if (item.updateDate) itemDate = normalizeDate(item.updateDate);
+                else if (item.endDate) itemDate = normalizeDate(item.endDate);
+                else if (item.validUntil && item.validUntil !== 'غير متاح') {
+                    itemDate = normalizeDate(parseEndDate(item.validUntil));
+                }
 
-    const newestDate = stripTime(newestRaw);
+                if (!itemDate || isNaN(newestDateInDB)) return false;
 
-    let itemDate = null;
-    if (item.updateDate) itemDate = normalizeDate(item.updateDate);
-    else if (item.endDate) itemDate = normalizeDate(item.endDate);
-    else if (item.validUntil && item.validUntil !== 'غير متاح') {
-        itemDate = normalizeDate(parseEndDate(item.validUntil));
-    }
+                const diffDays =
+                    (newestDateInDB - itemDate) / (1000 * 60 * 60 * 24);
 
-    if (!itemDate) return false;
+                return diffDays >= 0 && diffDays <= 7;
+            }
 
-    itemDate = stripTime(itemDate);
+            default:
+                return true;
+        }
+    });
 
-    const diffDays =
-      (newestDate - itemDate) / (1000 * 60 * 60 * 24);
-
-    // ✅ آخر 7 أيام حقيقية
-    return diffDays >= 0 && diffDays <= 7;
+} catch (e) {
+    console.error('FILTER ERROR:', e);
+    filteredItems = [];
 }
-
 
                    
               case 'recent_day':
