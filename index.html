@@ -2858,5 +2858,125 @@ document.addEventListener('visibilitychange', ()=>{
   } 
 });
 </script><!--    // Add this to your index.html script function checkUrlForSearch() { //     1. Get the URL parameters const urlParams = new    URLSearchParams(window.location.search); // 2. Look for the 'q' parameter we    set in the Carrefour page const query = urlParams.get('q'); // 3. If found,    put it in the search box and trigger the search if (query) { const    searchInput = document.getElementById('search-input'); if (searchInput) { //    Set the value searchInput.value = decodeURIComponent(query); // Trigger the    search logic (assuming you have this function from your previous code) // If    you are using the 'applyAllFilters' function from your provided index.html:    if (typeof applyAllFilters === 'function') { applyAllFilters(); } } } } //    Call this function when the page loads    document.addEventListener('DOMContentLoaded', checkUrlForSearch); -->
-</body>
+<script>
+// Global variable to track URL parameters that need to be applied after data loads
+let pendingUrlFilters = {};
+
+document.addEventListener("DOMContentLoaded", function () {
+  const params = new URLSearchParams(window.location.search);
+  
+  // Store parameters for later use
+  if (params.get("q")) pendingUrlFilters.searchQuery = decodeURIComponent(params.get("q"));
+  if (params.get("market")) pendingUrlFilters.market = params.get("market");
+  if (params.get("discount")) pendingUrlFilters.discount = params.get("discount");
+  if (params.get("week_percent")) pendingUrlFilters.weekPercent = params.get("week_percent");
+  if (params.get("one_day")) pendingUrlFilters.oneDay = params.get("one_day");
+  
+  // Override the fetchData function to apply URL filters after data loads
+  const originalFetchData = window.fetchData;
+  window.fetchData = async function() {
+    await originalFetchData.apply(this, arguments);
+    
+    // Wait a bit more for everything to initialize
+    setTimeout(() => {
+      applyUrlFilters(pendingUrlFilters);
+    }, 1500);
+  };
+  
+  // Also try to apply immediately if data is already loaded
+  setTimeout(() => {
+    if (allData && allData.length > 0) {
+      applyUrlFilters(pendingUrlFilters);
+    }
+  }, 2000);
+});
+
+function applyUrlFilters(filters) {
+  if (!filters || Object.keys(filters).length === 0) return;
+  
+  console.log("Applying URL filters:", filters);
+  
+  // Apply search query
+  if (filters.searchQuery) {
+    const searchInput = document.getElementById('search-input');
+    if (searchInput) {
+      searchInput.value = filters.searchQuery;
+    }
+  }
+  
+  // Apply supermarket filter
+  if (filters.market) {
+    const marketSelect = document.getElementById("supermarket-filter");
+    if (marketSelect) {
+      marketSelect.value = filters.market;
+    }
+  }
+  
+  // Apply discount filter
+  if (filters.discount) {
+    const discountInput = document.getElementById("min-discount");
+    if (discountInput) {
+      discountInput.value = filters.discount;
+    }
+  }
+  
+  // Apply week_percent filter (7 days)
+  if (filters.weekPercent) {
+    // Set minimum discount if specified
+    if (filters.weekPercent > 0) {
+      const discountInput = document.getElementById("min-discount");
+      if (discountInput) {
+        discountInput.value = filters.weekPercent;
+      }
+    }
+    
+    // Activate the custom 7-day filter
+    activateCustomFilter('recent_7day', 'عروض الـ 7 يوم', 'fa-calendar-week', 7);
+  }
+  
+  // Apply one_day filter (1 day)
+  if (filters.oneDay) {
+    activateCustomFilter('recent_1day', 'عروض الـ 24 ساعة', 'fa-calendar-day', 1);
+  }
+  
+  // Apply all filters
+  if (typeof applyAllFilters === 'function') {
+    applyAllFilters();
+  }
+}
+
+function activateCustomFilter(filterId, label, icon, daysThreshold) {
+  // Deactivate all other chips
+  document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+  
+  // Create or activate custom chip
+  const chipsContainer = document.getElementById('filter-chips');
+  if (chipsContainer) {
+    let customChip = document.querySelector(`.chip[data-filter="${filterId}"]`);
+    
+    if (!customChip) {
+      customChip = document.createElement('button');
+      customChip.className = 'chip active';
+      customChip.setAttribute('data-filter', filterId);
+      customChip.setAttribute('data-days', daysThreshold);
+      customChip.innerHTML = `<i class="fas ${icon}"></i> ${label}`;
+      chipsContainer.insertBefore(customChip, chipsContainer.firstChild);
+      
+      // Add click handler
+      customChip.addEventListener('click', function() {
+        document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+        this.classList.add('active');
+        activeChipFilter = filterId;
+        applyAllFilters();
+      });
+    } else {
+      customChip.classList.add('active');
+    }
+    
+    // Set the active filter
+    activeChipFilter = filterId;
+  }
+}
+</script>
+    </body>
 </html>
