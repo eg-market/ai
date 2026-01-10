@@ -1290,6 +1290,12 @@ function initApp() {
 }
 
 /* Wire all event listeners */
+      
+      function stripTime(d) {
+  return new Date(d.getFullYear(), d.getMonth(), d.getDate());
+}
+
+      
 function wireEventListeners() {
   try {
     // View toggle
