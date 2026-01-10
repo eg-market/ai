@@ -1321,64 +1321,26 @@ function wireEventListeners() {
 }
 
 /* دالة لاستخراج أحدث تاريخين من البيانات */
-function findLatestTwoDates(data) {
-  try {
-    const allDates = [];
-    
-    data.forEach(item => {
-      let dateFound = null;
-      
-      // Try multiple date sources
-      if (item.updateDate) {
-        dateFound = normalizeDate(item.updateDate);
-      }
-      if (!dateFound && item.endDate) {
-        dateFound = normalizeDate(item.endDate);
-      }
-      if (!dateFound && item.validUntil && item.validUntil !== 'غير متاح') {
-        dateFound = parseEndDate(item.validUntil);
-      }
-      
-      if (dateFound && dateFound instanceof Date && !isNaN(dateFound.getTime())) {
-        const year = dateFound.getFullYear();
-        const month = String(dateFound.getMonth() + 1).padStart(2, '0');
-        const day = String(dateFound.getDate()).padStart(2, '0');
-        const dateStr = `${year}-${month}-${day}`;
-        
-        allDates.push({
-          date: dateFound,
-          dateStr: dateStr,
-          item: item
-        });
-      }
-    });
-    
-    if (allDates.length === 0) return [];
-    
-    // Sort by date descending
-    allDates.sort((a, b) => b.date - a.date);
-    
-    // Get unique dates
-    const uniqueDateStrs = [];
-    const resultDates = [];
-    
-    for (const dateObj of allDates) {
-      if (!uniqueDateStrs.includes(dateObj.dateStr)) {
-        uniqueDateStrs.push(dateObj.dateStr);
-        resultDates.push(dateObj.dateStr);
-      }
-      
-      if (resultDates.length >= 2) break;
-    }
-    
-    console.log('أحدث تاريخين في البيانات:', resultDates);
-    console.log('عدد العناصر بتاريخ:', allDates.length);
-    
-    return resultDates;
-  } catch (error) {
-    console.error('Error in findLatestTwoDates:', error);
-    return [];
+function normalizeDate(d) {
+  if (!d) return null;
+  
+  // If it's already a Date object and valid
+  if (d instanceof Date && !isNaN(d.getTime())) {
+    return d;
   }
+  
+  // If it's a string, try to parse it
+  if (typeof d === 'string') {
+    const parsed = new Date(d);
+    return isNaN(parsed.getTime()) ? null : parsed;
+  }
+  
+  // If it's a number (Excel serial date)
+  if (typeof d === 'number') {
+    return new Date(Math.round((d - 25569) * 86400 * 1000));
+  }
+  
+  return null;
 }
 /* Comparison Mode */
 function toggleComparisonPanel() {
