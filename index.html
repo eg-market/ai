@@ -1,3 +1,19 @@
+Object.defineProperty(Object.prototype, 'updateDate', {
+  get() {
+    console.error('❌ Forbidden access: updateDate');
+    return undefined;
+  }
+});
+
+Object.defineProperty(Object.prototype, 'validUntil', {
+  get() {
+    console.error('❌ Forbidden access: validUntil');
+    return undefined;
+  }
+});
+
+
+
 <!DOCTYPE html>
 <html dir="rtl" lang="ar">
   <head>
@@ -1313,37 +1329,27 @@ function wireEventListeners() {
     console.error('Error in wireEventListeners:', error);
   }
 }
-
-      function normalizeItemDate(item) {
-  // أولوية 1: updateDate
-  if (item.updateDate) {
-    const d = new Date(item.updateDate);
-    if (!isNaN(d)) return stripTime(d);
-  }
-
-  // أولوية 2: validUntil
-  if (item.validUntil && item.validUntil !== 'غير متاح') {
-    const d = parseEndDate(item.validUntil);
-    if (d && !isNaN(d)) return stripTime(d);
-  }
-
-  return null;
+function stripTime(date) {
+  return new Date(date.getFullYear(), date.getMonth(), date.getDate());
 }
 
-    
+function parseEndDate(text) {
+  if (!text || typeof text !== 'string') return null;
+
+  const match = text.match(/(\d{1,2})[-\/](\d{1,2})[-\/](\d{4})/);
+  if (!match) return null;
+
+  const [, d, m, y] = match;
+  const date = new Date(y, m - 1, d);
+
+  return isNaN(date) ? null : stripTime(date);
+}
+
 function getItemDate(item) {
   return item._date || null;
 }
 
-      function stripTime(date) {
-  return new Date(
-    date.getFullYear(),
-    date.getMonth(),
-    date.getDate()
-  );
-}
-
-      
+     
 /* دالة لاستخراج أحدث تاريخين من البيانات */
 function findLatestTwoDates(data) {
   try {
@@ -1354,9 +1360,7 @@ function findLatestTwoDates(data) {
     data.forEach(item => {
       let dateFound = null;
       
-      if (!item._date) {
-        dateFound = item.updateDate;
-      }
+        dateFound = item._date;
              
       if (dateFound && dateFound instanceof Date && !isNaN(dateFound.getTime())) {
         const year = dateFound.getFullYear();
@@ -1400,6 +1404,65 @@ function findLatestTwoDates(data) {
   }
 }
 
+      function sortFilteredData() {
+  if (!Array.isArray(filteredData) || filteredData.length === 0) return;
+
+  switch (sort) {
+
+    case 'best-deals': {
+      const maxSaved = Math.max(
+        1,
+        ...filteredData.map(i => i._saved || 0)
+      );
+
+      filteredData.sort((a, b) => {
+        const discountA = (a._discount_pct || 0) / 100;
+        const discountB = (b._discount_pct || 0) / 100;
+
+        const savedA = (a._saved || 0) / maxSaved;
+        const savedB = (b._saved || 0) / maxSaved;
+
+        const scoreA = discountA * WEIGHT_DISCOUNT + savedA * WEIGHT_SAVINGS;
+        const scoreB = discountB * WEIGHT_DISCOUNT + savedB * WEIGHT_SAVINGS;
+
+        return scoreB - scoreA;
+      });
+      break;
+    }
+
+    case 'discount-desc':
+      filteredData.sort((a, b) => (b._discount_pct || 0) - (a._discount_pct || 0));
+      break;
+
+    case 'price-asc':
+      filteredData.sort((a, b) => (a.currentPrice || 0) - (b.currentPrice || 0));
+      break;
+
+    case 'price-desc':
+      filteredData.sort((a, b) => (b.currentPrice || 0) - (a.currentPrice || 0));
+      break;
+
+    case 'name-asc':
+      filteredData.sort((a, b) =>
+        String(a.product || '').localeCompare(String(b.product || ''), 'ar')
+      );
+      break;
+
+    case 'name-desc':
+      filteredData.sort((a, b) =>
+        String(b.product || '').localeCompare(String(a.product || ''), 'ar')
+      );
+      break;
+  }
+}
+
+function formatItemDate(item) {
+  return item._date
+    ? formatDateShort(item._date)
+    : 'غير متاح';
+}
+
+      
 /* Comparison Mode */
 function toggleComparisonPanel() {
   try {
@@ -1536,10 +1599,24 @@ function switchView(view) {
     console.error('Error in switchView:', error);
   }
 }
+      
+      function getPagedData() {
+  const start = (currentPage - 1) * ITEMS_PER_PAGE;
+  const end = start + ITEMS_PER_PAGE;
+  return filteredData.slice(start, end);
+}
+
 
 /* Apply ALL filters together - UPDATED with improved combined sorting */
 /* Apply ALL filters together - UPDATED with improved combined sorting */
 function applyAllFilters() {
+  
+  if (!Array.isArray(allData)) {
+  console.warn('applyAllFilters called before data ready');
+  return;
+}
+
+  
   try {
     const search = (document.getElementById('search-input').value || '').trim().toLowerCase();
     const supermarket = document.getElementById('supermarket-filter').value || '';
@@ -1558,41 +1635,84 @@ function applyAllFilters() {
       document.getElementById('max-price').value = tmp;
     }
 
-    filteredData = allData.filter(item => {
-      try {
-        if (activeChipFilter !== 'all') {
-          let chipFilterPass = false;
-          switch(activeChipFilter) {
-            case 'hot':
-              // REMOVED: chipFilterPass = item._discount_pct > 30;
-              // Now we just return true and let sorting handle it
-              chipFilterPass = true;
-              break;
-           
-              case 'ending':
-  if (item._date) {
-    const now = new Date();
-    const diffDays = Math.ceil(
-      (item._date - now) / (1000 * 60 * 60 * 24)
-    );
-    chipFilterPass = diffDays >= 0 && diffDays <= 3;
+filteredData = allData.filter(item => {
+
+  // 1️⃣ Chip filter (الزمن / النوع)
+  if (activeChipFilter !== 'all') {
+    let pass = false;
+
+    switch (activeChipFilter) {
+
+      case 'recent_day': {
+        if (!item._date || !latestTwoDates.length) break;
+
+        const newest = new Date(latestTwoDates[0]);
+        const diffDays = (newest - item._date) / 86400000;
+
+        pass = diffDays >= 0 && diffDays <= 1;
+        break;
+      }
+
+      case 'recent_extended': {
+        if (!item._date || !latestTwoDates.length) break;
+
+        const newest = new Date(latestTwoDates[0]);
+        const diffDays = (newest - item._date) / 86400000;
+
+        pass = diffDays >= 0 && diffDays <= 7;
+        break;
+      }
+
+      case 'food': {
+        const cat = String(item.category || '').toLowerCase();
+        pass = cat.includes('طعام') || cat.includes('غذائ') || cat.includes('مأكولات');
+        break;
+      }
+
+      default:
+        pass = true;
+    }
+
+    if (!pass) return false;
   }
-  break;
+
+  // 2️⃣ Supermarket
+  if (supermarket && item.supermarket !== supermarket) return false;
+
+  // 3️⃣ Category
+  if (category && item.category !== category) return false;
+
+  // 4️⃣ Brand
+  if (brand && item.brand !== brand) return false;
+
+  // 5️⃣ Price
+  const price = Number(item.currentPrice) || 0;
+  if (price < minPrice || price > maxPrice) return false;
+
+  // 6️⃣ Discount
+  if ((item._discount_pct || 0) < minDiscount) return false;
+
+  // 7️⃣ Search
+  if (search) {
+    const hay = (
+      (item.product || '') +
+      (item.primaryName || '') +
+      (item.brand || '') +
+      (item.supermarket || '')
+    ).toLowerCase();
+
+    if (!hay.includes(search)) return false;
+  }
+
+  return true;
+});
 
             case 'discount':
               // REMOVED: chipFilterPass = item._discount_pct > 50;
               // Now we just return true and let sorting handle it
               chipFilterPass = true;
               break;
-            case 'food':
-              if (item.category) {
-                const category = String(item.category || '').trim().toLowerCase();
-                chipFilterPass = category.includes('طعام') || 
-                                category.includes('غذائ') ||
-                                category.includes('أطعمة') ||
-                                category.includes('مأكولات');
-              }
-              break;
+          
 case 'recent': {
   if (!item._date || latestTwoDates.length === 0) {
     chipFilterPass = false;
@@ -1604,12 +1724,6 @@ case 'recent': {
   break;
 }
               
-
-             case 'recent_day': {
-  if (!latestTwoDates || latestTwoDates.length === 0) {
-    chipFilterPass = false;
-    break;
-  }
 
   const newestDate = normalizeDate(new Date(latestTwoDates[0]));
   const itemDate = getItemDate(item);
@@ -1775,32 +1889,6 @@ function shareApp() {
   }
 }
 
-/* Date parsing helpers */
-function parseEndDate(period){
-  try {
-    if (!period) return null;
-    const s = String(period);
-    const parts = s.split(/to|إلى|حتى|–|—|-|~/i).map(p=>p.trim()).filter(Boolean);
-    let candidate = parts.length>1 ? parts[parts.length-1] : parts[0];
-    candidate = candidate.replace(/^(من|إلى|حتى)\s*/i,'').trim();
-    let d = new Date(candidate);
-    if (isNaN(d)) {
-      const dm = candidate.match(/(\d{1,2})[\/\.-](\d{1,2})[\/\.-](\d{2,4})/);
-      if (dm){
-        let day=dm[1].padStart(2,'0'), month=dm[2].padStart(2,'0'), year=dm[3];
-        if (year.length===2) year='20'+year;
-        d = new Date(`${year}-${month}-${day}`);
-      } else {
-        const ym = candidate.match(/(\d{4})[\/\.-](\d{1,2})[\/\.-](\d{1,2})/);
-        if (ym) d = new Date(`${ym[1]}-${ym[2].padStart(2,'0')}-${ym[3].padStart(2,'0')}`);
-      }
-    }
-    return (d instanceof Date && !isNaN(d.getTime())) ? d : null;
-  } catch (error) {
-    console.error('Error in parseEndDate:', error, period);
-    return null;
-  }
-}
 
 function isValidDate(d){ 
   try {
@@ -1971,13 +2059,12 @@ function renderProductsGrid() {
         }
         
         let countdownHtml = '';
-        if (!item._date) {
           const now = new Date();
           const diffDays = Math.ceil((item._date - now) / (1000 * 60 * 60 * 24));
           if (diffDays <= 7 && diffDays >= 0) {
             countdownHtml = `<div class="countdown"><i class="fas fa-clock"></i> ${diffDays} يوم متبقي</div>`;
           }
-        }
+        
         
         let marketIcon = 'fa-store';
         if (item.supermarket) {
@@ -1988,8 +2075,17 @@ function renderProductsGrid() {
         
         // إضافة علامة "جديد" للمنتجات الحديثة
         let newBadge = '';
-        if (activeChipFilter === 'recent' && (item.updateDate || item.endDate)) {
-          newBadge = '<div class="product-badge" style="background: var(--purple);"><i class="fas fa-star"></i> حديث</div>';
+        
+if (item._date) {
+  const newest = new Date(latestTwoDates[0]);
+  const diffDays = (newest - item._date) / 86400000;
+
+  if (diffDays >= 0 && diffDays <= 1) {
+    newBadge = '<div class="product-badge">حديث</div>';
+  }
+}
+
+        newBadge = '<div class="product-badge" style="background: var(--purple);"><i class="fas fa-star"></i> حديث</div>';
         }
         
         // Add "Best Deal" badge for top combined offers
@@ -2033,9 +2129,10 @@ function renderProductsGrid() {
               </div>
               ${countdownHtml}
             </div>
-            ${activeChipFilter === 'recent' && (item.updateDate || item.endDate) ? `
+            ${activeChipFilter === 'recent' && (item._date) ? `
               <div style="font-size: 0.8rem; color: var(--purple); margin-top: 10px; padding: 5px; background: rgba(111, 66, 193, 0.1); border-radius: 5px;">
-                <i class="fas fa-calendar-alt"></i> ${item.updateDate ? `تم التحديث: ${formatDateShort(item.updateDate)}` : `تنتهي: ${item.validUntil}`}
+                <i class="fas fa-calendar-alt"></i> ${item._date? ${item._date ? `التاريخ: ${formatDateShort(item._date)}` : 'التاريخ غير متاح'}
+
               </div>
             ` : ''}
             <div class="action-buttons">
@@ -2099,8 +2196,8 @@ function attachCardEventListeners() {
             <strong>السعر الحالي:</strong> ${product.currentPrice ? `${product.currentPrice} ${product.currency||'EGP'}` : 'غير متاح'}<br>
             <strong>الخصم:</strong> ${product._discount_pct ? `${product._discount_pct}%` : 'غير متاح'}<br>
             <strong>التوفير:</strong> ${product._saved ? `${product._saved} ${product.currency||'EGP'}` : 'غير متاح'}<br>
-            <strong>ساري حتى:</strong> ${product.validUntil || 'غير متاح'}<br>
-            ${product.updateDate ? `<strong>تاريخ التحديث:</strong> ${formatDateShort(product.updateDate)}<br>` : ''}
+            <strong>ساري حتى:</strong> ${product._date || 'غير متاح'}<br>
+            ${product._date? `<strong>تاريخ التحديث:</strong> ${formatDateShort(product._date)}<br>` : ''}
           `;
           alert(details);
         }
@@ -2217,7 +2314,7 @@ function renderTable(){
           <td><strong style="color: var(--primary-blue);">${item.currentPrice ? item.currentPrice + ' ' + (item.currency||'EGP') : 'غير متاح'}</strong></td>
           <td>${item._discount_pct ? `<span class="discount-badge" style="display: inline-block; padding: 3px 8px; background: var(--danger-red); color: white; border-radius: 4px; font-weight: 700;">${item._discount_pct}%</span>` : 'غير متاح'}</td>
           <td>${item._saved ? `<span style="color: var(--success-green); font-weight: 600;">${item._saved} ${item.currency||'EGP'}</span>` : 'غير متاح'}</td>
-          <td>${item.validUntil || 'غير متاح'}</td>
+          <td>${item._date || 'غير متاح'}</td>
         `;
         tbody.appendChild(tr);
       } catch (itemError) {
@@ -2364,17 +2461,45 @@ function updatePagination(){
   }
 }
 
-function renderContent() {
-  try {
-    if (currentView === 'grid') {
-      renderProductsGrid();
-    } else {
-      renderTable();
-    }
-  } catch (error) {
-    console.error('Error in renderContent:', error);
+  function renderPagination() {
+  const totalPages = Math.ceil(filteredData.length / ITEMS_PER_PAGE);
+  const el = document.getElementById('pagination');
+  el.innerHTML = '';
+
+  if (totalPages <= 1) return;
+
+  for (let i = 1; i <= totalPages; i++) {
+    const btn = document.createElement('button');
+    btn.textContent = i;
+    btn.className = i === currentPage ? 'active' : '';
+    btn.onclick = () => {
+      currentPage = i;
+      renderContent();
+    };
+    el.appendChild(btn);
   }
 }
+
+  
+function renderContent() {
+  const container = document.getElementById('products-container');
+  container.innerHTML = '';
+
+  const pageData = getPagedData();
+
+  if (pageData.length === 0) {
+    container.innerHTML = '<div class="no-results">لا توجد نتائج</div>';
+    renderPagination();
+    return;
+  }
+
+  pageData.forEach(item => {
+    container.insertAdjacentHTML('beforeend', renderItemCard(item));
+  });
+
+  renderPagination();
+}
+
 
 /* Stats */
 function updateStats(){
@@ -2624,51 +2749,51 @@ function resetAllFilters(){
 
 /* Fetch and prepare data - UPDATED with combined sorting */
 async function fetchData() {
+  showLoadingMessage();
+let dataLoaded = false;
+
   try {
-    showLoadingMessage();
+    // A) تحميل البيانات (مثال)
+    // استبدل هذا بكودك الفعلي للتحميل
+    allData = await loadDataFromExcelOrCSV();
 
-    /* =====================
-       LOAD RAW DATA
-    ===================== */
-    const rawData = await loadExcelOrCSV(); 
-    // ↑ هذه هي دالتك الحالية (لا نغيّرها)
+    if (!Array.isArray(allData)) {
+      throw new Error('Data is not an array');
+    }
 
-    /* =====================
-       NORMALIZE DATA
-    ===================== */
-    allData = rawData.map(item => {
-      const normalized = { ...item };
-
-      // تاريخ موحّد
-      normalized._date = normalizeItemDate(item);
-
-      // أرقام آمنة
-      normalized.currentPrice = Number(item.currentPrice) || 0;
-      normalized.originalPrice = Number(item.originalPrice) || 0;
-      normalized._discount_pct = Number(item._discount_pct) || 0;
-      normalized._saved = Number(item._saved) || 0;
-
-      return normalized;
+    // B) Normalize التاريخ — مرة واحدة فقط
+    allData.forEach(item => {
+      item._date = normalizeItemDate(item);
     });
 
-    /* =====================
-       FINAL STATE
-    ===================== */
-    dataLoaded = true;
+    // C) حساب latestTwoDates من _date فقط
+    latestTwoDates = [...new Set(
+      allData
+        .filter(i => i._date instanceof Date)
+        .map(i => i._date.toISOString().slice(0, 10))
+    )].sort().reverse();
+
+  } catch (error) {
+    console.error('fetchData error:', error);
+    showError('حدث خطأ أثناء تحميل البيانات');
+  } finally {
     hideLoadingMessage();
-
-    console.info('DATA LOADED:', allData.length);
-    console.table(
-      allData.slice(0, 5).map(i => ({
-        product: i.product,
-        date: i._date
-      }))
-    );
-
-  } catch (err) {
-    console.error('fetchData failed:', err);
-    showError('فشل تحميل البيانات');
   }
+
+  dataLoaded = true;
+
+  
+  console.table(
+  allData.slice(0, 10).map(i => ({
+    product: i.product,
+    _date: i._date,
+    isDate: i._date instanceof Date
+  }))
+ );
+
+  
+  // D) تطبيق الفلاتر بعد اكتمال كل شيء
+  applyAllFilters();
 }
 
 /* Helper function to show errors */
@@ -2859,7 +2984,6 @@ document.addEventListener("DOMContentLoaded", async () => {
   const percent2 = params.get("one_day");
   if (percent2) {
    
-    const discountInput2 = document.getElementById("updateDateStr");
     if (discountInput2) {
         discountInput2.value = percent2;
     }
