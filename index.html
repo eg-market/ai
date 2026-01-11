@@ -2758,6 +2758,16 @@ function resetAllFilters(){
 
 /* Fetch and prepare data - UPDATED with combined sorting */
 async function fetchData() {
+  
+  console.table(
+  allData.slice(0, 10).map(i => ({
+    product: i.product,
+    _date: i._date,
+    isDate: i._date instanceof Date
+  }))
+);
+
+  
   showLoadingMessage();
 
   try {
