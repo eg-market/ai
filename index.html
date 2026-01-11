@@ -1250,9 +1250,11 @@ const CACHE_EXPIRY = 3600000; // 1 hour
 const WEIGHT_DISCOUNT = 0.6;  // 60% importance to discount percentage
 const WEIGHT_SAVINGS = 0.4;   // 40% importance to savings amount
 /* ================================================= */
-
 let allData = [];
 let filteredData = [];
+let dataLoaded = false;
+
+
 let currentPage = 1;
 const itemsPerPage = 20;
 let debounceTimer = null;
@@ -1263,21 +1265,13 @@ let activeChipFilter = 'all'; // لتخزين الفلتر النشط من ال�
 let latestTwoDates = []; // أحدث تاريخين في البيانات
 let supermarketFilterCache = {}; // لحفظ نتائج فلتر السوبرماركت
 
+      
+      
+
+      
 /* Initialize the app */
       
-function normalizeDate(d){
-  if (!d) return null;
 
-  // Excel serial number
-  if (typeof d === 'number') {
-    return new Date(Math.round((d - 25569) * 86400 * 1000));
-  }
-
-  // String or Date
-  const parsed = new Date(d);
-  return isNaN(parsed.getTime()) ? null : parsed;
-}
-      
       
 function initApp() {
   try {
@@ -1320,33 +1314,58 @@ function wireEventListeners() {
   }
 }
 
+      function normalizeItemDate(item) {
+  // أولوية 1: updateDate
+  if (item.updateDate) {
+    const d = new Date(item.updateDate);
+    if (!isNaN(d)) return stripTime(d);
+  }
+
+  // أولوية 2: validUntil
+  if (item.validUntil && item.validUntil !== 'غير متاح') {
+    const d = parseEndDate(item.validUntil);
+    if (d && !isNaN(d)) return stripTime(d);
+  }
+
+  return null;
+}
+
+    
+function getItemDate(item) {
+  return item._date || null;
+}
+
+      function stripTime(date) {
+  return new Date(
+    date.getFullYear(),
+    date.getMonth(),
+    date.getDate()
+  );
+}
+
+      
 /* دالة لاستخراج أحدث تاريخين من البيانات */
 function findLatestTwoDates(data) {
   try {
     const allDates = [];
-    
+    const d = item._date;
+  
+
     data.forEach(item => {
       let dateFound = null;
       
-      if (item.updateDate) {
+      if (!item._date) {
         dateFound = item.updateDate;
       }
-      else if (item.endDate) {
-        dateFound = item.endDate;
-      }
-      else if (item.validUntil && item.validUntil !== 'غير متاح') {
-        const parsedDate = parseEndDate(item.validUntil);
-        if (parsedDate) {
-          dateFound = parsedDate;
-        }
-      }
-      
+             
       if (dateFound && dateFound instanceof Date && !isNaN(dateFound.getTime())) {
         const year = dateFound.getFullYear();
         const month = String(dateFound.getMonth() + 1).padStart(2, '0');
         const day = String(dateFound.getDate()).padStart(2, '0');
         const dateStr = `${year}-${month}-${day}`;
-        
+       
+        <!-- if (d && !isNaN(d)) {  allDates.push(d);}   -->
+         
         allDates.push({
           date: dateFound,
           dateStr: dateStr,
@@ -1549,13 +1568,17 @@ function applyAllFilters() {
               // Now we just return true and let sorting handle it
               chipFilterPass = true;
               break;
-            case 'ending':
-              if (item.endDate) {
-                const now = new Date();
-                const diffDays = Math.ceil((item.endDate - now) / (1000 * 60 * 60 * 24));
-                chipFilterPass = diffDays <= 3 && diffDays >= 0;
-              }
-              break;
+           
+              case 'ending':
+  if (item._date) {
+    const now = new Date();
+    const diffDays = Math.ceil(
+      (item._date - now) / (1000 * 60 * 60 * 24)
+    );
+    chipFilterPass = diffDays >= 0 && diffDays <= 3;
+  }
+  break;
+
             case 'discount':
               // REMOVED: chipFilterPass = item._discount_pct > 50;
               // Now we just return true and let sorting handle it
@@ -1570,100 +1593,39 @@ function applyAllFilters() {
                                 category.includes('مأكولات');
               }
               break;
-            case 'recent':
-              if (latestTwoDates.length === 0) {
-                chipFilterPass = false;
-              } else {
-                let itemDate = null;
-                
-                if (item.updateDate) {
-                  itemDate = item.updateDate;
-                }
-                else if (item.endDate) {
-                  itemDate = item.endDate;
-                }
-                else if (item.validUntil && item.validUntil !== 'غير متاح') {
-                  itemDate = parseEndDate(item.validUntil);
-                }
-                
-                if (itemDate) {
-                  const year = itemDate.getFullYear();
-                  const month = String(itemDate.getMonth() + 1).padStart(2, '0');
-                  const day = String(itemDate.getDate()).padStart(2, '0');
-                  const itemDateStr = `${year}-${month}-${day}`;
-                  
-                  chipFilterPass = latestTwoDates.includes(itemDateStr);
-                } else {
-                  chipFilterPass = false;
-                }
-              }
-              break;
+case 'recent': {
+  if (!item._date || latestTwoDates.length === 0) {
+    chipFilterPass = false;
+    break;
+  }
+
+  const itemStr = formatDateShort(item._date);
+  chipFilterPass = latestTwoDates.includes(itemStr);
+  break;
+}
               
-try {
-    filteredItems = allItems.filter(item => {
-        let chipFilterPass = true;
 
-        switch (activeChipFilter) {
+             case 'recent_day': {
+  if (!latestTwoDates || latestTwoDates.length === 0) {
+    chipFilterPass = false;
+    break;
+  }
 
-            case 'recent_extended': {
-                if (!latestTwoDates || latestTwoDates.length === 0) {
-                    return false;
-                }
+  const newestDate = normalizeDate(new Date(latestTwoDates[0]));
+  const itemDate = getItemDate(item);
 
-                const newestDateInDB = new Date(latestTwoDates[0]);
-                let itemDate = null;
+  if (!itemDate || isNaN(newestDate)) {
+    chipFilterPass = false;
+    break;
+  }
 
-                if (item.updateDate) itemDate = normalizeDate(item.updateDate);
-                else if (item.endDate) itemDate = normalizeDate(item.endDate);
-                else if (item.validUntil && item.validUntil !== 'غير متاح') {
-                    itemDate = normalizeDate(parseEndDate(item.validUntil));
-                }
+  const diffDays =
+    (newestDate.getTime() - item._date) / (1000 * 60 * 60 * 24);
 
-                if (!itemDate || isNaN(newestDateInDB)) return false;
-
-                const diffDays =
-                    (newestDateInDB - itemDate) / (1000 * 60 * 60 * 24);
-
-                return diffDays >= 0 && diffDays <= 7;
-            }
-
-            default:
-                return true;
-        }
-    });
-
-} catch (e) {
-    console.error('FILTER ERROR:', e);
-    filteredItems = [];
+  chipFilterPass = diffDays >= 0 && diffDays <= 1;
+  break;
 }
 
-                   
-              case 'recent_day':
-              // Logic: Check if item is within 1 days of the newest date in the dataset
-              if (latestTwoDates.length === 0) {
-                 chipFilterPass = false;
-              } else {
-                 // Get the newest date from your existing logic (first item in latestTwoDates)
-                 const newestDateInDB2 = new Date(latestTwoDates[0]);
-                 let itemDate = null;
-                 // Extract date from item (same logic as above)
-                 if (item.updateDate) itemDate = item.updateDate;
-                 else if (item.endDate) itemDate = item.endDate;
-                 else if (item.validUntil && item.validUntil !== 'غير متاح') itemDate = parseEndDate(item.validUntil);
-                 if (itemDate && !isNaN(newestDateInDB2.getTime())) {
-                    // Calculate difference in days
-                 const diffTime = newestDateInDB2 - itemDate;
-                    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-
-                    
-                    // Pass if within 1 days
-                    chipFilterPass = diffDays <= 1;
-                 } else {
-                    chipFilterPass = false;
-                 }
-              }
-              break;
-                
               
             case 'carrefour':
               if (!supermarketFilterCache.carrefour) {
@@ -1811,14 +1773,6 @@ function shareApp() {
   } catch (error) {
     console.error('Error in shareApp:', error);
   }
-}
-
-/* Debounce helper */
-function debounce(fn, wait=250){
-  return function(...args){
-    clearTimeout(debounceTimer);
-    debounceTimer = setTimeout(()=>fn.apply(this,args), wait);
-  };
 }
 
 /* Date parsing helpers */
@@ -2017,9 +1971,9 @@ function renderProductsGrid() {
         }
         
         let countdownHtml = '';
-        if (item.endDate) {
+        if (!item._date) {
           const now = new Date();
-          const diffDays = Math.ceil((item.endDate - now) / (1000 * 60 * 60 * 24));
+          const diffDays = Math.ceil((item._date - now) / (1000 * 60 * 60 * 24));
           if (diffDays <= 7 && diffDays >= 0) {
             countdownHtml = `<div class="countdown"><i class="fas fa-clock"></i> ${diffDays} يوم متبقي</div>`;
           }
@@ -2436,10 +2390,7 @@ function updateStats(){
     
     const now = new Date();
     const endingSoon = filteredData.filter(i => {
-      if (!i.endDate) return false;
-      const diffDays = Math.ceil((i.endDate - now) / (1000 * 60 * 60 * 24));
-      return diffDays <= 3 && diffDays >= 0;
-    }).length;
+   
     document.getElementById('ending-soon').textContent = endingSoon.toLocaleString();
     
     const uniqueSupermarkets = [...new Set(filteredData.map(item => item.supermarket).filter(Boolean))].length;
@@ -2672,178 +2623,51 @@ function resetAllFilters(){
 }
 
 /* Fetch and prepare data - UPDATED with combined sorting */
-async function fetchData(){
+async function fetchData() {
   try {
-    document.getElementById('loading').style.display = 'block';
-    document.getElementById('loading').innerHTML = `
-      <div style="display: flex; flex-direction: column; align-items: center;">
-        <i class="fas fa-spinner fa-spin" style="font-size: 2.5rem; margin-bottom: 20px; color: var(--primary-blue);"></i>
-        <h3>جارٍ تحميل العروض...</h3>
-        <p>نبحث عن أفضل الصفقات من جميع المتاجر</p>
-      </div>
-    `;
+    showLoadingMessage();
 
-    const cached = localStorage.getItem(CACHE_KEY);
-    const cachedTime = localStorage.getItem(`${CACHE_KEY}_time`);
-    if(cached && cachedTime && (Date.now() - cachedTime) < CACHE_EXPIRY){
-      try { 
-        allData = JSON.parse(LZString.decompressFromUTF16(cached)) || []; 
-      } catch(e){ 
-        console.warn('cache parse failed', e); 
-        allData = []; 
-      }
-    }
+    /* =====================
+       LOAD RAW DATA
+    ===================== */
+    const rawData = await loadExcelOrCSV(); 
+    // ↑ هذه هي دالتك الحالية (لا نغيّرها)
 
-    if(!allData || !allData.length){
-      const res = await fetch(DATA_URL);
-      if(!res.ok) throw new Error('HTTP ' + res.status);
-      const txt = await res.text();
-      const parsed = Papa.parse(txt, { header:true, skipEmptyLines:true, trim:true, dynamicTyping:true });
-      
-      console.log('أسماء الأعمدة في البيانات:', parsed.meta.fields);
-      
-      allData = parsed.data.map(item=>{
-        try {
-          const raw = item['فترة سريان العرض'] || item['Validity Period'] || '';
-          const end = parseEndDate(String(raw));
-          const validUntilStr = end ? formatDateShort(end) : (String(raw).split(/to|إلى|حتى|–|—|-|~/i).slice(-1)[0]||'غير متاح');
-          
-          const updateDateStr = item['تاريخ تعديل ملف الفلاير'] || 
-                                item['Update Date'] || 
-                                item['تاريخ التحديث'] ||
-                                item['تاريخ التعديل'] ||
-                                item['آخر تحديث'] ||
-                                item['تاريخ'] ||
-                                '';
-          
-          let updateDate = null;
-          if (updateDateStr && updateDateStr !== 'غير متاح' && updateDateStr.trim() !== '') {
-            try {
-              updateDate = new Date(updateDateStr);
-              
-              if (isNaN(updateDate.getTime())) {
-                const dateMatch = updateDateStr.match(/\d{4}[\/\-]\d{1,2}[\/\-]\d{1,2}|\d{1,2}[\/\-]\d{1,2}[\/\-]\d{4}/);
-                if (dateMatch) {
-                  updateDate = new Date(dateMatch[0].replace(/\//g, '-'));
-                }
-              }
-              
-              if (isNaN(updateDate.getTime())) updateDate = null;
-            } catch (e) {
-              console.warn('فشل تحليل تاريخ التحديث:', updateDateStr, e);
-              updateDate = null;
-            }
-          }
-          
-          return {
-            supermarket: String(item['اسم السوبر ماركت'] || item['supermarket'] || 'غير متاح'),
-            product: String(item['الاسم بالعربية'] || item['اسم المنتج (الأساسي)'] || item['اسم المنتج'] || item['Product'] || 'غير متاح'),
-            primaryName: String(item['اسم المنتج (الأساسي)'] || item['اسم المنتج'] || item['Product'] || ''),
-            unit: String(item['الوحدة'] || item['unit'] || ''),
-            category: String(item['الفئة'] || item['category'] || 'غير متاح'),
-            brand: String(item['اسم العلامة التجارية'] || item['brand'] || 'غير متاح'),
-            originalPrice: parseFloat(item['السعر الأصلي']) || 0,
-            currentPrice: parseFloat(item['السعر الحالي']) || 0,
-            discount: parseFloat(item['الخصم %']) || 0,
-            rawPeriod: raw,
-            endDate: end,
-            validUntil: validUntilStr,
-            pageNo: String(item['اسم ملف الفلاير'] || ''),
-            currency: String(item['العملة'] || 'EGP'),
-            solution_key: String(item['solution_key']||item['solution key']||item['Solution_key']||item['solutionKey']||''),
-            updateDate: updateDate,
-            rawUpdateDate: updateDateStr
-          };
-        } catch (itemError) {
-          console.error('Error parsing item:', itemError, item);
-          return null;
-        }
-      }).filter(item => item !== null);
-      
-      // تسجيل أسماء السوبرماركت المختلفة
-      const supermarkets = [...new Set(allData.map(i=>i.supermarket))];
-      console.log('السوبرماركت الموجودة في البيانات:', supermarkets);
-      
-      // حفظ نتائج فلاتر السوبرماركت في الكاش
-      supermarketFilterCache = {};
-      
-      try { 
-        localStorage.setItem(CACHE_KEY, LZString.compressToUTF16(JSON.stringify(allData))); 
-        localStorage.setItem(`${CACHE_KEY}_time`, Date.now()); 
-      } catch(e){ 
-        console.warn('cache save failed', e); 
-      }
-    }
+    /* =====================
+       NORMALIZE DATA
+    ===================== */
+    allData = rawData.map(item => {
+      const normalized = { ...item };
 
-    computeSavedAndDiscount(allData);
-    computeCombinedScore(allData);
-    
-    // حساب أحدث تاريخين من البيانات
-    latestTwoDates = findLatestTwoDates(allData);
-    
-    // إذا لم توجد تواريخ، استخدم التواريخ البديلة
-    if (latestTwoDates.length === 0) {
-      console.log('لم يتم العثور على تواريخ في البيانات، استخدام تواريخ بديلة');
-      const today = new Date();
-      const yesterday = new Date(today);
-      yesterday.setDate(yesterday.getDate() - 1);
-      
-      latestTwoDates = [
-        today.toISOString().split('T')[0],
-        yesterday.toISOString().split('T')[0]
-      ];
-    }
-    
-    console.log('أحدث تاريخين سيتم استخدامهم:', latestTwoDates);
-    
-    // تسجيل إحصائية
-    const itemsWithDate = allData.filter(item => item.updateDate || item.endDate || (item.validUntil && item.validUntil !== 'غير متاح')).length;
-    console.log(`عدد العناصر بتاريخ: ${itemsWithDate} من ${allData.length}`);
-    
-    // الترتيب الافتراضي: أفضل العروض (مركب من الخصم النسبي وقيمة التوفير)
-    allData.sort((a,b)=> {
-      // First by discount percentage (descending)
-      const discountDiff = (b._discount_pct || 0) - (a._discount_pct || 0);
-      if (Math.abs(discountDiff) > 5) { // If discount difference is significant (5% or more)
-        return discountDiff;
-      }
-      
-      // If discount percentages are close, sort by savings amount
-      const savedDiff = (b._saved || 0) - (a._saved || 0);
-      if (Math.abs(savedDiff) > 0) {
-        return savedDiff;
-      }
-      
-      // Finally, sort alphabetically
-      const nameA = String(a.product || '');
-      const nameB = String(b.product || '');
-      return nameA.localeCompare(nameB, 'ar');
+      // تاريخ موحّد
+      normalized._date = normalizeItemDate(item);
+
+      // أرقام آمنة
+      normalized.currentPrice = Number(item.currentPrice) || 0;
+      normalized.originalPrice = Number(item.originalPrice) || 0;
+      normalized._discount_pct = Number(item._discount_pct) || 0;
+      normalized._saved = Number(item._saved) || 0;
+
+      return normalized;
     });
 
-    initializeFilters();
-    applyAllFilters();
+    /* =====================
+       FINAL STATE
+    ===================== */
+    dataLoaded = true;
+    hideLoadingMessage();
 
-    populateTicker();
+    console.info('DATA LOADED:', allData.length);
+    console.table(
+      allData.slice(0, 5).map(i => ({
+        product: i.product,
+        date: i._date
+      }))
+    );
 
-    document.getElementById('loading').style.display = 'none';
-    
-    switchView('grid');
-    
-    updateComparisonPanel();
-  } catch(err){
-    console.error('Error in fetchData:', err);
-    document.getElementById('loading').innerHTML = `
-      <div style="text-align: center; padding: 40px;">
-        <i class="fas fa-exclamation-triangle" style="font-size: 3rem; color: var(--danger-red); margin-bottom: 20px;"></i>
-        <h3>حدث خطأ أثناء تحميل البيانات</h3>
-        <p>${err.message}</p>
-        <button onclick="fetchData()" style="margin-top: 20px; padding: 10px 20px; background: var(--primary-blue); color: white; border: none; border-radius: 8px; cursor: pointer;">
-          <i class="fas fa-redo"></i> حاول مرة أخرى
-        </button>
-      </div>
-    `;
-    const track = document.getElementById('ticker-track');
-    track.innerHTML = '<div class="ticker-item">تعذر تحميل العروض</div>';
+  } catch (err) {
+    console.error('fetchData failed:', err);
+    showError('فشل تحميل البيانات');
   }
 }
 
@@ -2904,14 +2728,7 @@ function handleUrlSearch() {
             
             // 4. Trigger the search logic
             // We wait a tiny bit to ensure the data has finished loading
-            setTimeout(() => {
-                if (typeof applyAllFilters === 'function') {
-                    applyAllFilters();
-                } else {
-                    // Fallback: trigger an 'input' event so existing listeners catch it
-                    searchInput.dispatchEvent(new Event('input', { bubbles: true }));
-                }
-            }, 500); 
+          <!--   setTimeout(() => {  if (typeof applyAllFilters === 'function') {      applyAllFilters();  } else { // Fallback: trigger an 'input' event so existing listeners catch it      searchInput.dispatchEvent(new Event('input', { bubbles: true })); }   }, 500); 
         }
     }
 }
@@ -2923,8 +2740,12 @@ if (document.readyState === 'loading') {
     handleUrlSearch();
 }
 </script> <script>
-document.addEventListener("DOMContentLoaded", function () {
-  const params = new URLSearchParams(window.location.search);
+document.addEventListener("DOMContentLoaded", async () => {
+  await fetchData();      // البيانات أصبحت جاهزة
+  applyAllFilters();      // الآن فقط نفلتر
+});
+
+    const params = new URLSearchParams(window.location.search);
   const market = params.get("market");
 
   if (!market) return;
@@ -2940,8 +2761,12 @@ document.addEventListener("DOMContentLoaded", function () {
     
 <!-- </script>
     <script>
-document.addEventListener("DOMContentLoaded", function () {
-  const params = new URLSearchParams(window.location.search);
+document.addEventListener("DOMContentLoaded", async () => {
+  await fetchData();      // البيانات أصبحت جاهزة
+  applyAllFilters();      // الآن فقط نفلتر
+});
+
+      const params = new URLSearchParams(window.location.search);
   const percent = params.get("discount");
 
   if (!percent) return;
@@ -2954,15 +2779,19 @@ document.addEventListener("DOMContentLoaded", function () {
   // لو عندك فلترة تلقائية
   select.dispatchEvent(new Event("change"));
   
-  applyAllFilters();
+<!--  applyAllFilters();  -->
   
 });
          
   </script>
     <!---&gt; document.querySelectorAll('.chip').forEach(chip =&gt; {    chip.addEventListener('click', () =&gt; {    document.querySelectorAll('.chip').forEach(c =&gt;    c.classList.remove('active')); chip.classList.add('active');    activeChipFilter = chip.dataset.filter; // Set supermarket filter for    specific chips const discount = document.getElementById('min-discount');    applyAllFilters(); }); -->
     <script>
-document.addEventListener("DOMContentLoaded", function () {
-  const params = new URLSearchParams(window.location.search);
+document.addEventListener("DOMContentLoaded", async () => {
+  await fetchData();      // البيانات أصبحت جاهزة
+  applyAllFilters();      // الآن فقط نفلتر
+});
+
+      const params = new URLSearchParams(window.location.search);
   const weekPercent = params.get("week_percent");
 
   if (!Array.isArray(allItems) || allItems.length === 0) {
@@ -2982,7 +2811,7 @@ document.addEventListener("DOMContentLoaded", function () {
     // Note: We are setting the global variable 'activeChipFilter' defined in your main script
     fetchData().then(() => {
     activeChipFilter = 'recent_extended';
-    applyAllFilters();
+ <!--   applyAllFilters();   -->
    
 
 });
@@ -3012,15 +2841,21 @@ document.addEventListener("DOMContentLoaded", function () {
     // We assume fetchData() will call applyAllFilters() when data loads.
     // However, if data is already cached/loaded, we force an update.
     if (dataLoaded === true) {
-    applyAllFilters();  document.getElementById('loading-message')?.style.display = 'none';
+ <!--   applyAllFilters();   -->
+      
+      document.getElementById('loading-message')?.style.display = 'none';
 
 }
 
   }
 });
 </script> <script>
-document.addEventListener("DOMContentLoaded", function () {
-  const params = new URLSearchParams(window.location.search);
+document.addEventListener("DOMContentLoaded", async () => {
+  await fetchData();      // البيانات أصبحت جاهزة
+  applyAllFilters();      // الآن فقط نفلتر
+});
+
+    const params = new URLSearchParams(window.location.search);
   const percent2 = params.get("one_day");
   if (percent2) {
    
@@ -3055,11 +2890,8 @@ document.addEventListener("DOMContentLoaded", function () {
     // 5. Trigger the filter update
     // We assume fetchData() will call applyAllFilters() when data loads.
     // However, if data is already cached/loaded, we force an update.
-    setTimeout(() => {
-        if (typeof applyAllFilters === 'function') {
-            applyAllFilters();
-        }
-    }, 1000); // Small delay to ensure data is ready
+    <!--  setTimeout(() => {   if (typeof applyAllFilters === 'function') { -->
+ <!--   applyAllFilters();    }      }, 1000); // Small delay to ensure data is ready -->
   }
 });
 </script>
