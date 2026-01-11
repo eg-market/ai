@@ -1280,7 +1280,6 @@ let currentView = 'grid';
 let activeChipFilter = 'all'; // لتخزين الفلتر النشط من الأزرار
 let latestTwoDates = []; // أحدث تاريخين في البيانات
 let supermarketFilterCache = {}; // لحفظ نتائج فلتر السوبرماركت
-
       
       
 
@@ -1611,10 +1610,15 @@ function switchView(view) {
 /* Apply ALL filters together - UPDATED with improved combined sorting */
 function applyAllFilters() {
   
+ 
   if (!Array.isArray(allData)) {
   console.warn('applyAllFilters called before data ready');
   return;
 }
+
+   const newestDateObj = latestTwoDates.length ? new Date(latestTwoDates[0]) : null;
+
+   if (!dataLoaded) return;   // ← هنا
 
   
   try {
@@ -2076,9 +2080,10 @@ function renderProductsGrid() {
         // إضافة علامة "جديد" للمنتجات الحديثة
         let newBadge = '';
         
-if (item._date) {
-  const newest = new Date(latestTwoDates[0]);
-  const diffDays = (newest - item._date) / 86400000;
+const newestDateObj = latestTwoDates.length
+  ? new Date(latestTwoDates[0])
+  : null;
+
 
   if (diffDays >= 0 && diffDays <= 1) {
     newBadge = '<div class="product-badge">حديث</div>';
@@ -2131,7 +2136,9 @@ if (item._date) {
             </div>
             ${activeChipFilter === 'recent' && (item._date) ? `
               <div style="font-size: 0.8rem; color: var(--purple); margin-top: 10px; padding: 5px; background: rgba(111, 66, 193, 0.1); border-radius: 5px;">
-                <i class="fas fa-calendar-alt"></i> ${item._date? ${item._date ? `التاريخ: ${formatDateShort(item._date)}` : 'التاريخ غير متاح'}
+                <i class="fas fa-calendar-alt"></i> ${formatItemDate(item)
+? ${formatItemDate(item)
+ ? `التاريخ: ${formatDateShort(item._date)}` : 'التاريخ غير متاح'}
 
               </div>
             ` : ''}
@@ -2314,7 +2321,7 @@ function renderTable(){
           <td><strong style="color: var(--primary-blue);">${item.currentPrice ? item.currentPrice + ' ' + (item.currency||'EGP') : 'غير متاح'}</strong></td>
           <td>${item._discount_pct ? `<span class="discount-badge" style="display: inline-block; padding: 3px 8px; background: var(--danger-red); color: white; border-radius: 4px; font-weight: 700;">${item._discount_pct}%</span>` : 'غير متاح'}</td>
           <td>${item._saved ? `<span style="color: var(--success-green); font-weight: 600;">${item._saved} ${item.currency||'EGP'}</span>` : 'غير متاح'}</td>
-          <td>${item._date || 'غير متاح'}</td>
+          <td>${formatItemDate(item)|| 'غير متاح'}</td>
         `;
         tbody.appendChild(tr);
       } catch (itemError) {
@@ -2750,7 +2757,6 @@ function resetAllFilters(){
 /* Fetch and prepare data - UPDATED with combined sorting */
 async function fetchData() {
   showLoadingMessage();
-let dataLoaded = false;
 
   try {
     // A) تحميل البيانات (مثال)
@@ -3019,5 +3025,17 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 });
 </script>
+    
+window.debugState = () => {
+  console.table({
+    allData: allData?.length,
+    filteredData: filteredData?.length,
+    latestDate: latestTwoDates?.[0],
+    activeChipFilter,
+    dataLoaded
+  });
+};
+
+    
   </body>
 </html>
