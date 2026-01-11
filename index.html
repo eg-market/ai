@@ -1321,27 +1321,66 @@ function wireEventListeners() {
 }
 
 /* دالة لاستخراج أحدث تاريخين من البيانات */
-function normalizeDate(d) {
-  if (!d) return null;
-  
-  // If it's already a Date object and valid
-  if (d instanceof Date && !isNaN(d.getTime())) {
-    return d;
+function findLatestTwoDates(data) {
+  try {
+    const allDates = [];
+    
+    data.forEach(item => {
+      let dateFound = null;
+      
+      if (item.updateDate) {
+        dateFound = item.updateDate;
+      }
+      else if (item.endDate) {
+        dateFound = item.endDate;
+      }
+      else if (item.validUntil && item.validUntil !== 'غير متاح') {
+        const parsedDate = parseEndDate(item.validUntil);
+        if (parsedDate) {
+          dateFound = parsedDate;
+        }
+      }
+      
+      if (dateFound && dateFound instanceof Date && !isNaN(dateFound.getTime())) {
+        const year = dateFound.getFullYear();
+        const month = String(dateFound.getMonth() + 1).padStart(2, '0');
+        const day = String(dateFound.getDate()).padStart(2, '0');
+        const dateStr = `${year}-${month}-${day}`;
+        
+        allDates.push({
+          date: dateFound,
+          dateStr: dateStr,
+          item: item
+        });
+      }
+    });
+    
+    if (allDates.length === 0) return [];
+    
+    allDates.sort((a, b) => b.date - a.date);
+    
+    const uniqueDateStrs = [];
+    const uniqueDates = [];
+    
+    for (const dateObj of allDates) {
+      if (!uniqueDateStrs.includes(dateObj.dateStr)) {
+        uniqueDateStrs.push(dateObj.dateStr);
+        uniqueDates.push(dateObj.dateStr);
+      }
+      
+      if (uniqueDates.length >= 2) break;
+    }
+    
+    console.log('أحدث تاريخين في البيانات:', uniqueDates);
+    console.log('عدد العناصر بتاريخ:', allDates.length);
+    
+    return uniqueDates;
+  } catch (error) {
+    console.error('Error in findLatestTwoDates:', error);
+    return [];
   }
-  
-  // If it's a string, try to parse it
-  if (typeof d === 'string') {
-    const parsed = new Date(d);
-    return isNaN(parsed.getTime()) ? null : parsed;
-  }
-  
-  // If it's a number (Excel serial date)
-  if (typeof d === 'number') {
-    return new Date(Math.round((d - 25569) * 86400 * 1000));
-  }
-  
-  return null;
 }
+
 /* Comparison Mode */
 function toggleComparisonPanel() {
   try {
@@ -1483,56 +1522,46 @@ function switchView(view) {
 /* Apply ALL filters together - UPDATED with improved combined sorting */
 function applyAllFilters() {
   try {
-    // --- 1. GATHER INPUTS ---
     const search = (document.getElementById('search-input').value || '').trim().toLowerCase();
     const supermarket = document.getElementById('supermarket-filter').value || '';
     const category = document.getElementById('category-filter').value || '';
     const brand = document.getElementById('brand-filter').value || '';
     const minDiscount = parseFloat(document.getElementById('min-discount').value) || 0;
-    
-    // Price Inputs
     const minPriceRaw = document.getElementById('min-price').value;
     const maxPriceRaw = document.getElementById('max-price').value;
     const minPrice = minPriceRaw === '' ? 0 : (parseFloat(minPriceRaw) || 0);
     const maxPrice = maxPriceRaw === '' ? Infinity : (parseFloat(maxPriceRaw) || Infinity);
     const sort = document.getElementById('sort-by').value || 'best-deals';
 
-    // Auto-swap min/max if user enters them backwards
     if(isFinite(minPrice) && isFinite(maxPrice) && minPrice > maxPrice){
       const tmp = document.getElementById('min-price').value;
       document.getElementById('min-price').value = document.getElementById('max-price').value;
       document.getElementById('max-price').value = tmp;
     }
 
-    // --- 2. FILTERING LOGIC ---
     filteredData = allData.filter(item => {
       try {
-        // A. CHIP FILTERS (The Buttons)
         if (activeChipFilter !== 'all') {
           let chipFilterPass = false;
-
           switch(activeChipFilter) {
             case 'hot':
-              // Logic: handled by sorting, just pass all items to let sort bubble them up
-              chipFilterPass = true; 
+              // REMOVED: chipFilterPass = item._discount_pct > 30;
+              // Now we just return true and let sorting handle it
+              chipFilterPass = true;
               break;
-            
             case 'ending':
-              // Logic: Ends within 3 days
               if (item.endDate) {
                 const now = new Date();
                 const diffDays = Math.ceil((item.endDate - now) / (1000 * 60 * 60 * 24));
                 chipFilterPass = diffDays <= 3 && diffDays >= 0;
               }
               break;
-            
             case 'discount':
-              // Logic: handled by sorting
-              chipFilterPass = true; 
+              // REMOVED: chipFilterPass = item._discount_pct > 50;
+              // Now we just return true and let sorting handle it
+              chipFilterPass = true;
               break;
-            
             case 'food':
-              // Logic: Category contains specific keywords
               if (item.category) {
                 const category = String(item.category || '').trim().toLowerCase();
                 chipFilterPass = category.includes('طعام') || 
@@ -1541,17 +1570,12 @@ function applyAllFilters() {
                                 category.includes('مأكولات');
               }
               break;
-            
-            // --- UPDATED TIME FILTERS ---
-            // Combined logic for 'recent' (2 days), 'recent_day' (1 day), 'recent_extended' (17 days)
             case 'recent':
-            case 'recent_day':
-            case 'recent_extended':
               if (latestTwoDates.length === 0) {
                 chipFilterPass = false;
               } else {
                 let itemDate = null;
-                // Priority: updateDate -> endDate -> validUntil parsing
+                
                 if (item.updateDate) {
                   itemDate = item.updateDate;
                 }
@@ -1563,36 +1587,85 @@ function applyAllFilters() {
                 }
                 
                 if (itemDate) {
-                   // Calculate difference from the NEWEST date in your database
-                   const newestDateInDB = new Date(latestTwoDates[0]);
-                   if (!isNaN(newestDateInDB.getTime())) {
-                       const diffTime = Math.abs(newestDateInDB - itemDate);
-                       const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-                       
-                       // Apply specific limits
-                       if (activeChipFilter === 'recent_day') {
-                           chipFilterPass = diffDays <= 1; // 1 Day limit
-                       } else if (activeChipFilter === 'recent_extended') {
-                           chipFilterPass = diffDays <= 17; // 17 Day limit
-                       } else {
-                           // Default 'recent' behavior (check if date matches top 2 dates strings)
-                           const year = itemDate.getFullYear();
-                           const month = String(itemDate.getMonth() + 1).padStart(2, '0');
-                           const day = String(itemDate.getDate()).padStart(2, '0');
-                           const itemDateStr = `${year}-${month}-${day}`;
-                           chipFilterPass = latestTwoDates.includes(itemDateStr);
-                       }
-                   } else {
-                       chipFilterPass = false;
-                   }
+                  const year = itemDate.getFullYear();
+                  const month = String(itemDate.getMonth() + 1).padStart(2, '0');
+                  const day = String(itemDate.getDate()).padStart(2, '0');
+                  const itemDateStr = `${year}-${month}-${day}`;
+                  
+                  chipFilterPass = latestTwoDates.includes(itemDateStr);
                 } else {
                   chipFilterPass = false;
                 }
               }
               break;
+              
+try {
+    filteredItems = allItems.filter(item => {
+        let chipFilterPass = true;
 
+        switch (activeChipFilter) {
+
+            case 'recent_extended': {
+                if (!latestTwoDates || latestTwoDates.length === 0) {
+                    return false;
+                }
+
+                const newestDateInDB = new Date(latestTwoDates[0]);
+                let itemDate = null;
+
+                if (item.updateDate) itemDate = normalizeDate(item.updateDate);
+                else if (item.endDate) itemDate = normalizeDate(item.endDate);
+                else if (item.validUntil && item.validUntil !== 'غير متاح') {
+                    itemDate = normalizeDate(parseEndDate(item.validUntil));
+                }
+
+                if (!itemDate || isNaN(newestDateInDB)) return false;
+
+                const diffDays =
+                    (newestDateInDB - itemDate) / (1000 * 60 * 60 * 24);
+
+                return diffDays >= 0 && diffDays <= 7;
+            }
+
+            default:
+                return true;
+        }
+    });
+
+} catch (e) {
+    console.error('FILTER ERROR:', e);
+    filteredItems = [];
+}
+
+                   
+              case 'recent_day':
+              // Logic: Check if item is within 1 days of the newest date in the dataset
+              if (latestTwoDates.length === 0) {
+                 chipFilterPass = false;
+              } else {
+                 // Get the newest date from your existing logic (first item in latestTwoDates)
+                 const newestDateInDB2 = new Date(latestTwoDates[0]);
+                 let itemDate = null;
+                 // Extract date from item (same logic as above)
+                 if (item.updateDate) itemDate = item.updateDate;
+                 else if (item.endDate) itemDate = item.endDate;
+                 else if (item.validUntil && item.validUntil !== 'غير متاح') itemDate = parseEndDate(item.validUntil);
+                 if (itemDate && !isNaN(newestDateInDB2.getTime())) {
+                    // Calculate difference in days
+                 const diffTime = newestDateInDB2 - itemDate;
+                    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+                    
+                    // Pass if within 1 days
+                    chipFilterPass = diffDays <= 1;
+                 } else {
+                    chipFilterPass = false;
+                 }
+              }
+              break;
+                
+              
             case 'carrefour':
-              // Logic: Cache items for Carrefour to avoid repeated string matching
               if (!supermarketFilterCache.carrefour) {
                 supermarketFilterCache.carrefour = allData.filter(i => {
                   const carrefourName = String(i.supermarket || '').toLowerCase();
@@ -1602,9 +1675,7 @@ function applyAllFilters() {
               }
               chipFilterPass = supermarketFilterCache.carrefour.includes(item.product);
               break;
-
             case 'hyperone':
-              // Logic: Cache items for HyperOne
               if (!supermarketFilterCache.hyperone) {
                 supermarketFilterCache.hyperone = allData.filter(i => {
                   const hyperoneName = String(i.supermarket || '').toLowerCase();
@@ -1618,43 +1689,31 @@ function applyAllFilters() {
               }
               chipFilterPass = supermarketFilterCache.hyperone.includes(item.product);
               break;
-
             default:
               chipFilterPass = true;
           }
-          
-          // ** FIX: This check is now correctly placed inside the IF but outside the SWITCH **
           if (!chipFilterPass) return false;
         }
         
-        // B. STANDARD FILTERS
-        // 1. Supermarket Dropdown
+        // Rest of the filtering logic remains the same...
+        const prod = String(item.product || '').toLowerCase();
+        const primary = String(item.primaryName || '').toLowerCase();
+        const itemBrand = String(item.brand || '').toLowerCase();
+        
         if (supermarket && String(item.supermarket || '') !== supermarket) return false;
         
-        // 2. Category Dropdown
         if (category && String(item.category || '') !== category) return false;
         
-        // 3. Brand Dropdown
         if (brand && String(item.brand || '') !== brand) return false;
         
-        // 4. Price Range
         const priceVal = Number(item.currentPrice) || 0;
         if (priceVal < minPrice || priceVal > maxPrice) return false;
         
-        // 5. Min Discount
         if ((item._discount_pct||0) < minDiscount) return false;
         
-        // 6. Search Text (Checks Product, Primary Name, Brand, and Supermarket)
-        if (search) {
-            const prod = String(item.product || '').toLowerCase();
-            const primary = String(item.primaryName || '').toLowerCase();
-            const itemBrand = String(item.brand || '').toLowerCase();
-            const itemMarket = String(item.supermarket || '').toLowerCase();
-            
-            if (!prod.includes(search) && !primary.includes(search) && 
-                !itemBrand.includes(search) && !itemMarket.includes(search)) {
-              return false;
-            }
+        if (search && !prod.includes(search) && !primary.includes(search) && 
+            !itemBrand.includes(search) && !String(item.supermarket || '').toLowerCase().includes(search)) {
+          return false;
         }
         
         return true;
@@ -1664,9 +1723,15 @@ function applyAllFilters() {
       }
     });
 
-    // --- 3. SORTING LOGIC ---
+    // تطبيق الترتيب - UPDATED with improved combined sorting
+    // The sorting logic remains the same, it will use the sort value set by the chips
+    
+    // ... rest of the sorting code remains the same
+
+
+    // تطبيق الترتيب - UPDATED with improved combined sorting
     if(sort === 'best-deals') {
-      // Best Deals: Weighted mix of Relative Discount (60%) and Savings Value (40%)
+      // أفضل العروض: مزيج مرجح من الخصم النسبي وقيمة التوفير
       const maxSavings = Math.max(...filteredData.map(i => i._saved || 0), 500);
       
       filteredData.sort((a,b)=> {
@@ -1721,7 +1786,6 @@ function applyAllFilters() {
       });
     }
 
-    // --- 4. UPDATE UI ---
     currentPage = 1;
     renderContent();
     updateStats();
@@ -1730,6 +1794,7 @@ function applyAllFilters() {
     showError('حدث خطأ في تطبيق الفلاتر: ' + error.message);
   }
 }
+
 /* Share app */
 function shareApp() {
   try {
@@ -2820,124 +2885,183 @@ document.addEventListener('visibilitychange', ()=>{
 });
 </script><!--    // Add this to your index.html script function checkUrlForSearch() { //     1. Get the URL parameters const urlParams = new    URLSearchParams(window.location.search); // 2. Look for the 'q' parameter we    set in the Carrefour page const query = urlParams.get('q'); // 3. If found,    put it in the search box and trigger the search if (query) { const    searchInput = document.getElementById('search-input'); if (searchInput) { //    Set the value searchInput.value = decodeURIComponent(query); // Trigger the    search logic (assuming you have this function from your previous code) // If    you are using the 'applyAllFilters' function from your provided index.html:    if (typeof applyAllFilters === 'function') { applyAllFilters(); } } } } //    Call this function when the page loads    document.addEventListener('DOMContentLoaded', checkUrlForSearch); -->
     <script>
-// Global variable to track URL parameters that need to be applied after data loads
-let pendingUrlFilters = {};
+/**
+ * Catch search query from URL (e.g., ?q=milk) 
+ * and apply it to the AI page search bar automatically.
+ */
+function handleUrlSearch() {
+    // 1. Parse the URL parameters
+    const urlParams = new URLSearchParams(window.location.search);
+    const query = urlParams.get('q');
 
+    if (query) {
+        // 2. Find the search input in your index.html
+        const searchInput = document.getElementById('search-input');
+        
+        if (searchInput) {
+            // 3. Set the text in the box
+            searchInput.value = decodeURIComponent(query);
+            
+            // 4. Trigger the search logic
+            // We wait a tiny bit to ensure the data has finished loading
+            setTimeout(() => {
+                if (typeof applyAllFilters === 'function') {
+                    applyAllFilters();
+                } else {
+                    // Fallback: trigger an 'input' event so existing listeners catch it
+                    searchInput.dispatchEvent(new Event('input', { bubbles: true }));
+                }
+            }, 500); 
+        }
+    }
+}
+
+// Run the check as soon as the page is ready
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', handleUrlSearch);
+} else {
+    handleUrlSearch();
+}
+</script> <script>
 document.addEventListener("DOMContentLoaded", function () {
   const params = new URLSearchParams(window.location.search);
-  
-  // Store parameters for later use
-  if (params.get("q")) pendingUrlFilters.searchQuery = decodeURIComponent(params.get("q"));
-  if (params.get("market")) pendingUrlFilters.market = params.get("market");
-  if (params.get("discount")) pendingUrlFilters.discount = params.get("discount");
-  if (params.get("week_percent")) pendingUrlFilters.weekPercent = params.get("week_percent");
-  if (params.get("one_day")) pendingUrlFilters.oneDay = params.get("one_day");
-  
-  // Override the fetchData function to apply URL filters after data loads
-  const originalFetchData = window.fetchData;
-  window.fetchData = async function() {
-    await originalFetchData.apply(this, arguments);
-    
-    // Wait a bit more for everything to initialize
-    setTimeout(() => {
-      applyUrlFilters(pendingUrlFilters);
-    }, 1500);
-  };
-  
-  // Also try to apply immediately if data is already loaded
-  setTimeout(() => {
-    if (allData && allData.length > 0) {
-      applyUrlFilters(pendingUrlFilters);
-    }
-  }, 2000);
-});
+  const market = params.get("market");
 
-function applyUrlFilters(filters) {
-  if (!filters || Object.keys(filters).length === 0) return;
+  if (!market) return;
+
+  const select = document.getElementById("supermarket-filter");
+  if (!select) return;
+
+  select.value = market;
+
+  // لو عندك فلترة تلقائية
+  select.dispatchEvent(new Event("change"));
+});
+    
+<!-- </script>
+    <script>
+document.addEventListener("DOMContentLoaded", function () {
+  const params = new URLSearchParams(window.location.search);
+  const percent = params.get("discount");
+
+  if (!percent) return;
+
+  const select = document.getElementById("min-discount");
+  if (!select) return;
+
+  select.value = percent;
+
+  // لو عندك فلترة تلقائية
+  select.dispatchEvent(new Event("change"));
   
-  console.log("Applying URL filters:", filters);
+  applyAllFilters();
   
-  // Apply search query
-  if (filters.searchQuery) {
-    const searchInput = document.getElementById('search-input');
-    if (searchInput) {
-      searchInput.value = filters.searchQuery;
-    }
-  }
+});
+         
+  </script>
+    <!---&gt; document.querySelectorAll('.chip').forEach(chip =&gt; {    chip.addEventListener('click', () =&gt; {    document.querySelectorAll('.chip').forEach(c =&gt;    c.classList.remove('active')); chip.classList.add('active');    activeChipFilter = chip.dataset.filter; // Set supermarket filter for    specific chips const discount = document.getElementById('min-discount');    applyAllFilters(); }); -->
+    <script>
+document.addEventListener("DOMContentLoaded", function () {
+  const params = new URLSearchParams(window.location.search);
+  const weekPercent = params.get("week_percent");
+
+  if (!Array.isArray(allItems) || allItems.length === 0) {
+    hideLoadingMessage(); // أو whatever hides "جارٍ تحميل البيانات"
+    return;
+}
+
   
-  // Apply supermarket filter
-  if (filters.market) {
-    const marketSelect = document.getElementById("supermarket-filter");
-    if (marketSelect) {
-      marketSelect.value = filters.market;
-    }
-  }
-  
-  // Apply discount filter
-  if (filters.discount) {
+  if (weekPercent) {
+    // 1. Set the Discount Percentage Input
     const discountInput = document.getElementById("min-discount");
     if (discountInput) {
-      discountInput.value = filters.discount;
+        discountInput.value = weekPercent;
     }
-  }
-  
-  // Apply week_percent filter (7 days)
-  if (filters.weekPercent) {
-    // Set minimum discount if specified
-    if (filters.weekPercent > 0) {
-      const discountInput = document.getElementById("min-discount");
-      if (discountInput) {
-        discountInput.value = filters.weekPercent;
-      }
-    }
-    
-    // Activate the custom 7-day filter
-    activateCustomFilter('recent_7day', 'عروض الـ 7 يوم', 'fa-calendar-week', 7);
-  }
-  
-  // Apply one_day filter (1 day)
-  if (filters.oneDay) {
-    activateCustomFilter('recent_1day', 'عروض الـ 24 ساعة', 'fa-calendar-day', 1);
-  }
-  
-  // Apply all filters
-  if (typeof applyAllFilters === 'function') {
+
+    // 2. Set the internal filter variable to our new 7-day mode
+    // Note: We are setting the global variable 'activeChipFilter' defined in your main script
+    fetchData().then(() => {
+    activeChipFilter = 'recent_extended';
     applyAllFilters();
-  }
+   
+
+});
+
+
+    // 3. Set sorting to "Best Deals" (to satisfy "display best offers")
+    const sortSelect = document.getElementById("sort-by");
+    if(sortSelect) {
+        sortSelect.value = "best-deals";
+    }
+
+    // 4. Visual Feedback: Create a temporary visual "Chip" to show this mode is active
+    const chipsContainer = document.getElementById('filter-chips');
+    if(chipsContainer){
+        // Remove active class from others
+        document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+        
+        // Add a temporary chip for UI clarity
+        const tempChip = document.createElement('button');
+        tempChip.className = 'chip active';
+        tempChip.innerHTML = '<i class="fas fa-calendar-week"></i> عروض الـ  7يوم';
+        // Insert it at the beginning
+        chipsContainer.insertBefore(tempChip, chipsContainer.firstChild);
+    }
+
+    // 5. Trigger the filter update
+    // We assume fetchData() will call applyAllFilters() when data loads.
+    // However, if data is already cached/loaded, we force an update.
+    if (dataLoaded === true) {
+    applyAllFilters();  document.getElementById('loading-message')?.style.display = 'none';
+
 }
 
-function activateCustomFilter(filterId, label, icon, daysThreshold) {
-  // Deactivate all other chips
-  document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
-  
-  // Create or activate custom chip
-  const chipsContainer = document.getElementById('filter-chips');
-  if (chipsContainer) {
-    let customChip = document.querySelector(`.chip[data-filter="${filterId}"]`);
-    
-    if (!customChip) {
-      customChip = document.createElement('button');
-      customChip.className = 'chip active';
-      customChip.setAttribute('data-filter', filterId);
-      customChip.setAttribute('data-days', daysThreshold);
-      customChip.innerHTML = `<i class="fas ${icon}"></i> ${label}`;
-      chipsContainer.insertBefore(customChip, chipsContainer.firstChild);
-      
-      // Add click handler
-      customChip.addEventListener('click', function() {
-        document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
-        this.classList.add('active');
-        activeChipFilter = filterId;
-        applyAllFilters();
-      });
-    } else {
-      customChip.classList.add('active');
-    }
-    
-    // Set the active filter
-    activeChipFilter = filterId;
   }
-}
+});
+</script> <script>
+document.addEventListener("DOMContentLoaded", function () {
+  const params = new URLSearchParams(window.location.search);
+  const percent2 = params.get("one_day");
+  if (percent2) {
+   
+    const discountInput2 = document.getElementById("updateDateStr");
+    if (discountInput2) {
+        discountInput2.value = percent2;
+    }
+    // 2. Set the internal filter variable to our new day mode
+    // Note: We are setting the global variable 'activeChipFilter' defined in your main script
+    activeChipFilter = 'recent_day';
+
+    // 3. Set sorting to "Best Deals" (to satisfy "display best offers")
+    const sortSelect2 = document.getElementById("sort-by");
+    if(sortSelect2) {
+        sortSelect.value = "best-deals";
+    }
+
+    // 4. Visual Feedback: Create a temporary visual "Chip" to show this mode is active
+    const chipsContainer2 = document.getElementById('filter-chips');
+    if(chipsContainer){
+        // Remove active class from others
+        document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+        
+        // Add a temporary chip for UI clarity
+        const tempChip = document.createElement('button');
+        tempChip.className = 'chip active';
+        tempChip.innerHTML = '<i class="fas fa-calendar-day"></i> عروض الـ 1 يوم';
+        // Insert it at the beginning
+        chipsContainer.insertBefore(tempChip, chipsContainer.firstChild);
+    }
+
+    // 5. Trigger the filter update
+    // We assume fetchData() will call applyAllFilters() when data loads.
+    // However, if data is already cached/loaded, we force an update.
+    setTimeout(() => {
+        if (typeof applyAllFilters === 'function') {
+            applyAllFilters();
+        }
+    }, 1000); // Small delay to ensure data is ready
+  }
+});
 </script>
   </body>
 </html>
