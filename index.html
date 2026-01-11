@@ -1,17 +1,4 @@
-Object.defineProperty(Object.prototype, 'updateDate', {
-  get() {
-    console.error('❌ Forbidden access: updateDate');
-    return undefined;
-  }
-});
-
-Object.defineProperty(Object.prototype, 'validUntil', {
-  get() {
-    console.error('❌ Forbidden access: validUntil');
-    return undefined;
-  }
-});
-
+ 
 
 
 <!DOCTYPE html>
@@ -1403,7 +1390,24 @@ function findLatestTwoDates(data) {
   }
 }
 
-      function sortFilteredData() {
+function normalizeItemDate(item) {
+  // 1️⃣ updateDate (Excel / ISO)
+  if (item.updateDate) {
+    const d = new Date(item.updateDate);
+    if (!isNaN(d)) return stripTime(d);
+  }
+
+  // 2️⃣ validUntil (نص عربي)
+  if (item.validUntil && item.validUntil !== 'غير متاح') {
+    const d = parseEndDate(item.validUntil);
+    if (d) return d;
+  }
+
+  // 3️⃣ لا يوجد تاريخ صالح
+  return null;
+}
+
+function sortFilteredData() {
   if (!Array.isArray(filteredData) || filteredData.length === 0) return;
 
   switch (sort) {
