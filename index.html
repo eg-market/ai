@@ -664,6 +664,45 @@ async function loadDataFromExcelOrCSV(){
               if (i.date) { const d = new Date(i.date); if(isValidDate(d)) return stripTime(d); }
               return null;
             })();
+            
+            // ===== PATCH: cache newest date once =====
+let newestDateObj = null;
+
+            
+            // ===== apply URL params filters AFTER data load =====
+const params = new URLSearchParams(window.location.search);
+
+const dayPercent  = params.get('one_day');
+const weekPercent = params.get('week_percent');
+
+if (dayPercent !== null) {
+  const el = document.getElementById('min-discount');
+  if (el) el.value = dayPercent;
+
+  activeChipFilter = 'day';
+}
+
+if (weekPercent !== null) {
+  const el = document.getElementById('min-discount');
+  if (el) el.value = weekPercent;
+
+  activeChipFilter = 'week';
+}
+
+           dataLoaded = true;
+applyAllFilters();
+
+            
+            
+if (Array.isArray(latestTwoDates) && latestTwoDates.length > 0) {
+  const d = new Date(latestTwoDates[0]);
+  if (!isNaN(d)) {
+    d.setHours(0,0,0,0);
+    newestDateObj = d;
+  }
+}
+
+            
           });
 
           computeSavedAndDiscount(allData);
@@ -775,6 +814,17 @@ if (Array.isArray(latestTwoDates) && latestTwoDates.length > 0) {
                                   if (!dataLoaded) return;
                                   
         if(!dataLoaded){ console.warn('applyAllFilters called before dataLoaded'); return; }
+                                  
+                                  if (activeChipFilter === 'day') {
+  if (!item._date || !newestDateObj) return false;
+
+  const diffDays =
+    (newestDateObj - item._date) / 86400000;
+
+  if (diffDays < 0 || diffDays > 1) return false;
+}
+
+                                  
         try {
           const inputs = getInputs();
           const minPrice = inputs.minPriceRaw === '' ? 0 : (parseFloat(inputs.minPriceRaw) || 0);
@@ -794,6 +844,15 @@ if (Array.isArray(latestTwoDates) && latestTwoDates.length > 0) {
               // chip-based simple handling (hot/discount/recent)
               if (activeChipFilter === 'hot' && (item._discount_pct || 0) < 30) return false;
               if (activeChipFilter === 'discount' && (item._discount_pct || 0) < 20) return false;
+      
+      if (activeChipFilter === 'week' || activeChipFilter === 'recent_7') {
+  if (!item._date || !newestDateObj) return false;
+  const diffDays =
+    (newestDateObj - item._date) / 86400000;
+  if (diffDays < 0 || diffDays > 7) return false;
+}
+
+      
               if (activeChipFilter === 'recent') {
                 if (!item._date) return false;
                 const dStr = formatDateShort(item._date);
@@ -848,6 +907,16 @@ console.log({
 });
 
 
+  function passRecentFilter(itemDate, daysLimit) {
+  if (!itemDate || !newestDateObj) return false;
+
+  const diffDays =
+    (newestDateObj - itemDate) / 86400000;
+
+  return diffDays >= 0 && diffDays <= daysLimit;
+}
+
+  
       function getPagedData(){
         const start = (currentPage - 1) * itemsPerPage;
         return filteredData.slice(start, start + itemsPerPage);
@@ -1373,6 +1442,9 @@ console.log({
     byId('main-content').style.display = 'block';
   });
 
+    
+    
+    
   // make some functions global used by inline handlers
   window.openFlyerFromItem = openFlyerFromItem;
   window.addToCompareFromCard = addToCompareFromCard;
@@ -1382,6 +1454,30 @@ console.log({
   window.resetFilters = function(){ byId('search-input').value=''; byId('supermarket-filter').value=''; byId('category-filter').value=''; byId('brand-filter').value=''; byId('min-discount').value=''; byId('min-price').value=''; byId('max-price').value=''; byId('sort-by').value='best-deals'; document.querySelectorAll('.chip').forEach(c=>c.classList.remove('active')); document.querySelector('.chip[data-filter="all"]')?.classList.add('active'); activeChipFilter='all'; };
   </script>
 
+    document.addEventListener("DOMContentLoaded", function () {
+  const params = new URLSearchParams(window.location.search);
+
+  const dayPercent  = params.get('one_day');
+  const weekPercent = params.get('week_percent');
+
+  if (dayPercent !== null) {
+    document.getElementById('min-discount').value = dayPercent;
+    activeChipFilter = 'day'; // الاسم الفعلي عندك
+  }
+
+  if (weekPercent !== null) {
+    document.getElementById('min-discount').value = weekPercent;
+    activeChipFilter = 'week'; // الاسم الفعلي عندك
+  }
+
+  if (dataLoaded) {
+    applyAllFilters();
+  }
+});
+
+    
+    
+    
     
     
     function handleUrlSearchExpanded(){ const params = new
