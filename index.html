@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html dir="rtl" lang="ar">
   <head>
@@ -19,1040 +18,237 @@ defer="defer"></script>
 
       rel="stylesheet">
     <style>
-  :root{
-    --primary-blue: #00539F;  /* Carrefour blue */
-    --accent-orange: #FF6B00; /* Hyper Panda orange */
-    --success-green: #28A745; /* Ok Market green */
-    --warning-yellow: #FFC107;
-    --danger-red: #DC3545;
-    --info-teal: #17a2b8;
-    --purple: #6f42c1;
-    --pink: #e83e8c;
-    --light-bg: #F8F9FA;
-    --card-shadow: 0 8px 30px rgba(0,0,0,0.08);
-    --border-radius: 16px;
-    --transition: all 0.3s ease;
-    
-    --bg-1: linear-gradient(135deg,#667eea 0%,#764ba2 100%);
-    --card-bg:#fff;
-    --muted:#666;
-    --accent:#4caf50;
-    --danger:#ff4444;
-    --gap:12px;
-    --radius:12px;
-    --text:#222;
-    --control-height:46px;
-    --base-font:15px;
-    --ticker-bg:#0b3b6f;
-    --ticker-text:#fff;
-    --ticker-accent:#ffd54f;
-    
-    /* Dark mode variables */
-    --dark-bg: #1a1a1a;
-    --dark-card: #2d2d2d;
-    --dark-text: #f0f0f0;
-  }
-  
-  *{box-sizing:border-box}
-  html,body{height:100%}
-  body{
-    margin:0;
-    font-family: 'Cairo', 'Segoe UI', Roboto, Arial, sans-serif;
-    background: var(--light-bg);
-    color:var(--text);
-    padding:0;
-    -webkit-font-smoothing:antialiased;
-    line-height: 1.6;
-  }
-  
-  .container{ max-width:1400px; margin:0 auto; padding:0 16px; }
-  
-  /* Hero Banner */
-  .hero-banner {
-    background: linear-gradient(rgba(0,83,159,0.85), rgba(0,83,159,0.75)), 
-                url('https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?ixlib=rb-1.2.1&auto=format&fit=crop&w=1400&q=80');
-    background-size: cover;
-    background-position: center;
-    color: white;
-    padding: 40px 20px;
-    border-radius: 0 0 var(--border-radius) var(--border-radius);
-    margin-bottom: 30px;
-    text-align: center;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.15);
-    position: relative;
-    overflow: hidden;
-  }
-  
-  .hero-banner::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z' fill='%23ffffff' fill-opacity='0.05' fill-rule='evenodd'/%3E%3C/svg%3E");
-    opacity: 0.3;
-  }
-  
-  .hero-content {
-    position: relative;
-    z-index: 2;
-  }
-  
-  .hero-banner h1 {
-    margin: 0 0 10px 0;
-    font-size: 2.5rem;
-    font-weight: 800;
-    text-shadow: 0 2px 4px rgba(0,0,0,0.2);
-  }
-  
-  .hero-subtitle {
-    font-size: 1.2rem;
-    opacity: 0.9;
-    margin-bottom: 25px;
-  }
-  
-  /* Stats Dashboard - UPDATED: Horizontal layout */
-  .stats-dashboard {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-    gap: 16px;
-    margin: 25px 0;
-  }
-  
-  .stat-card {
-    background: white;
-    border-radius: 12px;
-    padding: 15px;
-    box-shadow: var(--card-shadow);
-    transition: var(--transition);
-    border: 1px solid #f0f0f0;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    min-height: 80px;
-  }
-  
-  .stat-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 15px 35px rgba(0,0,0,0.1);
-  }
-  
-  .stat-icon {
-    font-size: 1.8rem;
-    flex-shrink: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 40px;
-    height: 40px;
-  }
-  
-  .stat-content {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    flex: 1;
-    min-width: 0;
-  }
-  
-  .stat-value {
-    font-size: 1.4rem;
-    font-weight: 700;
-    color: var(--primary-blue);
-    margin-bottom: 2px;
-    line-height: 1.2;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-  
-  .stat-label {
-    font-size: 0.8rem;
-    color: var(--muted);
-    line-height: 1.2;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-  
-  /* Quick Filter Chips - Colored */
-  .filter-chips {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-    margin: 20px 0;
-    padding: 10px 0;
-  }
-  
-  .chip {
-    padding: 10px 18px;
-    background: white;
-    border: 2px solid #e0e0e0;
-    border-radius: 50px;
-    font-family: 'Cairo', sans-serif;
-    font-weight: 600;
-    font-size: 0.95rem;
-    cursor: pointer;
-    transition: var(--transition);
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    position: relative;
-    overflow: hidden;
-  }
-  
-  .chip::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: currentColor;
-    opacity: 0;
-    transition: var(--transition);
-    z-index: 0;
-  }
-  
-  .chip > * {
-    position: relative;
-    z-index: 1;
-  }
-  
-  .chip:hover {
-    border-color: currentColor;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-  }
-  
-  .chip.active {
-    color: white;
-    border-color: transparent;
-  }
-  
-  .chip.active::after {
-    opacity: 1;
-  }
-  
-  /* Specific chip colors */
-  .chip[data-filter="all"] {
-    color: var(--primary-blue);
-  }
-  .chip[data-filter="all"]::after {
-    background: var(--primary-blue);
-  }
-  
-  .chip[data-filter="hot"] {
-    color: var(--danger-red);
-  }
-  .chip[data-filter="hot"]::after {
-    background: var(--danger-red);
-  }
-  
-  .chip[data-filter="ending"] {
-    color: var(--warning-yellow);
-  }
-  .chip[data-filter="ending"]::after {
-    background: var(--warning-yellow);
-  }
-  
-  .chip[data-filter="discount"] {
-    color: var(--success-green);
-  }
-  .chip[data-filter="discount"]::after {
-    background: var(--success-green);
-  }
-  
-  .chip[data-filter="carrefour"] {
-    color: #004080;
-  }
-  .chip[data-filter="carrefour"]::after {
-    background: #004080;
-  }
-  
-  .chip[data-filter="hyperone"] {
-    color: var(--accent-orange);
-  }
-  .chip[data-filter="hyperone"]::after {
-    background: var(--accent-orange);
-  }
-  
-  .chip[data-filter="food"] {
-    color: var(--info-teal);
-  }
-  .chip[data-filter="food"]::after {
-    background: var(--info-teal);
-  }
-  
-  .chip[data-filter="recent"] {
-    color: var(--purple);
-  }
-      
-      
-      
-  .chip[data-filter="recent"]::after {
-    background: var(--purple);
-  }
-  
-  /* View Toggle - Updated with colors */
-  .view-toggle {
-    display: flex;
-    background: white;
-    border-radius: 12px;
-    padding: 5px;
-    width: fit-content;
-    margin: 20px 0;
-    box-shadow: var(--card-shadow);
-    border: 1px solid #f0f0f0;
-    overflow: hidden;
-  }
-  
-  .view-btn {
-    padding: 10px 20px;
-    border: 2px solid #e0e0e0;
-    background: white;
-    font-family: 'Cairo', sans-serif;
-    font-weight: 600;
-    cursor: pointer;
-    border-radius: 8px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    color: var(--primary-blue);
-    transition: var(--transition);
-    position: relative;
-    overflow: hidden;
-  }
-  
-  .view-btn::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: var(--primary-blue);
-    opacity: 0;
-    transition: var(--transition);
-    z-index: 0;
-  }
-  
-  .view-btn > * {
-    position: relative;
-    z-index: 1;
-  }
-  
-  .view-btn:hover {
-    border-color: var(--primary-blue);
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-  }
-  
-  .view-btn.active {
-    color: white;
-    border-color: transparent;
-  }
-  
-  .view-btn.active::after {
-    opacity: 1;
-  }
-  
-  /* Specific colors for view buttons */
-  #view-grid-btn {
-    border-top-right-radius: 0;
-    border-bottom-right-radius: 0;
-    border-right: none;
-  }
-  
-  #view-table-btn {
-    border-top-left-radius: 0;
-    border-bottom-left-radius: 0;
-    border-left: none;
-  }
-  
-  /* Products Grid */
-  .products-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 24px;
-    margin: 25px 0;
-  }
-  
-  .product-card {
-    background: white;
-    border-radius: var(--border-radius);
-    overflow: hidden;
-    box-shadow: var(--card-shadow);
-    transition: var(--transition);
-    position: relative;
-    border: 1px solid #f0f0f0;
-  }
-  
-  .product-card:hover {
-    transform: translateY(-10px);
-    box-shadow: 0 20px 40px rgba(0,0,0,0.15);
-  }
-  
-  .product-badge {
-    position: absolute;
-    top: 15px;
-    right: 15px;
-    background: var(--danger-red);
-    color: white;
-    padding: 5px 12px;
-    border-radius: 20px;
-    font-size: 0.8rem;
-    font-weight: 700;
-    z-index: 2;
-  }
-  
-  .product-image {
-    height: 180px;
-    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    position: relative;
-    overflow: hidden;
-  }
-  
-  .product-image::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: linear-gradient(to bottom, transparent 50%, rgba(0,0,0,0.05));
-  }
-  
-  .product-image i {
-    font-size: 4rem;
-    color: rgba(0,0,0,0.1);
-  }
-  
-  .product-info {
-    padding: 20px;
-  }
-  
-  .product-title {
-    font-size: 1.1rem;
-    font-weight: 700;
-    margin: 0 0 10px 0;
-    color: #333;
-    height: 52px;
-    overflow: hidden;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-  }
-  
-  .product-unit {
-    font-size: 0.85rem;
-    color: var(--muted);
-    margin-bottom: 10px;
-    display: flex;
-    align-items: center;
-    gap: 5px;
-  }
-  
-  .price-container {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin: 15px 0;
-  }
-  
-  .current-price {
-    font-size: 1.5rem;
-    font-weight: 800;
-    color: var(--primary-blue);
-  }
-  
-  .discount-badge {
-    background: var(--danger-red);
-    color: white;
-    padding: 5px 12px;
-    border-radius: 20px;
-    font-size: 0.9rem;
-    font-weight: 700;
-  }
-  
-  .product-meta {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-top: 15px;
-    padding-top: 15px;
-    border-top: 1px solid #eee;
-  }
-  
-  .supermarket-logo {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-weight: 600;
-    color: #555;
-  }
-  
-  .countdown {
-    background: rgba(255,107,0,0.1);
-    color: var(--accent-orange);
-    padding: 5px 10px;
-    border-radius: 8px;
-    font-size: 0.85rem;
-    font-weight: 600;
-    display: flex;
-    align-items: center;
-    gap: 5px;
-  }
-  
-  .action-buttons {
-    display: flex;
-    gap: 10px;
-    margin-top: 15px;
-  }
-  
-  .btn {
-    padding: 10px 15px;
-    border-radius: 8px;
-    border: none;
-    font-family: 'Cairo', sans-serif;
-    font-weight: 600;
-    cursor: pointer;
-    transition: var(--transition);
-    flex: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-  }
-  
-  .btn-primary {
-    background: var(--primary-blue);
-    color: white;
-  }
-  
-  .btn-primary:hover {
-    background: #004080;
-  }
-  
-  .btn-secondary {
-    background: #f0f0f0;
-    color: #555;
-  }
-  
-  .btn-secondary:hover {
-    background: #e0e0e0;
-  }
-  
-  .favorite-btn {
-    position: absolute;
-    top: 15px;
-    left: 15px;
-    background: white;
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.2rem;
-    color: #ccc;
-    cursor: pointer;
-    z-index: 2;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-    transition: var(--transition);
-  }
-  
-  .favorite-btn:hover, .favorite-btn.active {
-    color: var(--danger-red);
-  }
-  
-  /* Ticker banner */
-  .ticker-wrap{
-    width:100%;
-    background:var(--ticker-bg);
-    color:var(--ticker-text);
-    border-radius:10px;
-    overflow:hidden;
-    display:flex;
-    align-items:center;
-    padding:6px 12px;
-    box-shadow:0 6px 18px rgba(0,0,0,0.12);
-    margin-top:8px;
-  }
-  .ticker-label{ 
-    flex:0 0 auto; 
-    font-weight:700; 
-    margin-left:12px; 
-    color:var(--ticker-accent); 
-    background:rgba(255,255,255,0.1); 
-    padding:6px 12px; 
-    border-radius:8px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-  .ticker-viewport{ flex:1 1 auto; overflow:hidden; position:relative; height:36px; display:flex; align-items:center; }
-  .ticker-track{ display:inline-flex; white-space:nowrap; will-change:transform; align-items:center; gap:28px; }
-  .ticker-item{ display:inline-flex; gap:12px; align-items:center; padding:6px 10px; background:transparent; color:var(--ticker-text); font-size:15px; }
-  .ticker-item .badge{ background:var(--ticker-accent); color:#000; padding:4px 8px; border-radius:6px; font-weight:700; }
-  
-  .ticker-track.animate{ animation: ticker-scroll linear infinite; animation-duration: var(--ticker-duration, 18s); }
-  @keyframes ticker-scroll {
-    from { transform: translateX(0); }
-    to { transform: translateX(-50%); }
-  }
-  
-  /* Controls */
-  .controls{ 
-    background: white;
-    border-radius: var(--border-radius);
-    padding: 20px;
-    margin-bottom: 20px;
-    box-shadow: var(--card-shadow);
-    border: 1px solid #f0f0f0;
-  }
-  
-  .controls .row{ 
-    display:flex; 
-    gap:12px; 
-    align-items:center; 
-    flex-wrap:wrap; 
-    margin-bottom: 15px;
-  }
-  
-  input,select,button{ 
-    height:var(--control-height); 
-    padding:0 16px; 
-    border-radius:10px; 
-    border:2px solid #e0e0e0; 
-    background:white; 
-    font-size:15px;
-    font-family: 'Cairo', sans-serif;
-    transition: var(--transition);
-  }
-  
-  input:focus, select:focus {
-    outline: none;
-    border-color: var(--primary-blue);
-    box-shadow: 0 0 0 3px rgba(0,83,159,0.1);
-  }
-  
-  #search-input {
-    flex: 1;
-    min-width: 200px;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23666' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='8'%3E%3C/circle%3E%3Cline x1='21' y1='21' x2='16.65' y2='16.65'%3E%3C/line%3E%3C/svg%3E");
-    background-repeat: no-repeat;
-    background-position: right 16px center;
-    background-size: 16px;
-    padding-right: 45px;
-  }
-  
-  button{ 
-    cursor:pointer; 
-    font-weight: 600;
-    background: var(--primary-blue);
-    color: white;
-    border: none;
-  }
-  
-  button:hover {
-    background: #004080;
-  }
-  
-  #reset-btn {
-    background: #f0f0f0;
-    color: #666;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-  
-  #reset-btn:hover {
-    background: #e0e0f0;
-  }
-  
-  .price-controls{ 
-    display:flex; 
-    gap:8px; 
-    align-items:center;
-    background: #f8f9fa;
-    padding: 5px;
-    border-radius: 10px;
-  }
-  
-  .price-controls button{ 
-    width:36px; 
-    height:36px; 
-    padding:0; 
-    font-size:18px; 
-    line-height:1;
-    background: white;
-    color: #333;
-    border: 1px solid #ddd;
-  }
-  
-  .price-controls button:hover {
-    background: #f0f0f0;
-  }
-  
-  /* Table */
-  #data-table{ 
-    background:white; 
-    border-radius:var(--border-radius); 
-    box-shadow:var(--card-shadow); 
-    overflow:hidden; 
-    margin-top:20px; 
-    padding:0;
-    border: 1px solid #f0f0f0;
-  }
-  
-  table{ 
-    width:100%; 
-    border-collapse:collapse; 
-    font-size:14px; 
-  }
-  
-  thead th{ 
-    background:var(--primary-blue); 
-    color:#fff; 
-    padding:16px; 
-    text-align:right; 
-    position:sticky; 
-    top:0; 
-    font-weight: 600; 
-    border-bottom: 2px solid rgba(255,255,255,0.1);
-  }
-  
-  tbody td{ 
-    padding:14px 16px; 
-    border-bottom:1px solid #f0f0f0; 
-  }
-  
-  tbody tr:hover { 
-    background: #f8f9fa; 
-  }
-  
-  .highlight{ 
-    background:#fff3b0 !important; 
-  }
-  
-  .card-list{ display:none }
-  
-  #loading{ 
-    text-align:center; 
-    padding:40px; 
-    color:#666; 
-    font-size:1.2rem; 
-  }
-  
-  /* Autocomplete */
-  #autocomplete-list{ 
-    position:absolute; 
-    z-index:9999; 
-    background:white; 
-    border-radius:8px; 
-    box-shadow:0 6px 18px rgba(0,0,0,0.12); 
-    max-height:240px; 
-    overflow:auto;
-    border: 1px solid #e0e0e0;
-  }
-  
-  #autocomplete-list div {
-    padding: 12px 16px;
-    cursor: pointer;
-    border-bottom: 1px solid #f0f0f0;
-    transition: var(--transition);
-  }
-  
-  #autocomplete-list div:hover {
-    background: #f8f9fa;
-  }
-  
-  /* Mobile Navigation */
-  .mobile-nav {
-    display: none;
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    background: white;
-    padding: 12px 16px;
-    box-shadow: 0 -4px 20px rgba(0,0,0,0.1);
-    z-index: 1000;
-    justify-content: space-around;
-    border-top: 1px solid #e0e0e0;
-  }
-  
-  .mobile-nav-item {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    text-decoration: none;
-    color: #666;
-    font-size: 0.8rem;
-    gap: 5px;
-  }
-  
-  .mobile-nav-item i {
-    font-size: 1.2rem;
-  }
-  
-  .mobile-nav-item.active {
-    color: var(--primary-blue);
-  }
-  
-  /* Comparison Panel */
-  .comparison-panel {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    background: white;
-    box-shadow: 0 -4px 20px rgba(0,0,0,0.15);
-    z-index: 1001;
-    padding: 20px;
-    display: none;
-    border-top: 3px solid var(--primary-blue);
-  }
-  
-  .comparison-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 15px;
-  }
-  
-  .comparison-items {
-    display: flex;
-    gap: 15px;
-    overflow-x: auto;
-    padding: 10px 0;
-  }
-  
-  .comparison-item {
-    min-width: 200px;
-    background: #f8f9fa;
-    border-radius: 8px;
-    padding: 15px;
-    border: 1px solid #e0e0e0;
-  }
-  
-  /* Unit badge */
-  .unit-badge {
-    background: #e9ecef;
-    color: #495057;
-    padding: 3px 8px;
-    border-radius: 6px;
-    font-size: 0.8rem;
-    font-weight: 600;
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-  }
-  
-  /* Share button */
-  .share-btn {
-    position: absolute;
-    bottom: 15px;
-    left: 15px;
-    background: white;
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.2rem;
-    color: #666;
-    cursor: pointer;
-    z-index: 2;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-    transition: var(--transition);
-  }
-  
-  .share-btn:hover {
-    background: var(--primary-blue);
-    color: white;
-  }
-  
-  /* Compare button */
-  .compare-btn {
-    position: absolute;
-    top: 65px;
-    left: 15px;
-    background: white;
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.2rem;
-    color: #666;
-    cursor: pointer;
-    z-index: 2;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-    transition: var(--transition);
-  }
-  
-  .compare-btn:hover {
-    background: var(--success-green);
-    color: white;
-  }
-  
-  /* User Guide Banner */
-  .user-guide-banner {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-    padding: 10px 15px;
-    border-radius: 8px;
-    margin: 15px 0;
-    text-align: center;
-    font-weight: 600;
-    font-size: 0.95rem;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    animation: pulse 2s infinite;
-  }
-  
-  .user-guide-banner i {
-    font-size: 1.2rem;
-  }
-  
-  /* Responsive */
-  @media (max-width: 900px){
-    .container {
-      padding: 0 12px;
-    }
-    
-    .hero-banner {
-      padding: 30px 15px;
-      margin-bottom: 20px;
-    }
-    
-    .hero-banner h1 {
-      font-size: 1.8rem;
-    }
-    
-    .hero-subtitle {
-      font-size: 1rem;
-    }
-    
-    .stats-dashboard {
-      grid-template-columns: repeat(2, 1fr);
-      gap: 12px;
-    }
-    
-    .products-grid {
-      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-      gap: 16px;
-    }
-    
-    .controls .row {
-      flex-direction: column;
-      align-items: stretch;
-    }
-    
-    #data-table {
-      overflow-x: auto;
-      display: block;
-    }
-    
-    table {
-      min-width: 800px;
-    }
-    
-    .mobile-nav {
-      display: flex;
-    }
-    
-    .ticker-label{ display:none; }
-    
-    .user-guide-banner {
-      font-size: 0.85rem;
-      padding: 8px 12px;
-    }
-  }
-  
-  @media (max-width: 600px){
-    .products-grid {
-      grid-template-columns: 1fr;
-    }
-    
-    .stat-card {
-      padding: 12px 10px;
-      gap: 10px;
-      min-height: 70px;
-    }
-    
-    .stat-icon {
-      font-size: 1.5rem;
-      width: 35px;
-      height: 35px;
-    }
-    
-    .stat-value {
-      font-size: 1.2rem;
-    }
-    
-    .stat-label {
-      font-size: 0.75rem;
-    }
-    
-    .filter-chips {
-      overflow-x: auto;
-      padding-bottom: 10px;
-      flex-wrap: nowrap;
-    }
-    
-    .chip {
-      white-space: nowrap;
-    }
-    
-    .view-btn {
-      padding: 8px 12px;
-      font-size: 0.9rem;
-    }
-    
-    .stats-dashboard {
-      grid-template-columns: repeat(2, 1fr);
-      gap: 10px;
-    }
-    
-    .user-guide-banner {
-      font-size: 0.8rem;
-      padding: 6px 10px;
-    }
-  }
-  
-  @media (max-width: 400px){
-    .stats-dashboard {
-      grid-template-columns: 1fr;
-    }
-    
-    .stat-card {
-      padding: 10px;
-    }
-  }
-  
-  /* Animation for discount badges */
-  @keyframes pulse {
-    0% { transform: scale(1); }
-    50% { transform: scale(1.05); }
-    100% { transform: scale(1); }
-  }
-  
-  .discount-badge.pulse {
-    animation: pulse 2s infinite;
-  }
-</style> </head>
+      /* --- Styles kept from your file (cleaned and preserved) --- */
+      :root{
+        --primary-blue: #00539F;
+        --accent-orange: #FF6B00;
+        --success-green: #28A745;
+        --warning-yellow: #FFC107;
+        --danger-red: #DC3545;
+        --info-teal: #17a2b8;
+        --purple: #6f42c1;
+        --pink: #e83e8c;
+        --light-bg: #F8F9FA;
+        --card-shadow: 0 8px 30px rgba(0,0,0,0.08);
+        --border-radius: 16px;
+        --transition: all 0.3s ease;
+        --bg-1: linear-gradient(135deg,#667eea 0%,#764ba2 100%);
+        --card-bg:#fff;
+        --muted:#666;
+        --accent:#4caf50;
+        --danger:#ff4444;
+        --gap:12px;
+        --radius:12px;
+        --text:#222;
+        --control-height:46px;
+        --base-font:15px;
+        --ticker-bg:#0b3b6f;
+        --ticker-text:#fff;
+        --ticker-accent:#ffd54f;
+      }
+      *{box-sizing:border-box}
+      html,body{height:100%}
+      body{
+        margin:0;
+        font-family: 'Cairo', 'Segoe UI', Roboto, Arial, sans-serif;
+        background: var(--light-bg);
+        color:var(--text);
+        padding:0;
+        -webkit-font-smoothing:antialiased;
+        line-height: 1.6;
+      }
+      .container{ max-width:1400px; margin:0 auto; padding:0 16px; }
+
+      /* Hero Banner */
+      .hero-banner {
+        background: linear-gradient(rgba(0,83,159,0.85), rgba(0,83,159,0.75)),
+                    url('https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?ixlib=rb-1.2.1&auto=format&fit=crop&w=1400&q=80');
+        background-size: cover;
+        background-position: center;
+        color: white;
+        padding: 40px 20px;
+        border-radius: 0 0 var(--border-radius) var(--border-radius);
+        margin-bottom: 30px;
+        text-align: center;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+        position: relative;
+        overflow: hidden;
+      }
+      .hero-banner::before {
+        content: '';
+        position: absolute;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z' fill='%23ffffff' fill-opacity='0.05' fill-rule='evenodd'/%3E%3C/svg%3E");
+        opacity: 0.3;
+      }
+      .hero-content { position: relative; z-index: 2; }
+      .hero-banner h1 { margin: 0 0 10px 0; font-size: 2.5rem; font-weight: 800; text-shadow: 0 2px 4px rgba(0,0,0,0.2); }
+      .hero-subtitle { font-size: 1.2rem; opacity: 0.9; margin-bottom: 25px; }
+
+      /* Stats Dashboard */
+      .stats-dashboard {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 16px;
+        margin: 25px 0;
+      }
+      .stat-card {
+        background: white;
+        border-radius: 12px;
+        padding: 15px;
+        box-shadow: var(--card-shadow);
+        transition: var(--transition);
+        border: 1px solid #f0f0f0;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        min-height: 80px;
+      }
+      .stat-icon { font-size: 1.8rem; flex-shrink: 0; display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; }
+      .stat-content { display: flex; flex-direction: column; justify-content: center; flex: 1; min-width: 0; }
+      .stat-value { font-size: 1.4rem; font-weight: 700; color: var(--primary-blue); margin-bottom: 2px; line-height: 1.2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+      .stat-label { font-size: 0.8rem; color: var(--muted); line-height: 1.2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+      /* Quick Filter Chips */
+      .filter-chips { display: flex; flex-wrap: wrap; gap: 10px; margin: 20px 0; padding: 10px 0; }
+      .chip {
+        padding: 10px 18px;
+        background: white;
+        border: 2px solid #e0e0e0;
+        border-radius: 50px;
+        font-family: 'Cairo', sans-serif;
+        font-weight: 600;
+        font-size: 0.95rem;
+        cursor: pointer;
+        transition: var(--transition);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        position: relative;
+        overflow: hidden;
+      }
+      .chip > * { position: relative; z-index: 1; }
+      .chip:hover { border-color: currentColor; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+      .chip.active { color: white; border-color: transparent; }
+      .chip.active::after { opacity: 1; }
+
+      /* Colors for chips */
+      .chip[data-filter="all"] { color: var(--primary-blue); }
+      .chip[data-filter="hot"] { color: var(--danger-red); }
+      .chip[data-filter="ending"] { color: var(--warning-yellow); }
+      .chip[data-filter="discount"] { color: var(--success-green); }
+      .chip[data-filter="carrefour"] { color: #004080; }
+      .chip[data-filter="hyperone"] { color: var(--accent-orange); }
+      .chip[data-filter="food"] { color: var(--info-teal); }
+      .chip[data-filter="recent"] { color: var(--purple); }
+
+      /* View Toggle */
+      .view-toggle { display: flex; background: white; border-radius: 12px; padding: 5px; width: fit-content; margin: 20px 0; box-shadow: var(--card-shadow); border: 1px solid #f0f0f0; overflow: hidden; }
+      .view-btn {
+        padding: 10px 20px;
+        border: 2px solid #e0e0e0;
+        background: white;
+        font-family: 'Cairo', sans-serif;
+        font-weight: 600;
+        cursor: pointer;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: var(--primary-blue);
+        transition: var(--transition);
+        position: relative;
+        overflow: hidden;
+      }
+      .view-btn.active { color: white; border-color: transparent; }
+      #view-grid-btn { border-top-right-radius: 0; border-bottom-right-radius: 0; border-right: none; }
+      #view-table-btn { border-top-left-radius: 0; border-bottom-left-radius: 0; border-left: none; }
+
+      /* Products Grid */
+      .products-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 24px;
+        margin: 25px 0;
+      }
+      .product-card {
+        background: white;
+        border-radius: var(--border-radius);
+        overflow: hidden;
+        box-shadow: var(--card-shadow);
+        transition: var(--transition);
+        position: relative;
+        border: 1px solid #f0f0f0;
+      }
+      .product-card:hover { transform: translateY(-10px); box-shadow: 0 20px 40px rgba(0,0,0,0.15); }
+      .product-badge { position: absolute; top: 15px; right: 15px; background: var(--danger-red); color: white; padding: 5px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: 700; z-index: 2; }
+      .product-image { height: 180px; background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; }
+      .product-image i { font-size: 4rem; color: rgba(0,0,0,0.1); }
+      .product-info { padding: 20px; }
+      .product-title { font-size: 1.1rem; font-weight: 700; margin: 0 0 10px 0; color: #333; height: 52px; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+      .product-unit { font-size: 0.85rem; color: var(--muted); margin-bottom: 10px; display: flex; align-items: center; gap: 5px; }
+      .price-container { display: flex; align-items: center; justify-content: space-between; margin: 15px 0; }
+      .current-price { font-size: 1.5rem; font-weight: 800; color: var(--primary-blue); }
+      .discount-badge { background: var(--danger-red); color: white; padding: 5px 12px; border-radius: 20px; font-size: 0.9rem; font-weight: 700; }
+      .product-meta { display: flex; justify-content: space-between; align-items: center; margin-top: 15px; padding-top: 15px; border-top: 1px solid #eee; }
+      .supermarket-logo { display: flex; align-items: center; gap: 8px; font-weight: 600; color: #555; }
+      .countdown { background: rgba(255,107,0,0.1); color: var(--accent-orange); padding: 5px 10px; border-radius: 8px; font-size: 0.85rem; font-weight: 600; display: flex; align-items: center; gap: 5px; }
+      .action-buttons { display: flex; gap: 10px; margin-top: 15px; }
+      .btn { padding: 10px 15px; border-radius: 8px; border: none; font-family: 'Cairo', sans-serif; font-weight: 600; cursor: pointer; transition: var(--transition); flex: 1; display: flex; align-items: center; justify-content: center; gap: 8px; }
+      .btn-primary { background: var(--primary-blue); color: white; }
+      .btn-secondary { background: #f0f0f0; color: #555; }
+      .favorite-btn { position: absolute; top: 15px; left: 15px; background: white; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; color: #ccc; cursor: pointer; z-index: 2; box-shadow: 0 4px 12px rgba(0,0,0,0.1); transition: var(--transition); }
+      .favorite-btn:hover, .favorite-btn.active { color: var(--danger-red); }
+      .ticker-wrap{ width:100%; background:var(--ticker-bg); color:var(--ticker-text); border-radius:10px; overflow:hidden; display:flex; align-items:center; padding:6px 12px; box-shadow:0 6px 18px rgba(0,0,0,0.12); margin-top:8px; }
+      .ticker-label{ flex:0 0 auto; font-weight:700; margin-left:12px; color:var(--ticker-accent); background:rgba(255,255,255,0.1); padding:6px 12px; border-radius:8px; display:flex; align-items:center; gap: 8px; }
+      .ticker-viewport{ flex:1 1 auto; overflow:hidden; position:relative; height:36px; display:flex; align-items:center; }
+      .ticker-track{ display:inline-flex; white-space:nowrap; will-change:transform; align-items:center; gap:28px; }
+      .ticker-item{ display:inline-flex; gap:12px; align-items:center; padding:6px 10px; background:transparent; color:var(--ticker-text); font-size:15px; }
+      .ticker-item .badge{ background:var(--ticker-accent); color:#000; padding:4px 8px; border-radius:6px; font-weight:700; }
+
+      .ticker-track.animate{ animation: ticker-scroll linear infinite; animation-duration: var(--ticker-duration, 18s); }
+      @keyframes ticker-scroll { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+
+      .controls{ background: white; border-radius: var(--border-radius); padding: 20px; margin-bottom: 20px; box-shadow: var(--card-shadow); border: 1px solid #f0f0f0; }
+      .controls .row{ display:flex; gap:12px; align-items:center; flex-wrap:wrap; margin-bottom: 15px; }
+      input,select,button{ height:var(--control-height); padding:0 16px; border-radius:10px; border:2px solid #e0e0e0; background:white; font-size:15px; font-family: 'Cairo', sans-serif; transition: var(--transition); }
+      input:focus, select:focus { outline: none; border-color: var(--primary-blue); box-shadow: 0 0 0 3px rgba(0,83,159,0.1); }
+      #search-input { flex: 1; min-width: 200px; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23666' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='8'%3E%3C/circle%3E%3Cline x1='21' y1='21' x2='16.65' y2='16.65'%3E%3C/line%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 16px center; background-size: 16px; padding-right: 45px; }
+      button{ cursor:pointer; font-weight: 600; background: var(--primary-blue); color: white; border: none; }
+      #reset-btn { background: #f0f0f0; color: #666; display: flex; align-items: center; gap: 8px; }
+      .price-controls{ display:flex; gap:8px; align-items:center; background: #f8f9fa; padding: 5px; border-radius: 10px; }
+      .price-controls button{ width:36px; height:36px; padding:0; font-size:18px; line-height:1; background: white; color: #333; border: 1px solid #ddd; }
+      #data-table{ background:white; border-radius:var(--border-radius); box-shadow:var(--card-shadow); overflow:hidden; margin-top:20px; padding:0; border: 1px solid #f0f0f0; }
+      table{ width:100%; border-collapse:collapse; font-size:14px; }
+      thead th{ background:var(--primary-blue); color:#fff; padding:16px; text-align:right; position:sticky; top:0; font-weight: 600; border-bottom: 2px solid rgba(255,255,255,0.1); }
+      tbody td{ padding:14px 16px; border-bottom:1px solid #f0f0f0; }
+      tbody tr:hover { background: #f8f9fa; }
+      .highlight{ background:#fff3b0 !important; }
+      .card-list{ display:none }
+      #loading{ text-align:center; padding:40px; color:#666; font-size:1.2rem; }
+      #autocomplete-list{ position:absolute; z-index:9999; background:white; border-radius:8px; box-shadow:0 6px 18px rgba(0,0,0,0.12); max-height:240px; overflow:auto; border: 1px solid #e0e0e0; }
+      #autocomplete-list div { padding: 12px 16px; cursor: pointer; border-bottom: 1px solid #f0f0f0; transition: var(--transition); }
+      #autocomplete-list div:hover { background: #f8f9fa; }
+
+      /* Responsive */
+      @media (max-width: 900px){
+        .container { padding: 0 12px; }
+        .hero-banner { padding: 30px 15px; margin-bottom: 20px; }
+        .hero-banner h1 { font-size: 1.8rem; }
+        .hero-subtitle { font-size: 1rem; }
+        .stats-dashboard { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+        .products-grid { grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 16px; }
+        .controls .row { flex-direction: column; align-items: stretch; }
+        #data-table { overflow-x: auto; display: block; }
+        table { min-width: 800px; }
+      }
+      @media (max-width: 600px){
+        .products-grid { grid-template-columns: 1fr; }
+        .stat-card { padding: 12px 10px; gap: 10px; min-height: 70px; }
+        .filter-chips { overflow-x: auto; padding-bottom: 10px; flex-wrap: nowrap; }
+      }
+    </style>
+  </head>
   <body>
     <div class="container"> <!-- Hero Banner -->
       <div class="hero-banner">
@@ -1076,7 +272,7 @@ defer="defer"></script>
       <!-- User Guide Banner -->
       <div class="user-guide-banner" id="user-guide"> <i class="fas fa-info-circle"></i>
         <span>انقر على أي منتج لعرض التفاصيل، واضغط على زر "عرض جدول" لعرض
-          الاصناف في جدول - وزر"عرض شبكي" للعرض التفصيلي </span> </div>
+          الاصناف في جدول - وزر "عرض شبكي" للعرض التفصيلي</span> </div>
       <!-- Stats Dashboard -->
       <div class="stats-dashboard">
         <div class="stat-card">
@@ -1107,7 +303,6 @@ defer="defer"></script>
             <div class="stat-label">تنتهي قريباً</div>
           </div>
         </div>
-        <!-- Changed from total-savings to total-supermarkets -->
         <div class="stat-card">
           <div class="stat-icon">🛒</div>
           <div class="stat-content">
@@ -1156,7 +351,6 @@ defer="defer"></script>
           </select>
         </div>
         <div class="row" style="width:100%; gap:8px;">
-          <!-- Min price with controls -->
           <div class="price-controls" style="align-items:center;"> <button id="min-decrease"
 
               type="button" aria-label="نقص الحد الأدنى">−</button> <input id="min-price"
@@ -1165,7 +359,6 @@ defer="defer"></script>
 
               min="0" type="number"> <button id="min-increase" type="button" aria-label="زيادة الحد الأدنى">+</button>
           </div>
-          <!-- Max price with controls -->
           <div class="price-controls" style="align-items:center;"> <button id="max-decrease"
 
               type="button" aria-label="نقص الحد الأقصى">−</button> <input id="max-price"
@@ -1219,1835 +412,1005 @@ defer="defer"></script>
         <div class="card-list" id="card-list" aria-hidden="true"></div>
         <div class="pagination" id="pagination" role="navigation" aria-label="تنقل الصفحات"></div>
       </div>
-    </div>
-    <!-- Comparison Panel -->
-    <div class="comparison-panel" id="comparison-panel">
-      <div class="comparison-header">
-        <h3 style="margin:0;"><i class="fas fa-balance-scale"></i> مقارنة
-          المنتجات (<span id="comparison-count">0</span>/4)</h3>
-        <div> <button id="clear-comparison" style="margin-left:10px; background:#dc3545; color:white; border:none; padding:8px 16px; border-radius:6px; cursor:pointer;">
-            <i class="fas fa-trash"></i> مسح الكل </button> <button id="close-comparison"
+      <!-- Comparison Panel -->
+      <div class="comparison-panel" id="comparison-panel" style="display:none;">
+        <div class="comparison-header">
+          <h3 style="margin:0;"><i class="fas fa-balance-scale"></i> مقارنة
+            المنتجات (<span id="comparison-count">0</span>/4)</h3>
+          <div> <button id="clear-comparison" style="margin-left:10px; background:#dc3545; color:white; border:none; padding:8px 16px; border-radius:6px; cursor:pointer;"><i
 
-            style="background:#6c757d; color:white; border:none; padding:8px 16px; border-radius:6px; cursor:pointer;">
-            <i class="fas fa-times"></i> إغلاق </button> </div>
+                class="fas fa-trash"></i> مسح الكل</button> <button id="close-comparison"
+
+              style="background:#6c757d; color:white; border:none; padding:8px 16px; border-radius:6px; cursor:pointer;"><i
+
+                class="fas fa-times"></i> إغلاق</button> </div>
+        </div>
+        <div class="comparison-items" id="comparison-items"></div>
       </div>
-      <div class="comparison-items" id="comparison-items">
-        <!-- Comparison items will be added here --> </div>
+      <!-- Mobile Navigation -->
+      <div class="mobile-nav" style="display:none;"> <a href="#" class="mobile-nav-item active"><i
+
+            class="fas fa-home"></i><span>الرئيسية</span></a> <a href="#" class="mobile-nav-item"><i
+
+            class="fas fa-percentage"></i><span>العروض</span></a> <a href="#" class="mobile-nav-item"><i
+
+            class="fas fa-search"></i><span>بحث</span></a> <a href="#" class="mobile-nav-item"><i
+
+            class="fas fa-heart"></i><span>المفضلة</span></a> <a href="#" class="mobile-nav-item"><i
+
+            class="fas fa-user"></i><span>حسابي</span></a> </div>
     </div>
-    <!-- Mobile Navigation -->
-    <div class="mobile-nav"> <a href="#" class="mobile-nav-item active"> <i class="fas fa-home"></i>
-        <span>الرئيسية</span> </a> <a href="#" class="mobile-nav-item"> <i class="fas fa-percentage"></i>
-        <span>العروض</span> </a> <a href="#" class="mobile-nav-item"> <i class="fas fa-search"></i>
-        <span>بحث</span> </a> <a href="#" class="mobile-nav-item"> <i class="fas fa-heart"></i>
-        <span>المفضلة</span> </a> <a href="#" class="mobile-nav-item"> <i class="fas fa-user"></i>
-        <span>حسابي</span> </a> </div>
+    <!-- ============================
+         Cleaned & consolidated JavaScript         (replaces the broken script in the original index.html)
+         ============================ -->
     <script>
-/* ================= Configuration ================= */
-const DATA_URL = 'https://script.google.com/macros/s/AKfycbzD-TIVSoc4BxNhfytOM2Sbzs156Iht420hS2XCSRZkAuNIbBPnVYxQhTVEohgv0u-Fsg/exec';
-const CACHE_KEY = 'offersData';
-const CACHE_EXPIRY = 3600000; // 1 hour
+      // Configuration
+      const DATA_URL = 'https://script.google.com/macros/s/AKfycbzD-TIVSoc4BxNhfytOM2Sbzs156Iht420hS2XCSRZkAuNIbBPnVYxQhTVEohgv0u-Fsg/exec';
+      const CACHE_KEY = 'offersData';
+      const CACHE_EXPIRY = 3600000; // 1 hour
+      const WEIGHT_DISCOUNT = 0.6, WEIGHT_SAVINGS = 0.4;
 
-// Weight constants for combined sorting
-const WEIGHT_DISCOUNT = 0.6;  // 60% importance to discount percentage
-const WEIGHT_SAVINGS = 0.4;   // 40% importance to savings amount
-/* ================================================= */
-let allData = [];
-let filteredData = [];
-let dataLoaded = false;
+      let allData = [];
+      let filteredData = [];
+      let dataLoaded = false;
+      let currentPage = 1;
+      const itemsPerPage = 20;
+      let favorites = JSON.parse(localStorage.getItem('favorites') || '[]');
+      let comparisonItems = JSON.parse(localStorage.getItem('comparison') || '[]');
+      let currentView = 'grid';
+      let activeChipFilter = 'all';
+      let latestTwoDates = [];
 
-
-let currentPage = 1;
-const itemsPerPage = 20;
-let debounceTimer = null;
-let favorites = JSON.parse(localStorage.getItem('favorites')) || [];
-let comparisonItems = JSON.parse(localStorage.getItem('comparison')) || [];
-let currentView = 'grid';
-let activeChipFilter = 'all'; // لتخزين الفلتر النشط من الأزرار
-let latestTwoDates = []; // أحدث تاريخين في البيانات
-let supermarketFilterCache = {}; // لحفظ نتائج فلتر السوبرماركت
-      
-      
+      /* Helpers */
+      function showLoadingMessage(msg='جارٍ تحميل البيانات...'){ const el = document.getElementById('loading'); if(el){ el.style.display='block'; el.textContent = msg; } }
+      function hideLoadingMessage(){ const el = document.getElementById('loading'); if(el) el.style.display='none'; }
+      function isValidDate(d){ return d instanceof Date && !isNaN(d.getTime()); }
+      function stripTime(d){ return isValidDate(d) ? new Date(d.getFullYear(), d.getMonth(), d.getDate()) : null; }
+      function formatDateShort(d){ if(!isValidDate(d)) return 'غير متاح'; return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; }
 
       
-/* Initialize the app */
-      
-
-      
-function initApp() {
-  try {
-    wireEventListeners();
-    fetchData();
-  } catch (error) {
-    console.error('Error in initApp:', error);
-    showError('حدث خطأ في تهيئة التطبيق: ' + error.message);
-  }
-}
-
-/* Wire all event listeners */
-function wireEventListeners() {
-  try {
-    // View toggle
-    document.getElementById('view-grid-btn').addEventListener('click', () => switchView('grid'));
-    document.getElementById('view-table-btn').addEventListener('click', () => switchView('table'));
-    
-    // Filter chips - MODIFIED to handle sorting for hot and discount
-    document.querySelectorAll('.chip').forEach(chip => {
-      chip.addEventListener('click', function() {
-        document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
-        this.classList.add('active');
-        activeChipFilter = this.dataset.filter;
-        
-        // If it's hot or discount filter, set the sort type
-        if (activeChipFilter === 'hot') {
-          document.getElementById('sort-by').value = 'saved-desc'; // Sort by biggest discount value
-        } else if (activeChipFilter === 'discount') {
-          document.getElementById('sort-by').value = 'discount-desc'; // Sort by biggest discount percentage
-        }
-        
-        applyAllFilters();
-      });
-    });
-    
-    // Rest of the code remains the same...
-  } catch (error) {
-    console.error('Error in wireEventListeners:', error);
-  }
-}
-function stripTime(date) {
-  return new Date(date.getFullYear(), date.getMonth(), date.getDate());
-}
-
-function parseEndDate(text) {
-  if (!text || typeof text !== 'string') return null;
-
-  const match = text.match(/(\d{1,2})[-\/](\d{1,2})[-\/](\d{4})/);
-  if (!match) return null;
-
-  const [, d, m, y] = match;
-  const date = new Date(y, m - 1, d);
-
-  return isNaN(date) ? null : stripTime(date);
-}
-
-function getItemDate(item) {
-  return item._date || null;
-}
-
-     
-/* دالة لاستخراج أحدث تاريخين من البيانات */
-function findLatestTwoDates(data) {
-  try {
-    const allDates = [];
-    const d = item._date;
-  
-
-    data.forEach(item => {
-      let dateFound = null;
-      
-        dateFound = item._date;
-             
-      if (dateFound && dateFound instanceof Date && !isNaN(dateFound.getTime())) {
-        const year = dateFound.getFullYear();
-        const month = String(dateFound.getMonth() + 1).padStart(2, '0');
-        const day = String(dateFound.getDate()).padStart(2, '0');
-        const dateStr = `${year}-${month}-${day}`;
-       
-        <!-- if (d && !isNaN(d)) {  allDates.push(d);}   -->
-         
-        allDates.push({
-          date: dateFound,
-          dateStr: dateStr,
-          item: item
-        });
-      }
-    });
-    
-    if (allDates.length === 0) return [];
-    
-    allDates.sort((a, b) => b.date - a.date);
-    
-    const uniqueDateStrs = [];
-    const uniqueDates = [];
-    
-    for (const dateObj of allDates) {
-      if (!uniqueDateStrs.includes(dateObj.dateStr)) {
-        uniqueDateStrs.push(dateObj.dateStr);
-        uniqueDates.push(dateObj.dateStr);
-      }
-      
-      if (uniqueDates.length >= 2) break;
-    }
-    
-    console.log('أحدث تاريخين في البيانات:', uniqueDates);
-    console.log('عدد العناصر بتاريخ:', allDates.length);
-    
-    return uniqueDates;
-  } catch (error) {
-    console.error('Error in findLatestTwoDates:', error);
-    return [];
-  }
-}
-
-function normalizeItemDate(item) {
-  // 1️⃣ updateDate (Excel / ISO)
-  if (item.updateDate) {
-    const d = new Date(item.updateDate);
+      function normalizeItemDate(i) {
+  const fields = [i.updateDate, i.date, i.rawPeriod, i.rawFrom];
+  for (const f of fields) {
+    const d = new Date(f);
     if (!isNaN(d)) return stripTime(d);
   }
-
-  // 2️⃣ validUntil (نص عربي)
-  if (item.validUntil && item.validUntil !== 'غير متاح') {
-    const d = parseEndDate(item.validUntil);
-    if (d) return d;
-  }
-
-  // 3️⃣ لا يوجد تاريخ صالح
   return null;
 }
 
-function sortFilteredData() {
-  if (!Array.isArray(filteredData) || filteredData.length === 0) return;
-
-  switch (sort) {
-
-    case 'best-deals': {
-      const maxSaved = Math.max(
-        1,
-        ...filteredData.map(i => i._saved || 0)
-      );
-
-      filteredData.sort((a, b) => {
-        const discountA = (a._discount_pct || 0) / 100;
-        const discountB = (b._discount_pct || 0) / 100;
-
-        const savedA = (a._saved || 0) / maxSaved;
-        const savedB = (b._saved || 0) / maxSaved;
-
-        const scoreA = discountA * WEIGHT_DISCOUNT + savedA * WEIGHT_SAVINGS;
-        const scoreB = discountB * WEIGHT_DISCOUNT + savedB * WEIGHT_SAVINGS;
-
-        return scoreB - scoreA;
-      });
-      break;
-    }
-
-    case 'discount-desc':
-      filteredData.sort((a, b) => (b._discount_pct || 0) - (a._discount_pct || 0));
-      break;
-
-    case 'price-asc':
-      filteredData.sort((a, b) => (a.currentPrice || 0) - (b.currentPrice || 0));
-      break;
-
-    case 'price-desc':
-      filteredData.sort((a, b) => (b.currentPrice || 0) - (a.currentPrice || 0));
-      break;
-
-    case 'name-asc':
-      filteredData.sort((a, b) =>
-        String(a.product || '').localeCompare(String(b.product || ''), 'ar')
-      );
-      break;
-
-    case 'name-desc':
-      filteredData.sort((a, b) =>
-        String(b.product || '').localeCompare(String(a.product || ''), 'ar')
-      );
-      break;
-  }
-}
-
-function formatItemDate(item) {
-  return item._date
-    ? formatDateShort(item._date)
-    : 'غير متاح';
-}
-
-      
-/* Comparison Mode */
-function toggleComparisonPanel() {
-  try {
-    const panel = document.getElementById('comparison-panel');
-    panel.style.display = panel.style.display === 'block' ? 'none' : 'block';
-    updateComparisonPanel();
-  } catch (error) {
-    console.error('Error in toggleComparisonPanel:', error);
-  }
-}
-
-function closeComparisonPanel() {
-  try {
-    document.getElementById('comparison-panel').style.display = 'none';
-  } catch (error) {
-    console.error('Error in closeComparisonPanel:', error);
-  }
-}
-
-function toggleComparison(productId) {
-  try {
-    const product = allData.find(p => p.product === productId);
-    if (!product) return;
-    
-    const index = comparisonItems.findIndex(i => i.product === productId);
-    if (index === -1) {
-      if (comparisonItems.length >= 4) {
-        alert('يمكنك مقارنة 4 منتجات كحد أقصى');
-        return;
-      }
-      comparisonItems.push(product);
-    } else {
-      comparisonItems.splice(index, 1);
-    }
-    
-    localStorage.setItem('comparison', JSON.stringify(comparisonItems));
-    updateComparisonPanel();
-    
-    document.querySelectorAll(`.compare-btn[data-id="${productId}"]`).forEach(btn => {
-      btn.classList.toggle('active', index === -1);
-    });
-  } catch (error) {
-    console.error('Error in toggleComparison:', error);
-  }
-}
-
-function clearComparison() {
-  try {
-    comparisonItems = [];
-    localStorage.setItem('comparison', JSON.stringify(comparisonItems));
-    updateComparisonPanel();
-    
-    document.querySelectorAll('.compare-btn').forEach(btn => {
-      btn.classList.remove('active');
-    });
-  } catch (error) {
-    console.error('Error in clearComparison:', error);
-  }
-}
-
-function updateComparisonPanel() {
-  try {
-    const panel = document.getElementById('comparison-panel');
-    const itemsContainer = document.getElementById('comparison-items');
-    const countElement = document.getElementById('comparison-count');
-    
-    countElement.textContent = comparisonItems.length;
-    
-    itemsContainer.innerHTML = '';
-    
-    comparisonItems.forEach(item => {
-      const itemEl = document.createElement('div');
-      itemEl.className = 'comparison-item';
-      itemEl.innerHTML = `
-        <div style="display: flex; justify-content: space-between; align-items: flex-start;">
-          <h4 style="margin: 0 0 10px 0; font-size: 0.9rem;">${item.product || ''}</h4>
-          <button onclick="removeFromComparison('${item.product}')" style="background: none; border: none; color: #dc3545; cursor: pointer;">
-            <i class="fas fa-times"></i>
-          </button>
-        </div>
-        <div style="font-size: 0.85rem; color: #666; margin-bottom: 8px;">${item.supermarket || ''}</div>
-        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 10px;">
-          <span style="font-weight: 700; color: var(--primary-blue);">${item.currentPrice || 0} ${item.currency||'EGP'}</span>
-        </div>
-        ${item._discount_pct ? `<div style="background: var(--danger-red); color: white; padding: 3px 8px; border-radius: 4px; font-size: 0.8rem; font-weight: 700; text-align: center;">خصم ${item._discount_pct}%</div>` : ''}
-      `;
-      itemsContainer.appendChild(itemEl);
-    });
-    
-    if (comparisonItems.length > 0) {
-      panel.style.display = 'block';
-    }
-  } catch (error) {
-    console.error('Error in updateComparisonPanel:', error);
-  }
-}
-
-function removeFromComparison(productId) {
-  try {
-    comparisonItems = comparisonItems.filter(item => item.product !== productId);
-    localStorage.setItem('comparison', JSON.stringify(comparisonItems));
-    updateComparisonPanel();
-    
-    document.querySelectorAll(`.compare-btn[data-id="${productId}"]`).forEach(btn => {
-      btn.classList.remove('active');
-    });
-  } catch (error) {
-    console.error('Error in removeFromComparison:', error);
-  }
-}
-
-/* Switch between grid and table view */
-function switchView(view) {
-  try {
-    currentView = view;
-    const gridBtn = document.getElementById('view-grid-btn');
-    const tableBtn = document.getElementById('view-table-btn');
-    const productsGrid = document.getElementById('products-grid');
-    const dataTable = document.getElementById('data-table');
-    
-    gridBtn.classList.toggle('active', view === 'grid');
-    tableBtn.classList.toggle('active', view === 'table');
-    
-    if (view === 'grid') {
-      productsGrid.style.display = 'grid';
-      dataTable.style.display = 'none';
-      renderProductsGrid();
-    } else {
-      productsGrid.style.display = 'none';
-      dataTable.style.display = 'block';
-      renderTable();
-    }
-  } catch (error) {
-    console.error('Error in switchView:', error);
-  }
-}
-      
-      function getPagedData() {
-  const start = (currentPage - 1) * ITEMS_PER_PAGE;
-  const end = start + ITEMS_PER_PAGE;
-  return filteredData.slice(start, end);
-}
-
-
-/* Apply ALL filters together - UPDATED with improved combined sorting */
-/* Apply ALL filters together - UPDATED with improved combined sorting */
-function applyAllFilters() {
-  
- 
-  if (!Array.isArray(allData)) {
-  console.warn('applyAllFilters called before data ready');
-  return;
-}
-
-   const newestDateObj = latestTwoDates.length ? new Date(latestTwoDates[0]) : null;
-
-   if (!dataLoaded) return;   // ← هنا
-
-  
-  try {
-    const search = (document.getElementById('search-input').value || '').trim().toLowerCase();
-    const supermarket = document.getElementById('supermarket-filter').value || '';
-    const category = document.getElementById('category-filter').value || '';
-    const brand = document.getElementById('brand-filter').value || '';
-    const minDiscount = parseFloat(document.getElementById('min-discount').value) || 0;
-    const minPriceRaw = document.getElementById('min-price').value;
-    const maxPriceRaw = document.getElementById('max-price').value;
-    const minPrice = minPriceRaw === '' ? 0 : (parseFloat(minPriceRaw) || 0);
-    const maxPrice = maxPriceRaw === '' ? Infinity : (parseFloat(maxPriceRaw) || Infinity);
-    const sort = document.getElementById('sort-by').value || 'best-deals';
-
-    if(isFinite(minPrice) && isFinite(maxPrice) && minPrice > maxPrice){
-      const tmp = document.getElementById('min-price').value;
-      document.getElementById('min-price').value = document.getElementById('max-price').value;
-      document.getElementById('max-price').value = tmp;
-    }
-
-filteredData = allData.filter(item => {
-
-  // 1️⃣ Chip filter (الزمن / النوع)
-  if (activeChipFilter !== 'all') {
-    let pass = false;
-
-    switch (activeChipFilter) {
-
-      case 'recent_day': {
-        if (!item._date || !latestTwoDates.length) break;
-
-        const newest = new Date(latestTwoDates[0]);
-        const diffDays = (newest - item._date) / 86400000;
-
-        pass = diffDays >= 0 && diffDays <= 1;
-        break;
-      }
-
-      case 'recent_extended': {
-        if (!item._date || !latestTwoDates.length) break;
-
-        const newest = new Date(latestTwoDates[0]);
-        const diffDays = (newest - item._date) / 86400000;
-
-        pass = diffDays >= 0 && diffDays <= 7;
-        break;
-      }
-
-      case 'food': {
-        const cat = String(item.category || '').toLowerCase();
-        pass = cat.includes('طعام') || cat.includes('غذائ') || cat.includes('مأكولات');
-        break;
-      }
-
-      default:
-        pass = true;
-    }
-
-    if (!pass) return false;
-  }
-
-  // 2️⃣ Supermarket
-  if (supermarket && item.supermarket !== supermarket) return false;
-
-  // 3️⃣ Category
-  if (category && item.category !== category) return false;
-
-  // 4️⃣ Brand
-  if (brand && item.brand !== brand) return false;
-
-  // 5️⃣ Price
-  const price = Number(item.currentPrice) || 0;
-  if (price < minPrice || price > maxPrice) return false;
-
-  // 6️⃣ Discount
-  if ((item._discount_pct || 0) < minDiscount) return false;
-
-  // 7️⃣ Search
-  if (search) {
-    const hay = (
-      (item.product || '') +
-      (item.primaryName || '') +
-      (item.brand || '') +
-      (item.supermarket || '')
-    ).toLowerCase();
-
-    if (!hay.includes(search)) return false;
-  }
-
-  return true;
-});
-
-            case 'discount':
-              // REMOVED: chipFilterPass = item._discount_pct > 50;
-              // Now we just return true and let sorting handle it
-              chipFilterPass = true;
-              break;
-          
-case 'recent': {
-  if (!item._date || latestTwoDates.length === 0) {
-    chipFilterPass = false;
-    break;
-  }
-
-  const itemStr = formatDateShort(item._date);
-  chipFilterPass = latestTwoDates.includes(itemStr);
-  break;
-}
-              
-
-  const newestDate = normalizeDate(new Date(latestTwoDates[0]));
-  const itemDate = getItemDate(item);
-
-  if (!itemDate || isNaN(newestDate)) {
-    chipFilterPass = false;
-    break;
-  }
-
-  const diffDays =
-    (newestDate.getTime() - item._date) / (1000 * 60 * 60 * 24);
-
-  chipFilterPass = diffDays >= 0 && diffDays <= 1;
-  break;
-}
-
-              
-            case 'carrefour':
-              if (!supermarketFilterCache.carrefour) {
-                supermarketFilterCache.carrefour = allData.filter(i => {
-                  const carrefourName = String(i.supermarket || '').toLowerCase();
-                  return carrefourName.includes('كارفور') || 
-                         carrefourName.includes('carrefour');
-                }).map(i => i.product);
-              }
-              chipFilterPass = supermarketFilterCache.carrefour.includes(item.product);
-              break;
-            case 'hyperone':
-              if (!supermarketFilterCache.hyperone) {
-                supermarketFilterCache.hyperone = allData.filter(i => {
-                  const hyperoneName = String(i.supermarket || '').toLowerCase();
-                  return hyperoneName.includes('هايبر وان') || 
-                         hyperoneName.includes('هايبروان') ||
-                         hyperoneName.includes('هايبر') ||
-                         hyperoneName.includes('hyper one') ||
-                         hyperoneName.includes('hyperone') ||
-                         hyperoneName.includes('hyper');
-                }).map(i => i.product);
-              }
-              chipFilterPass = supermarketFilterCache.hyperone.includes(item.product);
-              break;
-            default:
-              chipFilterPass = true;
-          }
-          if (!chipFilterPass) return false;
+      function parseEndDate(period) {
+        if (!period) return null;
+        const s = String(period).trim();
+        const dm = s.match(/(\d{1,2})[\/\.-](\d{1,2})[\/\.-](\d{2,4})/);
+        if (dm){
+          let day = dm[1].padStart(2,'0'), month = dm[2].padStart(2,'0'), year = dm[3];
+          if (year.length === 2) year = '20' + year;
+          const d = new Date(`${year}-${month}-${day}`);
+          return isValidDate(d) ? stripTime(d) : null;
         }
-        
-        // Rest of the filtering logic remains the same...
-        const prod = String(item.product || '').toLowerCase();
-        const primary = String(item.primaryName || '').toLowerCase();
-        const itemBrand = String(item.brand || '').toLowerCase();
-        
-        if (supermarket && String(item.supermarket || '') !== supermarket) return false;
-        
-        if (category && String(item.category || '') !== category) return false;
-        
-        if (brand && String(item.brand || '') !== brand) return false;
-        
-        const priceVal = Number(item.currentPrice) || 0;
-        if (priceVal < minPrice || priceVal > maxPrice) return false;
-        
-        if ((item._discount_pct||0) < minDiscount) return false;
-        
-        if (search && !prod.includes(search) && !primary.includes(search) && 
-            !itemBrand.includes(search) && !String(item.supermarket || '').toLowerCase().includes(search)) {
-          return false;
+        const ym = s.match(/(\d{4})[\/\.-](\d{1,2})[\/\.-](\d{1,2})/);
+        if (ym){
+          const d = new Date(`${ym[1]}-${ym[2].padStart(2,'0')}-${ym[3].padStart(2,'0')}`);
+          return isValidDate(d) ? stripTime(d) : null;
         }
-        
-        return true;
-      } catch (filterError) {
-        console.error('Error filtering item:', filterError, item);
-        return false;
+        const d = new Date(s);
+        return isValidDate(d) ? stripTime(d) : null;
       }
-    });
 
-    // تطبيق الترتيب - UPDATED with improved combined sorting
-    // The sorting logic remains the same, it will use the sort value set by the chips
-    
-    // ... rest of the sorting code remains the same
-
-
-    // تطبيق الترتيب - UPDATED with improved combined sorting
-    if(sort === 'best-deals') {
-      // أفضل العروض: مزيج مرجح من الخصم النسبي وقيمة التوفير
-      const maxSavings = Math.max(...filteredData.map(i => i._saved || 0), 500);
-      
-      filteredData.sort((a,b)=> {
-        // Normalize discount percentage (0-100%)
-        const discountA = Math.min((a._discount_pct || 0), 100) / 100;
-        const discountB = Math.min((b._discount_pct || 0), 100) / 100;
-        
-        // Normalize savings amount
-        const savedA = (a._saved || 0) / maxSavings;
-        const savedB = (b._saved || 0) / maxSavings;
-        
-        // Calculate weighted scores
-        const scoreA = (discountA * WEIGHT_DISCOUNT) + (savedA * WEIGHT_SAVINGS);
-        const scoreB = (discountB * WEIGHT_DISCOUNT) + (savedB * WEIGHT_SAVINGS);
-        
-        // Sort by combined score (descending)
-        const scoreDiff = scoreB - scoreA;
-        if (Math.abs(scoreDiff) > 0.0001) {
-          return scoreDiff;
-        }
-        
-        // If scores are very close, prioritize higher discount
-        const discountDiff = discountB - discountA;
-        if (Math.abs(discountDiff) > 0.01) {
-          return discountDiff;
-        }
-        
-        // Finally, sort alphabetically
-        const nameA = String(a.product || '');
-        const nameB = String(b.product || '');
-        return nameA.localeCompare(nameB, 'ar');
-      });
-    } else if(sort === 'discount-desc') {
-      filteredData.sort((a,b)=> (b._discount_pct||0)-(a._discount_pct||0));
-    } else if(sort === 'saved-desc') {
-      filteredData.sort((a,b)=> (b._saved||0)-(a._saved||0));
-    } else if(sort === 'price-asc') {
-      filteredData.sort((a,b)=> (a.currentPrice||0)-(b.currentPrice||0));
-    } else if(sort === 'price-desc') {
-      filteredData.sort((a,b)=> (b.currentPrice||0)-(a.currentPrice||0));
-    } else if(sort === 'name-asc') {
-      filteredData.sort((a,b)=> {
-        const nameA = String(a.product || '');
-        const nameB = String(b.product || '');
-        return nameA.localeCompare(nameB, 'ar');
-      });
-    } else if(sort === 'name-desc') {
-      filteredData.sort((a,b)=> {
-        const nameA = String(a.product || '');
-        const nameB = String(b.product || '');
-        return nameB.localeCompare(nameA, 'ar');
-      });
-    }
-
-    currentPage = 1;
-    renderContent();
-    updateStats();
-  } catch (error) {
-    console.error('Error in applyAllFilters:', error);
-    showError('حدث خطأ في تطبيق الفلاتر: ' + error.message);
-  }
-}
-
-/* Share app */
-function shareApp() {
+      // Load CSV via PapaParse (DATA_URL returns CSV text)
+// Replace your existing loadDataFromExcelOrCSV with this robust version:
+async function loadDataFromExcelOrCSV(){
   try {
-    if (navigator.share) {
-      navigator.share({
-        title: 'عروض السوبرماركت',
-        text: 'اكتشف أفضل العروض والتخفيضات من كارفور وهايبر وان وسعودي ماركت!',
-        url: window.location.href,
-      });
-    } else {
-      navigator.clipboard.writeText(window.location.href);
-      alert('تم نسخ الرابط! شاركه مع أصدقائك الآن.');
-    }
-  } catch (error) {
-    console.error('Error in shareApp:', error);
-  }
-}
+    const res = await fetch(DATA_URL);
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const txt = await res.text();
 
+    // Parse CSV with PapaParse
+    const parsed = Papa.parse(txt, { header: true, skipEmptyLines: true, trim: false });
+    if (!parsed || !Array.isArray(parsed.data)) throw new Error('CSV parse failed');
 
-function isValidDate(d){ 
-  try {
-    return d instanceof Date && !isNaN(d.getTime()); 
-  } catch {
-    return false;
-  }
-}
+    // Get field names (Papa gives meta.fields when header:true)
+    const headerFields = (parsed.meta && parsed.meta.fields && parsed.meta.fields.length)
+      ? parsed.meta.fields.slice()
+      : (parsed.data[0] ? Object.keys(parsed.data[0]) : []);
 
-function formatDateShort(d){ 
-  try {
-    if(!isValidDate(d)) return 'غير متاح'; 
-    const y=d.getFullYear(), m=String(d.getMonth()+1).padStart(2,'0'), day=String(d.getDate()).padStart(2,'0'); 
-    return `${y}-${m}-${day}`;
-  } catch {
-    return 'غير متاح';
-  }
-}
+    console.info('CSV headers:', headerFields);
+    console.info('Sample row (raw):', parsed.data[0]);
 
-/* Compute saved & discount */
-function computeSavedAndDiscount(arr){
-  try {
-    arr.forEach(item=>{
-
-
-      const orig = Number(item.originalPrice) || 0;
-      const curr = Number(item.currentPrice) || 0;
-      let saved = 0;
-      if (orig>0 && curr>0) saved = orig - curr;
-      else if (orig>0 && item.discount) saved = orig * (Number(item.discount)/100);
-      else if (curr>0 && item.discount) saved = curr * (Number(item.discount)/100);
-      item._saved = Math.max(0, Number((saved||0).toFixed(2)));
-      item._discount_pct = (item.discount && !isNaN(item.discount)) ? Number(item.discount) : (orig>0 && curr>0 ? Math.round(((orig-curr)/orig)*100) : 0);
-    });
-  } catch (error) {
-    console.error('Error in computeSavedAndDiscount:', error);
-  }
-}
-
-function computeCombinedScore(arr){
-  try {
-    if(!arr || !arr.length) return;
-    const savedVals = arr.map(i=>i._saved||0), pctVals = arr.map(i=>i._discount_pct||0);
-    const maxSaved = Math.max(...savedVals,0), minSaved = Math.min(...savedVals,0);
-    const maxPct = Math.max(...pctVals,0), minPct = Math.min(...pctVals,0);
-    const savedRange = (maxSaved - minSaved) || 1;
-    const pctRange = (maxPct - minPct) || 1;
-    arr.forEach(item=>{
-      const ns = ((item._saved||0)-minSaved)/savedRange;
-      const np = ((item._discount_pct||0)-minPct)/pctRange;
-      item._score = Math.max(ns, np);
-    });
-  } catch (error) {
-    console.error('Error in computeCombinedScore:', error);
-  }
-}
-
-/* Ticker: populate top discounted items and animate */
-function populateTicker(){
-  try {
-    const track = document.getElementById('ticker-track');
-    track.innerHTML = '';
-    const maxSavings = Math.max(...allData.map(i => i._saved || 0), 500);
-    
-    const top = [...allData].filter(i=>i._discount_pct>0).sort((a,b)=>{
-      // Use combined weighted score for ticker
-      const discountA = Math.min((a._discount_pct || 0), 100) / 100;
-      const discountB = Math.min((b._discount_pct || 0), 100) / 100;
-      
-      const savedA = (a._saved || 0) / maxSavings;
-      const savedB = (b._saved || 0) / maxSavings;
-      
-      const scoreA = (discountA * WEIGHT_DISCOUNT) + (savedA * WEIGHT_SAVINGS);
-      const scoreB = (discountB * WEIGHT_DISCOUNT) + (savedB * WEIGHT_SAVINGS);
-      
-      return scoreB - scoreA;
-    }).slice(0,12);
-
-    if(!top.length){
-      track.innerHTML = '<div class="ticker-item">لا توجد عروض مميزة حالياً</div>';
-      return;
-    }
-
-    const supermarketIcons = {
-      'كارفور': '🛒',
-      'هايبر وان': '🏪',
-      'هايبر': '🏪',
-      'سعودي': '🛍️',
-      'سوبر': '🏬',
-      'ماركت': '🏪'
+    // Normalizer for header keys (remove BOM, NBSP, normalize spaces, lowercase)
+    const normalizeKey = s => {
+      if (!s && s !== 0) return '';
+      return String(s)
+        .replace(/\uFEFF/g,'')      // BOM
+        .replace(/\u00A0/g,' ')     // NBSP -> space
+        .replace(/\s+/g,' ')        // collapse spaces
+        .trim()
+        .toLowerCase();
     };
 
-    const fragment = document.createDocumentFragment();
-    top.forEach(item=>{
-      const el = document.createElement('div');
-      el.className = 'ticker-item';
-      const name = String(item.product || 'منتج');
-      const market = String(item.supermarket || '');
-      const discount = item._discount_pct ? `${item._discount_pct}%` : '';
-      const saved = item._saved ? `${item._saved} ${item.currency||'EGP'}` : '';
-      
-      let icon = '🏷️';
-      for (const [key, value] of Object.entries(supermarketIcons)) {
-        if (market.includes(key)) {
-          icon = value;
-          break;
+    // Build map: normalized -> original header
+    const headerMap = {};
+    headerFields.forEach(h => { headerMap[normalizeKey(h)] = h; });
+
+    // possible aliases for the "primary name" column (normalized)
+    const primaryAliases = [
+      'اسم المنتج (الأساسي)',
+      'اسم المنتج (الاساسي)', // variation without diacritics
+      'الاسم بالعربية',
+      'اسم المنتج',
+      'product',
+      'primaryname',
+      'primary name',
+      'product name'
+    ].map(normalizeKey);
+
+    // helper to get value from row using a list of aliases (returns first found)
+    const valueByAliases = (row, aliases, defaultVal='') => {
+      for (const a of aliases){
+        if (headerMap[a] && row[ headerMap[a] ] !== undefined) {
+          const v = row[ headerMap[a] ];
+          if (v !== null && String(v).trim() !== '') return String(v).trim();
         }
       }
-      
-      el.innerHTML = `<span class="badge">${discount}</span> <span>${icon} ${name}</span> <span style="opacity:.85">— ${market}</span> <span style="color:var(--ticker-accent); margin-inline-start:8px;">وفر ${saved}</span>`;
-      fragment.appendChild(el);
+      // fallback: try any field that looks like primary (rare)
+      for (const h of headerFields){
+        const n = normalizeKey(h);
+        if (n.includes('primary') || n.includes('basic') || n.includes('الاسم') || n.includes('اساس')) {
+          const v = row[h];
+          if (v !== null && String(v).trim() !== '') return String(v).trim();
+        }
+      }
+      return defaultVal;
+    };
+
+    // Map rows to normalized objects (tolerant)
+    const mapped = parsed.data.map(row => {
+      const get = keyAliases => valueByAliases(row, keyAliases, '');
+      const originalPrice = parseFloat(row[ headerMap[normalizeKey('السعر الأصلي')] ] || row['السعر الأصلي'] || row['originalPrice'] || 0) || 0;
+      const currentPrice = parseFloat(row[ headerMap[normalizeKey('السعر الحالي')] ] || row['السعر الحالي'] || row['currentPrice'] || 0) || 0;
+      const discount = parseFloat(row[ headerMap[normalizeKey('الخصم %')] ] || row['الخصم %'] || row['discount'] || 0) || 0;
+
+      return {
+        supermarket: (row[ headerMap[normalizeKey('اسم السوبر ماركت')] ] || row['اسم السوبر ماركت'] || row['supermarket'] || '').trim() || 'غير متاح',
+        product: (row[ headerMap[normalizeKey('الاسم بالعربية')] ] || row['الاسم بالعربية'] || row['product'] || '').trim() || 'غير متاح',
+        primaryName: valueByAliases(row, primaryAliases, ''), // <--- robust extraction
+        category: (row[ headerMap[normalizeKey('الفئة')] ] || row['الفئة'] || row['category'] || '').trim() || '',
+        brand: (row[ headerMap[normalizeKey('اسم العلامة التجارية')] ] || row['اسم العلامة التجارية'] || row['brand'] || '').trim() || '',
+        originalPrice,
+        currentPrice,
+        discount,
+        promotion: (row[ headerMap[normalizeKey('العبارة الترويجية')] ] || row['العبارة الترويجية'] || row['promotion'] || '').trim() || '',
+        rawPeriod: (row[ headerMap[normalizeKey('فترة سريان العرض')] ] || row['فترة سريان العرض'] || row['validUntil'] || '').trim() || '',
+        pageNo: row[ headerMap[normalizeKey('pageNo')] ] || row['pageNo'] || row['page_no'] || '',
+        solution_key: row[ headerMap[normalizeKey('solution_key')] ] || row['solution_key'] || row['solution key'] || '',
+        currency: (row[ headerMap[normalizeKey('العملة')] ] || row['العملة'] || row['currency'] || 'EGP').trim(),
+        unit: (row[ headerMap[normalizeKey('الوحدة')] ] || row['الوحدة'] || row['unit'] || '').trim()
+      };
     });
 
-    track.appendChild(fragment.cloneNode(true));
-    track.appendChild(fragment.cloneNode(true));
-
-    requestAnimationFrame(()=>{
-      const viewport = document.getElementById('ticker-viewport');
-      const trackWidth = track.scrollWidth;
-      const viewportWidth = viewport.clientWidth || 600;
-      const speed = 80;
-      const duration = Math.max(8, Math.round(trackWidth / speed));
-      track.style.setProperty('--ticker-duration', duration + 's');
-      track.classList.add('animate');
-    });
-  } catch (error) {
-    console.error('Error in populateTicker:', error);
+    // Log a few mapped rows to verify
+    console.info('Mapped sample rows:', mapped.slice(0,3));
+    return mapped;
+  } catch (err) {
+    console.error('loadDataFromExcelOrCSV error:', err);
+    throw err;
   }
 }
+      function computeSavedAndDiscount(arr){
+        arr.forEach(item=>{
+          const orig = Number(item.originalPrice) || 0;
+          const curr = Number(item.currentPrice) || 0;
+          let saved = 0;
+          if (orig > 0 && curr > 0) saved = orig - curr;
+          else if (orig > 0 && item.discount) saved = orig * (Number(item.discount)/100);
+          else if (curr > 0 && item.discount) saved = curr * (Number(item.discount)/100);
+          item._saved = Math.max(0, Number((saved||0).toFixed(2)));
+          item._discount_pct = (item.discount && !isNaN(item.discount)) ? Number(item.discount) : (orig>0 && curr>0 ? Math.round(((orig-curr)/orig)*100) : 0);
+        });
+      }
 
-/* Render products grid */
-function renderProductsGrid() {
-  try {
-    const grid = document.getElementById('products-grid');
-    grid.innerHTML = '';
-    grid.style.gridTemplateColumns = 'repeat(auto-fill, minmax(280px, 1fr))';
-    
-    const start = (currentPage-1)*itemsPerPage;
-    const pageData = filteredData.slice(start, start+itemsPerPage);
-    
-    if (pageData.length === 0) {
-      grid.innerHTML = `
-        <div style="grid-column: 1/-1; text-align: center; padding: 40px; color: #666;">
-          <i class="fas fa-search" style="font-size: 3rem; margin-bottom: 20px; opacity: 0.3;"></i>
-          <h3>لا توجد عروض مطابقة</h3>
-          <p>حاول استخدام مصطلحات بحث مختلفة أو إزالة بعض الفلاتر</p>
-          ${activeChipFilter === 'recent' ? '<p style="color: var(--purple); margin-top: 10px;"><i class="fas fa-info-circle"></i> ملاحظة: فلتر "أحدث العروض" يبحث عن المنتجات في أحدث تاريخين في البيانات</p>' : ''}
-        </div>
-      `;
-      return;
-    }
-    
-    pageData.forEach(item => {
-      try {
-        const card = document.createElement('div');
-        card.className = 'product-card';
-        
-        const isFavorite = favorites.includes(item.product);
-        const isInComparison = comparisonItems.some(i => i.product === item.product);
-        
-        let productIcon = 'fa-box';
-        if (item.category) {
-          const category = String(item.category || '').toLowerCase();
-          if (category.includes('غذائي') || category.includes('طعام')) productIcon = 'fa-utensils';
-          else if (category.includes('مشروب')) productIcon = 'fa-wine-bottle';
-          else if (category.includes('تنظيف')) productIcon = 'fa-soap';
-          else if (category.includes('صحي')) productIcon = 'fa-heart';
-        }
-        
-        let countdownHtml = '';
-          const now = new Date();
-          const diffDays = Math.ceil((item._date - now) / (1000 * 60 * 60 * 24));
-          if (diffDays <= 7 && diffDays >= 0) {
-            countdownHtml = `<div class="countdown"><i class="fas fa-clock"></i> ${diffDays} يوم متبقي</div>`;
+      function computeCombinedScore(arr){
+        if(!arr || !arr.length) return;
+        const savedVals = arr.map(i=>i._saved||0), pctVals = arr.map(i=>i._discount_pct||0);
+        const maxSaved = Math.max(...savedVals,0), minSaved = Math.min(...savedVals,0);
+        const maxPct = Math.max(...pctVals,0), minPct = Math.min(...pctVals,0);
+        const savedRange = (maxSaved - minSaved) || 1;
+        const pctRange = (maxPct - minPct) || 1;
+        arr.forEach(item=>{
+          const ns = ((item._saved||0)-minSaved)/savedRange;
+          const np = ((item._discount_pct||0)-minPct)/pctRange;
+          item._score = Math.max(ns, np);
+        });
+      }
+
+      async function fetchData(){
+        showLoadingMessage();
+        try {
+          // try cache
+          const cached = localStorage.getItem(CACHE_KEY);
+          const cachedTime = Number(localStorage.getItem(CACHE_KEY + '_time') || 0);
+          if (cached && (Date.now() - cachedTime) < CACHE_EXPIRY) {
+            try {
+              const decompressed = LZString.decompressFromUTF16(cached);
+              const parsed = JSON.parse(decompressed);
+              if (Array.isArray(parsed) && parsed.length) {
+                allData = parsed;
+              }
+            } catch(e){
+              console.warn('cache read failed', e);
+            }
           }
-        
-        
-        let marketIcon = 'fa-store';
-        if (item.supermarket) {
-          const market = String(item.supermarket || '').toLowerCase();
-          if (market.includes('كارفور')) marketIcon = 'fa-shopping-cart';
-          else if (market.includes('هايبر')) marketIcon = 'fa-store-alt';
-        }
-        
-        // إضافة علامة "جديد" للمنتجات الحديثة
-        let newBadge = '';
-        
-const newestDateObj = latestTwoDates.length
-  ? new Date(latestTwoDates[0])
-  : null;
+          if (!allData || !allData.length) {
+            allData = await loadDataFromExcelOrCSV();
+            try {
+              localStorage.setItem(CACHE_KEY, LZString.compressToUTF16(JSON.stringify(allData)));
+              localStorage.setItem(CACHE_KEY + '_time', String(Date.now()));
+            } catch(e){ console.warn('cache save failed', e); }
+          }
 
-
-  if (diffDays >= 0 && diffDays <= 1) {
-    newBadge = '<div class="product-badge">حديث</div>';
-  }
-}
-
-        newBadge = '<div class="product-badge" style="background: var(--purple);"><i class="fas fa-star"></i> حديث</div>';
-        }
-        
-        // Add "Best Deal" badge for top combined offers
-        let bestDealBadge = '';
-        const sortBy = document.getElementById('sort-by').value;
-        if (sortBy === 'best-deals' && pageData.indexOf(item) < 3 && (item._discount_pct > 30 || item._saved > 20)) {
-          bestDealBadge = '<div class="product-badge" style="background: linear-gradient(135deg, #FF6B00, #FF0000);"><i class="fas fa-crown"></i> أفضل عرض</div>';
-        }
-        
-        card.innerHTML = `
-          ${bestDealBadge}
-          ${item._discount_pct > 50 ? '<div class="product-badge"><i class="fas fa-fire"></i> عروض ساخنة</div>' : ''}
-          ${newBadge}
-          <div class="favorite-btn ${isFavorite ? 'active' : ''}" data-id="${item.product}">
-            <i class="fas fa-heart"></i>
-          </div>
-          <div class="compare-btn ${isInComparison ? 'active' : ''}" data-id="${item.product}">
-            <i class="fas fa-balance-scale"></i>
-          </div>
-          <div class="share-btn" title="مشاركة هذا العرض">
-            <i class="fas fa-share-alt"></i>
-          </div>
-          <div class="product-image">
-            <i class="fas ${productIcon}"></i>
-          </div>
-          <div class="product-info">
-            <h3 class="product-title">${item.product || 'غير متاح'}</h3>
-            ${item.primaryName ? `<div style="font-size: 0.9rem; color: #666; margin-bottom: 5px;">${item.primaryName}</div>` : ''}
-            ${item.unit ? `<div class="product-unit"><i class="fas fa-weight"></i> ${item.unit}</div>` : ''}
-            <div class="price-container">
-              <div style="display: flex; flex-direction: column; gap: 3px;">
-                <span class="current-price">${item.currentPrice ? `${item.currentPrice} ${item.currency||'EGP'}` : 'غير متاح'}</span>
-                ${item._saved > 0 ? `<span style="font-size: 0.9rem; color: var(--success-green); font-weight: 600;"><i class="fas fa-coins"></i> وفر ${item._saved} ${item.currency||'EGP'}</span>` : ''}
-              </div>
-              ${item._discount_pct ? `<span class="discount-badge pulse">-${item._discount_pct}%</span>` : ''}
-            </div>
-            <div class="product-meta">
-              <div class="supermarket-logo">
-                <i class="fas ${marketIcon}"></i>
-                <span>${item.supermarket || 'غير متاح'}</span>
-              </div>
-              ${countdownHtml}
-            </div>
-            ${activeChipFilter === 'recent' && (item._date) ? `
-              <div style="font-size: 0.8rem; color: var(--purple); margin-top: 10px; padding: 5px; background: rgba(111, 66, 193, 0.1); border-radius: 5px;">
-                <i class="fas fa-calendar-alt"></i> ${formatItemDate(item)
-? ${formatItemDate(item)
- ? `التاريخ: ${formatDateShort(item._date)}` : 'التاريخ غير متاح'}
-
-              </div>
-            ` : ''}
-            <div class="action-buttons">
-              <button class="btn btn-secondary view-details-btn" data-id="${item.product}">
-                <i class="fas fa-eye"></i> تفاصيل
-              </button>
-              <button class="btn btn-primary buy-now-btn" data-id="${item.product}">
-                <i class="fas fa-shopping-cart"></i> شراء الآن
-              </button>
-            </div>
-          </div>
-        `;
-        
-        grid.appendChild(card);
-      } catch (itemError) {
-        console.error('Error rendering product card:', itemError, item);
-      }
-    });
-    
-    attachCardEventListeners();
-    updatePagination();
-  } catch (error) {
-    console.error('Error in renderProductsGrid:', error);
-  }
-}
-
-function attachCardEventListeners() {
-  try {
-    document.querySelectorAll('.favorite-btn').forEach(btn => {
-      btn.addEventListener('click', function(e) {
-        e.stopPropagation();
-        const productId = this.dataset.id;
-        toggleFavorite(productId);
-        this.classList.toggle('active');
-      });
-    });
-    
-    document.querySelectorAll('.compare-btn').forEach(btn => {
-      btn.addEventListener('click', function(e) {
-        e.stopPropagation();
-        const productId = this.dataset.id;
-        toggleComparison(productId);
-        this.classList.toggle('active');
-      });
-    });
-    
-    document.querySelectorAll('.view-details-btn').forEach(btn => {
-      btn.addEventListener('click', function(e) {
-        e.stopPropagation();
-        const productId = this.dataset.id;
-        const product = allData.find(p => p.product === productId);
-        if (product) {
-          let details = `
-            <strong>اسم ملف الفلاير:</strong> ${product.pageNo || 'غير متاح'}<br>
-            <strong>اسم المنتج:</strong> ${product.product || 'غير متاح'}<br>
-            <strong>الاسم الأساسي:</strong> ${product.primaryName || 'غير متاح'}<br>
-            <strong>الوحدة:</strong> ${product.unit || 'غير متاح'}<br>
-            <strong>السوبرماركت:</strong> ${product.supermarket || 'غير متاح'}<br>
-            <strong>الفئة:</strong> ${product.category || 'غير متاح'}<br>
-            <strong>العلامة التجارية:</strong> ${product.brand || 'غير متاح'}<br>
-            <strong>السعر الحالي:</strong> ${product.currentPrice ? `${product.currentPrice} ${product.currency||'EGP'}` : 'غير متاح'}<br>
-            <strong>الخصم:</strong> ${product._discount_pct ? `${product._discount_pct}%` : 'غير متاح'}<br>
-            <strong>التوفير:</strong> ${product._saved ? `${product._saved} ${product.currency||'EGP'}` : 'غير متاح'}<br>
-            <strong>ساري حتى:</strong> ${product._date || 'غير متاح'}<br>
-            ${product._date? `<strong>تاريخ التحديث:</strong> ${formatDateShort(product._date)}<br>` : ''}
-          `;
-          alert(details);
-        }
-      });
-    });
-    
-    document.querySelectorAll('.buy-now-btn').forEach(btn => {
-      btn.addEventListener('click', function(e) {
-        e.stopPropagation();
-        const productId = this.dataset.id;
-        const product = allData.find(p => p.product === productId);
-        if (product && product.solution_key) {
-          const url = `https://www.yabalashoffers.com/flyer.php?d=${encodeURIComponent(product.solution_key)}&c=eg`;
-
-//          alert (product.pageNo || 'producttttttttt');
-  //        alert (item.pageNo || 'itemmmmmmmm');
-//          const flyerCurrency = product.currency || '';
-//          const flyerFileName = product.solution_key || '';
-          const flyerPageNo= product.pageNo.indexOf("page_") || '';
-          const flyerFileName =  product.pageNo.substring(flyerPageNo);
-          
-
-          openWithOverlay(url, flyerFileName);
-        }
-      });
-    });
-    
-    document.querySelectorAll('.share-btn').forEach(btn => {
-      btn.addEventListener('click', function(e) {
-        e.stopPropagation();
-        const card = this.closest('.product-card');
-        const productName = card.querySelector('.product-title').textContent;
-        const price = card.querySelector('.current-price').textContent;
-        
-        if (navigator.share) {
-          navigator.share({
-            title: `عرض مميز: ${productName}`,
-            text: `اكتشف هذا العرض: ${productName} بسعر ${price}`,
-            url: window.location.href,
+          // normalize dates
+          allData.forEach(i=>{
+            i._date = (function(){
+              // try various fields
+              const fields = [i['updateDate'], i['date'], i['rawPeriod'], i['rawPeriod'] || i['rawPeriod'], i.rawPeriod, i.validUntil, i.rawPeriod];
+              if(i.rawPeriod) fields.unshift(i.rawPeriod);
+              // try parseEndDate on rawPeriod
+              if (i.rawPeriod) {
+                const d = parseEndDate(i.rawPeriod);
+                if (d) return d;
+              }
+              // try explicit date fields
+              if (i._date) { const d = new Date(i._date); if(isValidDate(d)) return stripTime(d); }
+              if (i.date) { const d = new Date(i.date); if(isValidDate(d)) return stripTime(d); }
+              return null;
+            })();
           });
-        } else {
-          navigator.clipboard.writeText(`عرض مميز: ${productName} بسعر ${price} - ${window.location.href}`);
-          alert('تم نسخ تفاصيل العرض! شاركه مع أصدقائك.');
+
+          computeSavedAndDiscount(allData);
+          computeCombinedScore(allData);
+
+          // compute latestTwoDates set
+          const dates = [...new Set(allData.filter(x=>x._date instanceof Date).map(x=>formatDateShort(x._date)))].sort().reverse();
+          latestTwoDates = dates.slice(0,2);
+
+          // Step 6 — cache newest date ONCE
+let newestDateObj = null;
+
+if (Array.isArray(latestTwoDates) && latestTwoDates.length > 0) {
+  const d = new Date(latestTwoDates[0]);
+  if (!isNaN(d)) {
+    d.setHours(0,0,0,0); // normalize
+    newestDateObj = d;
+  }
+}
+
+          
+          dataLoaded = true;
+          initializeFilters();
+          applyAllFilters();
+          populateTicker();
+        } catch(err){
+          console.error('fetchData error', err);
+          alert('فشل تحميل البيانات: ' + (err.message || err));
+        } finally {
+          hideLoadingMessage();
         }
-      });
-    });
-  } catch (error) {
-    console.error('Error in attachCardEventListeners:', error);
-  }
-}
-
-function toggleFavorite(productId) {
-  try {
-    const index = favorites.indexOf(productId);
-    if (index === -1) {
-      favorites.push(productId);
-    } else {
-      favorites.splice(index, 1);
-    }
-    localStorage.setItem('favorites', JSON.stringify(favorites));
-  } catch (error) {
-    console.error('Error in toggleFavorite:', error);
-  }
-}
-
-/* Render table */
-function renderTable(){
-  try {
-    const tbody = document.getElementById('table-body');
-    tbody.innerHTML = '';
-    const start = (currentPage-1)*itemsPerPage;
-    const pageData = filteredData.slice(start, start+itemsPerPage);
-    
-    if (pageData.length === 0) {
-      tbody.innerHTML = `
-        <tr>
-          <td colspan="10" style="text-align: center; padding: 40px; color: #666;">
-            <i class="fas fa-search" style="font-size: 2rem; margin-bottom: 10px; opacity: 0.3; display: block;"></i>
-            <h3 style="margin: 0 0 10px 0;">لا توجد عروض مطابقة</h3>
-            <p style="margin: 0;">حاول استخدام مصطلحات بحث مختلفة أو إزالة بعض الفلاتر</p>
-            ${activeChipFilter === 'recent' ? '<p style="color: var(--purple); margin-top: 10px;"><i class="fas fa-info-circle"></i> ملاحظة: فلتر "أحدث العروض" يبحث عن المنتجات في أحدث تاريخين في البيانات</p>' : ''}
-          </td>
-        </tr>
-      `;
-      updatePagination();
-      return;
-    }
-    
-    pageData.forEach(item=>{
-      try {
-        const tr = document.createElement('tr');
-        const url = item.solution_key ? `https://www.yabalashoffers.com/flyer.php?d=${encodeURIComponent(item.solution_key)}&c=eg` : '#';
-//        const flyerFileName = item.solution_key || '';
- 
-        const flyerPageNo= item.pageNo.indexOf("page_") || '';
-        const flyerFileName =  item.pageNo.substring(flyerPageNo);
-       
-        if(url && url!=='#'){ 
-          tr.style.cursor='pointer'; 
-          tr.title='انقر لزيارة صفحة العرض'; 
-          tr.onclick = ()=>{ openWithOverlay(url, flyerFileName); };
-        }
-
-        if(item._discount_pct && item._discount_pct >= 20) tr.classList.add('highlight');
-        if(activeChipFilter === 'recent') tr.style.borderLeft = '3px solid var(--purple)';
-        
-        tr.innerHTML = `
-          <td>${item.supermarket || 'غير متاح'}</td>
-          <td><strong>${item.product || 'غير متاح'}</strong></td>
-          <td>${item.primaryName || 'غير متاح'}</td>
-          <td>${item.unit ? `<span class="unit-badge">${item.unit}</span>` : 'غير متاح'}</td>
-          <td>${item.category || 'غير متاح'}</td>
-          <td>${item.brand || 'غير متاح'}</td>
-          <td><strong style="color: var(--primary-blue);">${item.currentPrice ? item.currentPrice + ' ' + (item.currency||'EGP') : 'غير متاح'}</strong></td>
-          <td>${item._discount_pct ? `<span class="discount-badge" style="display: inline-block; padding: 3px 8px; background: var(--danger-red); color: white; border-radius: 4px; font-weight: 700;">${item._discount_pct}%</span>` : 'غير متاح'}</td>
-          <td>${item._saved ? `<span style="color: var(--success-green); font-weight: 600;">${item._saved} ${item.currency||'EGP'}</span>` : 'غير متاح'}</td>
-          <td>${formatItemDate(item)|| 'غير متاح'}</td>
-        `;
-        tbody.appendChild(tr);
-      } catch (itemError) {
-        console.error('Error rendering table row:', itemError, item);
-      }
-    });
-    updatePagination();
-  } catch (error) {
-    console.error('Error in renderTable:', error);
-  }
-}
-
-/* Open overlay with specific message */
-function openWithOverlay(url, flyerFileName) {
-  try {
-    const newWin = window.open('', '_blank');
-    if (newWin) {
-      newWin.document.write(`
-        <!DOCTYPE html>
-        <html lang="ar" dir="rtl">
-        <head>
-          <meta charset="utf-8">
-          <title>عرض المنتج</title>
-          <style>
-            body { margin: 0; padding: 0; overflow: hidden; font-family: 'Cairo', sans-serif; }
-            iframe { width: 100vw; height: 100vh; border: none; }
-            .overlay { 
-              position: fixed; 
-              top: 20px; 
-              left: 50%; 
-              transform: translateX(-50%); 
-              background: rgba(255, 255, 255, 0.95); 
-              padding: 15px 25px; 
-              border-radius: 8px; 
-              box-shadow: 0 4px 15px rgba(0,0,0,0.2); 
-              z-index: 9999; 
-              font-size: 1.1rem; 
-              color: #333; 
-              display: flex; 
-              align-items: center; 
-              gap: 10px; 
-              animation: slideDown 0.3s ease-out;
-            }
-            .overlay button { 
-              background: #00539F; 
-              color: white; 
-              border: none; 
-              padding: 8px 15px; 
-              border-radius: 5px; 
-              cursor: pointer; 
-              font-weight: 600; 
-            }
-            .overlay button:hover { background: #004080; }
-            @keyframes slideDown {
-              from { top: -100px; opacity: 0; }
-              to { top: 20px; opacity: 1; }
-            }
-          </style>
-          <script>
-            window.addEventListener('load', function() {
-              setTimeout(function() {
-                document.getElementById('guide-overlay').style.display = 'flex';
-              }, 1000);
-            });
-          <\/script>
-        </head>
-        <body>
-          <iframe src="${url}" onload="document.getElementById('guide-overlay').style.display='flex';"></iframe>
-          <div class="overlay" id="guide-overlay" style="display: none;">
-            اضغط على الصورة رقم ${flyerFileName || ''}
-            <button onclick="document.getElementById('guide-overlay').style.display='none';">حسناً</button>
-          </div>
-        </body>
-        </html>
-      `);
-      newWin.document.close();
-    } else {
-      window.open(url, '_blank');
-    }
-  } catch (error) {
-    console.error('Error in openWithOverlay:', error);
-    window.open(url, '_blank');
-  }
-}
-
-function updatePagination(){
-  try {
-    const pagination = document.getElementById('pagination');
-    pagination.innerHTML = '';
-    const totalPages = Math.max(1, Math.ceil(filteredData.length / itemsPerPage));
-    
-    if (totalPages <= 1) return;
-    
-    const btn = (text, disabled, onClick) => { 
-      const b = document.createElement('button'); 
-      b.textContent = text; 
-      b.disabled = !!disabled; 
-      b.addEventListener('click', onClick); 
-      return b; 
-    };
-    
-    pagination.appendChild(btn('الأولى', currentPage===1, ()=>{ currentPage=1; renderContent(); }));
-    pagination.appendChild(btn('السابق', currentPage===1, ()=>{ if(currentPage>1){ currentPage--; renderContent(); }}));
-    
-    const pageNumbers = document.createElement('div'); 
-    pageNumbers.style.display='flex'; 
-    pageNumbers.style.gap='6px'; 
-    pageNumbers.style.overflowX='auto';
-    
-    const pagesToShow = new Set([1, totalPages]);
-    for (let i = Math.max(1, currentPage - 2); i <= Math.min(totalPages, currentPage + 2); i++) {
-      pagesToShow.add(i);
-    }
-    
-    let prevPage = 0;
-    Array.from(pagesToShow).sort((a, b) => a - b).forEach(i => {
-      if (i - prevPage > 1) {
-        const ellipsis = document.createElement('span');
-        ellipsis.textContent = '...';
-        ellipsis.style.padding = '0 10px';
-        ellipsis.style.color = '#666';
-        ellipsis.style.display = 'flex';
-        ellipsis.style.alignItems = 'center';
-        pageNumbers.appendChild(ellipsis);
       }
       
-      const p = document.createElement('button'); 
-      p.textContent = i;
-      if(i===currentPage){ 
-        p.style.background = 'var(--primary-blue)'; 
-        p.style.color='white'; 
-        p.style.borderColor = 'var(--primary-blue)';
-      }
-      p.addEventListener('click', ()=>{ currentPage=i; renderContent(); });
-      pageNumbers.appendChild(p);
-      prevPage = i;
-    });
-    
-    pagination.appendChild(pageNumbers);
-    pagination.appendChild(btn('التالي', currentPage===totalPages, ()=>{ if(currentPage<totalPages){ currentPage++; renderContent(); }}));
-    pagination.appendChild(btn('الأخيرة', currentPage===totalPages, ()=>{ currentPage=totalPages; renderContent(); }));
-  } catch (error) {
-    console.error('Error in updatePagination:', error);
-  }
-}
-
-  function renderPagination() {
-  const totalPages = Math.ceil(filteredData.length / ITEMS_PER_PAGE);
-  const el = document.getElementById('pagination');
-  el.innerHTML = '';
-
-  if (totalPages <= 1) return;
-
-  for (let i = 1; i <= totalPages; i++) {
-    const btn = document.createElement('button');
-    btn.textContent = i;
-    btn.className = i === currentPage ? 'active' : '';
-    btn.onclick = () => {
-      currentPage = i;
-      renderContent();
-    };
-    el.appendChild(btn);
-  }
-}
-
-  
-function renderContent() {
-  const container = document.getElementById('products-container');
-  container.innerHTML = '';
-
-  const pageData = getPagedData();
-
-  if (pageData.length === 0) {
-    container.innerHTML = '<div class="no-results">لا توجد نتائج</div>';
-    renderPagination();
-    return;
-  }
-
-  pageData.forEach(item => {
-    container.insertAdjacentHTML('beforeend', renderItemCard(item));
-  });
-
-  renderPagination();
-}
-
-
-/* Stats */
-function updateStats(){
-  try {
-    document.getElementById('total-offers').textContent = filteredData.length.toLocaleString();
-    
-    const discounts = filteredData.filter(i=>i._discount_pct).map(i=>i._discount_pct);
-    const avgDiscount = discounts.length ? Math.round(discounts.reduce((a,b)=>a+b,0)/discounts.length) : 0;
-    document.getElementById('avg-discount').textContent = `${avgDiscount}%`;
-    
-    const hotDeals = filteredData.filter(i=>i._discount_pct > 30).length;
-    document.getElementById('hot-deals').textContent = hotDeals.toLocaleString();
-    
-    const now = new Date();
-    const endingSoon = filteredData.filter(i => {
-   
-    document.getElementById('ending-soon').textContent = endingSoon.toLocaleString();
-    
-    const uniqueSupermarkets = [...new Set(filteredData.map(item => item.supermarket).filter(Boolean))].length;
-    document.getElementById('total-supermarkets').textContent = uniqueSupermarkets.toLocaleString();
-  } catch (error) {
-    console.error('Error in updateStats:', error);
-  }
-}
-
-/* Autocomplete */
-function clearAutocomplete(){
-  const list = document.getElementById('autocomplete-list');
-  if(list) list.remove();
-}
-
-function showAutocomplete(){
-  try {
-    clearAutocomplete();
-    const val = document.getElementById('search-input').value.trim().toLowerCase();
-    if(!val) return;
-    const list = document.createElement('div');
-    list.id = 'autocomplete-list';
-    document.body.appendChild(list);
-    const suggestions = [...new Set(allData.map(i=>i.product).concat(allData.map(i=>i.primaryName||'')))]
-      .filter(s=>s && String(s).toLowerCase().includes(val)).slice(0,8);
-    suggestions.forEach(s=>{
-      const d = document.createElement('div');
-      d.textContent = s;
-      d.style.padding='12px 16px';
-      d.style.cursor='pointer';
-      d.style.borderBottom='1px solid #f0f0f0';
-      d.addEventListener('click', ()=>{
-        document.getElementById('search-input').value = s;
-        clearAutocomplete();
-        debouncedApplyAllFilters();
-      });
-      d.addEventListener('mouseenter', () => d.style.background='#f8f9fa');
-      d.addEventListener('mouseleave', () => d.style.background='white');
-      list.appendChild(d);
-    });
-    const rect = document.getElementById('search-input').getBoundingClientRect();
-    list.style.left = `${Math.max(8, rect.left + window.scrollX)}px`;
-    list.style.top = `${rect.bottom + window.scrollY}px`;
-    list.style.minWidth = `${rect.width}px`;
-  } catch (error) {
-    console.error('Error in showAutocomplete:', error);
-  }
-}
-
-const debouncedApplyAllFilters = debounce(()=>applyAllFilters(), 250);
-
-/* Price controls wiring and helpers */
-function parseNumberInput(el){
-  try {
-    const v = parseFloat(el.value);
-    return isFinite(v) ? v : NaN;
-  } catch {
-    return NaN;
-  }
-}
-
-function adjustNumberInput(el, delta){
-  try {
-    const step = parseFloat(el.step) || 1;
-    const cur = parseNumberInput(el);
-    const base = isNaN(cur) ? 0 : cur;
-    const next = Math.max(0, +(base + delta * step).toFixed(2));
-    el.value = next;
-    debouncedApplyAllFilters();
-  } catch (error) {
-    console.error('Error in adjustNumberInput:', error);
-  }
-}
-
-function normalizeMinMax(minEl, maxEl){
-  try {
-    const minV = parseNumberInput(minEl);
-    const maxV = parseNumberInput(maxEl);
-    if(!isNaN(minV) && !isNaN(maxV) && minV > maxV){
-      const tmp = minEl.value;
-      minEl.value = maxEl.value;
-      maxEl.value = tmp;
-    }
-  } catch (error) {
-    console.error('Error in normalizeMinMax:', error);
-  }
-}
-
-function wirePriceControls(){
-  try {
-    const minEl = document.getElementById('min-price');
-    const maxEl = document.getElementById('max-price');
-    const minDec = document.getElementById('min-decrease');
-    const minInc = document.getElementById('min-increase');
-    const maxDec = document.getElementById('max-decrease');
-    const maxInc = document.getElementById('max-increase');
-
-    minDec.addEventListener('click', ()=>{ adjustNumberInput(minEl, -1); });
-    minInc.addEventListener('click', ()=>{ adjustNumberInput(minEl, +1); });
-    maxDec.addEventListener('click', ()=>{ adjustNumberInput(maxEl, -1); });
-    maxInc.addEventListener('click', ()=>{ adjustNumberInput(maxEl, +1); });
-
-    ['input','change','keyup'].forEach(evt=>{
-      minEl.addEventListener(evt, ()=>{
-        normalizeMinMax(minEl, maxEl);
-        debouncedApplyAllFilters();
-      });
-      maxEl.addEventListener(evt, ()=>{
-        normalizeMinMax(minEl, maxEl);
-        debouncedApplyAllFilters();
-      });
-    });
-
-    minEl.addEventListener('blur', ()=>{ if(parseNumberInput(minEl) < 0 || isNaN(parseNumberInput(minEl))) minEl.value=''; debouncedApplyAllFilters(); });
-    maxEl.addEventListener('blur', ()=>{ if(parseNumberInput(maxEl) < 0 || isNaN(parseNumberInput(maxEl))) maxEl.value=''; debouncedApplyAllFilters(); });
-  } catch (error) {
-    console.error('Error in wirePriceControls:', error);
-  }
-}
-
-/* Initialize filters and event wiring */
-function initializeFilters(){
-  try {
-    const supermarketSelect = document.getElementById('supermarket-filter');
-    supermarketSelect.innerHTML = '<option value="">كل السوبر ماركت</option>';
-    let supermarkets = [...new Set(allData.map(i=>i.supermarket))].filter(Boolean);
-    
-    supermarkets.sort((a, b) => {
-      const strA = String(a || '');
-      const strB = String(b || '');
-      return strA.localeCompare(strB, 'ar');
-    });
-    
-    supermarkets.forEach(s=>{ 
-      const o=document.createElement('option'); 
-      o.value=s; 
-      o.textContent=String(s || ''); 
-      supermarketSelect.appendChild(o); 
-    });
-
-    const categorySelect = document.getElementById('category-filter');
-    categorySelect.innerHTML = '<option value="">كل الفئات</option>';
-    let categories = [...new Set(allData.map(i=>i.category))].filter(Boolean);
-    
-    categories.sort((a, b) => {
-      const strA = String(a || '');
-      const strB = String(b || '');
-      return strA.localeCompare(strB, 'ar');
-    });
-    
-    categories.forEach(c=>{ 
-      const o=document.createElement('option'); 
-      o.value=c; 
-      o.textContent=String(c || ''); 
-      categorySelect.appendChild(o); 
-    });
-
-    const brandSelect = document.getElementById('brand-filter');
-    brandSelect.innerHTML = '<option value="">كل العلامات</option>';
-    let brands = [...new Set(allData.map(i=>i.brand))].filter(Boolean);
-    
-    brands.sort((a, b) => {
-      const strA = String(a || '');
-      const strB = String(b || '');
-      return strA.localeCompare(strB, 'ar');
-    });
-    
-    brands.forEach(b=>{ 
-      const o=document.createElement('option'); 
-      o.value=b; 
-      o.textContent=String(b || ''); 
-      brandSelect.appendChild(o); 
-    });
-
-    const search = document.getElementById('search-input');
-    search.addEventListener('input', ()=>{ showAutocomplete(); debouncedApplyAllFilters(); });
-    search.addEventListener('keydown', (e)=>{ 
-      if(e.key === 'Enter'){ 
-        e.preventDefault(); 
-        clearAutocomplete(); 
-        applyAllFilters(); 
-      } 
-    });
-
-    document.addEventListener('click', (e)=>{
-      const list = document.getElementById('autocomplete-list');
-      const input = document.getElementById('search-input');
-      if(!list) return;
-      if(e.target.closest && (e.target.closest('#autocomplete-list') || e.target === input)) return;
-      clearAutocomplete();
-    });
-
-    supermarketSelect.addEventListener('change', debouncedApplyAllFilters);
-    categorySelect.addEventListener('change', debouncedApplyAllFilters);
-    brandSelect.addEventListener('change', debouncedApplyAllFilters);
-    document.getElementById('sort-by').addEventListener('change', debouncedApplyAllFilters);
-    document.getElementById('min-discount').addEventListener('input', debouncedApplyAllFilters);
-
-    document.getElementById('reset-btn').addEventListener('click', ()=>{ resetAllFilters(); });
-
-    wirePriceControls();
-  } catch (error) {
-    console.error('Error in initializeFilters:', error);
-    showError('حدث خطأ في تهيئة الفلاتر: ' + error.message);
-  }
-}
-
-/* Reset ALL filters */
-/* Reset ALL filters */
-function resetAllFilters(){
-  try {
-    document.getElementById('search-input').value='';
-    document.getElementById('supermarket-filter').value='';
-    document.getElementById('category-filter').value='';
-    document.getElementById('brand-filter').value='';
-    document.getElementById('min-discount').value='';
-    document.getElementById('min-price').value='';
-    document.getElementById('max-price').value='';
-    document.getElementById('sort-by').value='best-deals'; // Reset sort to default
-    
-    activeChipFilter = 'all';
-    document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
-    const allChip = document.querySelector('.chip[data-filter="all"]');
-    if (allChip) allChip.classList.add('active');
-    
-    applyAllFilters();
-  } catch (error) {
-    console.error('Error in resetAllFilters:', error);
-  }
-}
-
-/* Fetch and prepare data - UPDATED with combined sorting */
-async function fetchData() {
-  
-  console.table(
-  allData.slice(0, 10).map(i => ({
+      console.table(
+  allData.slice(0,5).map(i=>({
     product: i.product,
-    _date: i._date,
-    isDate: i._date instanceof Date
+    rawUpdate: i.updateDate,
+    rawValid: i.validUntil,
+    normalized: i._date
   }))
 );
 
-  
-  showLoadingMessage();
-
-  try {
-    // A) تحميل البيانات (مثال)
-    // استبدل هذا بكودك الفعلي للتحميل
-    allData = await loadDataFromExcelOrCSV();
-
-    if (!Array.isArray(allData)) {
-      throw new Error('Data is not an array');
-    }
-
-    // B) Normalize التاريخ — مرة واحدة فقط
-    allData.forEach(item => {
-      item._date = normalizeItemDate(item);
-    });
-
-    // C) حساب latestTwoDates من _date فقط
-    latestTwoDates = [...new Set(
-      allData
-        .filter(i => i._date instanceof Date)
-        .map(i => i._date.toISOString().slice(0, 10))
-    )].sort().reverse();
-
-  } catch (error) {
-    console.error('fetchData error:', error);
-    showError('حدث خطأ أثناء تحميل البيانات');
-  } finally {
-    hideLoadingMessage();
-  }
-
-  dataLoaded = true;
-
-  
-  console.table(
-  allData.slice(0, 10).map(i => ({
-    product: i.product,
-    _date: i._date,
-    isDate: i._date instanceof Date
-  }))
- );
-
-  
-  // D) تطبيق الفلاتر بعد اكتمال كل شيء
-  applyAllFilters();
-}
-
-/* Helper function to show errors */
-function showError(message) {
-  console.error('App Error:', message);
-  const errorDiv = document.createElement('div');
-  errorDiv.style.cssText = `
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    background: var(--danger-red);
-    color: white;
-    padding: 15px 20px;
-    border-radius: 8px;
-    z-index: 9999;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-    max-width: 400px;
-  `;
-  errorDiv.innerHTML = `
-    <strong><i class="fas fa-exclamation-triangle"></i> خطأ:</strong>
-    <p style="margin: 5px 0 0 0; font-size: 0.9rem;">${message}</p>
-  `;
-  document.body.appendChild(errorDiv);
-  
-  setTimeout(() => {
-    if (errorDiv.parentNode) {
-      errorDiv.parentNode.removeChild(errorDiv);
-    }
-  }, 5000);
-}
-
-/* Kick off */
-document.addEventListener('DOMContentLoaded', initApp);
-document.addEventListener('visibilitychange', ()=>{ 
-  if(!document.hidden && allData.length === 0){ 
-    fetchData(); 
-  } 
-});
-</script><!--    // Add this to your index.html script function checkUrlForSearch() { //     1. Get the URL parameters const urlParams = new    URLSearchParams(window.location.search); // 2. Look for the 'q' parameter we    set in the Carrefour page const query = urlParams.get('q'); // 3. If found,    put it in the search box and trigger the search if (query) { const    searchInput = document.getElementById('search-input'); if (searchInput) { //    Set the value searchInput.value = decodeURIComponent(query); // Trigger the    search logic (assuming you have this function from your previous code) // If    you are using the 'applyAllFilters' function from your provided index.html:    if (typeof applyAllFilters === 'function') { applyAllFilters(); } } } } //    Call this function when the page loads    document.addEventListener('DOMContentLoaded', checkUrlForSearch); -->
-    <script>
-/**
- * Catch search query from URL (e.g., ?q=milk) 
- * and apply it to the AI page search bar automatically.
- */
-function handleUrlSearch() {
-    // 1. Parse the URL parameters
-    const urlParams = new URLSearchParams(window.location.search);
-    const query = urlParams.get('q');
-
-    if (query) {
-        // 2. Find the search input in your index.html
-        const searchInput = document.getElementById('search-input');
-        
-        if (searchInput) {
-            // 3. Set the text in the box
-            searchInput.value = decodeURIComponent(query);
-            
-            // 4. Trigger the search logic
-            // We wait a tiny bit to ensure the data has finished loading
-          <!--   setTimeout(() => {  if (typeof applyAllFilters === 'function') {      applyAllFilters();  } else { // Fallback: trigger an 'input' event so existing listeners catch it      searchInput.dispatchEvent(new Event('input', { bubbles: true })); }   }, 500); 
-        }
-    }
-}
-
-// Run the check as soon as the page is ready
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', handleUrlSearch);
-} else {
-    handleUrlSearch();
-}
-</script> <script>
-document.addEventListener("DOMContentLoaded", async () => {
-  await fetchData();      // البيانات أصبحت جاهزة
-  applyAllFilters();      // الآن فقط نفلتر
-});
-
-    const params = new URLSearchParams(window.location.search);
-  const market = params.get("market");
-
-  if (!market) return;
-
-  const select = document.getElementById("supermarket-filter");
-  if (!select) return;
-
-  select.value = market;
-
-  // لو عندك فلترة تلقائية
-  select.dispatchEvent(new Event("change"));
-});
-    
-<!-- </script>
-    <script>
-document.addEventListener("DOMContentLoaded", async () => {
-  await fetchData();      // البيانات أصبحت جاهزة
-  applyAllFilters();      // الآن فقط نفلتر
-});
-
-      const params = new URLSearchParams(window.location.search);
-  const percent = params.get("discount");
-
-  if (!percent) return;
-
-  const select = document.getElementById("min-discount");
-  if (!select) return;
-
-  select.value = percent;
-
-  // لو عندك فلترة تلقائية
-  select.dispatchEvent(new Event("change"));
-  
-<!--  applyAllFilters();  -->
-  
-});
-         
-  </script>
-    <!---&gt; document.querySelectorAll('.chip').forEach(chip =&gt; {    chip.addEventListener('click', () =&gt; {    document.querySelectorAll('.chip').forEach(c =&gt;    c.classList.remove('active')); chip.classList.add('active');    activeChipFilter = chip.dataset.filter; // Set supermarket filter for    specific chips const discount = document.getElementById('min-discount');    applyAllFilters(); }); -->
-    <script>
-document.addEventListener("DOMContentLoaded", async () => {
-  await fetchData();      // البيانات أصبحت جاهزة
-  applyAllFilters();      // الآن فقط نفلتر
-});
-
-      const params = new URLSearchParams(window.location.search);
-  const weekPercent = params.get("week_percent");
-
-  if (!Array.isArray(allItems) || allItems.length === 0) {
-    hideLoadingMessage(); // أو whatever hides "جارٍ تحميل البيانات"
-    return;
-}
-
-  
-  if (weekPercent) {
-    // 1. Set the Discount Percentage Input
-    const discountInput = document.getElementById("min-discount");
-    if (discountInput) {
-        discountInput.value = weekPercent;
-    }
-
-    // 2. Set the internal filter variable to our new 7-day mode
-    // Note: We are setting the global variable 'activeChipFilter' defined in your main script
-    fetchData().then(() => {
-    activeChipFilter = 'recent_extended';
- <!--   applyAllFilters();   -->
-   
-
-});
-
-
-    // 3. Set sorting to "Best Deals" (to satisfy "display best offers")
-    const sortSelect = document.getElementById("sort-by");
-    if(sortSelect) {
-        sortSelect.value = "best-deals";
-    }
-
-    // 4. Visual Feedback: Create a temporary visual "Chip" to show this mode is active
-    const chipsContainer = document.getElementById('filter-chips');
-    if(chipsContainer){
-        // Remove active class from others
-        document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
-        
-        // Add a temporary chip for UI clarity
-        const tempChip = document.createElement('button');
-        tempChip.className = 'chip active';
-        tempChip.innerHTML = '<i class="fas fa-calendar-week"></i> عروض الـ  7يوم';
-        // Insert it at the beginning
-        chipsContainer.insertBefore(tempChip, chipsContainer.firstChild);
-    }
-
-    // 5. Trigger the filter update
-    // We assume fetchData() will call applyAllFilters() when data loads.
-    // However, if data is already cached/loaded, we force an update.
-    if (dataLoaded === true) {
- <!--   applyAllFilters();   -->
       
-      document.getElementById('loading-message')?.style.display = 'none';
 
-}
+      /* Ticker population */
+      function populateTicker(){
+        try {
+          const track = document.getElementById('ticker-track');
+          track.innerHTML = '';
+          const maxSavings = Math.max(...allData.map(i => i._saved || 0), 1);
+          const top = [...allData].filter(i=>i._discount_pct>0).sort((a,b)=>{
+            const da = Math.min((a._discount_pct||0),100)/100;
+            const db = Math.min((b._discount_pct||0),100)/100;
+            const sa = (a._saved||0)/maxSavings;
+            const sb = (b._saved||0)/maxSavings;
+            const scoreA = da*WEIGHT_DISCOUNT + sa*WEIGHT_SAVINGS;
+            const scoreB = db*WEIGHT_DISCOUNT + sb*WEIGHT_SAVINGS;
+            return scoreB - scoreA;
+          }).slice(0,12);
 
-  }
+          if (!top.length) {
+            track.innerHTML = '<div class="ticker-item">لا توجد عروض مميزة حالياً</div>';
+            return;
+          }
+
+          const fragment = document.createDocumentFragment();
+          top.forEach(it=>{
+            const el = document.createElement('div');
+            el.className = 'ticker-item';
+            const name = it.product || 'منتج';
+            const market = it.supermarket || '';
+            const discount = it._discount_pct ? `${it._discount_pct}%` : '';
+            const saved = it._saved ? `${it._saved} ${it.currency||'EGP'}` : '';
+            el.innerHTML = `<span class="badge">${discount}</span> <span>${name}</span> <span style="opacity:.85">— ${market}</span> <span style="color:var(--ticker-accent); margin-inline-start:8px;">وفر ${saved}</span>`;
+            fragment.appendChild(el);
+          });
+
+          track.appendChild(fragment.cloneNode(true));
+          track.appendChild(fragment.cloneNode(true));
+
+          requestAnimationFrame(()=>{
+            const viewport = document.getElementById('ticker-viewport');
+            const trackWidth = track.scrollWidth;
+            const speed = 80;
+            const duration = Math.max(8, Math.round(trackWidth / speed));
+            track.style.setProperty('--ticker-duration', duration + 's');
+            track.classList.add('animate');
+          });
+
+        } catch(e){ console.error('populateTicker error', e); }
+      }
+
+      /* Filters / render */
+      function getInputs(){
+        return {
+          search: (document.getElementById('search-input')?.value || '').trim().toLowerCase(),
+          supermarket: document.getElementById('supermarket-filter')?.value || '',
+          category: document.getElementById('category-filter')?.value || '',
+          brand: document.getElementById('brand-filter')?.value || '',
+          minDiscount: parseFloat(document.getElementById('min-discount')?.value) || 0,
+          minPriceRaw: document.getElementById('min-price')?.value,
+          maxPriceRaw: document.getElementById('max-price')?.value,
+          sort: document.getElementById('sort-by')?.value || 'best-deals'
+        };
+      }
+
+      function applyAllFilters(){
+                                  
+                                  if (!dataLoaded) return;
+                                  
+        if(!dataLoaded){ console.warn('applyAllFilters called before dataLoaded'); return; }
+        try {
+          const inputs = getInputs();
+          const minPrice = inputs.minPriceRaw === '' ? 0 : (parseFloat(inputs.minPriceRaw) || 0);
+          const maxPrice = inputs.maxPriceRaw === '' ? Infinity : (parseFloat(inputs.maxPriceRaw) || Infinity);
+          filteredData = allData.filter(item=>{
+            try {
+              const price = Number(item.currentPrice) || 0;
+              if (price < minPrice || price > maxPrice) return false;
+              if ((item._discount_pct || 0) < inputs.minDiscount) return false;
+              if (inputs.supermarket && String(item.supermarket || '') !== inputs.supermarket) return false;
+              if (inputs.category && String(item.category || '') !== inputs.category) return false;
+              if (inputs.brand && String(item.brand || '') !== inputs.brand) return false;
+              if (inputs.search){
+                const hay = `${item.product || ''} ${item.primaryName || ''} ${item.brand || ''} ${item.supermarket || ''}.toLowerCase();
+                if (!hay.includes(inputs.search)) return false;
+              }
+              // chip-based simple handling (hot/discount/recent)
+              if (activeChipFilter === 'hot' && (item._discount_pct || 0) < 30) return false;
+              if (activeChipFilter === 'discount' && (item._discount_pct || 0) < 20) return false;
+              if (activeChipFilter === 'recent') {
+                if (!item._date) return false;
+                const dStr = formatDateShort(item._date);
+                if (!latestTwoDates.includes(dStr)) return false;
+              }
+              return true;
+            } catch(e){
+              console.error('filter item error', e, item);
+              return false;
+            }
+          });
+
+          // sorting
+          const sort = inputs.sort;
+          if (sort === 'best-deals') {
+            const maxSaved = Math.max(1, ...filteredData.map(i=>i._saved||0));
+            filteredData.sort((a,b)=>{
+              const da = Math.min((a._discount_pct||0),100)/100;
+              const db = Math.min((b._discount_pct||0),100)/100;
+              const sa = (a._saved||0)/maxSaved;
+              const sb = (b._saved||0)/maxSaved;
+              const scoreA = da*WEIGHT_DISCOUNT + sa*WEIGHT_SAVINGS;
+              const scoreB = db*WEIGHT_DISCOUNT + sb*WEIGHT_SAVINGS;
+              if (Math.abs(scoreB-scoreA) > 1e-6) return scoreB - scoreA;
+              return String(a.product||'').localeCompare(String(b.product||''), 'ar');
+            });
+          } else if (sort === 'discount-desc') {
+            filteredData.sort((a,b)=>(b._discount_pct||0)-(a._discount_pct||0));
+          } else if (sort === 'saved-desc') {
+            filteredData.sort((a,b)=>(b._saved||0)-(a._saved||0));
+          } else if (sort === 'price-asc') {
+            filteredData.sort((a,b)=>(a.currentPrice||0)-(b.currentPrice||0));
+          } else if (sort === 'price-desc') {
+            filteredData.sort((a,b)=>(b.currentPrice||0)-(a.currentPrice||0));
+          } else if (sort === 'name-asc') {
+            filteredData.sort((a,b)=>String(a.product||'').localeCompare(String(b.product||''), 'ar'));
+          } else if (sort === 'name-desc') {
+            filteredData.sort((a,b)=>String(b.product||'').localeCompare(String(a.product||''), 'ar'));
+          }
+
+          currentPage = 1;
+          renderContent();
+          updateStats();
+        } catch(e){
+          console.error('applyAllFilters failed', e);
+        }
+      }
+
+console.log({
+  newestDateObj,
+  sampleDate: allData.find(i => i._date)?._date
 });
-</script> <script>
-document.addEventListener("DOMContentLoaded", async () => {
-  await fetchData();      // البيانات أصبحت جاهزة
-  applyAllFilters();      // الآن فقط نفلتر
-});
 
-    const params = new URLSearchParams(window.location.search);
-  const percent2 = params.get("one_day");
-  if (percent2) {
-   
-    if (discountInput2) {
-        discountInput2.value = percent2;
-    }
-    // 2. Set the internal filter variable to our new day mode
-    // Note: We are setting the global variable 'activeChipFilter' defined in your main script
-    activeChipFilter = 'recent_day';
 
-    // 3. Set sorting to "Best Deals" (to satisfy "display best offers")
-    const sortSelect2 = document.getElementById("sort-by");
-    if(sortSelect2) {
-        sortSelect.value = "best-deals";
-    }
+      function getPagedData(){
+        const start = (currentPage - 1) * itemsPerPage;
+        return filteredData.slice(start, start + itemsPerPage);
+      }
 
-    // 4. Visual Feedback: Create a temporary visual "Chip" to show this mode is active
-    const chipsContainer2 = document.getElementById('filter-chips');
-    if(chipsContainer){
-        // Remove active class from others
+      /* render grid (simple robust implementation) */
+      function renderProductsGrid(){
+        try {
+          const grid = document.getElementById('products-grid');
+          grid.innerHTML = '';
+          grid.style.gridTemplateColumns = 'repeat(auto-fill, minmax(280px, 1fr))';
+          const pageData = getPagedData();
+          if (!pageData.length){
+            grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:40px;color:#666;">لا توجد عروض مطابقة</div>`;
+            updatePagination();
+            return;
+          }
+          pageData.forEach(item=>{
+            const card = document.createElement('div');
+            card.className = 'product-card';
+            if(item._discount_pct && item._discount_pct >= 20) card.classList.add('highlight');
+            // Basic card content (keeps UI simple and stable)
+            const bestBadge = (item._discount_pct && item._discount_pct > 40) ? `<div class="product-badge">أفضل عرض</div>` : '';
+            const savedHtml = item._saved ? `<div style="font-size:0.9rem;color:var(--success-green);font-weight:600;">وفر ${item._saved} ${item.currency||'EGP'}</div>` : '';
+            const countdownDays = item._date ? Math.ceil((item._date - new Date()) / (1000*60*60*24)) : null;
+            const countdownHtml = (countdownDays !== null && countdownDays >= 0 && countdownDays <=7) ? `<div class="countdown"><i class="fas fa-clock"></i> ${countdownDays} يوم متبقي</div>` : '';
+            card.innerHTML = `
+              ${bestBadge}
+              <div class="favorite-btn" data-id="${escapeHtml(item.product)}"><i class="fas fa-heart"></i></div>
+              <div class="product-image"><i class="fas fa-box"></i></div>
+              <div class="product-info">
+                <h3 class="product-title">${escapeHtml(item.product)}</h3>
+                ${item.primaryName ? `<div style="font-size:0.9rem;color:#666;margin-bottom:5px;">${escapeHtml(item.primaryName)}</div>` : ''}
+                <div class="price-container">
+                  <div style="display:flex;flex-direction:column;gap:3px;">
+                    <span class="current-price">${item.currentPrice ? item.currentPrice + ' ' + (item.currency||'EGP') : 'غير متاح'}</span>
+                    ${savedHtml}
+                  </div>
+                  ${item._discount_pct ? `<span class="discount-badge">-${item._discount_pct}%</span>` : ''}
+                </div>
+                <div class="product-meta">
+                  <div class="supermarket-logo"><i class="fas fa-store"></i><span>${escapeHtml(item.supermarket)}</span></div>
+                  ${countdownHtml}
+                </div>
+                <div class="action-buttons" style="margin-top:12px">
+                  <button class="btn btn-secondary view-details-btn" data-id="${escapeHtml(item.product)}"><i class="fas fa-eye"></i> تفاصيل</button>
+                  <button class="btn btn-primary buy-now-btn" data-id="${escapeHtml(item.product)}"><i class="fas fa-shopping-cart"></i> شراء الآن</button>
+                </div>
+              </div>
+            `;
+            // click handlers
+            card.querySelector('.view-details-btn')?.addEventListener('click', (e)=>{ e.stopPropagation(); showDetails(item); });
+            card.querySelector('.buy-now-btn')?.addEventListener('click', (e)=>{ e.stopPropagation(); openFlyer(item); });
+            card.querySelector('.favorite-btn')?.addEventListener('click', (e)=>{ e.stopPropagation(); toggleFavorite(item.product); e.currentTarget.classList.toggle('active'); });
+            card.addEventListener('click', ()=> openFlyer(item));
+            grid.appendChild(card);
+          });
+          updatePagination();
+        } catch(e){ console.error('renderProductsGrid failed', e); }
+      }
+
+            
+            
+      function renderTable(){
+        try {
+          const tbody = document.getElementById('table-body');
+          tbody.innerHTML = '';
+          const pageData = getPagedData();
+          if (!pageData.length){
+            tbody.innerHTML = `<tr><td colspan="10" style="text-align:center;padding:40px;color:#666">لا توجد عروض مطابقة</td></tr>`;
+            updatePagination();
+            return;
+          }
+          pageData.forEach(item=>{
+            const tr = document.createElement('tr');
+            if(item._discount_pct && item._discount_pct >= 20) tr.classList.add('highlight');
+            tr.onclick = ()=> openFlyer(item);
+            tr.innerHTML = `
+              <td>${escapeHtml(item.supermarket)}</td>
+              <td><strong>${escapeHtml(item.product)}</strong></td>
+              <td>${escapeHtml(item.primaryName)}</td>
+              <td>${escapeHtml(item.unit || '')}</td>
+              <td>${escapeHtml(item.category)}</td>
+              <td>${escapeHtml(item.brand)}</td>
+              <td><strong style="color:var(--primary-blue);">${item.currentPrice ? item.currentPrice + ' ' + (item.currency||'EGP') : 'غير متاح'}</strong></td>
+              <td>${item._discount_pct ? `<span class="discount-badge">-${item._discount_pct}%</span>` : 'غير متاح'}</td>
+              <td>${item._saved ? `<span style="color:var(--success-green);font-weight:600">${item._saved} ${item.currency||'EGP'}</span>` : 'غير متاح'}</td>
+              <td>${item._date ? formatDateShort(item._date) : 'غير متاح'}</td>
+            `;
+            tbody.appendChild(tr);
+          });
+          updatePagination();
+        } catch(e){ console.error('renderTable failed', e); }
+      }
+
+      function updatePagination(){
+        try {
+          const pagination = document.getElementById('pagination');
+          pagination.innerHTML = '';
+          const totalPages = Math.max(1, Math.ceil(filteredData.length / itemsPerPage));
+          if (totalPages <= 1) return;
+          const makeBtn = (text, disabled, cb) => { const b=document.createElement('button'); b.textContent=text; b.disabled=!!disabled; b.addEventListener('click', cb); return b; };
+          pagination.appendChild(makeBtn('الأولى', currentPage===1, ()=>{ currentPage=1; renderContent(); }));
+          pagination.appendChild(makeBtn('السابق', currentPage===1, ()=>{ if(currentPage>1){ currentPage--; renderContent(); }}));
+          // show page range
+          const pageNumbers = document.createElement('div'); pageNumbers.style.display='flex'; pageNumbers.style.gap='6px'; pageNumbers.style.overflowX='auto';
+          const start = Math.max(1, currentPage - 3), end = Math.min(totalPages, currentPage + 3);
+          for(let i=start;i<=end;i++){
+            const p = document.createElement('button'); p.textContent=i;
+            if (i===currentPage){ p.style.background='var(--primary-blue)'; p.style.color='white'; }
+            p.addEventListener('click', ()=>{ currentPage=i; renderContent(); });
+            pageNumbers.appendChild(p);
+          }
+          pagination.appendChild(pageNumbers);
+          pagination.appendChild(makeBtn('التالي', currentPage===totalPages, ()=>{ if(currentPage<totalPages){ currentPage++; renderContent(); }}));
+          pagination.appendChild(makeBtn('الأخيرة', currentPage===totalPages, ()=>{ currentPage=totalPages; renderContent(); }));
+        } catch(e){ console.error('updatePagination failed', e); }
+      }
+
+      function renderContent(){
+        if (currentView === 'table') {
+          document.getElementById('products-grid').style.display = 'none';
+          document.getElementById('data-table').style.display = 'block';
+          renderTable();
+        } else {
+          document.getElementById('data-table').style.display = 'none';
+          document.getElementById('products-grid').style.display = 'grid';
+          renderProductsGrid();
+        }
+      }
+
+      function updateStats(){
+        try {
+          document.getElementById('total-offers').textContent = (filteredData.length || 0).toLocaleString();
+          const discounts = filteredData.filter(i=>i._discount_pct).map(i=>i._discount_pct);
+          const avgDiscount = discounts.length ? Math.round(discounts.reduce((a,b)=>a+b,0)/discounts.length) : 0;
+          document.getElementById('avg-discount').textContent = `${avgDiscount}%`;
+          document.getElementById('hot-deals').textContent = (filteredData.filter(i=> (i._discount_pct||0) > 30).length || 0).toLocaleString();
+          document.getElementById('ending-soon').textContent = (filteredData.filter(i=> i._date && ((i._date - new Date())/(1000*3600*24) <= 7) && ((i._date - new Date())/(1000*3600*24) >= 0)).length || 0).toLocaleString();
+          document.getElementById('total-supermarkets').textContent = ([...new Set(filteredData.map(i=>i.supermarket).filter(Boolean))].length || 0).toLocaleString();
+        } catch(e){ console.error('updateStats failed', e); }
+      }
+
+      /* Utility to open flyer URL (preferred: use solution_key) */
+      function openFlyer(item){
+        if (!item) return;
+        const flyerUrl = item.solution_key ? `https://www.yabalashoffers.com/flyer.php?d=${encodeURIComponent(item.solution_key)}&c=eg` : null;
+        if (flyerUrl){
+          window.open(flyerUrl, '_blank');
+        } else {
+          alert('لا يوجد رابط فلاير لهذا العنصر');
+        }
+      }
+
+      function showDetails(item){
+        if (!item) return;
+        const details = `
+          اسم المنتج: ${item.product || 'غير متاح'}
+          الاسم الأساسي: ${item.primaryName || 'غير متاح'}
+          السوبرماركت: ${item.supermarket || 'غير متاح'}
+          الفئة: ${item.category || 'غير متاح'}
+          العلامة التجارية: ${item.brand || 'غير متاح'}
+          السعر الحالي: ${item.currentPrice ? item.currentPrice + ' ' + (item.currency||'EGP') : 'غير متاح'}
+          الخصم: ${item._discount_pct ? item._discount_pct + '%' : 'غير متاح'}
+          التوفير: ${item._saved ? item._saved + ' ' + (item.currency||'EGP') : 'غير متاح'}
+          ساري حتى: ${item._date ? formatDateShort(item._date) : 'غير متاح'}
+        `;
+        alert(details);
+      }
+
+      function toggleFavorite(productId){
+        try {
+          const idx = favorites.indexOf(productId);
+          if (idx === -1) favorites.push(productId); else favorites.splice(idx,1);
+          localStorage.setItem('favorites', JSON.stringify(favorites));
+        } catch(e){ console.error('toggleFavorite error', e); }
+      }
+
+      /* Initialize filters and handlers */
+      function initializeFilters(){
+        try {
+          const supermarketSelect = document.getElementById('supermarket-filter');
+          supermarketSelect.innerHTML = '<option value="">كل السوبر ماركت</option>';
+          const supermarkets = [...new Set(allData.map(i=>i.supermarket))].filter(Boolean).sort((a,b)=>String(a).localeCompare(String(b),'ar'));
+          supermarkets.forEach(s=>{ const o=document.createElement('option'); o.value=s; o.textContent=s; supermarketSelect.appendChild(o); });
+
+          const categorySelect = document.getElementById('category-filter');
+          categorySelect.innerHTML = '<option value="">��ل الفئات</option>';
+          const categories = [...new Set(allData.map(i=>i.category))].filter(Boolean).sort((a,b)=>String(a).localeCompare(String(b),'ar'));
+          categories.forEach(c=>{ const o=document.createElement('option'); o.value=c; o.textContent=c; categorySelect.appendChild(o); });
+
+          const brandSelect = document.getElementById('brand-filter');
+          brandSelect.innerHTML = '<option value="">كل العلامات</option>';
+          const brands = [...new Set(allData.map(i=>i.brand))].filter(Boolean).sort((a,b)=>String(a).localeCompare(String(b),'ar'));
+          brands.forEach(b=>{ const o=document.createElement('option'); o.value=b; o.textContent=b; brandSelect.appendChild(o); });
+
+          // chips
+          document.querySelectorAll('.chip').forEach(c=>{
+            c.addEventListener('click', function(){
+              document.querySelectorAll('.chip').forEach(x => x.classList.remove('active'));
+              this.classList.add('active');
+              activeChipFilter = this.dataset.filter || 'all';
+              applyAllFilters();
+            });
+          });
+
+          // view toggle
+          document.getElementById('view-grid-btn').addEventListener('click', ()=>{ currentView='grid'; document.getElementById('view-grid-btn').classList.add('active'); document.getElementById('view-table-btn').classList.remove('active'); renderContent(); });
+          document.getElementById('view-table-btn').addEventListener('click', ()=>{ currentView='table'; document.getElementById('view-table-btn').classList.add('active'); document.getElementById('view-grid-btn').classList.remove('active'); renderContent(); });
+
+          // search input
+          const search = document.getElementById('search-input');
+          search.addEventListener('input', ()=>{ showAutocomplete(); debounceApply(); });
+          search.addEventListener('keydown', (e)=>{ if (e.key === 'Enter'){ e.preventDefault(); clearAutocomplete(); applyAllFilters(); } });
+
+          document.addEventListener('click', (e)=>{
+            const list = document.getElementById('autocomplete-list');
+            const input = document.getElementById('search-input');
+            if (!list) return;
+            if (e.target.closest && (e.target.closest('#autocomplete-list') || e.target === input)) return;
+            clearAutocomplete();
+          });
+
+          // selects
+          document.getElementById('supermarket-filter').addEventListener('change', applyAllFilters);
+          document.getElementById('category-filter').addEventListener('change', applyAllFilters);
+          document.getElementById('brand-filter').addEventListener('change', applyAllFilters);
+          document.getElementById('sort-by').addEventListener('change', applyAllFilters);
+          document.getElementById('min-discount').addEventListener('input', applyAllFilters);
+          document.getElementById('reset-btn').addEventListener('click', ()=>{ resetAllFilters(); applyAllFilters(); });
+          document.getElementById('share-app').addEventListener('click', shareApp);
+          document.getElementById('compare-mode-btn').addEventListener('click', ()=>{ const p=document.getElementById('comparison-panel'); p.style.display = (p.style.display === 'block' ? 'none' : 'block'); });
+
+          // price +/- buttons
+          document.getElementById('min-decrease').addEventListener('click', ()=> adjustNumberInput(document.getElementById('min-price'), -1));
+          document.getElementById('min-increase').addEventListener('click', ()=> adjustNumberInput(document.getElementById('min-price'), +1));
+          document.getElementById('max-decrease').addEventListener('click', ()=> adjustNumberInput(document.getElementById('max-price'), -1));
+          document.getElementById('max-increase').addEventListener('click', ()=> adjustNumberInput(document.getElementById('max-price'), +1));
+        } catch(e){ console.error('initializeFilters failed', e); }
+      }
+
+      function adjustNumberInput(el, delta){
+        if(!el) return;
+        const step = parseFloat(el.step) || 1;
+        const cur = parseFloat(el.value) || 0;
+        el.value = Math.max(0, +(cur + delta*step).toFixed(2));
+        debounceApply();
+      }
+
+      function resetAllFilters(){
+        document.getElementById('search-input').value='';
+        document.getElementById('supermarket-filter').value='';
+        document.getElementById('category-filter').value='';
+        document.getElementById('brand-filter').value='';
+        document.getElementById('min-discount').value='';
+        document.getElementById('min-price').value='';
+        document.getElementById('max-price').value='';
+        document.getElementById('sort-by').value='best-deals';
+        activeChipFilter = 'all';
         document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
-        
-        // Add a temporary chip for UI clarity
-        const tempChip = document.createElement('button');
-        tempChip.className = 'chip active';
-        tempChip.innerHTML = '<i class="fas fa-calendar-day"></i> عروض الـ 1 يوم';
-        // Insert it at the beginning
-        chipsContainer.insertBefore(tempChip, chipsContainer.firstChild);
-    }
+        document.querySelector('.chip[data-filter="all"]')?.classList.add('active');
+      }
 
-    // 5. Trigger the filter update
-    // We assume fetchData() will call applyAllFilters() when data loads.
-    // However, if data is already cached/loaded, we force an update.
-    <!--  setTimeout(() => {   if (typeof applyAllFilters === 'function') { -->
- <!--   applyAllFilters();    }      }, 1000); // Small delay to ensure data is ready -->
+      function showAutocomplete(){
+        try {
+          clearAutocomplete();
+          const val = document.getElementById('search-input')?.value?.trim()?.toLowerCase();
+          if(!val) return;
+          const list = document.createElement('div'); list.id = 'autocomplete-list'; list.style.position='absolute'; list.style.zIndex='9999'; list.style.background='white'; list.style.borderRadius='8px'; list.style.boxShadow='0 6px 18px rgba(0,0,0,0.12)'; document.body.appendChild(list);
+          const suggestions = [...new Set(allData.map(i=>i.product).concat(allData.map(i=>i.primaryName||'')))]
+            .filter(s => s && String(s).toLowerCase().includes(val)).slice(0,8);
+          suggestions.forEach(s=>{
+            const d = document.createElement('div'); d.textContent = s; d.addEventListener('click', ()=>{ document.getElementById('search-input').value = s; clearAutocomplete(); applyAllFilters(); }); list.appendChild(d);
+          });
+          const rect = document.getElementById('search-input').getBoundingClientRect();
+          list.style.left = `${Math.max(8, rect.left + window.scrollX)}px`;
+          list.style.top = `${rect.bottom + window.scrollY}px`;
+          list.style.minWidth = `${rect.width}px`;
+        } catch(e){ console.error('autocomplete error', e); }
+      }
+      function clearAutocomplete(){ const l = document.getElementById('autocomplete-list'); if(l) l.remove(); }
+
+      // debounce helper
+      function debounce(fn, wait=300){ let t; return function(...args){ clearTimeout(t); t = setTimeout(()=>fn.apply(this,args), wait); }; }
+      const debounceApply = debounce(()=> applyAllFilters(), 300);
+
+      // share
+      function shareApp(){
+        try {
+          if (navigator.share) {
+            navigator.share({ title:'عروض السوبرماركت', text:'اكتشف أفضل العروض!', url: window.location.href });
+          } else {
+            navigator.clipboard.writeText(window.location.href);
+            alert('تم نسخ الرابط! شاركه مع أصدقائك الآن.');
+          }
+        } catch(e){ console.error('shareApp failed', e); }
+      }
+
+      function escapeHtml(str){ if(!str && str !== 0) return ''; return String(str).replace(/[&<>"']/g, (m)=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
+
+      // open flyer (solution_key)
+      function openFlyer(item){
+        if(!item) return;
+        const url = item.solution_key ? `https://www.yabalashoffers.com/flyer.php?d=${encodeURIComponent(item.solution_key)}&c=eg` : null;
+        if(url) window.open(url, '_blank'); else alert('لا يوجد رابط فلاير لهذه القطعة');
+      }
+
+      /* URL search handler */
+      function handleUrlSearch(){
+        const params = new URLSearchParams(window.location.search);
+        const q = params.get('q');
+        if(q){
+          const input = document.getElementById('search-input');
+          if(input){ input.value = decodeURIComponent(q); setTimeout(()=>applyAllFilters(), 200); }
+        }
+        const market = params.get('market');
+        if(market){
+          const sel = document.getElementById('supermarket-filter');
+          if(sel){ sel.value = market; applyAllFilters(); }
+        }
+      }
+
+      /* Boot */
+      document.addEventListener('DOMContentLoaded', ()=>{
+        // initialize small default UI state
+        initializeFilters();
+        // fetch data and render
+        fetchData().then(()=>{ handleUrlSearch(); }).catch(e=>console.error(e));
+      });
+    </script> 
+    
+////////////////////////////////////////////////////////////////
+
+
+  function renderPagination(){
+    const p = byId('pagination'); p.innerHTML = '';
+    const totalPages = Math.max(1, Math.ceil((filteredData.length||0)/itemsPerPage));
+    if (totalPages <= 1) return;
+    const make = (txt, disabled,cb) => { const b=document.createElement('button'); b.textContent=txt; b.disabled=!!disabled; b.addEventListener('click', cb); return b; };
+    p.appendChild(make('الأولى', currentPage===1, ()=>{ currentPage=1; renderContent(); }));
+    p.appendChild(make('السابق', currentPage===1, ()=>{ if (currentPage>1) { currentPage--; renderContent(); } }));
+    const pageNumbers = [];
+    const start = Math.max(1, currentPage-2);
+    const end = Math.min(totalPages, currentPage+2);
+    for(let i=start;i<=end;i++) pageNumbers.push(i);
+    pageNumbers.forEach(i=>{
+      const btn = make(i, false, ()=>{ currentPage=i; renderContent(); });
+      if (i===currentPage){ btn.style.background='var(--accent)'; btn.style.color='white'; }
+      p.appendChild(btn);
+    });
+    p.appendChild(make('التالي', currentPage===totalPages, ()=>{ if(currentPage<totalPages){ currentPage++; renderContent(); }}));
+    p.appendChild(make('الأخيرة', currentPage===totalPages, ()=>{ currentPage=totalPages; renderContent(); }));
   }
-});
-</script>
     
-window.debugState = () => {
-  console.table({
-    allData: allData?.length,
-    filteredData: filteredData?.length,
-    latestDate: latestTwoDates?.[0],
-    activeChipFilter,
-    dataLoaded
-  });
-};
+    
+  function updateStats(){
+    try {
+      byId('total-offers').textContent = (filteredData.length || 0).toLocaleString();
+      const discounts = filteredData.filter(i=>i._discount_pct).map(i=>i._discount_pct);
+      const avg = discounts.length ? Math.round(discounts.reduce((a,b)=>a+b,0)/discounts.length) : 0;
+      byId('avg-discount').textContent = `${avg}%`;
+      byId('total-supermarkets').textContent = ([...new Set(filteredData.map(i=>i.supermarket).filter(Boolean))].length || 0).toLocaleString();
+      byId('category-count').textContent = ([...new Set(filteredData.map(i=>i.category).filter(Boolean))].length || 0).toLocaleString();
+    } catch(e){ console.error('stats error', e); }
+  }
 
     
+    
+  // favorites
+  function toggleFavoriteFromCard(e){
+    e.stopPropagation();
+    const card = e.currentTarget.closest('.product-card');
+    const title = card.querySelector('.product-title').textContent;
+    toggleFavorite(title);
+    // refresh small UI (we won't re-render whole grid to keep snappy)
+    applyFilters();
+  }    
+    
+  // comparison
+  function addToCompareFromCard(e){
+    e.stopPropagation();
+    const card = e.currentTarget.closest('.product-card');
+    const title = card.querySelector('.product-title').textContent;
+    const item = allData.find(x=>x.product === title);
+    if (!item) return;
+    const idx = comparison.findIndex(c=>c.product===item.product);
+    if (idx === -1) {
+      if (comparison.length >= 4) { alert('يمكن مقارنة 4 منتجات كحد أقصى'); return; }
+      comparison.push(item);
+    } else {
+      comparison.splice(idx,1);
+    }
+    localStorage.setItem('comparison', JSON.stringify(comparison));
+    renderComparison();
+  }
+
+    
+  function renderComparison(){
+    const container = byId('comparison-items'); container.innerHTML = '';
+    byId('comparison-count').textContent = comparison.length;
+    comparison.forEach(it => {
+      const box = document.createElement('div'); box.style.minWidth='180px'; box.style.padding='10px'; box.style.border='1px solid #eee'; box.style.borderRadius='8px'; box.style.background='#fff';
+      box.innerHTML = `<div style="font-weight:800">${escapeHtml(it.product)}</div><div style="color:#666;font-size:13px">${escapeHtml(it.supermarket || '')}</div><div style="margin-top:6px;color:var(--accent)">${it.currentPrice?it.currentPrice+' '+(it.currency||'EGP'):'غير متاح'}</div>`;
+      const btn = document.createElement('button'); btn.className='btn'; btn.textContent='إزالة'; btn.style.marginTop='8px'; btn.addEventListener('click', ()=>{ comparison = comparison.filter(c=>c.product !== it.product); localStorage.setItem('comparison', JSON.stringify(comparison)); renderComparison(); });
+      box.appendChild(btn);
+      container.appendChild(box);
+    });
+    if (comparison.length > 0) byId('comparison-panel').style.display='block'; else byId('comparison-panel').style.display='none';
+  }
+    
+  // overlay flyer
+  function openFlyerFromItem(e){
+    e.stopPropagation();
+    const sk = e.currentTarget.dataset.skey ? decodeURIComponent(e.currentTarget.dataset.skey) : '';
+    if (!sk) { alert('لا يوجد فلاير لهذا العنصر'); return; }
+    const url = `https://www.yabalashoffers.com/flyer.php?d=${encodeURIComponent(sk)}&c=eg`;
+    byId('overlay-iframe').src = url;
+    byId('overlay').style.display='flex'; byId('overlay').setAttribute('aria-hidden','false');
+  }
+    
+    
+  // Update ticker CSS (dynamic keyframes)
+  (function buildTickerKeyframes(){
+    const style = document.createElement('style');
+    style.id = 'ticker-anim';
+    style.innerHTML = `
+      @keyframes scroll-left {
+        from { transform: translateX(0); }
+        to { transform: translateX(-50%); }
+      }
+    `;
+    document.head.appendChild(style);
+  })();
+
+  // pagination/render utilities already defined
+
+  function exportToCSV(){
+    try {
+      const headers = ['اسم السوبر ماركت','المنتج','اسم المنتج (الأساسي)','الوحدة','الفئة','العلامة التجارية','السعر الأصلي','السعر الحالي','الخصم %','العبارة الترويجية','ساري حتى'];
+      const rows = filteredData.map(it => [
+        it.supermarket || '',
+        `"${(it.product||'').replace(/"/g,'""')}"`,
+        `"${(it.primaryName||'').replace(/"/g,'""')}"`,
+        it.unit || '',
+        it.category || '',
+        it.brand || '',
+        it.originalPrice || '',
+        it.currentPrice || '',
+        it._discount_pct || '',
+        `"${(it.promotion||'').replace(/"/g,'""')}"`,
+        it.rawPeriod || ''
+      ].join(','));
+      const csv = [headers.join(',')].concat(rows).join('\n');
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement('a'); link.href = URL.createObjectURL(blob); link.download = 'offers_export.csv'; document.body.appendChild(link); link.click(); link.remove();
+    } catch(e){ console.error('export error', e); alert('فشل التصدير'); }
+  }
+
+
+    
+    
+  // mini carousel (left)
+  function renderMiniCarousel(){
+    const inner = byId('mini-inner');
+    inner.innerHTML = '';
+    const candidates = [...allData].filter(i=>i._saved && i._saved > 0).slice(0,8);
+    if (!candidates.length) { inner.innerHTML = '<div class="mini-item">لا توجد عروض</div>'; return; }
+    candidates.forEach(it => {
+      const div = document.createElement('div'); div.className='mini-item';
+      div.innerHTML = `<span style="font-weight:800">${escapeHtml(it.product)}</span> <span style="color:var(--muted);font-size:13px">— ${escapeHtml(it.supermarket)}</span>`;
+      inner.appendChild(div);
+    });
+    // auto-scroll
+    let idx = 0;
+    clearInterval(window._miniInterval);
+    window._miniInterval = setInterval(()=>{ idx = (idx + 1) % Math.max(1, inner.children.length); inner.style.transform = `translateX(-${idx * 100}%)`; }, 3200);
+  }
+    
+    
+      function handleUrlParams(){
+    const params = new URLSearchParams(window.location.search);
+    const q = params.get('q') || params.get('query') || params.get('search');
+    if (q) byId('search-input').value = decodeURIComponent(q);
+
+    const market = params.get('market') || params.get('store') || params.get('supermarket');
+    if (market) byId('supermarket-filter').value = market;
+
+    const disc = params.get('discount') || params.get('min_discount') || params.get('min-discount');
+    if (disc) byId('min-discount').value = disc;
+
+    const weekPercent = params.get('week_percent') || params.get('week-percent');
+    if (weekPercent) { byId('min-discount').value = weekPercent; document.querySelector('.chip[data-filter="recent"]')?.classList.add('active'); }
+
+    const oneDay = params.get('one_day') || params.get('one-day');
+    if (oneDay) document.querySelector('.chip[data-filter="recent"]')?.classList.add('active');
+
+    const view = params.get('view');
+    if (view && view === 'table') { currentView='table'; byId('view-table').classList.add('active'); byId('view-grid').classList.remove('active'); }
+
+    const sort = params.get('sort'); if (sort) byId('sort-by').value = sort;
+
+    const priceMin = params.get('price_min') || params.get('min_price') || params.get('minprice');
+    if (priceMin) byId('min-price').value = priceMin;
+    const priceMax = params.get('price_max') || params.get('max_price') || params.get('maxprice');
+    if (priceMax) byId('max-price').value = priceMax;
+
+    const page = parseInt(params.get('page') || params.get('p') || '1', 10);
+    if (!isNaN(page) && page > 1) currentPage = page;
+
+    setTimeout(()=>applyFilters(), 150);
+  }
+
+  // small utilities
+  function debounce(fn, wait=250){ let t; return function(...a){ clearTimeout(t); t=setTimeout(()=>fn.apply(this,a), wait); }; }
+  function escapeHtml(s){ if (s===null || s===undefined) return ''; return String(s).replace(/[&<>"']/g, m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
+
+  // Kickoff
+  document.addEventListener('DOMContentLoaded', async ()=>{
+    await init();
+    renderMiniCarousel();
+    renderComparison();
+    // show UI if hidden
+    byId('main-content').style.display = 'block';
+  });
+
+  // make some functions global used by inline handlers
+  window.openFlyerFromItem = openFlyerFromItem;
+  window.addToCompareFromCard = addToCompareFromCard;
+  window.toggleFavoriteFromCard = toggleFavoriteFromCard;
+  window.exportToCSV = exportToCSV;
+  window.applyFilters = applyFilters;
+  window.resetFilters = function(){ byId('search-input').value=''; byId('supermarket-filter').value=''; byId('category-filter').value=''; byId('brand-filter').value=''; byId('min-discount').value=''; byId('min-price').value=''; byId('max-price').value=''; byId('sort-by').value='best-deals'; document.querySelectorAll('.chip').forEach(c=>c.classList.remove('active')); document.querySelector('.chip[data-filter="all"]')?.classList.add('active'); activeChipFilter='all'; };
+  </script>
+
+    
+    
+    function handleUrlSearchExpanded(){ const params = new
+    URLSearchParams(window.location.search); // search query const q =
+    params.get('q'); if (q) { const input =
+    document.getElementById('search-input'); if (input) input.value =
+    decodeURIComponent(q); } // supermarket (exact value matching your select
+    options) const market = params.get('market'); if (market) { const sel =
+    document.getElementById('supermarket-filter'); if (sel) sel.value = market;
+    } // discount param -&gt; set min-discount const discount =
+    params.get('discount') || params.get('min_discount'); if (discount
+    &amp;&amp; document.getElementById('min-discount')) {
+    document.getElementById('min-discount').value = discount; } // week_percent
+    -&gt; apply 'recent' mode and set min-discount (example) const weekPercent =
+    params.get('week_percent'); if (weekPercent) {
+    document.getElementById('min-discount').value = weekPercent;
+    activeChipFilter = 'recent'; // or a custom 'recent_extended' if you
+    implement it } // one_day param -&gt; set activeChipFilter recent_day (if
+    implemented) const oneDay = params.get('one_day'); if (oneDay) {
+    activeChipFilter = 'recent'; } // view / sort const view =
+    params.get('view'); // 'table' or 'grid' if (view) { currentView = view ===
+    'table' ? 'table' : 'grid';
+    document.getElementById('view-grid-btn').classList.toggle('active',
+    currentView === 'grid');
+    document.getElementById('view-table-btn').classList.toggle('active',
+    currentView === 'table'); } const sort = params.get('sort'); if (sort
+    &amp;&amp; document.getElementById('sort-by'))
+    document.getElementById('sort-by').value = sort; // Finally apply filters
+    once params set applyAllFilters();
+    }
   </body>
 </html>
