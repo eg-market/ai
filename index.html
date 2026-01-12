@@ -477,6 +477,192 @@ function stripTime(d){ return isValidDate(d) ? new Date(d.getFullYear(), d.getMo
 function formatDateShort(d){ if(!isValidDate(d)) return 'غير متاح'; return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; }
 function escapeHtml(s){ if (s===null || s===undefined) return ''; return String(s).replace(/[&<>"']/g, m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
 
+/* === PATCH: External payload parsers & helpers === */
+/* ضع هذا الجزء بعد الدوال المساعدة (escapeHtml، formatDateShort... ) */
+
+const EXTERNAL = {
+  // ضع هنا قائمة origins المسموح بها؛ حاول تخصيصها للإنتاج
+  allowedOrigins: [
+    // مثال: 'https://app.example.com', 'http://localhost:3000'
+  ],
+  allowAllOriginsForDev: false, // ضع true مؤقتاً للاختبار المحلي فقط
+  ackTimeoutMs: 5000
+};
+
+function tryParseJsonSafe(s){
+  if (s === undefined || s === null) return null;
+  // Already an object?
+  if (typeof s === 'object') return s;
+  const str = String(s).trim();
+  // Try plain JSON
+  try { return JSON.parse(str); } catch(e){}
+  // Try URI decoded JSON
+  try { return JSON.parse(decodeURIComponent(str)); } catch(e){}
+  // Try base64 -> JSON
+  try {
+    const b = atob(str);
+    return JSON.parse(b);
+  } catch(e){}
+  // Try base64 URI (replace URL-safe chars)
+  try {
+    const fixed = str.replace(/-/g,'+').replace(/_/g,'/');
+    const b = atob(fixed);
+    return JSON.parse(b);
+  } catch(e){}
+  // Try LZString decompression if available
+  if (typeof LZString !== 'undefined') {
+    try {
+      const dec = LZString.decompressFromUTF16(str) || LZString.decompress(str);
+      if (dec) return JSON.parse(dec);
+    } catch(e){}
+  }
+  return null;
+}
+
+// Normalize external params into a canonical object
+function normalizeExternalParams(raw){
+  const params = {};
+  if (!raw || typeof raw !== 'object') return params;
+  // common keys we accept (add more if تحتاج)
+  const mapping = {
+    q: ['q', 'query', 'search', 'text'],
+    supermarket: ['market', 'store', 'supermarket'],
+    category: ['category', 'cat'],
+    brand: ['brand', 'manufacturer'],
+    minDiscount: ['min_discount','min-discount','discount','discount_pct'],
+    minPrice: ['min_price','min-price','price_min'],
+    maxPrice: ['max_price','max-price','price_max'],
+    sort: ['sort','order'],
+    view: ['view', 'mode'],
+    // optional: payload can include full state object
+    state: ['state','payload','data']
+  };
+
+  for (const key in mapping){
+    for (const alias of mapping[key]){
+      if (raw[alias] !== undefined && raw[alias] !== null && raw[alias] !== ''){
+        params[key] = raw[alias];
+        break;
+      }
+    }
+  }
+
+  // if state/payload is present and is JSON string/object, merge it
+  if (raw.state || raw.payload || raw.data){
+    const p = tryParseJsonSafe(raw.state || raw.payload || raw.data);
+    if (p && typeof p === 'object'){
+      // copy recognized fields
+      Object.assign(params, normalizeExternalParams(p));
+    }
+  }
+
+  // convert numeric strings
+  if (params.minDiscount !== undefined) params.minDiscount = Number(params.minDiscount) || 0;
+  if (params.minPrice !== undefined) params.minPrice = Number(params.minPrice) || '';
+  if (params.maxPrice !== undefined) params.maxPrice = Number(params.maxPrice) || '';
+
+  return params;
+}      
+      
+/* === PATCH: External receiver (postMessage + direct call) === */
+
+function isOriginAllowed(origin){
+  if (EXTERNAL.allowAllOriginsForDev) return true;
+  if (!origin) return false;
+  return EXTERNAL.allowedOrigins.includes(origin);
+}
+
+/**
+ * processExternalParams(object, meta)
+ * - object: raw data (object/string)
+ * - meta: { source, origin, messageId }  optional, used for ACK
+ */
+async function processExternalParams(object, meta = {}) {
+  try {
+    // If the incoming is a string try to parse flexible formats
+    let parsed = object;
+    if (typeof object === 'string') {
+      parsed = tryParseJsonSafe(object) || object;
+    }
+    if (parsed && parsed.payload) {
+      const p2 = tryParseJsonSafe(parsed.payload);
+      if (p2) parsed = Object.assign({}, parsed, p2);
+    }
+
+    const normalized = normalizeExternalParams(parsed || {});
+    // Apply to UI controls (only if values present)
+    if (normalized.q) byId('search-input').value = String(normalized.q);
+    if (normalized.supermarket) byId('supermarket-filter').value = String(normalized.supermarket);
+    if (normalized.category) byId('category-filter').value = String(normalized.category);
+    if (normalized.brand) byId('brand-filter').value = String(normalized.brand);
+    if (normalized.minDiscount !== undefined) byId('min-discount').value = normalized.minDiscount;
+    if (normalized.minPrice !== undefined) byId('min-price').value = normalized.minPrice;
+    if (normalized.maxPrice !== undefined) byId('max-price').value = normalized.maxPrice;
+    if (normalized.sort) byId('sort-by').value = String(normalized.sort);
+    if (normalized.view) {
+      currentView = String(normalized.view) === 'table' ? 'table' : 'grid';
+      // toggle active classes
+      if (currentView === 'table') {
+        byId('view-table-btn')?.classList.add('active'); byId('view-grid-btn')?.classList.remove('active');
+      } else {
+        byId('view-grid-btn')?.classList.add('active'); byId('view-table-btn')?.classList.remove('active');
+      }
+    }
+
+    // if the payload included 'state' with full properties, you can merge more fields here
+
+    // finally apply filters and render
+    applyAllFilters();
+
+    // Send ACK if we have source & origin
+    if (meta && meta.source && typeof meta.source.postMessage === 'function') {
+      const ack = { type: 'external-params-ack', status: 'ok', received: normalized };
+      try {
+        meta.source.postMessage(ack, meta.origin || '*');
+      } catch(e){
+        // ignore
+      }
+    }
+
+    return { status: 'ok', normalized };
+  } catch (err) {
+    console.error('processExternalParams error', err);
+    if (meta && meta.source && typeof meta.source.postMessage === 'function') {
+      try { meta.source.postMessage({ type:'external-params-ack', status:'error', error: String(err) }, meta.origin || '*'); } catch(e){}
+    }
+    return { status: 'error', error: String(err) };
+  }
+}
+
+/* postMessage listener — supports parent/opener/iframe callers */
+window.addEventListener('message', async (ev) => {
+  // ev.origin, ev.source, ev.data
+  // Validate origin (if configured)
+  if (!EXTERNAL.allowAllOriginsForDev && EXTERNAL.allowedOrigins.length) {
+    if (!isOriginAllowed(ev.origin)) {
+      console.warn('external message from disallowed origin:', ev.origin);
+      // optionally send negative ACK
+      try { ev.source?.postMessage?.({ type:'external-params-ack', status:'forbidden' }, ev.origin); } catch(e){}
+      return;
+    }
+  }
+  // Expect message shape: { type: 'external-params', payload: {...}, id: 'uuid' } or raw object
+  const data = ev.data;
+  let payload = data;
+  if (data && typeof data === 'object' && data.type === 'external-params' && data.payload !== undefined) {
+    payload = data.payload;
+  }
+  // Process and ack
+  processExternalParams(payload, { source: ev.source, origin: ev.origin, messageId: data && data.id });
+});
+
+/* Direct callable function from same-origin parent or opener */
+window.receiveExternalParams = async function(payload){
+  return processExternalParams(payload, { source: window, origin: window.location.origin });
+};      
+      
+      
+      
 /* --- Fetch + parse helpers --- */
 async function fetchWithTimeout(url, timeoutMs = 25000) {
   const controller = new AbortController();
@@ -1084,6 +1270,30 @@ document.addEventListener('DOMContentLoaded', async () => {
   try {
     await init();
     handleUrlParams();
+    
+    /* === PATCH: support payload query param (JSON / base64 / lz-string) === */
+function handlePayloadQueryParam(){
+  try {
+    const params = new URLSearchParams(window.location.search);
+    const rawPayload = params.get('payload') || params.get('externalPayload') || params.get('state');
+    if (!rawPayload) return;
+    const parsed = tryParseJsonSafe(rawPayload);
+    if (parsed) {
+      // process asynchronously (no origin to ack)
+      processExternalParams(parsed, { source: window, origin: window.location.origin });
+      // Optionally remove payload from URL to avoid re-processing on reload
+      const url = new URL(window.location.href);
+      url.searchParams.delete('payload');
+      url.searchParams.delete('externalPayload');
+      url.searchParams.delete('state');
+      window.history.replaceState({}, '', url.toString());
+    }
+  } catch(e){ console.warn('handlePayloadQueryParam failed', e); }
+}
+// call it right away
+handlePayloadQueryParam();
+    
+    
     renderMiniCarousel();
     renderComparison();
     const main = byId('main-content');
