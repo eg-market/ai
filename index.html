@@ -1070,190 +1070,270 @@ async function init(){
   } catch(e){ console.error('init error', e); }
 }
 
+    
+    
 document.addEventListener('DOMContentLoaded', ()=>{ init(); });
 
-</script> function renderPagination(){ const p = byId('pagination'); p.innerHTML
-    = ''; const totalPages = Math.max(1,
-    Math.ceil((filteredData.length||0)/itemsPerPage)); if (totalPages &lt;= 1)
-    return; const make = (txt, disabled,cb) =&gt; { const
-    b=document.createElement('button'); b.textContent=txt;
-    b.disabled=!!disabled; b.addEventListener('click', cb); return b; };
-    p.appendChild(make('الأولى', currentPage===1, ()=&gt;{ currentPage=1;
-    renderContent(); })); p.appendChild(make('السابق', currentPage===1, ()=&gt;{
-    if (currentPage&gt;1) { currentPage--; renderContent(); } })); const
-    pageNumbers = []; const start = Math.max(1, currentPage-2); const end =
-    Math.min(totalPages, currentPage+2); for(let i=start;i&lt;=end;i++)
-    pageNumbers.push(i); pageNumbers.forEach(i=&gt;{ const btn = make(i, false,
-    ()=&gt;{ currentPage=i; renderContent(); }); if (i===currentPage){
-    btn.style.background='var(--accent)'; btn.style.color='white'; }
-    p.appendChild(btn); }); p.appendChild(make('التالي',
-    currentPage===totalPages, ()=&gt;{ if(currentPage<totalpages){ currentpage++;=""
+</script>
+    
+    <script>
+/* =========================
+   BOOTSTRAP (ONE TIME ONLY)
+========================= */
+document.addEventListener('DOMContentLoaded', async () => {
+  try {
+    await init();
+    handleUrlParams();
+    renderMiniCarousel();
+    renderComparison();
+    const main = byId('main-content');
+    if (main) main.style.display = 'block';
+  } catch (e) {
+    console.error('Init error', e);
+  }
+});
 
-      rendercontent();="" }}));="" p.appendchild(make('الأخيرة',="" currentpage="==totalPages,"
+/* =========================
+   PAGINATION
+========================= */
+function renderPagination() {
+  const p = byId('pagination');
+  if (!p) return;
 
-      ()="">{ currentPage=totalPages; renderContent(); })); } function
-      updateStats(){ try { byId('total-offers').textContent =
-      (filteredData.length || 0).toLocaleString(); const discounts =
-      filteredData.filter(i=&gt;i._discount_pct).map(i=&gt;i._discount_pct);
-      const avg = discounts.length ?
-      Math.round(discounts.reduce((a,b)=&gt;a+b,0)/discounts.length) : 0;
-      byId('avg-discount').textContent = `${avg}%`;
-      byId('total-supermarkets').textContent = ([...new
-      Set(filteredData.map(i=&gt;i.supermarket).filter(Boolean))].length ||
-      0).toLocaleString(); byId('category-count').textContent = ([...new
-      Set(filteredData.map(i=&gt;i.category).filter(Boolean))].length ||
-      0).toLocaleString(); } catch(e){ console.error('stats error', e); } } //
-      favorites function toggleFavoriteFromCard(e){ e.stopPropagation(); const
-      card = e.currentTarget.closest('.product-card'); const title =
-      card.querySelector('.product-title').textContent; toggleFavorite(title);
-      // refresh small UI (we won't re-render whole grid to keep snappy)
-      applyFilters(); } // comparison function addToCompareFromCard(e){
-      e.stopPropagation(); const card =
-      e.currentTarget.closest('.product-card'); const title =
-      card.querySelector('.product-title').textContent; const item =
-      allData.find(x=&gt;x.product === title); if (!item) return; const idx =
-      comparison.findIndex(c=&gt;c.product===item.product); if (idx === -1) { if
-      (comparison.length &gt;= 4) { alert('يمكن مقارنة 4 منتجات كحد أقصى');
-      return; } comparison.push(item); } else { comparison.splice(idx,1); }
-      localStorage.setItem('comparison', JSON.stringify(comparison));
-      renderComparison(); } function renderComparison(){ const container =
-      byId('comparison-items'); container.innerHTML = '';
-      byId('comparison-count').textContent = comparison.length;
-      comparison.forEach(it =&gt; { const box = document.createElement('div');
-      box.style.minWidth='180px'; box.style.padding='10px';
-      box.style.border='1px solid #eee'; box.style.borderRadius='8px';
-      box.style.background='#fff'; box.innerHTML = `
+  p.innerHTML = '';
+
+  const totalPages = Math.max(
+    1,
+    Math.ceil((filteredData.length || 0) / itemsPerPage)
+  );
+
+  if (totalPages <= 1) return;
+
+  const makeBtn = (txt, disabled, cb) => {
+    const b = document.createElement('button');
+    b.textContent = txt;
+    b.disabled = !!disabled;
+    b.addEventListener('click', cb);
+    return b;
+  };
+
+  p.appendChild(
+    makeBtn('الأولى', currentPage === 1, () => {
+      currentPage = 1;
+      renderContent();
+    })
+  );
+
+  p.appendChild(
+    makeBtn('السابق', currentPage === 1, () => {
+      if (currentPage > 1) {
+        currentPage--;
+        renderContent();
+      }
+    })
+  );
+
+  const start = Math.max(1, currentPage - 2);
+  const end = Math.min(totalPages, currentPage + 2);
+
+  for (let i = start; i <= end; i++) {
+    const btn = makeBtn(i, false, () => {
+      currentPage = i;
+      renderContent();
+    });
+    if (i === currentPage) {
+      btn.style.background = 'var(--accent)';
+      btn.style.color = '#fff';
+    }
+    p.appendChild(btn);
+  }
+
+  p.appendChild(
+    makeBtn('التالي', currentPage === totalPages, () => {
+      if (currentPage < totalPages) {
+        currentPage++;
+        renderContent();
+      }
+    })
+  );
+
+  p.appendChild(
+    makeBtn('الأخيرة', currentPage === totalPages, () => {
+      currentPage = totalPages;
+      renderContent();
+    })
+  );
+}
+
+/* =========================
+   STATS
+========================= */
+function updateStats() {
+  try {
+    byId('total-offers').textContent =
+      (filteredData.length || 0).toLocaleString();
+
+    const discounts = filteredData
+      .map(i => i._discount_pct)
+      .filter(v => typeof v === 'number');
+
+    const avg = discounts.length
+      ? Math.round(discounts.reduce((a, b) => a + b, 0) / discounts.length)
+      : 0;
+
+    byId('avg-discount').textContent = `${avg}%`;
+
+    byId('total-supermarkets').textContent =
+      [...new Set(filteredData.map(i => i.supermarket).filter(Boolean))].length;
+
+    byId('category-count').textContent =
+      [...new Set(filteredData.map(i => i.category).filter(Boolean))].length;
+  } catch (e) {
+    console.error('Stats error', e);
+  }
+}
+
+/* =========================
+   FAVORITES
+========================= */
+function toggleFavoriteFromCard(e) {
+  e.stopPropagation();
+  const card = e.currentTarget.closest('.product-card');
+  if (!card) return;
+  const title = card.querySelector('.product-title')?.textContent;
+  if (!title) return;
+  toggleFavorite(title);
+  applyAllFilters();
+}
+
+/* =========================
+   COMPARISON
+========================= */
+function addToCompareFromCard(e) {
+  e.stopPropagation();
+  const card = e.currentTarget.closest('.product-card');
+  if (!card) return;
+
+  const title = card.querySelector('.product-title')?.textContent;
+  const item = allData.find(x => x.product === title);
+  if (!item) return;
+
+  const idx = comparison.findIndex(c => c.product === item.product);
+
+  if (idx === -1) {
+    if (comparison.length >= 4) {
+      alert('يمكن مقارنة 4 منتجات كحد أقصى');
+      return;
+    }
+    comparison.push(item);
+  } else {
+    comparison.splice(idx, 1);
+  }
+
+  localStorage.setItem('comparison', JSON.stringify(comparison));
+  renderComparison();
+}
+
+function renderComparison() {
+  const container = byId('comparison-items');
+  if (!container) return;
+
+  container.innerHTML = '';
+  byId('comparison-count').textContent = comparison.length;
+
+  comparison.forEach(it => {
+    const box = document.createElement('div');
+    box.style.minWidth = '180px';
+    box.style.padding = '10px';
+    box.style.border = '1px solid #eee';
+    box.style.borderRadius = '8px';
+    box.style.background = '#fff';
+
+    box.innerHTML = `
       <div style="font-weight:800">${escapeHtml(it.product)}</div>
       <div style="color:#666;font-size:13px">${escapeHtml(it.supermarket || '')}</div>
-      <div style="margin-top:6px;color:var(--accent)">${it.currentPrice?it.currentPrice+'
-        '+(it.currency||'EGP'):'غير متاح'}</div>
-      `; const btn = document.createElement('button'); btn.className='btn';
-      btn.textContent='إزالة'; btn.style.marginTop='8px';
-      btn.addEventListener('click', ()=&gt;{ comparison =
-      comparison.filter(c=&gt;c.product !== it.product);
+      <div style="margin-top:6px;color:var(--accent)">
+        ${it.currentPrice ? it.currentPrice + ' ' + (it.currency || 'EGP') : 'غير متاح'}
+      </div>
+    `;
+
+    const btn = document.createElement('button');
+    btn.className = 'btn';
+    btn.textContent = 'إزالة';
+    btn.style.marginTop = '8px';
+    btn.onclick = () => {
+      comparison = comparison.filter(c => c.product !== it.product);
       localStorage.setItem('comparison', JSON.stringify(comparison));
-      renderComparison(); }); box.appendChild(btn); container.appendChild(box);
-      }); if (comparison.length &gt; 0)
-      byId('comparison-panel').style.display='block'; else
-      byId('comparison-panel').style.display='none'; } // overlay flyer function
-      openFlyerFromItem(e){ e.stopPropagation(); const sk =
-      e.currentTarget.dataset.skey ?
-      decodeURIComponent(e.currentTarget.dataset.skey) : ''; if (!sk) {
-      alert('لا يوجد فلاير لهذا العنصر'); return; } const url =
-      `https://www.yabalashoffers.com/flyer.php?d=${encodeURIComponent(sk)}&amp;c=eg`;
-      byId('overlay-iframe').src = url; byId('overlay').style.display='flex';
-      byId('overlay').setAttribute('aria-hidden','false'); } // Update ticker
-      CSS (dynamic keyframes) (function buildTickerKeyframes(){ const style =
-      document.createElement('style'); style.id = 'ticker-anim'; style.innerHTML
-      = ` @keyframes scroll-left { from { transform: translateX(0); } to {
-      transform: translateX(-50%); } } `; document.head.appendChild(style);
-      })(); // pagination/render utilities already defined function
-      exportToCSV(){ try { const headers = ['اسم السوبر ماركت','المنتج','اسم
-      المنتج (الأساسي)','الوحدة','الفئة','العلامة التجارية','السعر
-      الأصلي','السعر الحالي','الخصم %','العبارة الترويجية','ساري حتى']; const
-      rows = filteredData.map(it =&gt; [ it.supermarket || '',
-      `"${(it.product||'').replace(/"/g,'""')}"`,
-      `"${(it.primaryName||'').replace(/"/g,'""')}"`, it.unit || '', it.category
-      || '', it.brand || '', it.originalPrice || '', it.currentPrice || '',
-      it._discount_pct || '', `"${(it.promotion||'').replace(/"/g,'""')}"`,
-      it.rawPeriod || '' ].join(',')); const csv =
-      [headers.join(',')].concat(rows).join('\n'); const blob = new Blob([csv],
-      { type: 'text/csv;charset=utf-8;' }); const link =
-      document.createElement('a'); link.href = URL.createObjectURL(blob);
-      link.download = 'offers_export.csv'; document.body.appendChild(link);
-      link.click(); link.remove(); } catch(e){ console.error('export error', e);
-      alert('فشل التصدير'); } } // mini carousel (left) function
-      renderMiniCarousel(){ const inner = byId('mini-inner'); inner.innerHTML =
-      ''; const candidates = [...allData].filter(i=&gt;i._saved &amp;&amp;
-      i._saved &gt; 0).slice(0,8); if (!candidates.length) { inner.innerHTML = '
-      <div class="mini-item">لا توجد عروض</div>
-      '; return; } candidates.forEach(it =&gt; { const div =
-      document.createElement('div'); div.className='mini-item'; div.innerHTML =
-      `<span style="font-weight:800">${escapeHtml(it.product)}</span> <span style="color:var(--muted);font-size:13px">—
-        ${escapeHtml(it.supermarket)}</span>`; inner.appendChild(div); }); //
-      auto-scroll let idx = 0; clearInterval(window._miniInterval);
-      window._miniInterval = setInterval(()=&gt;{ idx = (idx + 1) % Math.max(1,
-      inner.children.length); inner.style.transform = `translateX(-${idx *
-      100}%)`; }, 3200); } function handleUrlParams(){ const params = new
-      URLSearchParams(window.location.search); const q = params.get('q') ||
-      params.get('query') || params.get('search'); if (q)
-      byId('search-input').value = decodeURIComponent(q); const market =
-      params.get('market') || params.get('store') || params.get('supermarket');
-      if (market) byId('supermarket-filter').value = market; const disc =
-      params.get('discount') || params.get('min_discount') ||
-      params.get('min-discount'); if (disc) byId('min-discount').value = disc;
-      const weekPercent = params.get('week_percent') ||
-      params.get('week-percent'); if (weekPercent) { byId('min-discount').value
-      = weekPercent;
-      document.querySelector('.chip[data-filter="recent"]')?.classList.add('active');
-      } const oneDay = params.get('one_day') || params.get('one-day'); if
-      (oneDay)
-      document.querySelector('.chip[data-filter="recent"]')?.classList.add('active');
-      const view = params.get('view'); if (view &amp;&amp; view === 'table') {
-      currentView='table'; byId('view-table').classList.add('active');
-      byId('view-grid').classList.remove('active'); } const sort =
-      params.get('sort'); if (sort) byId('sort-by').value = sort; const priceMin
-      = params.get('price_min') || params.get('min_price') ||
-      params.get('minprice'); if (priceMin) byId('min-price').value = priceMin;
-      const priceMax = params.get('price_max') || params.get('max_price') ||
-      params.get('maxprice'); if (priceMax) byId('max-price').value = priceMax;
-      const page = parseInt(params.get('page') || params.get('p') || '1', 10);
-      if (!isNaN(page) &amp;&amp; page &gt; 1) currentPage = page;
-      setTimeout(()=&gt;applyFilters(), 150); } // small utilities function
-      debounce(fn, wait=250){ let t; return function(...a){ clearTimeout(t);
-      t=setTimeout(()=&gt;fn.apply(this,a), wait); }; } function escapeHtml(s){
-      if (s===null || s===undefined) return ''; return
-      String(s).replace(/[&amp;&lt;&gt;"']/g,
-      m=&gt;({'&amp;':'&amp;',&lt;':'&lt;','&gt;':'&gt;','"':'"',"'":'''}[m]));
-      } // Kickoff /* document.addEventListener('DOMContentLoaded', async
-      ()=&gt;{ await init(); renderMiniCarousel(); renderComparison(); // show
-      UI if hidden byId('main-content').style.display = 'block'; });*/ // make
-      some functions global used by inline handlers window.openFlyerFromItem =
-      openFlyerFromItem; window.addToCompareFromCard = addToCompareFromCard;
-      window.toggleFavoriteFromCard = toggleFavoriteFromCard; window.exportToCSV
-      = exportToCSV; window.applyFilters = applyFilters; window.resetFilters =
-      function(){ byId('search-input').value='';
-      byId('supermarket-filter').value=''; byId('category-filter').value='';
-      byId('brand-filter').value=''; byId('min-discount').value='';
-      byId('min-price').value=''; byId('max-price').value='';
-      byId('sort-by').value='best-deals';
-      document.querySelectorAll('.chip').forEach(c=&gt;c.classList.remove('active'));
-      document.querySelector('.chip[data-filter="all"]')?.classList.add('active');
-      activeChipFilter='all'; }; document.addEventListener("DOMContentLoaded",
-      function () { const params = new URLSearchParams(window.location.search);
-      const dayPercent = params.get('one_day'); const weekPercent =
-      params.get('week_percent'); if (dayPercent !== null) {
-      document.getElementById('min-discount').value = dayPercent;
-      activeChipFilter = 'day'; // الاسم الفعلي عندك } if (weekPercent !== null)
-      { document.getElementById('min-discount').value = weekPercent;
-      activeChipFilter = 'week'; // الاسم الفعلي عندك } if (dataLoaded) {
-      applyAllFilters(); }
-      }); function handleUrlSearchExpanded(){ const params = new
-      URLSearchParams(window.location.search); // search query const q =
-      params.get('q'); if (q) { const input =
-      document.getElementById('search-input'); if (input) input.value =
-      decodeURIComponent(q); } // supermarket (exact value matching your select
-      options) const market = params.get('market'); if (market) { const sel =
-      document.getElementById('supermarket-filter'); if (sel) sel.value =
-      market; } // discount param -&gt; set min-discount const discount =
-      params.get('discount') || params.get('min_discount'); if (discount
-      &amp;&amp; document.getElementById('min-discount')) {
-      document.getElementById('min-discount').value = discount; } //
-      week_percent -&gt; apply 'recent' mode and set min-discount (example)
-      const weekPercent = params.get('week_percent'); if (weekPercent) {
-      document.getElementById('min-discount').value = weekPercent;
-      activeChipFilter = 'recent'; // or a custom 'recent_extended' if you
-      implement it } // one_day param -&gt; set activeChipFilter recent_day (if
-      implemented) const oneDay = params.get('one_day'); if (oneDay) {
-      activeChipFilter = 'recent'; } // view / sort const view =
-      params.get('view'); // 'table' or 'grid' if (view) { currentView = view
-      === 'table' ? 'table' : 'grid';
-      document.getElementById('view-grid-btn').classList.toggle('active',
-      currentView === 'grid');
-      document.getElementById('view-table-btn').classList.toggle('active',
-      currentView === 'table'); } const sort = params.get('sort'); if (sort
-      &amp;&amp; document.getElementById('sort-by'))
-      document.getElementById('sort-by').value = sort; // Finally apply filters
-      once params set applyAllFilters(); } </totalpages){>
+      renderComparison();
+    };
+
+    box.appendChild(btn);
+    container.appendChild(box);
+  });
+
+  byId('comparison-panel').style.display =
+    comparison.length > 0 ? 'block' : 'none';
+}
+
+/* =========================
+   MINI CAROUSEL
+========================= */
+function renderMiniCarousel() {
+  const inner = byId('mini-inner');
+  if (!inner) return;
+
+  inner.innerHTML = '';
+  const candidates = allData.filter(i => i._saved > 0).slice(0, 8);
+
+  if (!candidates.length) {
+    inner.innerHTML = '<div class="mini-item">لا توجد عروض</div>';
+    return;
+  }
+
+  candidates.forEach(it => {
+    const div = document.createElement('div');
+    div.className = 'mini-item';
+    div.innerHTML = `
+      <strong>${escapeHtml(it.product)}</strong>
+      <span style="color:var(--muted);font-size:13px">
+        — ${escapeHtml(it.supermarket || '')}
+      </span>`;
+    inner.appendChild(div);
+  });
+
+  let idx = 0;
+  clearInterval(window._miniInterval);
+  window._miniInterval = setInterval(() => {
+    idx = (idx + 1) % inner.children.length;
+    inner.style.transform = `translateX(-${idx * 100}%)`;
+  }, 3200);
+}
+
+/* =========================
+   URL PARAMS
+========================= */
+function handleUrlParams() {
+  const params = new URLSearchParams(window.location.search);
+
+  const q = params.get('q');
+  if (q) byId('search-input').value = decodeURIComponent(q);
+
+  const disc = params.get('discount');
+  if (disc) byId('min-discount').value = disc;
+
+  if (params.get('one_day')) activeChipFilter = 'recent_day';
+  if (params.get('week_percent')) activeChipFilter = 'recent';
+
+  applyAllFilters();
+}
+
+/* =========================
+   EXPORT GLOBALS
+========================= */
+window.addToCompareFromCard = addToCompareFromCard;
+window.toggleFavoriteFromCard = toggleFavoriteFromCard;
+window.applyFilters = applyAllFilters;
+</script>
+
   </body>
 </html>
