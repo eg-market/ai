@@ -1478,35 +1478,5 @@ console.log({
     
     
     
-    
-    
-    function handleUrlSearchExpanded(){ const params = new
-    URLSearchParams(window.location.search); // search query const q =
-    params.get('q'); if (q) { const input =
-    document.getElementById('search-input'); if (input) input.value =
-    decodeURIComponent(q); } // supermarket (exact value matching your select
-    options) const market = params.get('market'); if (market) { const sel =
-    document.getElementById('supermarket-filter'); if (sel) sel.value = market;
-    } // discount param -&gt; set min-discount const discount =
-    params.get('discount') || params.get('min_discount'); if (discount
-    &amp;&amp; document.getElementById('min-discount')) {
-    document.getElementById('min-discount').value = discount; } // week_percent
-    -&gt; apply 'recent' mode and set min-discount (example) const weekPercent =
-    params.get('week_percent'); if (weekPercent) {
-    document.getElementById('min-discount').value = weekPercent;
-    activeChipFilter = 'recent'; // or a custom 'recent_extended' if you
-    implement it } // one_day param -&gt; set activeChipFilter recent_day (if
-    implemented) const oneDay = params.get('one_day'); if (oneDay) {
-    activeChipFilter = 'recent'; } // view / sort const view =
-    params.get('view'); // 'table' or 'grid' if (view) { currentView = view ===
-    'table' ? 'table' : 'grid';
-    document.getElementById('view-grid-btn').classList.toggle('active',
-    currentView === 'grid');
-    document.getElementById('view-table-btn').classList.toggle('active',
-    currentView === 'table'); } const sort = params.get('sort'); if (sort
-    &amp;&amp; document.getElementById('sort-by'))
-    document.getElementById('sort-by').value = sort; // Finally apply filters
-    once params set applyAllFilters();
-    }
   </body>
 </html>
