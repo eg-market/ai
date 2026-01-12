@@ -821,7 +821,7 @@ function applyAllFilters(){
     filteredData = allData.filter(item=>{
       try {
         // chip date filters
-        if (activeChipFilter === 'one_day') {
+        if (activeChipFilter === 'recent_day') {
           if (!item._date || !newestDateObj) return false;
           const diff = (newestDateObj - item._date) / 86400000;
           if (diff < 0 || diff > 1) return false;
