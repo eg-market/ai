@@ -826,7 +826,7 @@ function applyAllFilters(){
           const diff = (newestDateObj - item._date) / 86400000;
           if (diff < 0 || diff > 1) return false;
         }
-        if (activeChipFilter === 'week') {
+        if (activeChipFilter === 'recent_week') {
           if (!item._date || !newestDateObj) return false;
           const diff = (newestDateObj - item._date) / 86400000;
           if (diff < 0 || diff > 7) return false;
@@ -1322,7 +1322,7 @@ function handleUrlParams() {
   if (disc) byId('min-discount').value = disc;
 
   if (params.get('one_day')) activeChipFilter = 'recent_day';
-  if (params.get('week_percent')) activeChipFilter = 'recent';
+  if (params.get('week_percent')) activeChipFilter = 'recent_week';
 
   applyAllFilters();
 }
