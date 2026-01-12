@@ -499,103 +499,185 @@ defer="defer"></script>
 
       // Load CSV via PapaParse (DATA_URL returns CSV text)
 // Replace your existing loadDataFromExcelOrCSV with this robust version:
-async function loadDataFromExcelOrCSV(){
-  try {
-    const res = await fetch(DATA_URL);
-    if (!res.ok) throw new Error('HTTP ' + res.status);
-    const txt = await res.text();
+      
+      
+         // Parse CSV text with PapaParse using worker if possible; fallback to non-worker
+function papaParseAsync(csvText, opts = {}) {
+  return new Promise((resolve, reject) => {
+    let finished = false;
+    const parseTimeout = opts.parseTimeout || 60000;
+    const timer = setTimeout(() => {
+      if (!finished) {
+        finished = true;
+        reject(new Error('CSV parse timeout'));
+      }
+    }, parseTimeout);
 
-    // Parse CSV with PapaParse
-    const parsed = Papa.parse(txt, { header: true, skipEmptyLines: true, trim: false });
+    // Try worker first
+    try {
+      Papa.parse(csvText, Object.assign({
+        header: true,
+        skipEmptyLines: true,
+        worker: true,
+        complete: results => {
+          if (finished) return;
+          finished = true;
+          clearTimeout(timer);
+          resolve(results);
+        },
+        error: err => {
+          // Worker failed (CSP, file://, browser), fallback below
+          console.warn('Papa.parse worker error - retrying without worker', err);
+          try {
+            Papa.parse(csvText, Object.assign({
+              header: true,
+              skipEmptyLines: true,
+              worker: false,
+              complete: results2 => {
+                if (finished) return;
+                finished = true;
+                clearTimeout(timer);
+                resolve(results2);
+              },
+              error: err2 => {
+                if (finished) return;
+                finished = true;
+                clearTimeout(timer);
+                reject(err2);
+              }
+            }, opts));
+          } catch (err2) {
+            if (!finished) { finished = true; clearTimeout(timer); reject(err2); }
+          }
+        }
+      }, opts));
+    } catch (e) {
+      // If calling with worker=true throws synchronously, fallback to non-worker
+      console.warn('Papa.parse(worker) threw, falling back to non-worker parse', e);
+      try {
+        Papa.parse(csvText, Object.assign({
+          header: true,
+          skipEmptyLines: true,
+          worker: false,
+          complete: results => {
+            if (finished) return;
+            finished = true;
+            clearTimeout(timer);
+            resolve(results);
+          },
+          error: err3 => {
+            if (finished) return;
+            finished = true;
+            clearTimeout(timer);
+            reject(err3);
+          }
+        }, opts));
+      } catch (err3) {
+        if (!finished) { finished = true; clearTimeout(timer); reject(err3); }
+      }
+    }
+  });
+}
+      
+
+// Fetch with timeout and clear error message for AbortError
+async function fetchWithTimeout(url, timeoutMs = 25000) {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    const res = await fetch(url, { signal: controller.signal });
+    clearTimeout(timeoutId);
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    return await res.text();
+  } catch (err) {
+    clearTimeout(timeoutId);
+    if (err.name === 'AbortError') {
+      throw new Error('طلب تحميل البيانات استغرق وقتاً طويلاً (timeout). جرّب تشغيل الخادم محلياً أو إعادة المحاولة.');
+    }
+    throw err;
+  }
+}      
+      
+      
+// Robust loader: fetch CSV text (with timeout), parse async (worker or fallback),
+// then normalize headers and map rows to canonical objects.
+async function loadDataFromExcelOrCSV() {
+  try {
+    // 1) Fetch CSV text with timeout
+    const csvText = await fetchWithTimeout(DATA_URL, 25000); // 25s timeout
+
+    // 2) Parse CSV using PapaParse (worker if available)
+    const parsed = await papaParseAsync(csvText, { trim: false });
     if (!parsed || !Array.isArray(parsed.data)) throw new Error('CSV parse failed');
 
-    // Get field names (Papa gives meta.fields when header:true)
+    // 3) Header normalization
     const headerFields = (parsed.meta && parsed.meta.fields && parsed.meta.fields.length)
       ? parsed.meta.fields.slice()
       : (parsed.data[0] ? Object.keys(parsed.data[0]) : []);
-
-    console.info('CSV headers:', headerFields);
-    console.info('Sample row (raw):', parsed.data[0]);
-
-    // Normalizer for header keys (remove BOM, NBSP, normalize spaces, lowercase)
     const normalizeKey = s => {
       if (!s && s !== 0) return '';
-      return String(s)
-        .replace(/\uFEFF/g,'')      // BOM
-        .replace(/\u00A0/g,' ')     // NBSP -> space
-        .replace(/\s+/g,' ')        // collapse spaces
-        .trim()
-        .toLowerCase();
+      return String(s).replace(/\uFEFF/g, '').replace(/\u00A0/g, ' ').replace(/\s+/g, ' ').trim().toLowerCase();
     };
-
-    // Build map: normalized -> original header
     const headerMap = {};
     headerFields.forEach(h => { headerMap[normalizeKey(h)] = h; });
 
-    // possible aliases for the "primary name" column (normalized)
+    // 4) Aliases for the "primary name" field
     const primaryAliases = [
-      'اسم المنتج (الأساسي)',
-      'اسم المنتج (الاساسي)', // variation without diacritics
-      'الاسم بالعربية',
-      'اسم المنتج',
-      'product',
-      'primaryname',
-      'primary name',
-      'product name'
+      'اسم المنتج (الأساسي)', 'اسم المنتج (الاساسي)', 'الاسم بالعربية', 'اسم المنتج',
+      'product', 'primaryname', 'primary name', 'product name'
     ].map(normalizeKey);
 
-    // helper to get value from row using a list of aliases (returns first found)
-    const valueByAliases = (row, aliases, defaultVal='') => {
-      for (const a of aliases){
-        if (headerMap[a] && row[ headerMap[a] ] !== undefined) {
-          const v = row[ headerMap[a] ];
+    function valueByAliases(row, aliases, defaultVal = '') {
+      for (const a of aliases) {
+        if (headerMap[a] && row[headerMap[a]] !== undefined) {
+          const v = row[headerMap[a]];
           if (v !== null && String(v).trim() !== '') return String(v).trim();
         }
       }
-      // fallback: try any field that looks like primary (rare)
-      for (const h of headerFields){
+      // fallback heuristic
+      for (const h of headerFields) {
         const n = normalizeKey(h);
-        if (n.includes('primary') || n.includes('basic') || n.includes('الاسم') || n.includes('اساس')) {
+        if (n.includes('primary') || n.includes('basic') || n.includes('الاسم') || n.includes('اساس') || n.includes('product')) {
           const v = row[h];
           if (v !== null && String(v).trim() !== '') return String(v).trim();
         }
       }
       return defaultVal;
-    };
+    }
 
-    // Map rows to normalized objects (tolerant)
+    // 5) Map rows to canonical objects
     const mapped = parsed.data.map(row => {
-      const get = keyAliases => valueByAliases(row, keyAliases, '');
-      const originalPrice = parseFloat(row[ headerMap[normalizeKey('السعر الأصلي')] ] || row['السعر الأصلي'] || row['originalPrice'] || 0) || 0;
-      const currentPrice = parseFloat(row[ headerMap[normalizeKey('السعر الحالي')] ] || row['السعر الحالي'] || row['currentPrice'] || 0) || 0;
-      const discount = parseFloat(row[ headerMap[normalizeKey('الخصم %')] ] || row['الخصم %'] || row['discount'] || 0) || 0;
+      const originalPrice = parseFloat(row[headerMap[normalizeKey('السعر الأصلي')]] || row['السعر الأصلي'] || row['originalPrice'] || 0) || 0;
+      const currentPrice = parseFloat(row[headerMap[normalizeKey('السعر الحالي')]] || row['السعر الحالي'] || row['currentPrice'] || 0) || 0;
+      const discount = parseFloat(row[headerMap[normalizeKey('الخصم %')]] || row['الخصم %'] || row['discount'] || 0) || 0;
 
       return {
-        supermarket: (row[ headerMap[normalizeKey('اسم السوبر ماركت')] ] || row['اسم السوبر ماركت'] || row['supermarket'] || '').trim() || 'غير متاح',
-        product: (row[ headerMap[normalizeKey('الاسم بالعربية')] ] || row['الاسم بالعربية'] || row['product'] || '').trim() || 'غير متاح',
-        primaryName: valueByAliases(row, primaryAliases, ''), // <--- robust extraction
-        category: (row[ headerMap[normalizeKey('الفئة')] ] || row['الفئة'] || row['category'] || '').trim() || '',
-        brand: (row[ headerMap[normalizeKey('اسم العلامة التجارية')] ] || row['اسم العلامة التجارية'] || row['brand'] || '').trim() || '',
+        supermarket: (row[headerMap[normalizeKey('اسم السوبر ماركت')]] || row['اسم السوبر ماركت'] || row['supermarket'] || '').trim() || 'غير متاح',
+        product: (row[headerMap[normalizeKey('الاسم بالعربية')]] || row['الاسم بالعربية'] || row['product'] || '').trim() || 'غير متاح',
+        primaryName: valueByAliases(row, primaryAliases, ''),
+        category: (row[headerMap[normalizeKey('الفئة')]] || row['الفئة'] || row['category'] || '').trim() || '',
+        brand: (row[headerMap[normalizeKey('اسم العلامة التجارية')]] || row['اسم العلامة التجارية'] || row['brand'] || '').trim() || '',
         originalPrice,
         currentPrice,
         discount,
-        promotion: (row[ headerMap[normalizeKey('العبارة الترويجية')] ] || row['العبارة الترويجية'] || row['promotion'] || '').trim() || '',
-        rawPeriod: (row[ headerMap[normalizeKey('فترة سريان العرض')] ] || row['فترة سريان العرض'] || row['validUntil'] || '').trim() || '',
-        pageNo: row[ headerMap[normalizeKey('pageNo')] ] || row['pageNo'] || row['page_no'] || '',
-        solution_key: row[ headerMap[normalizeKey('solution_key')] ] || row['solution_key'] || row['solution key'] || '',
-        currency: (row[ headerMap[normalizeKey('العملة')] ] || row['العملة'] || row['currency'] || 'EGP').trim(),
-        unit: (row[ headerMap[normalizeKey('الوحدة')] ] || row['الوحدة'] || row['unit'] || '').trim()
+        promotion: (row[headerMap[normalizeKey('العبارة الترويجية')]] || row['العبارة الترويجية'] || row['promotion'] || '').trim() || '',
+        rawPeriod: (row[headerMap[normalizeKey('فترة سريان العرض')]] || row['فترة سريان العرض'] || row['validUntil'] || '').trim() || '',
+        pageNo: row[headerMap[normalizeKey('pageno')]] || row['pageNo'] || row['page_no'] || '',
+        solution_key: row[headerMap[normalizeKey('solution_key')]] || row['solution_key'] || row['solution key'] || '',
+        currency: (row[headerMap[normalizeKey('العملة')]] || row['العملة'] || row['currency'] || 'EGP').trim() || 'EGP',
+        unit: (row[headerMap[normalizeKey('الوحدة')]] || row['الوحدة'] || row['unit'] || '').trim() || ''
       };
     });
 
-    // Log a few mapped rows to verify
-    console.info('Mapped sample rows:', mapped.slice(0,3));
+    console.info('loadData: parsed rows', mapped.length, 'sample:', mapped.slice(0,3));
     return mapped;
   } catch (err) {
     console.error('loadDataFromExcelOrCSV error:', err);
     throw err;
   }
-}
+}      
+      
+      
       function computeSavedAndDiscount(arr){
         arr.forEach(item=>{
           const orig = Number(item.originalPrice) || 0;
@@ -623,48 +705,69 @@ async function loadDataFromExcelOrCSV(){
         });
       }
 
-      async function fetchData(){
-        showLoadingMessage();
-        try {
-          // try cache
-          const cached = localStorage.getItem(CACHE_KEY);
-          const cachedTime = Number(localStorage.getItem(CACHE_KEY + '_time') || 0);
-          if (cached && (Date.now() - cachedTime) < CACHE_EXPIRY) {
-            try {
-              const decompressed = LZString.decompressFromUTF16(cached);
-              const parsed = JSON.parse(decompressed);
-              if (Array.isArray(parsed) && parsed.length) {
-                allData = parsed;
-              }
-            } catch(e){
-              console.warn('cache read failed', e);
-            }
-          }
-          if (!allData || !allData.length) {
-            allData = await loadDataFromExcelOrCSV();
-            try {
-              localStorage.setItem(CACHE_KEY, LZString.compressToUTF16(JSON.stringify(allData)));
-              localStorage.setItem(CACHE_KEY + '_time', String(Date.now()));
-            } catch(e){ console.warn('cache save failed', e); }
-          }
+async function fetchData() {
+  showLoadingMessage('جارٍ تحميل البيانات...');
+  try {
+    // 1) Try cache first
+    const cached = localStorage.getItem(CACHE_KEY);
+    const cachedTime = Number(localStorage.getItem(CACHE_KEY + '_time') || 0);
+    if (cached && (Date.now() - cachedTime) < CACHE_EXPIRY) {
+      try {
+        const decompressed = LZString.decompressFromUTF16(cached);
+        const parsed = JSON.parse(decompressed);
+        if (Array.isArray(parsed) && parsed.length) {
+          allData = parsed;
+        }
+      } catch (e) {
+        console.warn('cache read failed, will fetch fresh', e);
+      }
+    }
 
-          // normalize dates
-          allData.forEach(i=>{
-            i._date = (function(){
-              // try various fields
-              const fields = [i['updateDate'], i['date'], i['rawPeriod'], i['rawPeriod'] || i['rawPeriod'], i.rawPeriod, i.validUntil, i.rawPeriod];
-              if(i.rawPeriod) fields.unshift(i.rawPeriod);
-              // try parseEndDate on rawPeriod
-              if (i.rawPeriod) {
-                const d = parseEndDate(i.rawPeriod);
-                if (d) return d;
-              }
-              // try explicit date fields
-              if (i._date) { const d = new Date(i._date); if(isValidDate(d)) return stripTime(d); }
-              if (i.date) { const d = new Date(i.date); if(isValidDate(d)) return stripTime(d); }
-              return null;
-            })();
-            
+    // 2) If no cache, load from remote CSV
+    if (!allData || !allData.length) {
+      allData = await loadDataFromExcelOrCSV(); // this uses fetchWithTimeout + papaParseAsync
+      // store cache (best-effort)
+      try {
+        localStorage.setItem(CACHE_KEY, LZString.compressToUTF16(JSON.stringify(allData)));
+        localStorage.setItem(CACHE_KEY + '_time', String(Date.now()));
+      } catch (e) {
+        console.warn('cache save failed', e);
+      }
+    }
+
+    // 3) Normalize dates and compute saved/discount/score
+    allData.forEach(item => {
+      // normalize date: prefer rawPeriod via parseEndDate, else try updateDate/date fields
+      item._date = null;
+      if (item.rawPeriod) {
+        const d = parseEndDate(item.rawPeriod);
+        if (d) item._date = d;
+      }
+      if (!item._date && item.updateDate) { const d = new Date(item.updateDate); if (isValidDate(d)) item._date = stripTime(d); }
+      if (!item._date && item.date) { const d = new Date(item.date); if (isValidDate(d)) item._date = stripTime(d); }
+    });
+
+    computeSavedAndDiscount(allData);
+    computeCombinedScore(allData);
+
+    // 4) compute latestTwoDates used by "recent" filters
+    const dates = [...new Set(allData.filter(i => i._date instanceof Date).map(i => formatDateShort(i._date)))].sort().reverse();
+    latestTwoDates = dates.slice(0,2);
+
+    dataLoaded = true;
+
+    // 5) initialize filters and apply
+    if (typeof initializeFilters === 'function') initializeFilters();
+    if (typeof applyAllFilters === 'function') applyAllFilters();
+    if (typeof populateTicker === 'function') populateTicker();
+  } catch (err) {
+    console.error('fetchData error:', err);
+    // friendly message to user
+    alert('فشل تحميل البيانات: ' + (err.message || err));
+  } finally {
+    hideLoadingMessage();
+  }
+}            
            
             
             // ===== apply URL params filters AFTER data load =====
@@ -690,34 +793,8 @@ if (weekPercent !== null) {
            dataLoaded = true;
 applyAllFilters();
 
-            
-            
-if (Array.isArray(latestTwoDates) && latestTwoDates.length > 0) {
-  const d = new Date(latestTwoDates[0]);
-  if (!isNaN(d)) {
-    d.setHours(0,0,0,0);
-  }
-}
-
-            
-          });
-
-          computeSavedAndDiscount(allData);
-          computeCombinedScore(allData);
-
-          // compute latestTwoDates set
-          const dates = [...new Set(allData.filter(x=>x._date instanceof Date).map(x=>formatDateShort(x._date)))].sort().reverse();
-          latestTwoDates = dates.slice(0,2);
-
-          // Step 6 — cache newest date ONCE
-let newestDateObj = null;
-if (latestTwoDates.length) {
-  const d = new Date(latestTwoDates[0]);
-  if (!isNaN(d)) {
-    d.setHours(0,0,0,0);
-  }
-}
-
+           
+        
 if (Array.isArray(latestTwoDates) && latestTwoDates.length > 0) {
   const d = new Date(latestTwoDates[0]);
   if (!isNaN(d)) {
@@ -725,19 +802,7 @@ if (Array.isArray(latestTwoDates) && latestTwoDates.length > 0) {
   }
 }
 
-          
-          dataLoaded = true;
-          initializeFilters();
-          applyAllFilters();
-          populateTicker();
-        } catch(err){
-          console.error('fetchData error', err);
-          alert('فشل تحميل البيانات: ' + (err.message || err));
-        } finally {
-          hideLoadingMessage();
-        }
-      }
-      
+           
       console.table(
   allData.slice(0,5).map(i=>({
     product: i.product,
@@ -780,7 +845,7 @@ if (Array.isArray(latestTwoDates) && latestTwoDates.length > 0) {
             const market = it.supermarket || '';
             const discount = it._discount_pct ? `${it._discount_pct}%` : '';
             const saved = it._saved ? `${it._saved} ${it.currency||'EGP'}` : '';
-            el.innerHTML = `<span class="badge">${discount}</span> <span>${name}</span> <span style="opacity:.85">— ${market}</span> <span style="color:var(--ticker-accent); margin-inline-start:8px;">وفر ${saved}</span>`;
+            el.innerHTML = <span class="badge">${discount}</span> <span>${name}</span> <span style="opacity:.85">— ${market}</span> <span style="color:var(--ticker-accent); margin-inline-start:8px;">وفر ${saved}</span>;
             fragment.appendChild(el);
           });
 
@@ -868,9 +933,10 @@ if (activeChipFilter === 'week') {
               if (inputs.category && String(item.category || '') !== inputs.category) return false;
               if (inputs.brand && String(item.brand || '') !== inputs.brand) return false;
               if (inputs.search){
-                const hay = `${item.product || ''} ${item.primaryName || ''} ${item.brand || ''} ${item.supermarket || ''}.toLowerCase();
-                if (!hay.includes(inputs.search)) return false;
-              }
+if (inputs.search) {
+  const hay = `${(item.product || '')} ${(item.primaryName || '')} ${(item.brand || '')} ${(item.supermarket || '')}`.toLowerCase();
+  if (!hay.includes(inputs.search)) return false;
+}              
               // chip-based simple handling (hot/discount/recent)
               if (activeChipFilter === 'hot' && (item._discount_pct || 0) < 30) return false;
               if (activeChipFilter === 'discount' && (item._discount_pct || 0) < 20) return false;
@@ -950,7 +1016,7 @@ console.log({
           grid.style.gridTemplateColumns = 'repeat(auto-fill, minmax(280px, 1fr))';
           const pageData = getPagedData();
           if (!pageData.length){
-            grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:40px;color:#666;">لا توجد عروض مطابقة</div>`;
+            grid.innerHTML = <div style="grid-column:1/-1;text-align:center;padding:40px;color:#666;">لا توجد عروض مطابقة</div>;
             updatePagination();
             return;
           }
@@ -959,23 +1025,23 @@ console.log({
             card.className = 'product-card';
             if(item._discount_pct && item._discount_pct >= 20) card.classList.add('highlight');
             // Basic card content (keeps UI simple and stable)
-            const bestBadge = (item._discount_pct && item._discount_pct > 40) ? `<div class="product-badge">أفضل عرض</div>` : '';
-            const savedHtml = item._saved ? `<div style="font-size:0.9rem;color:var(--success-green);font-weight:600;">وفر ${item._saved} ${item.currency||'EGP'}</div>` : '';
+            const bestBadge = (item._discount_pct && item._discount_pct > 40) ? <div class="product-badge">أفضل عرض</div> : '';
+            const savedHtml = item._saved ? <div style="font-size:0.9rem;color:var(--success-green);font-weight:600;">وفر ${item._saved} ${item.currency||'EGP'}</div>` : '';
             const countdownDays = item._date ? Math.ceil((item._date - new Date()) / (1000*60*60*24)) : null;
-            const countdownHtml = (countdownDays !== null && countdownDays >= 0 && countdownDays <=7) ? `<div class="countdown"><i class="fas fa-clock"></i> ${countdownDays} يوم متبقي</div>` : '';
-            card.innerHTML = `
+            const countdownHtml = (countdownDays !== null && countdownDays >= 0 && countdownDays <=7) ? <div class="countdown"><i class="fas fa-clock"></i> ${countdownDays} يوم متبقي</div>` : '';
+            card.innerHTML = 
               ${bestBadge}
               <div class="favorite-btn" data-id="${escapeHtml(item.product)}"><i class="fas fa-heart"></i></div>
               <div class="product-image"><i class="fas fa-box"></i></div>
               <div class="product-info">
                 <h3 class="product-title">${escapeHtml(item.product)}</h3>
-                ${item.primaryName ? `<div style="font-size:0.9rem;color:#666;margin-bottom:5px;">${escapeHtml(item.primaryName)}</div>` : ''}
+                ${item.primaryName ? <div style="font-size:0.9rem;color:#666;margin-bottom:5px;">${escapeHtml(item.primaryName)}</div>` : ''}
                 <div class="price-container">
                   <div style="display:flex;flex-direction:column;gap:3px;">
                     <span class="current-price">${item.currentPrice ? item.currentPrice + ' ' + (item.currency||'EGP') : 'غير متاح'}</span>
                     ${savedHtml}
                   </div>
-                  ${item._discount_pct ? `<span class="discount-badge">-${item._discount_pct}%</span>` : ''}
+                  ${item._discount_pct ? <span class="discount-badge">-${item._discount_pct}%</span> : ''}
                 </div>
                 <div class="product-meta">
                   <div class="supermarket-logo"><i class="fas fa-store"></i><span>${escapeHtml(item.supermarket)}</span></div>
@@ -986,7 +1052,7 @@ console.log({
                   <button class="btn btn-primary buy-now-btn" data-id="${escapeHtml(item.product)}"><i class="fas fa-shopping-cart"></i> شراء الآن</button>
                 </div>
               </div>
-            `;
+         ;
             // click handlers
             card.querySelector('.view-details-btn')?.addEventListener('click', (e)=>{ e.stopPropagation(); showDetails(item); });
             card.querySelector('.buy-now-btn')?.addEventListener('click', (e)=>{ e.stopPropagation(); openFlyer(item); });
@@ -1006,7 +1072,7 @@ console.log({
           tbody.innerHTML = '';
           const pageData = getPagedData();
           if (!pageData.length){
-            tbody.innerHTML = `<tr><td colspan="10" style="text-align:center;padding:40px;color:#666">لا توجد عروض مطابقة</td></tr>`;
+            tbody.innerHTML = <tr><td colspan="10" style="text-align:center;padding:40px;color:#666">لا توجد عروض مطابقة</td></tr>;
             updatePagination();
             return;
           }
@@ -1022,10 +1088,10 @@ console.log({
               <td>${escapeHtml(item.category)}</td>
               <td>${escapeHtml(item.brand)}</td>
               <td><strong style="color:var(--primary-blue);">${item.currentPrice ? item.currentPrice + ' ' + (item.currency||'EGP') : 'غير متاح'}</strong></td>
-              <td>${item._discount_pct ? `<span class="discount-badge">-${item._discount_pct}%</span>` : 'غير متاح'}</td>
-              <td>${item._saved ? `<span style="color:var(--success-green);font-weight:600">${item._saved} ${item.currency||'EGP'}</span>` : 'غير متاح'}</td>
+              <td>${item._discount_pct ? <span class="discount-badge">-${item._discount_pct}%</span> : 'غير متاح'}</td>
+              <td>${item._saved ? <span style="color:var(--success-green);font-weight:600">${item._saved} ${item.currency||'EGP'}</span>` : 'غير متاح'}</td>
               <td>${item._date ? formatDateShort(item._date) : 'غير متاح'}</td>
-            `;
+            ;
             tbody.appendChild(tr);
           });
           updatePagination();
@@ -1093,7 +1159,7 @@ console.log({
 
       function showDetails(item){
         if (!item) return;
-        const details = `
+        const details = 
           اسم المنتج: ${item.product || 'غير متاح'}
           الاسم الأساسي: ${item.primaryName || 'غير متاح'}
           السوبرماركت: ${item.supermarket || 'غير متاح'}
@@ -1103,10 +1169,32 @@ console.log({
           الخصم: ${item._discount_pct ? item._discount_pct + '%' : 'غير متاح'}
           التوفير: ${item._saved ? item._saved + ' ' + (item.currency||'EGP') : 'غير متاح'}
           ساري حتى: ${item._date ? formatDateShort(item._date) : 'غير متاح'}
-        `;
+        ;
         alert(details);
       }
 
+      
+      function byId(id){ return document.getElementById(id); }
+
+// ensure a single app init function exists
+async function init(){
+  try {
+    // إذا لديك fetchData أو loadData, نادِها هنا
+    if (typeof fetchData === 'function') {
+      await fetchData();
+    } else if (typeof loadDataFromExcelOrCSV === 'function') {
+      allData = await loadDataFromExcelOrCSV();
+    }
+    // بَعْد التحميل: تهيئة الواجهات
+    if (typeof initializeFilters === 'function') initializeFilters();
+    if (typeof applyAllFilters === 'function') applyAllFilters();
+  } catch(err){
+    console.error('init error', err);
+    alert('حدث خطأ في التهيئة: ' + (err.message || err));
+  }
+}
+      
+      
       function toggleFavorite(productId){
         try {
           const idx = favorites.indexOf(productId);
@@ -1212,9 +1300,9 @@ console.log({
             const d = document.createElement('div'); d.textContent = s; d.addEventListener('click', ()=>{ document.getElementById('search-input').value = s; clearAutocomplete(); applyAllFilters(); }); list.appendChild(d);
           });
           const rect = document.getElementById('search-input').getBoundingClientRect();
-          list.style.left = `${Math.max(8, rect.left + window.scrollX)}px`;
-          list.style.top = `${rect.bottom + window.scrollY}px`;
-          list.style.minWidth = `${rect.width}px`;
+          list.style.left = ${Math.max(8, rect.left + window.scrollX)}px;
+          list.style.top = ${rect.bottom + window.scrollY}px;
+          list.style.minWidth = ${rect.width}px;
         } catch(e){ console.error('autocomplete error', e); }
       }
       function clearAutocomplete(){ const l = document.getElementById('autocomplete-list'); if(l) l.remove(); }
@@ -1235,7 +1323,7 @@ console.log({
         } catch(e){ console.error('shareApp failed', e); }
       }
 
-      function escapeHtml(str){ if(!str && str !== 0) return ''; return String(str).replace(/[&<>"']/g, (m)=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
+      function escapeHtml(str){ if(!str && str !== 0) return ''; return String(str).replace(/[&<>"']/g, (m)=>({'&':'&amp;',<':'&lt;','>:'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
 
       // open flyer (solution_key)
       function openFlyer(item){
@@ -1262,7 +1350,6 @@ console.log({
       /* Boot */
     </script> 
     
-////////////////////////////////////////////////////////////////
 
 
   function renderPagination(){
@@ -1445,16 +1532,18 @@ console.log({
 
   // small utilities
   function debounce(fn, wait=250){ let t; return function(...a){ clearTimeout(t); t=setTimeout(()=>fn.apply(this,a), wait); }; }
-  function escapeHtml(s){ if (s===null || s===undefined) return ''; return String(s).replace(/[&<>"']/g, m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
+  function escapeHtml(s){ if (s===null || s===undefined) return ''; return String(s).replace(/[&<>"']/g, m=>({'&':'&amp;',<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
 
   // Kickoff
+    
+    /*
   document.addEventListener('DOMContentLoaded', async ()=>{
     await init();
     renderMiniCarousel();
     renderComparison();
     // show UI if hidden
     byId('main-content').style.display = 'block';
-  });
+  });*/
 
     
     
