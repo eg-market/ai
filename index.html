@@ -665,9 +665,7 @@ async function loadDataFromExcelOrCSV(){
               return null;
             })();
             
-            // ===== PATCH: cache newest date once =====
-let newestDateObj = null;
-
+           
             
             // ===== apply URL params filters AFTER data load =====
 const params = new URLSearchParams(window.location.search);
@@ -698,7 +696,6 @@ if (Array.isArray(latestTwoDates) && latestTwoDates.length > 0) {
   const d = new Date(latestTwoDates[0]);
   if (!isNaN(d)) {
     d.setHours(0,0,0,0);
-    newestDateObj = d;
   }
 }
 
@@ -714,12 +711,17 @@ if (Array.isArray(latestTwoDates) && latestTwoDates.length > 0) {
 
           // Step 6 — cache newest date ONCE
 let newestDateObj = null;
+if (latestTwoDates.length) {
+  const d = new Date(latestTwoDates[0]);
+  if (!isNaN(d)) {
+    d.setHours(0,0,0,0);
+  }
+}
 
 if (Array.isArray(latestTwoDates) && latestTwoDates.length > 0) {
   const d = new Date(latestTwoDates[0]);
   if (!isNaN(d)) {
     d.setHours(0,0,0,0); // normalize
-    newestDateObj = d;
   }
 }
 
@@ -746,6 +748,8 @@ if (Array.isArray(latestTwoDates) && latestTwoDates.length > 0) {
 );
 
       
+      fetchData();
+
 
       /* Ticker population */
       function populateTicker(){
@@ -809,6 +813,18 @@ if (Array.isArray(latestTwoDates) && latestTwoDates.length > 0) {
         };
       }
 
+                                  
+  function passRecentFilter(itemDate, daysLimit) {
+  if (!itemDate || !newestDateObj) return false;
+
+  const diffDays =
+    (newestDateObj - itemDate) / 86400000;
+
+  return diffDays >= 0 && diffDays <= daysLimit;
+}
+
+
+                                  
       function applyAllFilters(){
                                   
                                   if (!dataLoaded) return;
@@ -830,6 +846,20 @@ if (Array.isArray(latestTwoDates) && latestTwoDates.length > 0) {
           const minPrice = inputs.minPriceRaw === '' ? 0 : (parseFloat(inputs.minPriceRaw) || 0);
           const maxPrice = inputs.maxPriceRaw === '' ? Infinity : (parseFloat(inputs.maxPriceRaw) || Infinity);
           filteredData = allData.filter(item=>{
+          // فلتر 1 يوم
+if (activeChipFilter === 'day') {
+  if (!item._date || !newestDateObj) return false;
+  const diff = (newestDateObj - item._date) / 86400000;
+  if (diff < 0 || diff > 1) return false;
+}
+
+// فلتر 7 أيام
+if (activeChipFilter === 'week') {
+  if (!item._date || !newestDateObj) return false;
+  const diff = (newestDateObj - item._date) / 86400000;
+  if (diff < 0 || diff > 7) return false;
+}
+
             try {
               const price = Number(item.currentPrice) || 0;
               if (price < minPrice || price > maxPrice) return false;
@@ -905,16 +935,6 @@ console.log({
   newestDateObj,
   sampleDate: allData.find(i => i._date)?._date
 });
-
-
-  function passRecentFilter(itemDate, daysLimit) {
-  if (!itemDate || !newestDateObj) return false;
-
-  const diffDays =
-    (newestDateObj - itemDate) / 86400000;
-
-  return diffDays >= 0 && diffDays <= daysLimit;
-}
 
   
       function getPagedData(){
@@ -1240,12 +1260,6 @@ console.log({
       }
 
       /* Boot */
-      document.addEventListener('DOMContentLoaded', ()=>{
-        // initialize small default UI state
-        initializeFilters();
-        // fetch data and render
-        fetchData().then(()=>{ handleUrlSearch(); }).catch(e=>console.error(e));
-      });
     </script> 
     
 ////////////////////////////////////////////////////////////////
@@ -1478,5 +1492,35 @@ console.log({
     
     
     
+    
+    
+    function handleUrlSearchExpanded(){ const params = new
+    URLSearchParams(window.location.search); // search query const q =
+    params.get('q'); if (q) { const input =
+    document.getElementById('search-input'); if (input) input.value =
+    decodeURIComponent(q); } // supermarket (exact value matching your select
+    options) const market = params.get('market'); if (market) { const sel =
+    document.getElementById('supermarket-filter'); if (sel) sel.value = market;
+    } // discount param -&gt; set min-discount const discount =
+    params.get('discount') || params.get('min_discount'); if (discount
+    &amp;&amp; document.getElementById('min-discount')) {
+    document.getElementById('min-discount').value = discount; } // week_percent
+    -&gt; apply 'recent' mode and set min-discount (example) const weekPercent =
+    params.get('week_percent'); if (weekPercent) {
+    document.getElementById('min-discount').value = weekPercent;
+    activeChipFilter = 'recent'; // or a custom 'recent_extended' if you
+    implement it } // one_day param -&gt; set activeChipFilter recent_day (if
+    implemented) const oneDay = params.get('one_day'); if (oneDay) {
+    activeChipFilter = 'recent'; } // view / sort const view =
+    params.get('view'); // 'table' or 'grid' if (view) { currentView = view ===
+    'table' ? 'table' : 'grid';
+    document.getElementById('view-grid-btn').classList.toggle('active',
+    currentView === 'grid');
+    document.getElementById('view-table-btn').classList.toggle('active',
+    currentView === 'table'); } const sort = params.get('sort'); if (sort
+    &amp;&amp; document.getElementById('sort-by'))
+    document.getElementById('sort-by').value = sort; // Finally apply filters
+    once params set applyAllFilters();
+    }
   </body>
 </html>
