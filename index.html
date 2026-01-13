@@ -564,6 +564,59 @@ function normalizeExternalParams(raw){
   return params;
 }      
       
+
+      /* === PATCH A: EXTERNAL_STATE + normalizeExternalParams enhancements === */
+/* ضع هذا مباشرة بعد const EXTERNAL = { ... } أو بعد دوال المساعدة */
+let EXTERNAL_STATE = {}; // سيحفظ آخر قيم واردة من مصدر خارجي
+
+// نوسع normalizeExternalParams (إذا لديك نسخة قديمة استبدلها بهذا التعريف)
+function normalizeExternalParams(raw){
+  const params = {};
+  if (!raw || typeof raw !== 'object') return params;
+  // mapping موجود مسبقاً — نضيف معالجة لـ one_day و week_percent
+  const mapping = {
+    q: ['q', 'query', 'search', 'text'],
+    supermarket: ['market', 'store', 'supermarket'],
+    category: ['category', 'cat'],
+    brand: ['brand', 'manufacturer'],
+    minDiscount: ['min_discount','min-discount','discount','discount_pct'],
+    minPrice: ['min_price','min-price','price_min'],
+    maxPrice: ['max_price','max-price','price_max'],
+    sort: ['sort','order'],
+    view: ['view', 'mode'],
+    one_day: ['one_day','one-day','oneday','day'],              // <-- جديد
+    week_percent: ['week_percent','week-percent','weekpercent','week'] // <-- جديد
+  };
+
+  for (const key in mapping){
+    for (const alias of mapping[key]){
+      if (raw[alias] !== undefined && raw[alias] !== null && raw[alias] !== ''){
+        params[key] = raw[alias];
+        break;
+      }
+    }
+  }
+
+  // حالة payload/state المضمنة
+  if (raw.state || raw.payload || raw.data){
+    const p = tryParseJsonSafe(raw.state || raw.payload || raw.data);
+    if (p && typeof p === 'object'){
+      const sub = normalizeExternalParams(p);
+      Object.assign(params, sub);
+    }
+  }
+
+  // تحويل إلى أرقام حيث يلزم
+  if (params.minDiscount !== undefined) params.minDiscount = Number(params.minDiscount) || 0;
+  if (params.minPrice !== undefined) params.minPrice = Number(params.minPrice) || '';
+  if (params.maxPrice !== undefined) params.maxPrice = Number(params.maxPrice) || '';
+  if (params.one_day !== undefined) params.one_day = Number(params.one_day) || Number(params.one_day) === 0 ? Number(params.one_day) : params.one_day;
+  if (params.week_percent !== undefined) params.week_percent = Number(params.week_percent) || Number(params.week_percent) === 0 ? Number(params.week_percent) : params.week_percent;
+
+  return params;
+}
+      
+      
 /* === PATCH: External receiver (postMessage + direct call) === */
 
 function isOriginAllowed(origin){
@@ -661,6 +714,76 @@ window.receiveExternalParams = async function(payload){
   return processExternalParams(payload, { source: window, origin: window.location.origin });
 };      
       
+      
+/* === PATCH B: update processExternalParams to set EXTERNAL_STATE and apply 'one_day'/'week_percent' === */
+async function processExternalParams(object, meta = {}) {
+  try {
+    // parsing مرن
+    let parsed = object;
+    if (typeof object === 'string') parsed = tryParseJsonSafe(object) || object;
+    if (parsed && parsed.payload) {
+      const p2 = tryParseJsonSafe(parsed.payload);
+      if (p2) parsed = Object.assign({}, parsed, p2);
+    }
+
+    const normalized = normalizeExternalParams(parsed || {});
+
+    // حافظ الحالة الخارجية لتمكين getInputs من ال fallback
+    EXTERNAL_STATE = Object.assign({}, EXTERNAL_STATE, normalized);
+
+    // تطبيق القيم على DOM (أولوية للقيم الموجودة)
+    if (normalized.q) byId('search-input').value = String(normalized.q);
+    if (normalized.supermarket) byId('supermarket-filter').value = String(normalized.supermarket);
+    if (normalized.category) byId('category-filter').value = String(normalized.category);
+    if (normalized.brand) byId('brand-filter').value = String(normalized.brand);
+    if (normalized.minPrice !== undefined) byId('min-price').value = normalized.minPrice;
+    if (normalized.maxPrice !== undefined) byId('max-price').value = normalized.maxPrice;
+    if (normalized.sort) byId('sort-by').value = String(normalized.sort);
+
+    // إذا جاءت one_day أو week_percent فضعها في حقل min-discount (إن لم يعطِ المستخدم قيمة يدوية)
+    if (normalized.one_day !== undefined) {
+      // نضع القيمة فقط إن كان حقل min-discount فارغ (أو نريد أن نأخذ أولوية خارجية؟ هنا نضع فقط إذا لم يُدخل المستخدم)
+      const md = byId('min-discount');
+      if (md && (md.value === '' || md.value === null)) md.value = normalized.one_day;
+      // فعّل فلتر chip لليوم الواحد
+      activeChipFilter = 'day';
+      document.querySelectorAll('.chip').forEach(x => x.classList.remove('active'));
+      document.querySelector('.chip[data-filter="recent"]')?.classList.add('active'); // أو اختر زر مخصص لليوم
+    }
+    if (normalized.week_percent !== undefined) {
+      const md = byId('min-discount');
+      if (md && (md.value === '' || md.value === null)) md.value = normalized.week_percent;
+      activeChipFilter = 'week';
+      document.querySelectorAll('.chip').forEach(x => x.classList.remove('active'));
+      // إذا لديك زر مخصص data-filter="recent_7" أو 'week' غيّر السطر التالي accordingly:
+      document.querySelector('.chip[data-filter="recent"]')?.classList.add('active');
+    }
+
+    // update view if present
+    if (normalized.view) {
+      currentView = String(normalized.view) === 'table' ? 'table' : 'grid';
+      if (currentView === 'table') { byId('view-table-btn')?.classList.add('active'); byId('view-grid-btn')?.classList.remove('active'); }
+      else { byId('view-grid-btn')?.classList.add('active'); byId('view-table-btn')?.classList.remove('active'); }
+    }
+
+    // نفّذ الفلاتر بعد تعيين DOM و activeChipFilter
+    applyAllFilters();
+
+    // ACK
+    if (meta && meta.source && typeof meta.source.postMessage === 'function') {
+      const ack = { type: 'external-params-ack', status: 'ok', received: normalized };
+      try { meta.source.postMessage(ack, meta.origin || '*'); } catch(e){}
+    }
+
+    return { status: 'ok', normalized };
+  } catch (err) {
+    console.error('processExternalParams error', err);
+    if (meta && meta.source && typeof meta.source.postMessage === 'function') {
+      try { meta.source.postMessage({ type:'external-params-ack', status:'error', error: String(err) }, meta.origin || '*'); } catch(e){}
+    }
+    return { status: 'error', error: String(err) };
+  }
+}      
       
       
 /* --- Fetch + parse helpers --- */
@@ -984,15 +1107,36 @@ function populateTicker(){
 }
 
 /* --- Filters & rendering --- */
+/* === PATCH C: getInputs aware of EXTERNAL_STATE.one_day & week_percent === */
 function getInputs(){
+  // القيم المأخوذة من DOM (أولوية)
+  const rawMinDiscount = (byId('min-discount')?.value ?? '').toString().trim();
+  const rawMinPrice = (byId('min-price')?.value ?? '').toString().trim();
+  const rawMaxPrice = (byId('max-price')?.value ?? '').toString().trim();
+
+  // fallback من EXTERNAL_STATE (إذا الحقول فارغة)
+  let minDiscountValue;
+  if (rawMinDiscount !== '') {
+    minDiscountValue = parseFloat(rawMinDiscount) || 0;
+  } else if (EXTERNAL_STATE.one_day !== undefined && EXTERNAL_STATE.one_day !== null) {
+    minDiscountValue = Number(EXTERNAL_STATE.one_day) || 0;
+  } else if (EXTERNAL_STATE.week_percent !== undefined && EXTERNAL_STATE.week_percent !== null) {
+    minDiscountValue = Number(EXTERNAL_STATE.week_percent) || 0;
+  } else {
+    minDiscountValue = 0;
+  }
+
+  const minPriceRaw = rawMinPrice === '' ? '' : rawMinPrice;
+  const maxPriceRaw = rawMaxPrice === '' ? '' : rawMaxPrice;
+
   return {
     search: (byId('search-input')?.value || '').trim().toLowerCase(),
     supermarket: byId('supermarket-filter')?.value || '',
     category: byId('category-filter')?.value || '',
     brand: byId('brand-filter')?.value || '',
-    minDiscount: parseFloat(byId('min-discount')?.value) || 0,
-    minPriceRaw: byId('min-price')?.value,
-    maxPriceRaw: byId('max-price')?.value,
+    minDiscount: minDiscountValue,
+    minPriceRaw: minPriceRaw,
+    maxPriceRaw: maxPriceRaw,
     sort: byId('sort-by')?.value || 'best-deals'
   };
 }
