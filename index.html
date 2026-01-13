@@ -630,63 +630,8 @@ function isOriginAllowed(origin){
  * - object: raw data (object/string)
  * - meta: { source, origin, messageId }  optional, used for ACK
  */
-async function processExternalParams(object, meta = {}) {
-  try {
-    // If the incoming is a string try to parse flexible formats
-    let parsed = object;
-    if (typeof object === 'string') {
-      parsed = tryParseJsonSafe(object) || object;
-    }
-    if (parsed && parsed.payload) {
-      const p2 = tryParseJsonSafe(parsed.payload);
-      if (p2) parsed = Object.assign({}, parsed, p2);
-    }
 
-    const normalized = normalizeExternalParams(parsed || {});
-    // Apply to UI controls (only if values present)
-    if (normalized.q) byId('search-input').value = String(normalized.q);
-    if (normalized.supermarket) byId('supermarket-filter').value = String(normalized.supermarket);
-    if (normalized.category) byId('category-filter').value = String(normalized.category);
-    if (normalized.brand) byId('brand-filter').value = String(normalized.brand);
-    if (normalized.minDiscount !== undefined) byId('min-discount').value = normalized.minDiscount;
-    if (normalized.minPrice !== undefined) byId('min-price').value = normalized.minPrice;
-    if (normalized.maxPrice !== undefined) byId('max-price').value = normalized.maxPrice;
-    if (normalized.sort) byId('sort-by').value = String(normalized.sort);
-    if (normalized.view) {
-      currentView = String(normalized.view) === 'table' ? 'table' : 'grid';
-      // toggle active classes
-      if (currentView === 'table') {
-        byId('view-table-btn')?.classList.add('active'); byId('view-grid-btn')?.classList.remove('active');
-      } else {
-        byId('view-grid-btn')?.classList.add('active'); byId('view-table-btn')?.classList.remove('active');
-      }
-    }
-
-    // if the payload included 'state' with full properties, you can merge more fields here
-
-    // finally apply filters and render
-    applyAllFilters();
-
-    // Send ACK if we have source & origin
-    if (meta && meta.source && typeof meta.source.postMessage === 'function') {
-      const ack = { type: 'external-params-ack', status: 'ok', received: normalized };
-      try {
-        meta.source.postMessage(ack, meta.origin || '*');
-      } catch(e){
-        // ignore
-      }
-    }
-
-    return { status: 'ok', normalized };
-  } catch (err) {
-    console.error('processExternalParams error', err);
-    if (meta && meta.source && typeof meta.source.postMessage === 'function') {
-      try { meta.source.postMessage({ type:'external-params-ack', status:'error', error: String(err) }, meta.origin || '*'); } catch(e){}
-    }
-    return { status: 'error', error: String(err) };
-  }
-}
-
+      
 /* postMessage listener — supports parent/opener/iframe callers */
 window.addEventListener('message', async (ev) => {
   // ev.origin, ev.source, ev.data
@@ -713,6 +658,57 @@ window.addEventListener('message', async (ev) => {
 window.receiveExternalParams = async function(payload){
   return processExternalParams(payload, { source: window, origin: window.location.origin });
 };      
+      
+      
+/* === PATCH 2: EXTERNAL_STATE + applyExternalStateToDOM helper === */
+
+let EXTERNAL_STATE = EXTERNAL_STATE || {}; // حافظ على أي حالة سابقة
+
+function applyExternalStateToDOM(){
+  // نطبق ما في EXTERNAL_STATE على عناصر الصفحة فقط إذا كانت موجودة
+  if (!EXTERNAL_STATE || typeof EXTERNAL_STATE !== 'object') return;
+
+  if (EXTERNAL_STATE.q !== undefined && byId('search-input')) {
+    byId('search-input').value = String(EXTERNAL_STATE.q);
+  }
+  if (EXTERNAL_STATE.supermarket !== undefined && byId('supermarket-filter')) {
+    byId('supermarket-filter').value = String(EXTERNAL_STATE.supermarket);
+  }
+  if (EXTERNAL_STATE.category !== undefined && byId('category-filter')) {
+    byId('category-filter').value = String(EXTERNAL_STATE.category);
+  }
+  if (EXTERNAL_STATE.brand !== undefined && byId('brand-filter')) {
+    byId('brand-filter').value = String(EXTERNAL_STATE.brand);
+  }
+  // إذا المستخدم لم يضع قيمة في min-discount، نستخدم one_day أو week_percent (بترتيب الأولوية)
+  const mdEl = byId('min-discount');
+  if (mdEl) {
+    if ((mdEl.value === '' || mdEl.value === null) && EXTERNAL_STATE.one_day !== undefined) {
+      mdEl.value = EXTERNAL_STATE.one_day;
+    } else if ((mdEl.value === '' || mdEl.value === null) && EXTERNAL_STATE.week_percent !== undefined) {
+      mdEl.value = EXTERNAL_STATE.week_percent;
+    }
+  }
+  // view handling (grid/table) — ضع الافتراضي إذا موجود
+  if (EXTERNAL_STATE.view !== undefined) {
+    currentView = String(EXTERNAL_STATE.view) === 'table' ? 'table' : 'grid';
+    if (currentView === 'table') { byId('view-table-btn')?.classList.add('active'); byId('view-grid-btn')?.classList.remove('active'); }
+    else { byId('view-grid-btn')?.classList.add('active'); byId('view-table-btn')?.classList.remove('active'); }
+  }
+
+  // if external asked for 'day' or 'week' filter, map to chip
+  if (EXTERNAL_STATE.one_day !== undefined) {
+    activeChipFilter = 'day';
+    document.querySelectorAll('.chip').forEach(x=>x.classList.remove('active'));
+    // best-effort: try to mark the 'recent' chip — adjust if you have dedicated chips
+    document.querySelector('.chip[data-filter="recent"]')?.classList.add('active');
+  } else if (EXTERNAL_STATE.week_percent !== undefined) {
+    activeChipFilter = 'week';
+    document.querySelectorAll('.chip').forEach(x=>x.classList.remove('active'));
+    document.querySelector('.chip[data-filter="recent"]')?.classList.add('active');
+  }
+}
+    
       
       
 /* === PATCH B: update processExternalParams to set EXTERNAL_STATE and apply 'one_day'/'week_percent' === */
@@ -1522,31 +1518,34 @@ function renderPagination() {
 /* =========================
    STATS
 ========================= */
-function updateStats() {
+/* === PATCH 1: safe updateStats (guards for missing DOM nodes) === */
+function updateStats(){
   try {
-    byId('total-offers').textContent =
-      (filteredData.length || 0).toLocaleString();
+    const totalOffersEl = byId('total-offers');
+    if (totalOffersEl) totalOffersEl.textContent = (filteredData.length || 0).toLocaleString();
 
-    const discounts = filteredData
-      .map(i => i._discount_pct)
-      .filter(v => typeof v === 'number');
+    const discounts = filteredData.filter(i=>i._discount_pct).map(i=>i._discount_pct);
+    const avgDiscount = discounts.length ? Math.round(discounts.reduce((a,b)=>a+b,0)/discounts.length) : 0;
+    const avgDiscountEl = byId('avg-discount');
+    if (avgDiscountEl) avgDiscountEl.textContent = `${avgDiscount}%`;
 
-    const avg = discounts.length
-      ? Math.round(discounts.reduce((a, b) => a + b, 0) / discounts.length)
-      : 0;
+    const hotDealsEl = byId('hot-deals');
+    if (hotDealsEl) hotDealsEl.textContent = (filteredData.filter(i=> (i._discount_pct||0) > 30).length || 0).toLocaleString();
 
-    byId('avg-discount').textContent = `${avg}%`;
+    const endingSoonEl = byId('ending-soon');
+    if (endingSoonEl) {
+      const countEnding = (filteredData.filter(i=> i._date && ((i._date - new Date())/(1000*3600*24) <= 7) && ((i._date - new Date())/(1000*3600*24) >= 0)).length || 0);
+      endingSoonEl.textContent = countEnding.toLocaleString();
+    }
 
-    byId('total-supermarkets').textContent =
-      [...new Set(filteredData.map(i => i.supermarket).filter(Boolean))].length;
-
-    byId('category-count').textContent =
-      [...new Set(filteredData.map(i => i.category).filter(Boolean))].length;
-  } catch (e) {
-    console.error('Stats error', e);
+    const totalMarketsEl = byId('total-supermarkets');
+    if (totalMarketsEl) totalMarketsEl.textContent = ([...new Set(filteredData.map(i=>i.supermarket).filter(Boolean))].length || 0).toLocaleString();
+  } catch(e){
+    console.error('updateStats failed', e);
   }
 }
-
+      
+      
 /* =========================
    FAVORITES
 ========================= */
