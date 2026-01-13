@@ -489,132 +489,12 @@ const EXTERNAL = {
   ackTimeoutMs: 5000
 };
 
-function tryParseJsonSafe(s){
-  if (s === undefined || s === null) return null;
-  // Already an object?
-  if (typeof s === 'object') return s;
-  const str = String(s).trim();
-  // Try plain JSON
-  try { return JSON.parse(str); } catch(e){}
-  // Try URI decoded JSON
-  try { return JSON.parse(decodeURIComponent(str)); } catch(e){}
-  // Try base64 -> JSON
-  try {
-    const b = atob(str);
-    return JSON.parse(b);
-  } catch(e){}
-  // Try base64 URI (replace URL-safe chars)
-  try {
-    const fixed = str.replace(/-/g,'+').replace(/_/g,'/');
-    const b = atob(fixed);
-    return JSON.parse(b);
-  } catch(e){}
-  // Try LZString decompression if available
-  if (typeof LZString !== 'undefined') {
-    try {
-      const dec = LZString.decompressFromUTF16(str) || LZString.decompress(str);
-      if (dec) return JSON.parse(dec);
-    } catch(e){}
-  }
-  return null;
-}
-
-// Normalize external params into a canonical object
-function normalizeExternalParams(raw){
-  const params = {};
-  if (!raw || typeof raw !== 'object') return params;
-  // common keys we accept (add more if تحتاج)
-  const mapping = {
-    q: ['q', 'query', 'search', 'text'],
-    supermarket: ['market', 'store', 'supermarket'],
-    category: ['category', 'cat'],
-    brand: ['brand', 'manufacturer'],
-    minDiscount: ['min_discount','min-discount','discount','discount_pct'],
-    minPrice: ['min_price','min-price','price_min'],
-    maxPrice: ['max_price','max-price','price_max'],
-    sort: ['sort','order'],
-    view: ['view', 'mode'],
-    // optional: payload can include full state object
-    state: ['state','payload','data']
-  };
-
-  for (const key in mapping){
-    for (const alias of mapping[key]){
-      if (raw[alias] !== undefined && raw[alias] !== null && raw[alias] !== ''){
-        params[key] = raw[alias];
-        break;
-      }
-    }
-  }
-
-  // if state/payload is present and is JSON string/object, merge it
-  if (raw.state || raw.payload || raw.data){
-    const p = tryParseJsonSafe(raw.state || raw.payload || raw.data);
-    if (p && typeof p === 'object'){
-      // copy recognized fields
-      Object.assign(params, normalizeExternalParams(p));
-    }
-  }
-
-  // convert numeric strings
-  if (params.minDiscount !== undefined) params.minDiscount = Number(params.minDiscount) || 0;
-  if (params.minPrice !== undefined) params.minPrice = Number(params.minPrice) || '';
-  if (params.maxPrice !== undefined) params.maxPrice = Number(params.maxPrice) || '';
-
-  return params;
-}      
       
 
       /* === PATCH A: EXTERNAL_STATE + normalizeExternalParams enhancements === */
 /* ضع هذا مباشرة بعد const EXTERNAL = { ... } أو بعد دوال المساعدة */
 let EXTERNAL_STATE = {}; // سيحفظ آخر قيم واردة من مصدر خارجي
 
-// نوسع normalizeExternalParams (إذا لديك نسخة قديمة استبدلها بهذا التعريف)
-function normalizeExternalParams(raw){
-  const params = {};
-  if (!raw || typeof raw !== 'object') return params;
-  // mapping موجود مسبقاً — نضيف معالجة لـ one_day و week_percent
-  const mapping = {
-    q: ['q', 'query', 'search', 'text'],
-    supermarket: ['market', 'store', 'supermarket'],
-    category: ['category', 'cat'],
-    brand: ['brand', 'manufacturer'],
-    minDiscount: ['min_discount','min-discount','discount','discount_pct'],
-    minPrice: ['min_price','min-price','price_min'],
-    maxPrice: ['max_price','max-price','price_max'],
-    sort: ['sort','order'],
-    view: ['view', 'mode'],
-    one_day: ['one_day','one-day','oneday','day'],              // <-- جديد
-    week_percent: ['week_percent','week-percent','weekpercent','week'] // <-- جديد
-  };
-
-  for (const key in mapping){
-    for (const alias of mapping[key]){
-      if (raw[alias] !== undefined && raw[alias] !== null && raw[alias] !== ''){
-        params[key] = raw[alias];
-        break;
-      }
-    }
-  }
-
-  // حالة payload/state المضمنة
-  if (raw.state || raw.payload || raw.data){
-    const p = tryParseJsonSafe(raw.state || raw.payload || raw.data);
-    if (p && typeof p === 'object'){
-      const sub = normalizeExternalParams(p);
-      Object.assign(params, sub);
-    }
-  }
-
-  // تحويل إلى أرقام حيث يلزم
-  if (params.minDiscount !== undefined) params.minDiscount = Number(params.minDiscount) || 0;
-  if (params.minPrice !== undefined) params.minPrice = Number(params.minPrice) || '';
-  if (params.maxPrice !== undefined) params.maxPrice = Number(params.maxPrice) || '';
-  if (params.one_day !== undefined) params.one_day = Number(params.one_day) || Number(params.one_day) === 0 ? Number(params.one_day) : params.one_day;
-  if (params.week_percent !== undefined) params.week_percent = Number(params.week_percent) || Number(params.week_percent) === 0 ? Number(params.week_percent) : params.week_percent;
-
-  return params;
-}
       
       
 /* === PATCH: External receiver (postMessage + direct call) === */
@@ -660,115 +540,136 @@ window.receiveExternalParams = async function(payload){
 };      
       
       
-/* === PATCH 2: EXTERNAL_STATE + applyExternalStateToDOM helper === */
 
-let EXTERNAL_STATE = EXTERNAL_STATE || {}; // حافظ على أي حالة سابقة
+/* ---------------------------
+   Canonical external-params helpers
+   Paste this ONCE (replace any previous duplicates)
+   --------------------------- */
 
-function applyExternalStateToDOM(){
-  // نطبق ما في EXTERNAL_STATE على عناصر الصفحة فقط إذا كانت موجودة
-  if (!EXTERNAL_STATE || typeof EXTERNAL_STATE !== 'object') return;
+/* global EXTERNAL_STATE stored on window */
+window.EXTERNAL_STATE = window.EXTERNAL_STATE || {};
 
-  if (EXTERNAL_STATE.q !== undefined && byId('search-input')) {
-    byId('search-input').value = String(EXTERNAL_STATE.q);
-  }
-  if (EXTERNAL_STATE.supermarket !== undefined && byId('supermarket-filter')) {
-    byId('supermarket-filter').value = String(EXTERNAL_STATE.supermarket);
-  }
-  if (EXTERNAL_STATE.category !== undefined && byId('category-filter')) {
-    byId('category-filter').value = String(EXTERNAL_STATE.category);
-  }
-  if (EXTERNAL_STATE.brand !== undefined && byId('brand-filter')) {
-    byId('brand-filter').value = String(EXTERNAL_STATE.brand);
-  }
-  // إذا المستخدم لم يضع قيمة في min-discount، نستخدم one_day أو week_percent (بترتيب الأولوية)
-  const mdEl = byId('min-discount');
-  if (mdEl) {
-    if ((mdEl.value === '' || mdEl.value === null) && EXTERNAL_STATE.one_day !== undefined) {
-      mdEl.value = EXTERNAL_STATE.one_day;
-    } else if ((mdEl.value === '' || mdEl.value === null) && EXTERNAL_STATE.week_percent !== undefined) {
-      mdEl.value = EXTERNAL_STATE.week_percent;
+/* safe JSON parse */
+function tryParseJsonSafe(s){
+  try {
+    if (typeof s !== 'string') return s;
+    return JSON.parse(s);
+  } catch(e) { return null; }
+}
+
+/* normalizeExternalParams: map common aliases to canonical fields */
+function normalizeExternalParams(raw) {
+  const out = {};
+  if (!raw || typeof raw !== 'object') return out;
+
+  // helper: try many aliases
+  const lookup = (keys) => {
+    for (const k of keys) {
+      if (raw[k] !== undefined && raw[k] !== null && String(raw[k]) !== '') return raw[k];
+    }
+    return undefined;
+  };
+
+  // common names/aliases
+  out.q = lookup(['q','query','search','text']);
+  out.supermarket = lookup(['market','store','supermarket']);
+  out.category = lookup(['category','cat']);
+  out.brand = lookup(['brand','manufacturer']);
+  out.minDiscount = lookup(['min_discount','min-discount','discount','discount_pct','minDiscount']);
+  out.minPrice = lookup(['min_price','min-price','price_min','minPrice']);
+  out.maxPrice = lookup(['max_price','max-price','price_max','maxPrice']);
+  out.view = lookup(['view','mode']);
+  out.one_day = lookup(['one_day','one-day','oneday','day']);
+  out.week_percent = lookup(['week_percent','week-percent','weekpercent','week']);
+
+  // try cast numeric where meaningful
+  if (out.minDiscount !== undefined) out.minDiscount = Number(out.minDiscount) || 0;
+  if (out.minPrice !== undefined && out.minPrice !== '') out.minPrice = Number(out.minPrice) || '';
+  if (out.maxPrice !== undefined && out.maxPrice !== '') out.maxPrice = Number(out.maxPrice) || '';
+  if (out.one_day !== undefined) out.one_day = Number(out.one_day) || out.one_day;
+  if (out.week_percent !== undefined) out.week_percent = Number(out.week_percent) || out.week_percent;
+
+  // nested payload attempt (e.g. { payload: '{"q":"x","one_day":10}' })
+  if (raw.payload || raw.state || raw.data) {
+    const nested = tryParseJsonSafe(raw.payload || raw.state || raw.data);
+    if (nested && typeof nested === 'object') {
+      const sub = normalizeExternalParams(nested);
+      Object.assign(out, sub);
     }
   }
-  // view handling (grid/table) — ضع الافتراضي إذا موجود
-  if (EXTERNAL_STATE.view !== undefined) {
-    currentView = String(EXTERNAL_STATE.view) === 'table' ? 'table' : 'grid';
-    if (currentView === 'table') { byId('view-table-btn')?.classList.add('active'); byId('view-grid-btn')?.classList.remove('active'); }
-    else { byId('view-grid-btn')?.classList.add('active'); byId('view-table-btn')?.classList.remove('active'); }
-  }
 
-  // if external asked for 'day' or 'week' filter, map to chip
-  if (EXTERNAL_STATE.one_day !== undefined) {
-    activeChipFilter = 'day';
-    document.querySelectorAll('.chip').forEach(x=>x.classList.remove('active'));
-    // best-effort: try to mark the 'recent' chip — adjust if you have dedicated chips
-    document.querySelector('.chip[data-filter="recent"]')?.classList.add('active');
-  } else if (EXTERNAL_STATE.week_percent !== undefined) {
-    activeChipFilter = 'week';
-    document.querySelectorAll('.chip').forEach(x=>x.classList.remove('active'));
-    document.querySelector('.chip[data-filter="recent"]')?.classList.add('active');
+  return out;
+}
+
+/* applyExternalStateToDOM: apply EXTERNAL_STATE to inputs if they exist (idempotent) */
+function applyExternalStateToDOM(){
+  try {
+    const st = window.EXTERNAL_STATE || {};
+    if (!st || typeof st !== 'object') return;
+
+    if (st.q !== undefined && byId('search-input')) byId('search-input').value = String(st.q);
+    if (st.supermarket !== undefined && byId('supermarket-filter')) byId('supermarket-filter').value = String(st.supermarket);
+    if (st.category !== undefined && byId('category-filter')) byId('category-filter').value = String(st.category);
+    if (st.brand !== undefined && byId('brand-filter')) byId('brand-filter').value = String(st.brand);
+
+    const mdEl = byId('min-discount');
+    if (mdEl) {
+      // prefer explicit min-discount param if present, otherwise one_day then week_percent
+      if ((mdEl.value === '' || mdEl.value === null) && st.one_day !== undefined) mdEl.value = st.one_day;
+      else if ((mdEl.value === '' || mdEl.value === null) && st.week_percent !== undefined) mdEl.value = st.week_percent;
+    }
+
+    if (st.view !== undefined) {
+      currentView = String(st.view) === 'table' ? 'table' : 'grid';
+      if (currentView === 'table') { byId('view-table-btn')?.classList.add('active'); byId('view-grid-btn')?.classList.remove('active'); }
+      else { byId('view-grid-btn')?.classList.add('active'); byId('view-table-btn')?.classList.remove('active'); }
+    }
+
+    // chip best-effort mapping
+    if (st.one_day !== undefined) {
+      activeChipFilter = 'day';
+      document.querySelectorAll('.chip').forEach(x => x.classList.remove('active'));
+      document.querySelector('.chip[data-filter="recent"]')?.classList.add('active');
+    } else if (st.week_percent !== undefined) {
+      activeChipFilter = 'week';
+      document.querySelectorAll('.chip').forEach(x => x.classList.remove('active'));
+      document.querySelector('.chip[data-filter="recent"]')?.classList.add('active');
+    }
+  } catch(e) {
+    console.warn('applyExternalStateToDOM error', e);
   }
 }
-    
-      
-      
-/* === PATCH B: update processExternalParams to set EXTERNAL_STATE and apply 'one_day'/'week_percent' === */
+
+/* single canonical processExternalParams: parse, normalize, store then (if possible) apply */
 async function processExternalParams(object, meta = {}) {
   try {
-    // parsing مرن
     let parsed = object;
-    if (typeof object === 'string') parsed = tryParseJsonSafe(object) || object;
-    if (parsed && parsed.payload) {
+    if (typeof object === 'string') {
+      const p = tryParseJsonSafe(object);
+      if (p !== null) parsed = p;
+    }
+
+    // if wrapper contains payload string, try parse it too
+    if (parsed && parsed.payload && typeof parsed.payload === 'string') {
       const p2 = tryParseJsonSafe(parsed.payload);
       if (p2) parsed = Object.assign({}, parsed, p2);
     }
 
     const normalized = normalizeExternalParams(parsed || {});
+    window.EXTERNAL_STATE = Object.assign({}, window.EXTERNAL_STATE || {}, normalized);
 
-    // حافظ الحالة الخارجية لتمكين getInputs من ال fallback
-    EXTERNAL_STATE = Object.assign({}, EXTERNAL_STATE, normalized);
-
-    // تطبيق القيم على DOM (أولوية للقيم الموجودة)
-    if (normalized.q) byId('search-input').value = String(normalized.q);
-    if (normalized.supermarket) byId('supermarket-filter').value = String(normalized.supermarket);
-    if (normalized.category) byId('category-filter').value = String(normalized.category);
-    if (normalized.brand) byId('brand-filter').value = String(normalized.brand);
-    if (normalized.minPrice !== undefined) byId('min-price').value = normalized.minPrice;
-    if (normalized.maxPrice !== undefined) byId('max-price').value = normalized.maxPrice;
-    if (normalized.sort) byId('sort-by').value = String(normalized.sort);
-
-    // إذا جاءت one_day أو week_percent فضعها في حقل min-discount (إن لم يعطِ المستخدم قيمة يدوية)
-    if (normalized.one_day !== undefined) {
-      // نضع القيمة فقط إن كان حقل min-discount فارغ (أو نريد أن نأخذ أولوية خارجية؟ هنا نضع فقط إذا لم يُدخل المستخدم)
-      const md = byId('min-discount');
-      if (md && (md.value === '' || md.value === null)) md.value = normalized.one_day;
-      // فعّل فلتر chip لليوم الواحد
-      activeChipFilter = 'day';
-      document.querySelectorAll('.chip').forEach(x => x.classList.remove('active'));
-      document.querySelector('.chip[data-filter="recent"]')?.classList.add('active'); // أو اختر زر مخصص لليوم
-    }
-    if (normalized.week_percent !== undefined) {
-      const md = byId('min-discount');
-      if (md && (md.value === '' || md.value === null)) md.value = normalized.week_percent;
-      activeChipFilter = 'week';
-      document.querySelectorAll('.chip').forEach(x => x.classList.remove('active'));
-      // إذا لديك زر مخصص data-filter="recent_7" أو 'week' غيّر السطر التالي accordingly:
-      document.querySelector('.chip[data-filter="recent"]')?.classList.add('active');
+    // If DOM ready enough, apply immediately and call filters
+    const domReady = !!byId('search-input') && !!byId('min-discount') && !!byId('supermarket-filter');
+    if (domReady) {
+      applyExternalStateToDOM();
+      try { applyAllFilters(); } catch(e) { console.warn('applyAllFilters() failed during processExternalParams', e); }
+    } else {
+      console.info('External params stored; will apply when initializeFilters runs', normalized);
     }
 
-    // update view if present
-    if (normalized.view) {
-      currentView = String(normalized.view) === 'table' ? 'table' : 'grid';
-      if (currentView === 'table') { byId('view-table-btn')?.classList.add('active'); byId('view-grid-btn')?.classList.remove('active'); }
-      else { byId('view-grid-btn')?.classList.add('active'); byId('view-table-btn')?.classList.remove('active'); }
-    }
-
-    // نفّذ الفلاتر بعد تعيين DOM و activeChipFilter
-    applyAllFilters();
-
-    // ACK
+    // optional ACK for postMessage senders
     if (meta && meta.source && typeof meta.source.postMessage === 'function') {
-      const ack = { type: 'external-params-ack', status: 'ok', received: normalized };
-      try { meta.source.postMessage(ack, meta.origin || '*'); } catch(e){}
+      try { meta.source.postMessage({ type:'external-params-ack', status:'ok', received: normalized }, meta.origin || '*'); } catch(e){}
     }
 
     return { status: 'ok', normalized };
@@ -779,7 +680,40 @@ async function processExternalParams(object, meta = {}) {
     }
     return { status: 'error', error: String(err) };
   }
-}      
+}
+
+/* add message listener once (idempotent) */
+if (!window.__externalListenerInstalled) {
+  window.addEventListener('message', (ev) => {
+    // optional: validate ev.origin if needed
+    try { processExternalParams(ev.data, { source: ev.source, origin: ev.origin }); } catch(e){ console.warn('message handler error', e); }
+  });
+  window.__externalListenerInstalled = true;
+}
+
+/* quick URL param helper: call on load to accept query params */
+(function applyUrlParamsToExternalState(){
+  try {
+    const params = new URLSearchParams(window.location.search);
+    const obj = {};
+    for (const [k,v] of params.entries()) {
+      // put them raw; normalizeExternalParams will map aliases
+      obj[k] = v;
+    }
+    const normalized = normalizeExternalParams(obj);
+    if (Object.keys(normalized).length) {
+      window.EXTERNAL_STATE = Object.assign({}, window.EXTERNAL_STATE || {}, normalized);
+      // attempt immediate apply if DOM ready; otherwise initializeFilters will apply
+      if (!!byId('search-input') && !!byId('min-discount')) {
+        applyExternalStateToDOM();
+        try { applyAllFilters(); } catch(e){ /* ok */ }
+      } else {
+        console.info('URL params stored in EXTERNAL_STATE; will apply later', normalized);
+      }
+    }
+  } catch(e){ /* ignore */ }
+})();
+      
       
       
 /* --- Fetch + parse helpers --- */
@@ -1336,6 +1270,7 @@ const debounceApply = debounce(()=> applyAllFilters(), 300);
 
 function initializeFilters(){
   try {
+       
     const supermarketSelect = byId('supermarket-filter'); if (supermarketSelect) {
       supermarketSelect.innerHTML = '<option value="">كل السوبر ماركت</option>';
       [...new Set(allData.map(i=>i.supermarket))].filter(Boolean).sort((a,b)=>String(a).localeCompare(String(b),'ar')).forEach(s=>{ const o=document.createElement('option'); o.value=s; o.textContent=s; supermarketSelect.appendChild(o); });
@@ -1352,6 +1287,12 @@ function initializeFilters(){
       brandSelect.addEventListener('change', applyAllFilters);
     }
 
+     // وضعك الحالي لإنشاء القوائم...
+    // بعد بناء القوائم ولكن قبل ربط الأحداث، ضع:
+    applyExternalStateToDOM();
+
+    // ثم استمر في ربط الأحداث كما في الكود الحالي...
+    
     document.querySelectorAll('.chip').forEach(c=>{
       c.addEventListener('click', function(){
         document.querySelectorAll('.chip').forEach(x => x.classList.remove('active'));
