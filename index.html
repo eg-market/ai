@@ -1587,23 +1587,34 @@ if (isFinite(minPrice) && isFinite(maxPrice) && minPrice > maxPrice) {
             break;
 
 case 'recent_day': {
-  if (!latestTwoDates || latestTwoDates.length === 0) return false;
+  if (!latestTwoDates || !latestTwoDates[0]) return false;
 
-  const newest = toDateOnly(new Date(latestTwoDates[0]));
-  if (!newest) return false;
+  const newest = formatDateShort(new Date(latestTwoDates[0]));
+  if (newest === 'غير متاح') return false;
 
-  let itemDate = null;
-  if (item.updateDate) itemDate = toDateOnly(item.updateDate);
-  else if (item.endDate) itemDate = toDateOnly(item.endDate);
-  else if (item.validUntil && item.validUntil !== 'غير متاح') {
-    itemDate = toDateOnly(parseEndDate(item.validUntil));
+  let itemDay = null;
+
+  if (item.updateDate instanceof Date) {
+    itemDay = formatDateShort(item.updateDate);
+  } else if (item.endDate instanceof Date) {
+    itemDay = formatDateShort(item.endDate);
+  } else if (item.validUntil && item.validUntil !== 'غير متاح') {
+    const d = parseEndDate(item.validUntil);
+    if (d instanceof Date) itemDay = formatDateShort(d);
   }
 
-  if (!itemDate) return false;
+  if (!itemDay || itemDay === 'غير متاح') return false;
 
-  const diffDays = (newest - itemDate) / 86400000;
-  return diffDays === 0;
+  // ✔️ مقارنة اليوم فقط (لا وقت – لا diffDays)
+  if (itemDay !== newest) return false;
+
+  // ✔️ تطبيق الخصم
+  const minDiscount =
+    parseFloat(document.getElementById('min-discount')?.value) || 0;
+
+  return (item._discount_pct || 0) >= minDiscount;
 }
+
                 
           case 'recent_extended': {
             if (!latestTwoDates?.length) return false;
