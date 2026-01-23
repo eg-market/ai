@@ -1242,7 +1242,7 @@ defer="defer"></script>
         <span>حسابي</span> </a> </div>
     <script>
 /* ================= Configuration ================= */
-const DATA_URL = 'https://raw.githubusercontent.com/eg-market/ai/main/merged_cleansed_output_with_new_supermarket-xl5.csv';
+const DATA_URL = 'https://script.google.com/macros/s/AKfycbzD-TIVSoc4BxNhfytOM2Sbzs156Iht420hS2XCSRZkAuNIbBPnVYxQhTVEohgv0u-Fsg/exec';
 const CACHE_KEY = 'offersData';
 const CACHE_EXPIRY = 3600000; // 1 hour
 
@@ -2826,6 +2826,16 @@ function applyUrlParams() {
     if (sel) sel.value = market;
   }
 
+  // category
+const categoryParam = params.get('category');
+if (categoryParam) {
+  const catSelect = document.getElementById('category-filter');
+  if (catSelect) {
+    catSelect.value = decodeURIComponent(categoryParam);
+  }
+}
+
+  
   // discount
   const discount = params.get('discount');
   if (discount) {
