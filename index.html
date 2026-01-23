@@ -1643,7 +1643,13 @@ case 'recent_day': {
 
       /* ================= NORMAL FILTERS ================= */
 
-      if (supermarket && String(item.supermarket || '') !== supermarket) return false;
+if (category) {
+  const itemCat = String(item.category || '').trim().toLowerCase();
+  const wantedCat = String(category).trim().toLowerCase();
+
+  if (!itemCat.includes(wantedCat)) return false;
+}
+
       if (category && String(item.category || '') !== category) return false;
       if (brand && String(item.brand || '') !== brand) return false;
 
