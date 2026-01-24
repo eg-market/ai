@@ -288,12 +288,12 @@ defer="defer"></script>
     color: var(--purple);
   }
       
-      
-      
+            
   .chip[data-filter="recent"]::after {
     background: var(--purple);
   }
-  
+        
+      
   /* View Toggle - Updated with colors */
   .view-toggle {
     display: flex;
@@ -1263,10 +1263,13 @@ let activeChipFilter = 'all'; // لتخزين الفلتر النشط من ال�
 let latestTwoDates = []; // أحدث تاريخين في البيانات
 let supermarketFilterCache = {}; // لحفظ نتائج فلتر السوبرماركت
 
-      let urlCategoryFilter = '';
+  //    let urlCategoryFilter = '';
 
       let dataLoaded = false;
+      
+      let urlCategories = []; // categories from URL
 
+      
 /* Initialize the app */
       
 function normalizeDate(d){
@@ -1294,18 +1297,34 @@ function initApp() {
 }
 
 /* Wire all event listeners */
+  /* Wire all event listeners */
 function wireEventListeners() {
   try {
     // View toggle
     document.getElementById('view-grid-btn').addEventListener('click', () => switchView('grid'));
     document.getElementById('view-table-btn').addEventListener('click', () => switchView('table'));
     
-    // Filter chips - MODIFIED to handle sorting for hot and discount
+    // Filter chips - MODIFIED: "جميع العروض" button calls refreshApplication, others use normal filter
     document.querySelectorAll('.chip').forEach(chip => {
       chip.addEventListener('click', function() {
+        const filterType = this.dataset.filter;
+        
+        // If "all" chip is clicked, refresh the app completely (clear URL params)
+        if (filterType === 'all') {
+          // Remove active class from all chips
+          document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+          // Add active class to this chip
+          this.classList.add('active');
+          
+          // Call refreshApplication which clears URL parameters
+          refreshApplication();
+          return;
+        }
+        
+        // For other chips, use normal behavior (preserve URL params)
         document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
         this.classList.add('active');
-        activeChipFilter = this.dataset.filter;
+        activeChipFilter = filterType;
         
         // If it's hot or discount filter, set the sort type
         if (activeChipFilter === 'hot') {
@@ -1324,6 +1343,66 @@ function wireEventListeners() {
   }
 }
 
+      /* Refresh application completely - remove all parameters and filters */
+/* Refresh application completely - ONLY for "جميع العروض" button */
+function refreshApplication() {
+  try {
+    // Clear all URL parameters
+    window.history.replaceState({}, document.title, window.location.pathname);
+    
+    // Clear URL category filter
+    
+    // Reset ALL filters completely (including resetting URL params)
+    document.getElementById('search-input').value='';
+    document.getElementById('supermarket-filter').value='';
+    document.getElementById('category-filter').value='';
+    document.getElementById('brand-filter').value='';
+    document.getElementById('min-discount').value='';
+    document.getElementById('min-price').value='';
+    document.getElementById('max-price').value='';
+    document.getElementById('sort-by').value='best-deals';
+    
+    // Reset view to grid
+    switchView('grid');
+    
+    // Reset chips
+    activeChipFilter = 'all';
+    document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+    const allChip = document.querySelector('.chip[data-filter="all"]');
+    if (allChip) allChip.classList.add('active');
+    
+    // Clear any existing autocomplete
+    clearAutocomplete();
+    
+    // Show loading indicator
+    document.getElementById('loading').style.display = 'block';
+    document.getElementById('loading').innerHTML = `
+      <div style="display: flex; flex-direction: column; align-items: center;">
+        <i class="fas fa-spinner fa-spin" style="font-size: 2.5rem; margin-bottom: 20px; color: var(--primary-blue);"></i>
+        <h3>جارٍ إعادة التحميل...</h3>
+        <p>جاري إعادة ضبط جميع الفلاتر والمعلمات</p>
+      </div>
+    `;
+    
+    // Hide table if showing
+    document.getElementById('data-table').style.display = 'none';
+    document.getElementById('products-grid').style.display = 'grid';
+    
+    // Clear grid
+    document.getElementById('products-grid').innerHTML = '';
+    
+    // Force refetch data to ensure fresh state
+    setTimeout(() => {
+      fetchData();
+    }, 300);
+    
+  } catch (error) {
+    console.error('Error in refreshApplication:', error);
+    // Fallback to simple page reload
+    window.location.reload();
+  }
+}
+      
 /* دالة لاستخراج أحدث تاريخين من البيانات */
 function findLatestTwoDates(data) {
   try {
@@ -1555,8 +1634,19 @@ if (isFinite(minPrice) && isFinite(maxPrice) && minPrice > maxPrice) {
 }    
     
     filteredData = allData.filter(item => {
+  /* ===== URL CATEGORY FILTER (priority but compatible with UI) ===== */
+if (urlCategories.length) {
+  const itemCat = String(item.category || '')
+    .toLowerCase()
+    .trim();
 
-      /* ================= CHIP FILTER ================= */
+  const match = urlCategories.some(urlCat =>
+    itemCat.includes(urlCat)
+  );
+
+  if (!match) return false;
+} 
+          /* ================= CHIP FILTER ================= */
       if (activeChipFilter && activeChipFilter !== 'all') {
         let pass = true;
 
@@ -1644,6 +1734,8 @@ case 'recent_day': {
       }
 
       /* ================= NORMAL FILTERS ================= */
+if (supermarket && String(item.supermarket || '') !== supermarket)
+  return false;
 
 if (category) {
   const itemCat = String(item.category || '').trim().toLowerCase();
@@ -1657,18 +1749,6 @@ if (category) {
   if (String(item.category || '') !== category) return false;
 }
 
-// category from URL (partial / case-insensitive)
-if (urlCategoryFilter) {
-  const itemCat = String(item.category || '')
-    .toLowerCase()
-    .trim();
-
-  const filterCat = urlCategoryFilter
-    .toLowerCase()
-    .trim();
-
-  if (!itemCat.includes(filterCat)) return false;
-}
 
       if (brand && String(item.brand || '') !== brand) return false;
 
@@ -2513,6 +2593,7 @@ function wirePriceControls(){
 }
 
 /* Initialize filters and event wiring */
+/* Initialize filters and event wiring - RESTORE ORIGINAL reset button behavior */
 function initializeFilters(){
   try {
     const supermarketSelect = document.getElementById('supermarket-filter');
@@ -2590,6 +2671,7 @@ function initializeFilters(){
     document.getElementById('sort-by').addEventListener('change', debouncedApplyAllFilters);
     document.getElementById('min-discount').addEventListener('input', debouncedApplyAllFilters);
 
+    // RESTORE ORIGINAL reset button behavior - just calls resetAllFilters()
     document.getElementById('reset-btn').addEventListener('click', ()=>{ resetAllFilters(); });
 
     wirePriceControls();
@@ -2600,6 +2682,7 @@ function initializeFilters(){
 }
 
 /* Reset ALL filters */
+/* Reset ALL filters - ORIGINAL BEHAVIOR */
 function resetAllFilters(){
   try {
     document.getElementById('search-input').value='';
@@ -2615,6 +2698,9 @@ function resetAllFilters(){
     document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
     const allChip = document.querySelector('.chip[data-filter="all"]');
     if (allChip) allChip.classList.add('active');
+    
+    // Note: This does NOT reset urlCategoryFilter, so URL parameters remain
+    // The applyAllFilters() will use the existing urlCategoryFilter if it exists
     
     applyAllFilters();
   } catch (error) {
@@ -2841,38 +2927,44 @@ allData.forEach(item => {
 
   
 function applyUrlParams() {
-try {
-const params = new URLSearchParams(window.location.search);
+  try {
+    const params = new URLSearchParams(window.location.search);
 
-// search
-const q = params.get('q');
-if (q) {
-const input = document.getElementById('search-input');
-if (input) input.value = decodeURIComponent(q);
-}
+    /* ===== category (URL only) ===== */
+    const catParam = params.get('category');
+    if (catParam) {
+      urlCategories = catParam
+        .split(',')
+        .map(c => decodeURIComponent(c).trim().toLowerCase())
+        .filter(Boolean);
+    } else {
+      urlCategories = [];
+    }
 
-// supermarket
-const market = params.get('market');
-if (market) {
-const sel = document.getElementById('supermarket-filter');
-if (sel) sel.value = decodeURIComponent(market);
-}
+    /* search */
+    const q = params.get('q');
+    if (q) {
+      const input = document.getElementById('search-input');
+      if (input) input.value = decodeURIComponent(q);
+    }
 
-// category (NEW)
-// category (from URL)
-const category = params.get('category');
-if (category) {
-urlCategoryFilter = decodeURIComponent(category).trim();
-const sel = document.getElementById('category-filter');
-if (sel) sel.value = decodeURIComponent(category);
-}
+    /* supermarket */
+    const market = params.get('market');
+    if (market) {
+      const sel = document.getElementById('supermarket-filter');
+      if (sel) sel.value = decodeURIComponent(market);
+    }
 
-// discount
-const discount = params.get('discount');
-if (discount) {
-const el = document.getElementById('min-discount');
-if (el) el.value = discount;
-}
+    /* discount */
+    const discount = params.get('discount');
+    if (discount) {
+      const el = document.getElementById('min-discount');
+      if (el) el.value = discount;
+    }
+
+    /* page */
+    const page = parseInt(params.get('page'), 10);
+    if (!isNaN(page) && page > 1) currentPage = page;
 
 // one day
 if (params.has('one_day')) {
@@ -2891,7 +2983,7 @@ if (el && v) el.value = v;
 }
 
 // page
-const page = parseInt(params.get('page'), 10);
+// const page = parseInt(params.get('page'), 10);
 if (!isNaN(page) && page > 1) {
 currentPage = page;
 }
@@ -2906,7 +2998,6 @@ if (sort) sort.value = 'best-deals';
 console.error('applyUrlParams failed:', e);
 }
 }
-
 
   
 /* Helper function to show errors */
