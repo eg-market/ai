@@ -1264,10 +1264,10 @@ let latestTwoDates = []; // أحدث تاريخين في البيانات
 let supermarketFilterCache = {}; // لحفظ نتائج فلتر السوبرماركت
 
   //    let urlCategoryFilter = '';
-
-      let dataLoaded = false;
-      
+      let dataLoaded = false;     
       let urlCategories = []; // categories from URL
+      let urlSearchTerms = [];
+let bestPriceMode = false;
 
       
 /* Initialize the app */
@@ -1601,7 +1601,7 @@ function switchView(view) {
   }
 }
 
-      function toDateOnly(d) {
+function toDateOnly(d) {
   if (!(d instanceof Date) || isNaN(d)) return null;
   return new Date(d.getFullYear(), d.getMonth(), d.getDate());
 }
@@ -1609,165 +1609,98 @@ function switchView(view) {
       
 /* Apply ALL filters together - UPDATED with improved combined sorting */
 function applyAllFilters() {
+  //console.log('DEBUG urlSearchTerms:', urlSearchTerms);
+//console.log('DEBUG urlCategories:', urlCategories);
+//console.log('DEBUG allData length:', allData?.length);
+
   try {
-    const search = (document.getElementById('search-input')?.value || '').trim().toLowerCase();
-    const supermarket = document.getElementById('supermarket-filter')?.value || '';
-    const category = document.getElementById('category-filter')?.value || '';
-    const brand = document.getElementById('brand-filter')?.value || '';
-    const minDiscount = parseFloat(document.getElementById('min-discount')?.value) || 0;
+    const uiSearch =
+      (document.getElementById('search-input')?.value || '')
+        .trim()
+        .toLowerCase();
+
+    const effectiveSearchTerms =
+      (Array.isArray(urlSearchTerms) && urlSearchTerms.length)
+        ? urlSearchTerms
+        : (uiSearch ? uiSearch.split(/\s+/) : []);
+
+    const supermarket =
+      document.getElementById('supermarket-filter')?.value || '';
+    const category =
+      document.getElementById('category-filter')?.value || '';
+    const brand =
+      document.getElementById('brand-filter')?.value || '';
+    const minDiscount =
+      parseFloat(document.getElementById('min-discount')?.value) || 0;
 
     const minPriceRaw = document.getElementById('min-price')?.value;
     const maxPriceRaw = document.getElementById('max-price')?.value;
-    const minPrice = minPriceRaw === '' ? 0 : (parseFloat(minPriceRaw) || 0);
-    const maxPrice = maxPriceRaw === '' ? Infinity : (parseFloat(maxPriceRaw) || Infinity);
 
-    const sort = document.getElementById('sort-by')?.value || 'best-deals';
+    let minPrice = minPriceRaw === '' ? 0 : Number(minPriceRaw);
+    let maxPrice = maxPriceRaw === '' ? Infinity : Number(maxPriceRaw);
 
-if (isFinite(minPrice) && isFinite(maxPrice) && minPrice > maxPrice) {
-  // swap values
-  const minInput = document.getElementById('min-price');
-  const maxInput = document.getElementById('max-price');
+    if (minPrice > maxPrice) [minPrice, maxPrice] = [maxPrice, minPrice];
 
-  const tmp = minInput.value;
-  minInput.value = maxInput.value;
-  maxInput.value = tmp;
-}    
-    
+    const sort =
+      document.getElementById('sort-by')?.value || 'best-deals';
+
+    /* ===== FILTER ===== */
     filteredData = allData.filter(item => {
-  /* ===== URL CATEGORY FILTER (priority but compatible with UI) ===== */
-if (urlCategories.length) {
-  const itemCat = String(item.category || '')
-    .toLowerCase()
-    .trim();
+    
+       /* === AND SEARCH === */
+      if (effectiveSearchTerms.length) {
+        const hay =
+          `${item.product} ${item.primaryName} ${item.brand} ${item.supermarket}`
+            .toLowerCase();
 
-  const match = urlCategories.some(urlCat =>
-    itemCat.includes(urlCat)
-  );
-
-  if (!match) return false;
-} 
-          /* ================= CHIP FILTER ================= */
-      if (activeChipFilter && activeChipFilter !== 'all') {
-        let pass = true;
-
-        switch (activeChipFilter) {
-
-          case 'hot':
-          case 'discount':
-            pass = true;
-            break;
-
-          case 'ending':
-            if (!item.endDate) return false;
-            const diffEnd = Math.ceil((item.endDate - new Date()) / 86400000);
-            pass = diffEnd >= 0 && diffEnd <= 3;
-            break;
-
-          case 'food':
-            pass = /طعام|غذائ|أطعمة|مأكولات/i.test(String(item.category || ''));
-            break;
-
-          case 'recent':
-            if (!latestTwoDates?.length) return false;
-            const d1 = item.updateDate || item.endDate || parseEndDate(item.validUntil);
-            if (!d1) return false;
-            const dStr =
-              d1.getFullYear() + '-' +
-              String(d1.getMonth() + 1).padStart(2, '0') + '-' +
-              String(d1.getDate()).padStart(2, '0');
-            pass = latestTwoDates.includes(dStr);
-            break;
-
-case 'recent_day': {
-  if (!latestTwoDates || !latestTwoDates[0]) return false;
-
-  const newest = formatDateShort(new Date(latestTwoDates[0]));
-  if (newest === 'غير متاح') return false;
-
-  let itemDay = null;
-
-  if (item.updateDate instanceof Date) {
-    itemDay = formatDateShort(item.updateDate);
-  } else if (item.endDate instanceof Date) {
-    itemDay = formatDateShort(item.endDate);
-  } else if (item.validUntil && item.validUntil !== 'غير متاح') {
-    const d = parseEndDate(item.validUntil);
-    if (d instanceof Date) itemDay = formatDateShort(d);
-  }
-
-  if (!itemDay || itemDay === 'غير متاح') return false;
-
-  // ✔️ مقارنة اليوم فقط (لا وقت – لا diffDays)
-  if (itemDay !== newest) return false;
-
-  // ✔️ تطبيق الخصم
-  const minDiscount =
-    parseFloat(document.getElementById('min-discount')?.value) || 0;
-
-  return (item._discount_pct || 0) >= minDiscount;
-}
-
-                
-          case 'recent_extended': {
-            if (!latestTwoDates?.length) return false;
-            const newest = new Date(latestTwoDates[0]);
-            const d = item.updateDate || item.endDate || parseEndDate(item.validUntil);
-            if (!d) return false;
-            const diff = (newest - d) / 86400000;
-            pass = diff >= 0 && diff <= 7;
-            break;
-          }
-
-          case 'carrefour':
-            pass = /carrefour|كارفور/i.test(String(item.supermarket || ''));
-            break;
-
-          case 'hyperone':
-            pass = /hyper\s*one|هايبر|هايبروان/i.test(String(item.supermarket || ''));
-            break;
-
-          default:
-            pass = true;
-        }
-
-        if (!pass) return false;
+        if (!effectiveSearchTerms.every(t => hay.includes(t)))
+          return false;
       }
 
-      /* ================= NORMAL FILTERS ================= */
-if (supermarket && String(item.supermarket || '') !== supermarket)
-  return false;
+      /* === URL CATEGORY === */
+      if (Array.isArray(urlCategories) && urlCategories.length) {
+        const itemCat = String(item.category || '').toLowerCase();
+        if (!urlCategories.some(c => itemCat.includes(c)))
+          return false;
+      }
 
-if (category) {
-  const itemCat = String(item.category || '').trim().toLowerCase();
-  const wantedCat = String(category).trim().toLowerCase();
+      /* === CHIP FILTER === */
+      if (activeChipFilter && activeChipFilter !== 'all') {
+        if (activeChipFilter === 'food' &&
+            !/طعام|غذائ|أطعمة|مأكولات/i.test(item.category || ''))
+          return false;
+      }
 
-  if (!itemCat.includes(wantedCat)) return false;
-}
+      /* === NORMAL FILTERS === */
+      if (supermarket && item.supermarket !== supermarket)
+        return false;
 
-// category from UI (exact)
-if (category) {
-  if (String(item.category || '') !== category) return false;
-}
+      if (category) {
+        const itemCat = String(item.category || '').toLowerCase();
+        if (!itemCat.includes(category.toLowerCase()))
+          return false;
+      }
 
-
-      if (brand && String(item.brand || '') !== brand) return false;
+      if (brand && item.brand !== brand)
+        return false;
 
       const price = Number(item.currentPrice) || 0;
-      if (price < minPrice || price > maxPrice) return false;
+      if (price < minPrice || price > maxPrice)
+        return false;
 
-      if ((item._discount_pct || 0) < minDiscount) return false;
-
-      if (search) {
-        const hay =
-          `${item.product} ${item.primaryName} ${item.brand} ${item.supermarket}`.toLowerCase();
-        if (!hay.includes(search)) return false;
-      }
+      if ((item._discount_pct || 0) < minDiscount)
+        return false;
 
       return true;
     });
 
-    /* ================= SORTING ================= */
+/* ===== BEST PRICE PER CATEGORY ===== */
+if (bestPriceMode) {
+  filteredData = reduceBestPricePerCategory(filteredData);
+}
 
+
+    /* ===== SORT ===== */
     if (sort === 'best-deals') {
       const maxSaved = Math.max(1, ...filteredData.map(i => i._saved || 0));
       filteredData.sort((a, b) => {
@@ -1778,18 +1711,6 @@ if (category) {
         return (db * WEIGHT_DISCOUNT + sb * WEIGHT_SAVINGS) -
                (da * WEIGHT_DISCOUNT + sa * WEIGHT_SAVINGS);
       });
-    } else if (sort === 'discount-desc') {
-      filteredData.sort((a,b)=>(b._discount_pct||0)-(a._discount_pct||0));
-    } else if (sort === 'saved-desc') {
-      filteredData.sort((a,b)=>(b._saved||0)-(a._saved||0));
-    } else if (sort === 'price-asc') {
-      filteredData.sort((a,b)=>(a.currentPrice||0)-(b.currentPrice||0));
-    } else if (sort === 'price-desc') {
-      filteredData.sort((a,b)=>(b.currentPrice||0)-(a.currentPrice||0));
-    } else if (sort === 'name-asc') {
-      filteredData.sort((a,b)=>String(a.product||'').localeCompare(String(b.product||''),'ar'));
-    } else if (sort === 'name-desc') {
-      filteredData.sort((a,b)=>String(b.product||'').localeCompare(String(a.product||''),'ar'));
     }
 
     currentPage = 1;
@@ -1797,439 +1718,11 @@ if (category) {
     updateStats();
 
   } catch (e) {
-    console.error('applyAllFilters failed', e);
+    console.error('applyAllFilters failed:', e);
   }
 }
 
-
-/* Share app */
-function shareApp() {
-  try {
-    if (navigator.share) {
-      navigator.share({
-        title: 'عروض السوبرماركت',
-        text: 'اكتشف أفضل العروض والتخفيضات من كارفور وهايبر وان وسعودي ماركت!',
-        url: window.location.href,
-      });
-    } else {
-      navigator.clipboard.writeText(window.location.href);
-      alert('تم نسخ الرابط! شاركه مع أصدقائك الآن.');
-    }
-  } catch (error) {
-    console.error('Error in shareApp:', error);
-  }
-}
-
-/* Debounce helper */
-function debounce(fn, wait=250){
-  return function(...args){
-    clearTimeout(debounceTimer);
-    debounceTimer = setTimeout(()=>fn.apply(this,args), wait);
-  };
-}
-
-/* Date parsing helpers */
-function parseEndDate(period) {
-  try {
-    if (period === null || period === undefined) return null;
-
-    const s = String(period).trim();
-    if (!s || s === 'غير متاح' || s.toLowerCase() === 'undefined') return null;
-
-    const parts = s
-      .split(/to|إلى|حتى|–|—|-|~/i)
-      .map(p => p && p.trim())
-      .filter(p => p && p !== 'غير متاح');
-
-    if (!parts.length) return null;
-
-    let candidate = parts[parts.length - 1];
-    if (!candidate) return null;
-
-    candidate = candidate.replace(/^(من|إلى|حتى)\s*/i, '').trim();
-    if (!candidate) return null;
-
-    let d = new Date(candidate);
-
-    if (isNaN(d.getTime())) {
-      // DD/MM/YYYY
-      const dm = candidate.match(/(\d{1,2})[\/\.-](\d{1,2})[\/\.-](\d{2,4})/);
-      if (dm) {
-        let day = dm[1].padStart(2, '0');
-        let month = dm[2].padStart(2, '0');
-        let year = dm[3];
-        if (year.length === 2) year = '20' + year;
-        d = new Date(`${year}-${month}-${day}`);
-      } else {
-        // YYYY/MM/DD
-        const ym = candidate.match(/(\d{4})[\/\.-](\d{1,2})[\/\.-](\d{1,2})/);
-        if (ym) {
-          d = new Date(
-            `${ym[1]}-${ym[2].padStart(2, '0')}-${ym[3].padStart(2, '0')}`
-          );
-        }
-      }
-    }
-
-    return (d instanceof Date && !isNaN(d.getTime())) ? d : null;
-
-  } catch (error) {
-    console.error('Error in parseEndDate:', error, period);
-    return null;
-  }
-}
-
-
-function isValidDate(d){ 
-  try {
-    return d instanceof Date && !isNaN(d.getTime()); 
-  } catch {
-    return false;
-  }
-}
-
-function formatDateShort(d){ 
-  try {
-    if(!isValidDate(d)) return 'غير متاح'; 
-    const y=d.getFullYear(), m=String(d.getMonth()+1).padStart(2,'0'), day=String(d.getDate()).padStart(2,'0'); 
-    return `${y}-${m}-${day}`;
-  } catch {
-    return 'غير متاح';
-  }
-}
-
-/* Compute saved & discount */
-function computeSavedAndDiscount(arr){
-  try {
-    arr.forEach(item=>{
-
-
-      const orig = Number(item.originalPrice) || 0;
-      const curr = Number(item.currentPrice) || 0;
-      let saved = 0;
-      if (orig>0 && curr>0) saved = orig - curr;
-      else if (orig>0 && item.discount) saved = orig * (Number(item.discount)/100);
-      else if (curr>0 && item.discount) saved = curr * (Number(item.discount)/100);
-      item._saved = Math.max(0, Number((saved||0).toFixed(2)));
-      item._discount_pct = (item.discount && !isNaN(item.discount)) ? Number(item.discount) : (orig>0 && curr>0 ? Math.round(((orig-curr)/orig)*100) : 0);
-    });
-  } catch (error) {
-    console.error('Error in computeSavedAndDiscount:', error);
-  }
-}
-
-function computeCombinedScore(arr){
-  try {
-    if(!arr || !arr.length) return;
-    const savedVals = arr.map(i=>i._saved||0), pctVals = arr.map(i=>i._discount_pct||0);
-    const maxSaved = Math.max(...savedVals,0), minSaved = Math.min(...savedVals,0);
-    const maxPct = Math.max(...pctVals,0), minPct = Math.min(...pctVals,0);
-    const savedRange = (maxSaved - minSaved) || 1;
-    const pctRange = (maxPct - minPct) || 1;
-    arr.forEach(item=>{
-      const ns = ((item._saved||0)-minSaved)/savedRange;
-      const np = ((item._discount_pct||0)-minPct)/pctRange;
-      item._score = Math.max(ns, np);
-    });
-  } catch (error) {
-    console.error('Error in computeCombinedScore:', error);
-  }
-}
-
-/* Ticker: populate top discounted items and animate */
-function populateTicker(){
-  try {
-    const track = document.getElementById('ticker-track');
-    track.innerHTML = '';
-    const maxSavings = Math.max(...allData.map(i => i._saved || 0), 500);
-    
-    const top = [...allData].filter(i=>i._discount_pct>0).sort((a,b)=>{
-      // Use combined weighted score for ticker
-      const discountA = Math.min((a._discount_pct || 0), 100) / 100;
-      const discountB = Math.min((b._discount_pct || 0), 100) / 100;
-      
-      const savedA = (a._saved || 0) / maxSavings;
-      const savedB = (b._saved || 0) / maxSavings;
-      
-      const scoreA = (discountA * WEIGHT_DISCOUNT) + (savedA * WEIGHT_SAVINGS);
-      const scoreB = (discountB * WEIGHT_DISCOUNT) + (savedB * WEIGHT_SAVINGS);
-      
-      return scoreB - scoreA;
-    }).slice(0,12);
-
-    if(!top.length){
-      track.innerHTML = '<div class="ticker-item">لا توجد عروض مميزة حالياً</div>';
-      return;
-    }
-
-    const supermarketIcons = {
-      'كارفور': '🛒',
-      'هايبر وان': '🏪',
-      'هايبر': '🏪',
-      'سعودي': '🛍️',
-      'سوبر': '🏬',
-      'ماركت': '🏪'
-    };
-
-    const fragment = document.createDocumentFragment();
-    top.forEach(item=>{
-      const el = document.createElement('div');
-      el.className = 'ticker-item';
-      const name = String(item.product || 'منتج');
-      const market = String(item.supermarket || '');
-      const discount = item._discount_pct ? `${item._discount_pct}%` : '';
-      const saved = item._saved ? `${item._saved} ${item.currency||'EGP'}` : '';
-      
-      let icon = '🏷️';
-      for (const [key, value] of Object.entries(supermarketIcons)) {
-        if (market.includes(key)) {
-          icon = value;
-          break;
-        }
-      }
-      
-      el.innerHTML = `<span class="badge">${discount}</span> <span>${icon} ${name}</span> <span style="opacity:.85">— ${market}</span> <span style="color:var(--ticker-accent); margin-inline-start:8px;">وفر ${saved}</span>`;
-      fragment.appendChild(el);
-    });
-
-    track.appendChild(fragment.cloneNode(true));
-    track.appendChild(fragment.cloneNode(true));
-
-    requestAnimationFrame(()=>{
-      const viewport = document.getElementById('ticker-viewport');
-      const trackWidth = track.scrollWidth;
-      const viewportWidth = viewport.clientWidth || 600;
-      const speed = 80;
-      const duration = Math.max(8, Math.round(trackWidth / speed));
-      track.style.setProperty('--ticker-duration', duration + 's');
-      track.classList.add('animate');
-    });
-  } catch (error) {
-    console.error('Error in populateTicker:', error);
-  }
-}
-
-/* Render products grid */
-function renderProductsGrid() {
-  try {
-    const grid = document.getElementById('products-grid');
-    grid.innerHTML = '';
-    grid.style.gridTemplateColumns = 'repeat(auto-fill, minmax(280px, 1fr))';
-    
-    const start = (currentPage-1)*itemsPerPage;
-    const pageData = filteredData.slice(start, start+itemsPerPage);
-    
-    if (pageData.length === 0) {
-      grid.innerHTML = `
-        <div style="grid-column: 1/-1; text-align: center; padding: 40px; color: #666;">
-          <i class="fas fa-search" style="font-size: 3rem; margin-bottom: 20px; opacity: 0.3;"></i>
-          <h3>لا توجد عروض مطابقة</h3>
-          <p>حاول استخدام مصطلحات بحث مختلفة أو إزالة بعض الفلاتر</p>
-          ${activeChipFilter === 'recent' ? '<p style="color: var(--purple); margin-top: 10px;"><i class="fas fa-info-circle"></i> ملاحظة: فلتر "أحدث العروض" يبحث عن المنتجات في أحدث تاريخين في البيانات</p>' : ''}
-        </div>
-      `;
-      return;
-    }
-    
-    pageData.forEach(item => {
-      try {
-        const card = document.createElement('div');
-        card.className = 'product-card';
-        
-        const isFavorite = favorites.includes(item.product);
-        const isInComparison = comparisonItems.some(i => i.product === item.product);
-        
-        let productIcon = 'fa-box';
-        if (item.category) {
-          const category = String(item.category || '').toLowerCase();
-          if (category.includes('غذائي') || category.includes('طعام')) productIcon = 'fa-utensils';
-          else if (category.includes('مشروب')) productIcon = 'fa-wine-bottle';
-          else if (category.includes('تنظيف')) productIcon = 'fa-soap';
-          else if (category.includes('صحي')) productIcon = 'fa-heart';
-        }
-        
-        let countdownHtml = '';
-        if (item.endDate) {
-          const now = new Date();
-          const diffDays = Math.ceil((item.endDate - now) / (1000 * 60 * 60 * 24));
-          if (diffDays <= 7 && diffDays >= 0) {
-            countdownHtml = `<div class="countdown"><i class="fas fa-clock"></i> ${diffDays} يوم متبقي</div>`;
-          }
-        }
-        
-        let marketIcon = 'fa-store';
-        if (item.supermarket) {
-          const market = String(item.supermarket || '').toLowerCase();
-          if (market.includes('كارفور')) marketIcon = 'fa-shopping-cart';
-          else if (market.includes('هايبر')) marketIcon = 'fa-store-alt';
-        }
-        
-        // إضافة علامة "جديد" للمنتجات الحديثة
-        let newBadge = '';
-        if (activeChipFilter === 'recent' && (item.updateDate || item.endDate)) {
-          newBadge = '<div class="product-badge" style="background: var(--purple);"><i class="fas fa-star"></i> حديث</div>';
-        }
-        
-        // Add "Best Deal" badge for top combined offers
-        let bestDealBadge = '';
-        const sortBy = document.getElementById('sort-by').value;
-        if (sortBy === 'best-deals' && pageData.indexOf(item) < 3 && (item._discount_pct > 30 || item._saved > 20)) {
-          bestDealBadge = '<div class="product-badge" style="background: linear-gradient(135deg, #FF6B00, #FF0000);"><i class="fas fa-crown"></i> أفضل عرض</div>';
-        }
-        
-        card.innerHTML = `
-          ${bestDealBadge}
-          ${item._discount_pct > 50 ? '<div class="product-badge"><i class="fas fa-fire"></i> عروض ساخنة</div>' : ''}
-          ${newBadge}
-          <div class="favorite-btn ${isFavorite ? 'active' : ''}" data-id="${item.product}">
-            <i class="fas fa-heart"></i>
-          </div>
-          <div class="compare-btn ${isInComparison ? 'active' : ''}" data-id="${item.product}">
-            <i class="fas fa-balance-scale"></i>
-          </div>
-          <div class="share-btn" title="مشاركة هذا العرض">
-            <i class="fas fa-share-alt"></i>
-          </div>
-          <div class="product-image">
-            <i class="fas ${productIcon}"></i>
-          </div>
-          <div class="product-info">
-            <h3 class="product-title">${item.product || 'غير متاح'}</h3>
-            ${item.primaryName ? `<div style="font-size: 0.9rem; color: #666; margin-bottom: 5px;">${item.primaryName}</div>` : ''}
-            ${item.unit ? `<div class="product-unit"><i class="fas fa-weight"></i> ${item.unit}</div>` : ''}
-            <div class="price-container">
-              <div style="display: flex; flex-direction: column; gap: 3px;">
-                <span class="current-price">${item.currentPrice ? `${item.currentPrice} ${item.currency||'EGP'}` : 'غير متاح'}</span>
-                ${item._saved > 0 ? `<span style="font-size: 0.9rem; color: var(--success-green); font-weight: 600;"><i class="fas fa-coins"></i> وفر ${item._saved} ${item.currency||'EGP'}</span>` : ''}
-              </div>
-              ${item._discount_pct ? `<span class="discount-badge pulse">-${item._discount_pct}%</span>` : ''}
-            </div>
-            <div class="product-meta">
-              <div class="supermarket-logo">
-                <i class="fas ${marketIcon}"></i>
-                <span>${item.supermarket || 'غير متاح'}</span>
-              </div>
-              ${countdownHtml}
-            </div>
-            ${activeChipFilter === 'recent' && (item.updateDate || item.endDate) ? `
-              <div style="font-size: 0.8rem; color: var(--purple); margin-top: 10px; padding: 5px; background: rgba(111, 66, 193, 0.1); border-radius: 5px;">
-                <i class="fas fa-calendar-alt"></i> ${item.updateDate ? `تم التحديث: ${formatDateShort(item.updateDate)}` : `تنتهي: ${item.validUntil}`}
-              </div>
-            ` : ''}
-            <div class="action-buttons">
-              <button class="btn btn-secondary view-details-btn" data-id="${item.product}">
-                <i class="fas fa-eye"></i> تفاصيل
-              </button>
-              <button class="btn btn-primary buy-now-btn" data-id="${item.product}">
-                <i class="fas fa-shopping-cart"></i> شراء الآن
-              </button>
-            </div>
-          </div>
-        `;
-        
-        grid.appendChild(card);
-      } catch (itemError) {
-        console.error('Error rendering product card:', itemError, item);
-      }
-    });
-    
-    attachCardEventListeners();
-    updatePagination();
-  } catch (error) {
-    console.error('Error in renderProductsGrid:', error);
-  }
-}
-
-function attachCardEventListeners() {
-  try {
-    document.querySelectorAll('.favorite-btn').forEach(btn => {
-      btn.addEventListener('click', function(e) {
-        e.stopPropagation();
-        const productId = this.dataset.id;
-        toggleFavorite(productId);
-        this.classList.toggle('active');
-      });
-    });
-    
-    document.querySelectorAll('.compare-btn').forEach(btn => {
-      btn.addEventListener('click', function(e) {
-        e.stopPropagation();
-        const productId = this.dataset.id;
-        toggleComparison(productId);
-        this.classList.toggle('active');
-      });
-    });
-    
-    document.querySelectorAll('.view-details-btn').forEach(btn => {
-      btn.addEventListener('click', function(e) {
-        e.stopPropagation();
-        const productId = this.dataset.id;
-        const product = allData.find(p => p.product === productId);
-        if (product) {
-          let details = `
-            <strong>اسم ملف الفلاير:</strong> ${product.pageNo || 'غير متاح'}<br>
-            <strong>اسم المنتج:</strong> ${product.product || 'غير متاح'}<br>
-            <strong>الاسم الأساسي:</strong> ${product.primaryName || 'غير متاح'}<br>
-            <strong>الوحدة:</strong> ${product.unit || 'غير متاح'}<br>
-            <strong>السوبرماركت:</strong> ${product.supermarket || 'غير متاح'}<br>
-            <strong>الفئة:</strong> ${product.category || 'غير متاح'}<br>
-            <strong>العلامة التجارية:</strong> ${product.brand || 'غير متاح'}<br>
-            <strong>السعر الحالي:</strong> ${product.currentPrice ? `${product.currentPrice} ${product.currency||'EGP'}` : 'غير متاح'}<br>
-            <strong>الخصم:</strong> ${product._discount_pct ? `${product._discount_pct}%` : 'غير متاح'}<br>
-            <strong>التوفير:</strong> ${product._saved ? `${product._saved} ${product.currency||'EGP'}` : 'غير متاح'}<br>
-            <strong>ساري حتى:</strong> ${product.validUntil || 'غير متاح'}<br>
-            ${product.updateDate ? `<strong>تاريخ التحديث:</strong> ${formatDateShort(product.updateDate)}<br>` : ''}
-          `;
-          alert(details);
-        }
-      });
-    });
-    
-    document.querySelectorAll('.buy-now-btn').forEach(btn => {
-      btn.addEventListener('click', function(e) {
-        e.stopPropagation();
-        const productId = this.dataset.id;
-        const product = allData.find(p => p.product === productId);
-        if (product && product.solution_key) {
-          const url = `https://www.yabalashoffers.com/flyer.php?d=${encodeURIComponent(product.solution_key)}&c=eg`;
-
-//          alert (product.pageNo || 'producttttttttt');
-  //        alert (item.pageNo || 'itemmmmmmmm');
-//          const flyerCurrency = product.currency || '';
-//          const flyerFileName = product.solution_key || '';
-          const flyerPageNo= product.pageNo.indexOf("page_") || '';
-          const flyerFileName =  product.pageNo.substring(flyerPageNo);
-          
-
-          openWithOverlay(url, flyerFileName);
-        }
-      });
-    });
-    
-    document.querySelectorAll('.share-btn').forEach(btn => {
-      btn.addEventListener('click', function(e) {
-        e.stopPropagation();
-        const card = this.closest('.product-card');
-        const productName = card.querySelector('.product-title').textContent;
-        const price = card.querySelector('.current-price').textContent;
-        
-        if (navigator.share) {
-          navigator.share({
-            title: `عرض مميز: ${productName}`,
-            text: `اكتشف هذا العرض: ${productName} بسعر ${price}`,
-            url: window.location.href,
-          });
-        } else {
-          navigator.clipboard.writeText(`عرض مميز: ${productName} بسعر ${price} - ${window.location.href}`);
-          alert('تم نسخ تفاصيل العرض! شاركه مع أصدقائك.');
-        }
-      });
-    });
-  } catch (error) {
-    console.error('Error in attachCardEventListeners:', error);
-  }
-}
-
+                                                      
 function toggleFavorite(productId) {
   try {
     const index = favorites.indexOf(productId);
@@ -2308,6 +1801,327 @@ function renderTable(){
   }
 }
 
+/* Share app */
+function shareApp() {
+  try {
+    if (navigator.share) {
+      navigator.share({
+        title: 'عروض السوبرماركت',
+        text: 'اكتشف أفضل العروض والتخفيضات من كارفور وهايبر وان وسعودي ماركت!',
+        url: window.location.href,
+      });
+    } else {
+      navigator.clipboard.writeText(window.location.href);
+      alert('تم نسخ الرابط! شاركه مع أصدقائك الآن.');
+    }
+  } catch (error) {
+    console.error('Error in shareApp:', error);
+  }
+}
+ 
+      /* Debounce helper */
+function debounce(fn, wait=250){
+  return function(...args){
+    clearTimeout(debounceTimer);
+    debounceTimer = setTimeout(()=>fn.apply(this,args), wait);
+  };
+}
+      
+      /* Date parsing helpers */
+function parseEndDate(period) {
+  try {
+    if (period === null || period === undefined) return null;
+    const s = String(period).trim();
+    if (!s || s === 'غير متاح' || s.toLowerCase() === 'undefined') return null;
+    const parts = s
+      .split(/to|إلى|حتى|–|—|-|~/i)
+      .map(p => p && p.trim())
+      .filter(p => p && p !== 'غير متاح');
+    if (!parts.length) return null;
+    let candidate = parts[parts.length - 1];
+    if (!candidate) return null;
+    candidate = candidate.replace(/^(من|إلى|حتى)\s*/i, '').trim();
+    if (!candidate) return null;
+    let d = new Date(candidate);
+    if (isNaN(d.getTime())) {
+      // DD/MM/YYYY
+      const dm = candidate.match(/(\d{1,2})[\/\.-](\d{1,2})[\/\.-](\d{2,4})/);
+      if (dm) {
+        let day = dm[1].padStart(2, '0');
+        let month = dm[2].padStart(2, '0');
+        let year = dm[3];
+        if (year.length === 2) year = '20' + year;
+        d = new Date(`${year}-${month}-${day}`);
+      } else {
+        // YYYY/MM/DD
+        const ym = candidate.match(/(\d{4})[\/\.-](\d{1,2})[\/\.-](\d{1,2})/);
+        if (ym) {
+          d = new Date(
+            `${ym[1]}-${ym[2].padStart(2, '0')}-${ym[3].padStart(2, '0')}`
+          );
+        }
+      }
+    }
+    return (d instanceof Date && !isNaN(d.getTime())) ? d : null;
+  } catch (error) {
+    console.error('Error in parseEndDate:', error, period);
+    return null;
+  }
+}
+      
+function isValidDate(d){
+  try {
+    return d instanceof Date && !isNaN(d.getTime());
+  } catch {
+    return false;
+  }
+}
+    
+function formatDateShort(d){
+  try {
+    if(!isValidDate(d)) return 'غير متاح';
+    const y=d.getFullYear(), m=String(d.getMonth()+1).padStart(2,'0'), day=String(d.getDate()).padStart(2,'0');
+    return `${y}-${m}-${day}`;
+  } catch {
+    return 'غير متاح';
+  }
+}
+    
+    /* Compute saved & discount */
+function computeSavedAndDiscount(arr){
+  try {
+    arr.forEach(item=>{
+      const orig = Number(item.originalPrice) || 0;
+      const curr = Number(item.currentPrice) || 0;
+      let saved = 0;
+      if (orig>0 && curr>0) saved = orig - curr;
+      else if (orig>0 && item.discount) saved = orig * (Number(item.discount)/100);
+      else if (curr>0 && item.discount) saved = curr * (Number(item.discount)/100);
+      item._saved = Math.max(0, Number((saved||0).toFixed(2)));
+      item._discount_pct = (item.discount && !isNaN(item.discount)) ? Number(item.discount) : (orig>0 && curr>0 ? Math.round(((orig-curr)/orig)*100) : 0);
+    });
+  } catch (error) {
+    console.error('Error in computeSavedAndDiscount:', error);
+  }
+}
+  
+  function computeCombinedScore(arr){
+  try {
+    if(!arr || !arr.length) return;
+    const savedVals = arr.map(i=>i._saved||0), pctVals = arr.map(i=>i._discount_pct||0);
+    const maxSaved = Math.max(...savedVals,0), minSaved = Math.min(...savedVals,0);
+    const maxPct = Math.max(...pctVals,0), minPct = Math.min(...pctVals,0);
+    const savedRange = (maxSaved - minSaved) || 1;
+    const pctRange = (maxPct - minPct) || 1;
+    arr.forEach(item=>{
+      const ns = ((item._saved||0)-minSaved)/savedRange;
+      const np = ((item._discount_pct||0)-minPct)/pctRange;
+      item._score = Math.max(ns, np);
+    });
+  } catch (error) {
+    console.error('Error in computeCombinedScore:', error);
+  }
+}
+ 
+  /* Ticker: populate top discounted items and animate */
+function populateTicker(){
+  try {
+    const track = document.getElementById('ticker-track');
+    track.innerHTML = '';
+    const maxSavings = Math.max(...allData.map(i => i._saved || 0), 500);
+   
+    const top = [...allData].filter(i=>i._discount_pct>0).sort((a,b)=>{
+      // Use combined weighted score for ticker
+      const discountA = Math.min((a._discount_pct || 0), 100) / 100;
+      const discountB = Math.min((b._discount_pct || 0), 100) / 100;
+     
+      const savedA = (a._saved || 0) / maxSavings;
+      const savedB = (b._saved || 0) / maxSavings;
+     
+      const scoreA = (discountA * WEIGHT_DISCOUNT) + (savedA * WEIGHT_SAVINGS);
+      const scoreB = (discountB * WEIGHT_DISCOUNT) + (savedB * WEIGHT_SAVINGS);
+     
+      return scoreB - scoreA;
+    }).slice(0,12);
+    if(!top.length){
+      track.innerHTML = '<div class="ticker-item">لا توجد عروض مميزة حالياً</div>';
+      return;
+    }
+    const supermarketIcons = {
+      'كارفور': '🛒',
+      'هايبر وان': '🏪',
+      'هايبر': '🏪',
+      'سعودي': '🛍️',
+      'سوبر': '🏬',
+      'ماركت': '🏪'
+    };
+    const fragment = document.createDocumentFragment();
+    top.forEach(item=>{
+      const el = document.createElement('div');
+      el.className = 'ticker-item';
+      const name = String(item.product || 'منتج');
+      const market = String(item.supermarket || '');
+      const discount = item._discount_pct ? `${item._discount_pct}%` : '';
+      const saved = item._saved ? `${item._saved} ${item.currency||'EGP'}` : '';
+     
+      let icon = '🏷️';
+      for (const [key, value] of Object.entries(supermarketIcons)) {
+        if (market.includes(key)) {
+          icon = value;
+          break;
+        }
+      }
+     
+      el.innerHTML = `<span class="badge">${discount}</span> <span>${icon} ${name}</span> <span style="opacity:.85">— ${market}</span> <span style="color:var(--ticker-accent); margin-inline-start:8px;">وفر ${saved}</span>`;
+      fragment.appendChild(el);
+    });
+    track.appendChild(fragment.cloneNode(true));
+    track.appendChild(fragment.cloneNode(true));
+    requestAnimationFrame(()=>{
+      const viewport = document.getElementById('ticker-viewport');
+      const trackWidth = track.scrollWidth;
+      const viewportWidth = viewport.clientWidth || 600;
+      const speed = 80;
+      const duration = Math.max(8, Math.round(trackWidth / speed));
+      track.style.setProperty('--ticker-duration', duration + 's');
+      track.classList.add('animate');
+    });
+  } catch (error) {
+    console.error('Error in populateTicker:', error);
+  }
+}
+  
+  /* Render products grid */
+function renderProductsGrid() {
+  try {
+    const grid = document.getElementById('products-grid');
+    grid.innerHTML = '';
+    grid.style.gridTemplateColumns = 'repeat(auto-fill, minmax(280px, 1fr))';
+   
+    const start = (currentPage-1)*itemsPerPage;
+    const pageData = filteredData.slice(start, start+itemsPerPage);
+   
+    if (pageData.length === 0) {
+      grid.innerHTML = `
+        <div style="grid-column: 1/-1; text-align: center; padding: 40px; color: #666;">
+          <i class="fas fa-search" style="font-size: 3rem; margin-bottom: 20px; opacity: 0.3;"></i>
+          <h3>لا توجد عروض مطابقة</h3>
+          <p>حاول استخدام مصطلحات بحث مختلفة أو إزالة بعض الفلاتر</p>
+          ${activeChipFilter === 'recent' ? '<p style="color: var(--purple); margin-top: 10px;"><i class="fas fa-info-circle"></i> ملاحظة: فلتر "أحدث العروض" يبحث عن المنتجات في أحدث تاريخين في البيانات</p>' : ''}
+        </div>
+      `;
+      return;
+    }
+   
+    pageData.forEach(item => {
+      try {
+        const card = document.createElement('div');
+        card.className = 'product-card';
+       
+        const isFavorite = favorites.includes(item.product);
+        const isInComparison = comparisonItems.some(i => i.product === item.product);
+       
+        let productIcon = 'fa-box';
+        if (item.category) {
+          const category = String(item.category || '').toLowerCase();
+          if (category.includes('غذائي') || category.includes('طعام')) productIcon = 'fa-utensils';
+          else if (category.includes('مشروب')) productIcon = 'fa-wine-bottle';
+          else if (category.includes('تنظيف')) productIcon = 'fa-soap';
+          else if (category.includes('صحي')) productIcon = 'fa-heart';
+        }
+       
+        let countdownHtml = '';
+        if (item.endDate) {
+          const now = new Date();
+          const diffDays = Math.ceil((item.endDate - now) / (1000 * 60 * 60 * 24));
+          if (diffDays <= 7 && diffDays >= 0) {
+            countdownHtml = `<div class="countdown"><i class="fas fa-clock"></i> ${diffDays} يوم متبقي</div>`;
+          }
+        }
+       
+        let marketIcon = 'fa-store';
+        if (item.supermarket) {
+          const market = String(item.supermarket || '').toLowerCase();
+          if (market.includes('كارفور')) marketIcon = 'fa-shopping-cart';
+          else if (market.includes('هايبر')) marketIcon = 'fa-store-alt';
+        }
+       
+        // إضافة علامة "جديد" للمنتجات الحديثة
+        let newBadge = '';
+        if (activeChipFilter === 'recent' && (item.updateDate || item.endDate)) {
+          newBadge = '<div class="product-badge" style="background: var(--purple);"><i class="fas fa-star"></i> حديث</div>';
+        }
+       
+        // Add "Best Deal" badge for top combined offers
+        let bestDealBadge = '';
+        const sortBy = document.getElementById('sort-by').value;
+        if (sortBy === 'best-deals' && pageData.indexOf(item) < 3 && (item._discount_pct > 30 || item._saved > 20)) {
+          bestDealBadge = '<div class="product-badge" style="background: linear-gradient(135deg, #FF6B00, #FF0000);"><i class="fas fa-crown"></i> أفضل عرض</div>';
+        }
+       
+        card.innerHTML = `
+          ${bestDealBadge}
+          ${item._discount_pct > 50 ? '<div class="product-badge"><i class="fas fa-fire"></i> عروض ساخنة</div>' : ''}
+          ${newBadge}
+          <div class="favorite-btn ${isFavorite ? 'active' : ''}" data-id="${item.product}">
+            <i class="fas fa-heart"></i>
+          </div>
+          <div class="compare-btn ${isInComparison ? 'active' : ''}" data-id="${item.product}">
+            <i class="fas fa-balance-scale"></i>
+          </div>
+          <div class="share-btn" title="مشاركة هذا العرض">
+            <i class="fas fa-share-alt"></i>
+          </div>
+          <div class="product-image">
+            <i class="fas ${productIcon}"></i>
+          </div>
+          <div class="product-info">
+            <h3 class="product-title">${item.product || 'غير متاح'}</h3>
+            ${item.primaryName ? `<div style="font-size: 0.9rem; color: #666; margin-bottom: 5px;">${item.primaryName}</div>` : ''}
+            ${item.unit ? `<div class="product-unit"><i class="fas fa-weight"></i> ${item.unit}</div>` : ''}
+            <div class="price-container">
+              <div style="display: flex; flex-direction: column; gap: 3px;">
+                <span class="current-price">${item.currentPrice ? `${item.currentPrice} ${item.currency||'EGP'}` : 'غير متاح'}</span>
+                ${item._saved > 0 ? `<span style="font-size: 0.9rem; color: var(--success-green); font-weight: 600;"><i class="fas fa-coins"></i> وفر ${item._saved} ${item.currency||'EGP'}</span>` : ''}
+              </div>
+              ${item._discount_pct ? `<span class="discount-badge pulse">-${item._discount_pct}%</span>` : ''}
+            </div>
+            <div class="product-meta">
+              <div class="supermarket-logo">
+                <i class="fas ${marketIcon}"></i>
+                <span>${item.supermarket || 'غير متاح'}</span>
+              </div>
+              ${countdownHtml}
+            </div>
+            ${activeChipFilter === 'recent' && (item.updateDate || item.endDate) ? `
+              <div style="font-size: 0.8rem; color: var(--purple); margin-top: 10px; padding: 5px; background: rgba(111, 66, 193, 0.1); border-radius: 5px;">
+                <i class="fas fa-calendar-alt"></i> ${item.updateDate ? `تم التحديث: ${formatDateShort(item.updateDate)}` : `تنتهي: ${item.validUntil}`}
+              </div>
+            ` : ''}
+            <div class="action-buttons">
+              <button class="btn btn-secondary view-details-btn" data-id="${item.product}">
+                <i class="fas fa-eye"></i> تفاصيل
+              </button>
+              <button class="btn btn-primary buy-now-btn" data-id="${item.product}">
+                <i class="fas fa-shopping-cart"></i> شراء الآن
+              </button>
+            </div>
+          </div>
+        `;
+       
+        grid.appendChild(card);
+      } catch (itemError) {
+        console.error('Error rendering product card:', itemError, item);
+      }
+    });
+   
+    attachCardEventListeners();
+    updatePagination();
+  } catch (error) {
+    console.error('Error in renderProductsGrid:', error);
+  }
+}
+  
 /* Open overlay with specific message */
 function openWithOverlay(url, flyerFileName) {
   try {
@@ -2454,6 +2268,94 @@ function renderContent() {
   }
 }
 
+  function attachCardEventListeners() {
+  try {
+    document.querySelectorAll('.favorite-btn').forEach(btn => {
+      btn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        const productId = this.dataset.id;
+        toggleFavorite(productId);
+        this.classList.toggle('active');
+      });
+    });
+   
+    document.querySelectorAll('.compare-btn').forEach(btn => {
+      btn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        const productId = this.dataset.id;
+        toggleComparison(productId);
+        this.classList.toggle('active');
+      });
+    });
+   
+    document.querySelectorAll('.view-details-btn').forEach(btn => {
+      btn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        const productId = this.dataset.id;
+        const product = allData.find(p => p.product === productId);
+        if (product) {
+          let details = `
+            <strong>اسم ملف الفلاير:</strong> ${product.pageNo || 'غير متاح'}<br>
+            <strong>اسم المنتج:</strong> ${product.product || 'غير متاح'}<br>
+            <strong>الاسم الأساسي:</strong> ${product.primaryName || 'غير متاح'}<br>
+            <strong>الوحدة:</strong> ${product.unit || 'غير متاح'}<br>
+            <strong>السوبرماركت:</strong> ${product.supermarket || 'غير متاح'}<br>
+            <strong>الفئة:</strong> ${product.category || 'غير متاح'}<br>
+            <strong>العلامة التجارية:</strong> ${product.brand || 'غير متاح'}<br>
+            <strong>السعر الحالي:</strong> ${product.currentPrice ? `${product.currentPrice} ${product.currency||'EGP'}` : 'غير متاح'}<br>
+            <strong>الخصم:</strong> ${product._discount_pct ? `${product._discount_pct}%` : 'غير متاح'}<br>
+            <strong>التوفير:</strong> ${product._saved ? `${product._saved} ${product.currency||'EGP'}` : 'غير متاح'}<br>
+            <strong>ساري حتى:</strong> ${product.validUntil || 'غير متاح'}<br>
+            ${product.updateDate ? `<strong>تاريخ التحديث:</strong> ${formatDateShort(product.updateDate)}<br>` : ''}
+          `;
+          alert(details);
+        }
+      });
+    });
+   
+    document.querySelectorAll('.buy-now-btn').forEach(btn => {
+      btn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        const productId = this.dataset.id;
+        const product = allData.find(p => p.product === productId);
+        if (product && product.solution_key) {
+          const url = `https://www.yabalashoffers.com/flyer.php?d=${encodeURIComponent(product.solution_key)}&c=eg`;
+// alert (product.pageNo || 'producttttttttt');
+  // alert (item.pageNo || 'itemmmmmmmm');
+// const flyerCurrency = product.currency || '';
+// const flyerFileName = product.solution_key || '';
+          const flyerPageNo= product.pageNo.indexOf("page_") || '';
+          const flyerFileName = product.pageNo.substring(flyerPageNo);
+         
+          openWithOverlay(url, flyerFileName);
+        }
+      });
+    });
+   
+    document.querySelectorAll('.share-btn').forEach(btn => {
+      btn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        const card = this.closest('.product-card');
+        const productName = card.querySelector('.product-title').textContent;
+        const price = card.querySelector('.current-price').textContent;
+       
+        if (navigator.share) {
+          navigator.share({
+            title: `عرض مميز: ${productName}`,
+            text: `اكتشف هذا العرض: ${productName} بسعر ${price}`,
+            url: window.location.href,
+          });
+        } else {
+          navigator.clipboard.writeText(`عرض مميز: ${productName} بسعر ${price} - ${window.location.href}`);
+          alert('تم نسخ تفاصيل العرض! شاركه مع أصدقائك.');
+        }
+      });
+    });
+  } catch (error) {
+    console.error('Error in attachCardEventListeners:', error);
+  }
+}
+  
 /* Stats */
 function updateStats(){
   try {
@@ -2592,7 +2494,6 @@ function wirePriceControls(){
   }
 }
 
-/* Initialize filters and event wiring */
 /* Initialize filters and event wiring - RESTORE ORIGINAL reset button behavior */
 function initializeFilters(){
   try {
@@ -2681,7 +2582,6 @@ function initializeFilters(){
   }
 }
 
-/* Reset ALL filters */
 /* Reset ALL filters - ORIGINAL BEHAVIOR */
 function resetAllFilters(){
   try {
@@ -2708,13 +2608,12 @@ function resetAllFilters(){
   }
 }
   
-  function getItemDate(item) {
+function getItemDate(item) {
   if (item.updateDate instanceof Date) return item.updateDate;
   if (item.endDate instanceof Date) return item.endDate;
   if (item.validUntil) return parseEndDate(item.validUntil);
   return null;
 }
-
 
 /* Fetch and prepare data - UPDATED with combined sorting */
 async function fetchData(){
@@ -2925,80 +2824,106 @@ allData.forEach(item => {
   }
 });
 
-  
+function reduceBestPricePerCategory(data) {
+  const bestByCategory = new Map();
+
+  for (const item of data) {
+    const category = String(item.category || 'other').toLowerCase();
+    const price = Number(item.currentPrice);
+
+    if (!price || price <= 0) continue;
+
+    if (!bestByCategory.has(category)) {
+      bestByCategory.set(category, item);
+      continue;
+    }
+
+    const best = bestByCategory.get(category);
+    const bestPrice = Number(best.currentPrice);
+
+    if (
+      price < bestPrice ||
+      (price === bestPrice &&
+        (item._discount_pct || 0) > (best._discount_pct || 0))
+    ) {
+      bestByCategory.set(category, item);
+    }
+  }
+
+  return Array.from(bestByCategory.values());
+}
+
 function applyUrlParams() {
+  
   try {
     const params = new URLSearchParams(window.location.search);
+    const best = params.get('best_price');
+bestPriceMode = best === '1' || best === 'true';
 
-    /* ===== category (URL only) ===== */
+    /* ================= SEARCH (q=جبن,لانشون) ================= */
+    const rawQ = params.get('q');
+
+    urlSearchTerms = rawQ
+      ? decodeURIComponent(rawQ)
+          .toLowerCase()
+          .split(/\s+/)   // مسافة فقط
+          .map(t => t.trim())
+          .filter(Boolean)
+      : [];
+
+    /* ===== CATEGORY ===== */
     const catParam = params.get('category');
-    if (catParam) {
-      urlCategories = catParam
-        .split(',')
-        .map(c => decodeURIComponent(c).trim().toLowerCase())
-        .filter(Boolean);
-    } else {
-      urlCategories = [];
-    }
+    urlCategories = catParam
+      ? decodeURIComponent(catParam)
+          .split(',')
+          .map(c => c.trim().toLowerCase())
+          .filter(Boolean)
+      : [];
 
-    /* search */
-    const q = params.get('q');
-    if (q) {
-      const input = document.getElementById('search-input');
-      if (input) input.value = decodeURIComponent(q);
-    }
-
-    /* supermarket */
+    /* ================= SUPERMARKET ================= */
     const market = params.get('market');
     if (market) {
       const sel = document.getElementById('supermarket-filter');
       if (sel) sel.value = decodeURIComponent(market);
     }
 
-    /* discount */
+    /* ================= DISCOUNT ================= */
     const discount = params.get('discount');
     if (discount) {
       const el = document.getElementById('min-discount');
       if (el) el.value = discount;
     }
 
-    /* page */
+    /* ================= PAGE ================= */
     const page = parseInt(params.get('page'), 10);
     if (!isNaN(page) && page > 1) currentPage = page;
 
-// one day
-if (params.has('one_day')) {
-activeChipFilter = 'recent_day';
-const v = params.get('one_day');
-const el = document.getElementById('min-discount');
-if (el && v) el.value = v;
-}
+    /* ================= ONE DAY ================= */
+    if (params.has('one_day')) {
+      activeChipFilter = 'recent_day';
+      const v = params.get('one_day');
+      const el = document.getElementById('min-discount');
+      if (el && v) el.value = v;
+    }
 
-// week
-if (params.has('week_percent')) {
-activeChipFilter = 'recent_extended';
-const v = params.get('week_percent');
-const el = document.getElementById('min-discount');
-if (el && v) el.value = v;
-}
+    /* ================= WEEK ================= */
+    if (params.has('week_percent')) {
+      activeChipFilter = 'recent_extended';
+      const v = params.get('week_percent');
+      const el = document.getElementById('min-discount');
+      if (el && v) el.value = v;
+    }
 
-// page
-// const page = parseInt(params.get('page'), 10);
-if (!isNaN(page) && page > 1) {
-currentPage = page;
-}
+    /* ================= SORT ================= */
+    if (params.has('one_day') || params.has('week_percent')) {
+      const sort = document.getElementById('sort-by');
+      if (sort) sort.value = 'best-deals';
+    }
 
-// sort for date filters
-if (params.has('one_day') || params.has('week_percent')) {
-const sort = document.getElementById('sort-by');
-if (sort) sort.value = 'best-deals';
+  } catch (e) {
+    console.error('applyUrlParams failed:', e);
+  }
 }
-
-} catch (e) {
-console.error('applyUrlParams failed:', e);
-}
-}
-
   
 /* Helper function to show errors */
 function showError(message) {
