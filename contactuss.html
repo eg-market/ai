@@ -1,70 +1,149 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-<!-- Existing head content -->
-<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>اتصل بنا</title>
+<style>
+body {
+font-family: Arial, sans-serif;
+margin: 0;
+padding: 20px;
+display: flex;
+justify-content: center;
+align-items: center;
+min-height: 100vh;
+background: linear-gradient(180deg, #0b5fa5, #083e73);
+direction: rtl;
+}
+
+.contact-form {
+background: white;
+padding: 30px;
+border-radius: 10px;
+box-shadow: 0 0 20px rgba(0,0,0,0.1);
+width: 100%;
+max-width: 500px;
+}
+
+h1 {
+color: #0b5fa5;
+text-align: center;
+margin-bottom: 30px;
+}
+
+.form-group {
+margin-bottom: 20px;
+}
+
+label {
+display: block;
+margin-bottom: 5px;
+color: #333;
+}
+
+input, textarea {
+width: 100%;
+padding: 10px;
+border: 1px solid #ddd;
+border-radius: 5px;
+font-size: 16px;
+direction: rtl;
+}
+
+textarea {
+height: 150px;
+resize: vertical;
+}
+
+button {
+background: #0b5fa5;
+color: white;
+padding: 12px 25px;
+border: none;
+border-radius: 5px;
+cursor: pointer;
+width: 100%;
+font-size: 16px;
+}
+
+button:hover {
+background: #083e73;
+}
+
+.success-message {
+color: green;
+text-align: center;
+display: none;
+}
+
+.error-message {
+color: red;
+text-align: center;
+display: none;
+}
+</style>
 </head>
 <body>
-<!-- Existing form HTML -->
+<div class="contact-form">
+<h1>اتصل بنا</h1>
+<div class="form-group">
+<label for="name">الاسم:</label>
+<input type="text" id="name" required>
+</div>
+<div class="form-group">
+<label for="email">البريد الإلكتروني:</label>
+<input type="email" id="email" required>
+</div>
+<div class="form-group">
+<label for="message">الرسالة:</label>
+<textarea id="message" required></textarea>
+</div>
+<button onclick="sendEmail()">إرسال</button>
+<p id="successMessage" class="success-message">تم إرسال رسالتك بنجاح!</p>
+<p id="errorMessage" class="error-message">حدث خطأ. يرجى المحاولة مرة أخرى.</p>
+</div>
 
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
 <script>
-// Enhanced Initialization with Error Logging
-try {
-emailjs.init("LgUkZLzt8N_NS-Bo6");
-console.log("EmailJS initialized successfully");
-} catch (error) {
-console.error("EmailJS initialization error:", error);
-alert("EmailJS Initialization Failed: " + error.message);
-}
+emailjs.init("LgUkZLzt8N_NS-Bo6"); // Replace with your actual public key
 
 function sendEmail() {
 const name = document.getElementById('name').value;
 const email = document.getElementById('email').value;
 const message = document.getElementById('message').value;
 
-// Advanced Validation
-if (!name) {
-alert('الاسم مطلوب');
-return;
-}
-if (!email || !email.includes('@')) {
-alert('البريد الإلكتروني غير صحيح');
-return;
-}
-if (!message) {
-alert('الرسالة مطلوبة');
+// More robust validation
+if (!name || !email || !message) {
+alert('Please fill all fields');
 return;
 }
 
 const templateParams = {
 from_name: name,
 from_email: email,
-to_email: 'wlid11@yahoo.com', // Verify this email
+to_email: 'your-email@example.com',
 message: message
 };
 
-// Detailed Error Handling
-emailjs.send('service_01jahcr', 'template_b2j1qrf', templateParams)
-.then(
-function(response) {
-console.log('SUCCESS!', response);
+emailjs.send('YOUR_SERVICE_ID', 'YOUR_TEMPLATE_ID', templateParams)
+.then(function(response) {
+console.log('SUCCESS!', response.status, response.text);
 document.getElementById('successMessage').style.display = 'block';
 document.getElementById('errorMessage').style.display = 'none';
 
-// Form Reset
+// Reset form
 document.getElementById('name').value = '';
 document.getElementById('email').value = '';
 document.getElementById('message').value = '';
-},
-function(error) {
-console.error('SEND ERROR:', error);
+}, function(error) {
+console.log('FAILED...', error);
 document.getElementById('errorMessage').style.display = 'block';
 document.getElementById('successMessage').style.display = 'none';
 
-// Detailed Error Feedback
-alert('خطأ في الإرسال. التفاصيل: ' + JSON.stringify(error));
-}
-);
+// More detailed error display
+alert('Error details: ' + JSON.stringify(error));
+});
 }
 </script>
 </body>
