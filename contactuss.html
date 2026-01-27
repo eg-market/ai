@@ -85,6 +85,12 @@ display: none;
 </style>
 </head>
 <body>
+
+  <div class="form-group">
+<label for="to_email">إلى البريد الإلكتروني:</label>
+<input type="email" id="to_email" required>
+</div>
+  
 <div class="contact-form">
 <h1>اتصل بنا</h1>
 <div class="form-group">
@@ -112,9 +118,10 @@ function sendEmail() {
 const name = document.getElementById('name').value;
 const email = document.getElementById('email').value;
 const message = document.getElementById('message').value;
+const toEmail = document.getElementById('to_email').value; // Capture recipient's email
 
 // More robust validation
-if (!name || !email || !message) {
+if (!name || !email || !message || !toEmail) {
 alert('Please fill all fields');
 return;
 }
@@ -122,7 +129,7 @@ return;
 const templateParams = {
 from_name: name,
 from_email: email,
-to_email: 'misconceptions.and.key.moments@gmail.com',
+to_email: toEmail, // Use the recipient's email
 message: message
 };
 
@@ -136,6 +143,7 @@ document.getElementById('errorMessage').style.display = 'none';
 document.getElementById('name').value = '';
 document.getElementById('email').value = '';
 document.getElementById('message').value = '';
+document.getElementById('to_email').value = ''; // Reset recipient's email field
 }, function(error) {
 console.log('FAILED...', error);
 document.getElementById('errorMessage').style.display = 'block';
@@ -144,7 +152,6 @@ document.getElementById('successMessage').style.display = 'none';
 // More detailed error display
 alert('Error details: ' + JSON.stringify(error));
 });
-}
-</script>
+}</script>
 </body>
 </html>
