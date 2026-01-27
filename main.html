@@ -182,58 +182,52 @@ overflow-x: hidden; /* Prevent horizontal scrolling */
 
         target="_blank" rel="noopener">
         <style>
-        /* CSS Reset */
-*, *::before, *::after {
+          *, *::before, *::after {
 box-sizing: border-box;
 margin: 0;
 padding: 0;
 }
-
-body {
-direction: rtl;
-text-align: right;
-overflow-x: hidden;
-font-family: Arial, sans-serif;
-}
-
 .header {
-background: linear-gradient(180deg, #0b5fa5, #083e73);
-color: #fff;
-text-align: center;
-padding: 28px 16px 22px;
+  background: linear-gradient(180deg, #0b5fa5, #083e73);
+  color: #fff;
+  text-align: center;
+  padding: 28px 16px 22px;
+  direction: rtl;
+  font-family: Arial, sans-serif;
 }
 
 .header h1 {
-margin: 0;
-font-size: 50px;
+  margin: 0;
+  font-size: 50px;
 }
 
 .header p {
-margin: 8px 0 18px;
-font-size: 25px;
+  margin: 8px 0 18px;
+  font-size: 25px;
 }
 
 .header b {
-color: #ffd400;
+  color: #ffd400;
 }
 
 .header-logos {
-display: flex;
-justify-content: center;
-gap: 14px;
-flex-wrap: wrap;
+  display: flex;
+  justify-content: center;
+  gap: 14px;
+  flex-wrap: wrap;
 }
 
+          
 .header-logo {
-width: 64px;
-height: 64px;
-background: #fff;
-border-radius: 16px;
-padding: 6px;
-box-sizing: border-box;
+  width: 64px;
+  height: 64px;
+  background: #fff;
+  border-radius: 16px;
+  padding: 6px;
+  box-sizing: border-box;
 }
-
-@keyframes flashing {
+          
+          @keyframes flashing {
 0% { opacity: 1; }
 50% { opacity: 0.5; }
 100% { opacity: 1; }
@@ -241,35 +235,6 @@ box-sizing: border-box;
 
 .flashing {
 animation: flashing 1s infinite;
-}
-
-#t6-wrapper {
-display: flex;
-flex-direction: row-reverse;
-width: 100%;
-max-width: 1200px;
-margin: 0 auto;
-padding: 20px;
-}
-
-/* Mobile-Specific Styles */
-@media (max-width: 768px) {
-.header h1 {
-font-size: 32px;
-}
-
-.header p {
-font-size: 18px;
-}
-
-.header-logos {
-justify-content: center;
-}
-
-#t6-wrapper {
-flex-direction: column;
-padding: 10px;
-}
 }
           
           
