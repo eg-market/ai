@@ -8,7 +8,11 @@
     <title> مصر | أحدث العروض كل بوم من 30 سوبر ماركت، موبايلات، الكترونيات </title>
     <link rel="icon" href="https://eg-market.github.io/ai/integra%20logo_icon.bmp">
   </head>
-  <body class="bg-white text-gray-700 __className_fd82b7"><br>
+  <body class="bg-white text-gray-700 __className_fd82b7"> 
+    text-align: right; /* Align text to the right */
+overflow-x: hidden; /* Prevent horizontal scrolling */
+    <br>
+    
     <div id="t6-wrapper">
       <header class="header">
         <h1>🛒 أفضل عروض السوبرماركت اليومية</h1>
@@ -178,47 +182,58 @@
 
         target="_blank" rel="noopener">
         <style>
+        /* CSS Reset */
+*, *::before, *::after {
+box-sizing: border-box;
+margin: 0;
+padding: 0;
+}
+
+body {
+direction: rtl;
+text-align: right;
+overflow-x: hidden;
+font-family: Arial, sans-serif;
+}
+
 .header {
-  background: linear-gradient(180deg, #0b5fa5, #083e73);
-  color: #fff;
-  text-align: center;
-  padding: 28px 16px 22px;
-  direction: rtl;
-  font-family: Arial, sans-serif;
+background: linear-gradient(180deg, #0b5fa5, #083e73);
+color: #fff;
+text-align: center;
+padding: 28px 16px 22px;
 }
 
 .header h1 {
-  margin: 0;
-  font-size: 50px;
+margin: 0;
+font-size: 50px;
 }
 
 .header p {
-  margin: 8px 0 18px;
-  font-size: 25px;
+margin: 8px 0 18px;
+font-size: 25px;
 }
 
 .header b {
-  color: #ffd400;
+color: #ffd400;
 }
 
 .header-logos {
-  display: flex;
-  justify-content: center;
-  gap: 14px;
-  flex-wrap: wrap;
+display: flex;
+justify-content: center;
+gap: 14px;
+flex-wrap: wrap;
 }
 
-          
 .header-logo {
-  width: 64px;
-  height: 64px;
-  background: #fff;
-  border-radius: 16px;
-  padding: 6px;
-  box-sizing: border-box;
+width: 64px;
+height: 64px;
+background: #fff;
+border-radius: 16px;
+padding: 6px;
+box-sizing: border-box;
 }
-          
-          @keyframes flashing {
+
+@keyframes flashing {
 0% { opacity: 1; }
 50% { opacity: 0.5; }
 100% { opacity: 1; }
@@ -226,6 +241,35 @@
 
 .flashing {
 animation: flashing 1s infinite;
+}
+
+#t6-wrapper {
+display: flex;
+flex-direction: row-reverse;
+width: 100%;
+max-width: 1200px;
+margin: 0 auto;
+padding: 20px;
+}
+
+/* Mobile-Specific Styles */
+@media (max-width: 768px) {
+.header h1 {
+font-size: 32px;
+}
+
+.header p {
+font-size: 18px;
+}
+
+.header-logos {
+justify-content: center;
+}
+
+#t6-wrapper {
+flex-direction: column;
+padding: 10px;
+}
 }
           
           
@@ -240,7 +284,15 @@ animation: flashing 1s infinite;
       <header class="gap-md px-md pt-2xs pb-md sticky top-0 z-40 flex w-full flex-col items-center justify-center !bg-white shadow-[0_4px_24px_0px_rgba(0,0,0,0.06)] md:pb-0"
 
         style="background:linear-gradient(to bottom, #9DB0C4, #FFFFFF)">
-        <div class="container">
+        <div class="container"> 
+          
+            #t6-wrapper {
+display: flex;
+flex-direction: row-reverse;
+width: 100%;
+max-width: 1200px; /* Example max width */
+margin: 0 auto; /* Center the content */
+}
           <div class="no-scrollbar pt-[10px] gap-md flex justify-start overflow-x-auto gap-xs mb-sm md:mb-md">
             <div><button class="focus-visible:ring-ring whitespace-nowrap font-bold focus-visible:outline-none focus-visible:ring-1 disabled:pointer-events-none disabled:opacity-[0.12] bg-primary text-white hover:bg-primary-active duration-300 ease-in-out transition-[height,opacity,margin,flex] p-2xs transition-height relative flex w-[72px] shrink-0 flex-col items-center justify-between md:border-2 md:w-[168px] md:flex-row md:justify-start h-[86px] pb-3xs md:h-3xl rounded-lg"
 
