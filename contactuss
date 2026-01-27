@@ -130,7 +130,7 @@ message: message
 };
 
 // Send email
-emailjs.send('YOUR_SERVICE_ID', 'YOUR_TEMPLATE_ID', templateParams)
+emailjs.send('service_01jahcr', 'template_b2j1qrf', templateParams)
 .then(function(response) {
 // Success
 document.getElementById('successMessage').style.display = 'block';
