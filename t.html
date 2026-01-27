@@ -181,17 +181,8 @@
         target="_blank" rel="noopener">
         <style>
         /* CSS Reset */
-*, *::before, *::after {
-box-sizing: border-box;
-margin: 0;
-padding: 0;
-}
-
 body {
-direction: rtl;
-text-align: right;
-overflow-x: hidden;
-font-family: Arial, sans-serif;
+direction: rtl; /* تأكد من أن الجسم بأكمله له اتجاه من اليمين */
 }
 
 .header {
@@ -199,6 +190,7 @@ background: linear-gradient(180deg, #0b5fa5, #083e73);
 color: #fff;
 text-align: center;
 padding: 28px 16px 22px;
+font-family: Arial, sans-serif;
 }
 
 .header h1 {
@@ -217,7 +209,7 @@ color: #ffd400;
 
 .header-logos {
 display: flex;
-justify-content: center;
+justify-content: flex-end; /* تعديله لجعل العناصر تبدأ من اليمين */
 gap: 14px;
 flex-wrap: wrap;
 }
@@ -239,35 +231,6 @@ box-sizing: border-box;
 
 .flashing {
 animation: flashing 1s infinite;
-}
-
-#t6-wrapper {
-display: flex;
-flex-direction: row-reverse;
-width: 100%;
-max-width: 1200px;
-margin: 0 auto;
-padding: 20px;
-}
-
-/* Mobile-Specific Styles */
-@media (max-width: 768px) {
-.header h1 {
-font-size: 32px;
-}
-
-.header p {
-font-size: 18px;
-}
-
-.header-logos {
-justify-content: center;
-}
-
-#t6-wrapper {
-flex-direction: column;
-padding: 10px;
-}
 }
           
           
