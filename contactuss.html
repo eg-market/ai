@@ -120,10 +120,11 @@ return;
 }
 
 const templateParams = {
-from_name: name,
-from_email: email,
-to_email: 'misconceptions.and.key.moments@gmail.com',
-message: message
+    name: name,
+    email: email,
+    message: message,
+    reply_to: email,
+    to: 'misconceptions.and.key.moments@gmail.com'
 };
 
 emailjs.send('service_01jahcr', 'template_b2j1qrf', templateParams)
