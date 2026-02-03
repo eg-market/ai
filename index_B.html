@@ -1,6 +1,9 @@
 <!DOCTYPE html>
 <html dir="rtl" lang="ar">
   <head>
+   
+    <link rel="preload" href="large-file.json" as="fetch" crossorigin />
+
     <meta http-equiv="content-type" content="text/html; charset=utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
     <title>عروض السوبرماركت - أفضل العروض اليومية</title>
@@ -1053,7 +1056,8 @@ defer="defer"></script>
   }
 </style> </head>
   <body>
-    <div class="container"> <!-- Hero Banner -->
+    <div class="container">
+      <!-- Hero Banner -->
       <div class="hero-banner">
         <div class="hero-content">
           <h1>🛒 أفضل عروض السوبرماركت اليومية</h1>
@@ -1242,7 +1246,8 @@ defer="defer"></script>
         <span>حسابي</span> </a> </div>
     <script>
 /* ================= Configuration ================= */
-const DATA_URL = 'https://script.google.com/macros/s/AKfycbzD-TIVSoc4BxNhfytOM2Sbzs156Iht420hS2XCSRZkAuNIbBPnVYxQhTVEohgv0u-Fsg/exec';
+/*const DATA_URL = 'https://script.google.com/macros/s/AKfycbzD-TIVSoc4BxNhfytOM2Sbzs156Iht420hS2XCSRZkAuNIbBPnVYxQhTVEohgv0u-Fsg/exec';*/
+const DATA_URL = 'https://raw.githubusercontent.com/eg-market/ai/f13f04d254ab37ab83abb7ca55aaa067764a02b0/merged_cleansed_output_with_new_supermarket-xl5.csv';
 const CACHE_KEY = 'offersData';
 const CACHE_EXPIRY = 3600000; // 1 hour
 
@@ -2098,17 +2103,25 @@ function renderProductsGrid() {
                 <i class="fas fa-calendar-alt"></i> ${item.updateDate ? `تم التحديث: ${formatDateShort(item.updateDate)}` : `تنتهي: ${item.validUntil}`}
               </div>
             ` : ''}
+
+  <div class="action-buttons">
+              <button class="btn btn-primary buy-now-btn" data-id="${item.product}">
+                <i class="fas fa-shopping-cart"></i>  صورة الصنف
+              </button>
+<!--
             <div class="action-buttons">
               <button class="btn btn-secondary view-details-btn" data-id="${item.product}">
-                <i class="fas fa-eye"></i> تفاصيل
+                <i class="fas fa-eye"></i> صورة الصنف
               </button>
+-->
               <button class="btn btn-primary buy-now-btn" data-id="${item.product}">
-                <i class="fas fa-shopping-cart"></i> شراء الآن
+                <i class="fas fa-shopping-cart"></i>  التفاصيل
               </button>
             </div>
           </div>
         `;
-       
+
+  
         grid.appendChild(card);
       } catch (itemError) {
         console.error('Error rendering product card:', itemError, item);
@@ -2957,5 +2970,6 @@ function showError(message) {
 /* Kick off */
 document.addEventListener('DOMContentLoaded', initApp);
     </script>
+    
   </body>
 </html>
