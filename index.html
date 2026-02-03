@@ -1,8 +1,9 @@
 <!DOCTYPE html>
 <html dir="rtl" lang="ar">
   <head>
-    <link rel="preload" href="https://raw.githubusercontent.com/eg-market/ai/f13f04d254ab37ab83abb7ca55aaa067764a02b0/merged_cleansed_output_with_new_supermarket-xl5.csv"
+<!--    <link rel="preload" href="https://raw.githubusercontent.com/eg-market/ai/f13f04d254ab37ab83abb7ca55aaa067764a02b0/merged_cleansed_output_with_new_supermarket-xl5.csv"
           as="fetch" type="application/json" crossorigin="anonymous">
+-->
     <meta http-equiv="content-type" content="text/html; charset=utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=0.1">
     <link rel="stylesheet" href="https://eg-market.github.io/ai/css1.css" data-precedence="next">
@@ -954,8 +955,44 @@ class="whitespace-pre-wrap">items          </span></div>
 
       
       <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+
+      
 <script>
-fetch(DATA_URL) // رابط CSV
+const DB_NAME = 'EG_MARKET_DB';
+const DB_VERSION = 1;
+const STORE_NAME = 'offers';
+
+function openDB() {
+  return new Promise((resolve, reject) => {
+    const req = indexedDB.open(DB_NAME, DB_VERSION);
+
+    req.onupgradeneeded = e => {
+      const db = e.target.result;
+      if (!db.objectStoreNames.contains(STORE_NAME)) {
+        db.createObjectStore(STORE_NAME, { keyPath: 'id', autoIncrement: true });
+      }
+    };
+
+    req.onsuccess = () => resolve(req.result);
+    req.onerror = () => reject(req.error);
+  });
+}
+
+async function saveToDB(data) {
+  const db = await openDB();
+  const tx = db.transaction(STORE_NAME, 'readwrite');
+  const store = tx.objectStore(STORE_NAME);
+
+  await store.clear();
+  data.forEach(item => store.add(item));
+
+  return tx.complete;
+}
+</script>
+      
+      
+<script>
+fetch("https://raw.githubusercontent.com/eg-market/ai/f13f04d254ab37ab83abb7ca55aaa067764a02b0/merged_cleansed_output_with_new_supermarket-xl5.csv")
   .then(res => {
     if (!res.ok) throw new Error('HTTP ' + res.status);
     return res.text();
@@ -968,15 +1005,10 @@ fetch(DATA_URL) // رابط CSV
       trim: true
     });
 
-    const allData = parsed.data;
-
-    // ✔ حفظ البيانات الجاهزة
-    sessionStorage.setItem(
-      'PRELOADED_DATA',
-      JSON.stringify(allData)
-    );
-
-    // ✔ الانتقال
+    return saveToDB(parsed.data);
+  })
+  .then(() => {
+    // ✔ الانتقال بدون إعادة تحميل CSV
     window.location.href = 'index_B.html';
   })
   .catch(err => {
