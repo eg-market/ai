@@ -2628,8 +2628,40 @@ function getItemDate(item) {
 }
 
 /* Fetch and prepare data - UPDATED with combined sorting */
+  
 async function fetchData(){
   try {
+
+    /* ================= PRELOADED DATA CHECK ================= */
+    if (window.preloadedData && Array.isArray(window.preloadedData) && window.preloadedData.length) {
+      console.log('✔ Using preloaded data from previous page');
+
+      allData = window.preloadedData;
+
+      // لا نعرض loading
+      document.getElementById('loading').style.display = 'none';
+
+      afterDataReady();
+      return;
+    }
+
+    // sessionStorage fallback
+    const preloaded = sessionStorage.getItem('PRELOADED_DATA');
+    if (preloaded) {
+      console.log('✔ Using preloaded data from sessionStorage');
+
+      allData = JSON.parse(preloaded);
+      sessionStorage.removeItem('PRELOADED_DATA');
+
+      document.getElementById('loading').style.display = 'none';
+
+      afterDataReady();
+      return;
+    }
+
+    
+    
+    
     document.getElementById('loading').style.display = 'block';
     document.getElementById('loading').innerHTML = `
       <div style="display: flex; flex-direction: column; align-items: center;">
