@@ -2656,12 +2656,13 @@ function afterDataReady() {
 }
  
   
-<script>
-const DB_NAME = 'EG_MARKET_DB';
+
+
+function openDB() {
+  const DB_NAME = 'EG_MARKET_DB';
 const DB_VERSION = 1;
 const STORE_NAME = 'offers';
 
-function openDB() {
   return new Promise((resolve, reject) => {
     const req = indexedDB.open(DB_NAME, DB_VERSION);
     req.onsuccess = () => resolve(req.result);
@@ -2670,6 +2671,10 @@ function openDB() {
 }
 
 async function loadFromDB() {
+  const DB_NAME = 'EG_MARKET_DB';
+const DB_VERSION = 1;
+const STORE_NAME = 'offers';
+
   const db = await openDB();
   const tx = db.transaction(STORE_NAME, 'readonly');
   const store = tx.objectStore(STORE_NAME);
@@ -2680,7 +2685,6 @@ async function loadFromDB() {
     req.onerror = () => reject(req.error);
   });
 }
-</script>
 
   
   
