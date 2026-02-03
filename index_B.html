@@ -2628,6 +2628,33 @@ function getItemDate(item) {
 }
 
 /* Fetch and prepare data - UPDATED with combined sorting */
+
+function afterDataReady() {
+  computeSavedAndDiscount(allData);
+  computeCombinedScore(allData);
+
+  latestTwoDates = findLatestTwoDates(allData);
+  if (!latestTwoDates.length) {
+    const today = new Date();
+    const yesterday = new Date(today);
+    yesterday.setDate(yesterday.getDate() - 1);
+    latestTwoDates = [
+      today.toISOString().split('T')[0],
+      yesterday.toISOString().split('T')[0]
+    ];
+  }
+
+  initializeFilters();
+  dataLoaded = true;
+
+  try { applyUrlParams(); } catch(e) {}
+
+  applyAllFilters();
+  populateTicker();
+  switchView('grid');
+  updateComparisonPanel();
+}
+  
   
 async function fetchData(){
   try {
