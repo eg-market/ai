@@ -2682,8 +2682,6 @@ async function loadFromDB() {
     req.onerror = () => reject(req.error);
   });
 }
-</script>
-
   
 async function fetchData() {
   try {
@@ -2896,6 +2894,7 @@ applyAllFilters();
     track.innerHTML = '<div class="ticker-item">تعذر تحميل العروض</div>';
   }
 }
+</script>
 
 allData.forEach(item => {
   if (item.updateDate && !(item.updateDate instanceof Date)) {
