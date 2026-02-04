@@ -2685,19 +2685,20 @@ async function loadFromDB() {
 </script>
 
   
-async function fetchData(){
+async function fetchData() {
   try {
-
-    /* ================= PRELOADED DATA CHECK ================= */
-     try {
     document.getElementById('loading').style.display = 'block';
-
-    // 🔥 تحميل فوري من IndexedDB
+  
+    // 1️⃣ تحميل من IndexedDB
     allData = await loadFromDB();
 
-    if (!allData.length) {
-      throw new Error('لا توجد بيانات محفوظة – ارجع للصفحة الرئيسية');
+    if (!allData || !allData.length) {
+      throw new Error('لا توجد بيانات مخزنة في IndexedDB');
     }
+
+    // 2️⃣ تأكد من التواريخ
+    allData.forEach(item => {
+      if (item.updateDate)
 
     
     
