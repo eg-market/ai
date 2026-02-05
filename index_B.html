@@ -2683,52 +2683,69 @@ function showSplashScreen() {
 }
 /* Fetch and prepare data - UPDATED with combined sorting */
   
- 
+  
+  
+// دوال المساعدة للتعامل مع IndexedDB
+async function getStoredData() {
+    const db = await new Promise((resolve) => {
+        const req = indexedDB.open('MarketDataDB', 1);
+        req.onsuccess = () => resolve(req.result);
+        req.onupgradeneeded = (e) => e.target.result.createObjectStore('offers');
+    });
+    
+    return new Promise((resolve) => {
+        const tx = db.transaction('offers', 'readonly');
+        const store = tx.objectStore('offers');
+        const getTimestamp = store.get('last_update');
+        
+        getTimestamp.onsuccess = () => {
+            const time = getTimestamp.result;
+            // تحقق إذا كانت البيانات لم يمر عليها أكثر من ساعة
+            if (time && (Date.now() - time < 3600000)) {
+                const getData = store.get('raw_csv_data');
+                getData.onsuccess = () => resolve(getData.result);
+            } else {
+                resolve(null);
+            }
+        };
+    });
+} 
 async function fetchData(forceReload = false) {
   try {
     showSplashScreen();
     const hasSharedData = isDataSharedAndValid(); 
-    
-    // 1. استخدام البيانات المخزنة إذا كانت موجودة (التحميل المسبق من الصفحة الأولى)
-    if (!forceReload && hasSharedData) {
-      updateProgress(30, 'جاري استرجاع البيانات من الذاكرة...');
-      const sharedData = await loadSharedData();
-      
-      if (sharedData && sharedData.length > 0) {
-        allData = sharedData;
-        
-        // استخدام دوال المعالجة الموجودة في ملفك الأصلي
-        computeSavedAndDiscount(allData);
-        computeCombinedScore(allData);   
-        latestTwoDates = findLatestTwoDates(allData);
-        
-        initializeFilters();
-        dataLoaded = true;
-        applyUrlParams();
-        applyAllFilters();
-        populateTicker();
-        
-        document.getElementById('loading').style.display = 'none';
-        switchView('grid');
-        updateComparisonPanel();
-        setTimeout(hideSplashScreen, 500);
-        return; 
-      }
+
+    let rawData = null;
+
+    // 1. محاولة جلب البيانات من IndexedDB (التي حملتها الصفحة الأولى)
+    if (!forceReload) {
+      updateProgress(20, 'جاري استرجاع البيانات المجهزة...');
+      rawData = await getStoredData();
     }
 
-    // 2. التحميل من الإنترنت إذا لم تتوفر البيانات
-    updateProgress(10, 'جاري جلب البيانات من السيرفر...');
-    const res = await fetch(DATA_URL);
-    if(!res.ok) throw new Error('HTTP ' + res.status);
-    const txt = await res.text();
-    const parsed = Papa.parse(txt, { header:true, skipEmptyLines:true, trim:true, dynamicTyping:true });
-    
-    // --- جزء الـ Mapping الـ 60 سطر الأصلي الخاص بك (لضمان عدم وجود صفوف فارغة) ---
-    allData = parsed.data.map(item => {
+    // 2. إذا لم توجد بيانات، نحملها من الإنترنت
+    if (!rawData) {
+      console.log('🌐 جاري التحميل من الإنترنت...');
+      const res = await fetch(DATA_URL);
+      const txt = await res.text();
+      const parsed = Papa.parse(txt, { header:true, skipEmptyLines:true, trim:true, dynamicTyping:true });
+      rawData = parsed.data;
+      
+      // حفظ في IndexedDB للزيارة القادمة
+      const db = await new Promise(r => { const req = indexedDB.open('MarketDataDB', 1); req.onsuccess = () => r(req.result); });
+      const tx = db.transaction('offers', 'readwrite');
+      tx.objectStore('offers').put(rawData, 'raw_csv_data');
+      tx.objectStore('offers').put(Date.now(), 'last_update');
+    }
+
+    // 3. تطبيق الـ Mapping الـ 60 سطر (لا يحذف)
+    allData = rawData.map(item => {
       try {
         const raw = item['فترة سريان العرض'] || item['Validity Period'] || '';
         const end = parseEndDate(String(raw));
         const validUntilStr = end ? formatDateShort(end) : (String(raw).split(/to|إلى|حتى|–|—|-|~/i).slice(-1)[0]||'غير متاح');
+        
+        
         const updateDateStr = item['تاريخ تعديل ملف الفلاير'] || item['Update Date'] || item['تاريخ التحديث'] || '';
         
         let updateDate = null;
@@ -2765,7 +2782,7 @@ async function fetchData(forceReload = false) {
 
     saveDataForSharing(allData); // حفظ البيانات للزيارات القادمة
     
-    // تشغيل المعالجة
+// 4. إنهاء المعالجة باستخدام الدوال الموجودة في ملفك
     computeSavedAndDiscount(allData);
     computeCombinedScore(allData);   
     latestTwoDates = findLatestTwoDates(allData);
