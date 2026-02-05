@@ -2690,26 +2690,25 @@ async function getStoredData() {
     const db = await new Promise((resolve) => {
         const req = indexedDB.open('MarketDataDB', 1);
         req.onsuccess = () => resolve(req.result);
-        req.onupgradeneeded = (e) => e.target.result.createObjectStore('offers');
     });
     
     return new Promise((resolve) => {
         const tx = db.transaction('offers', 'readonly');
         const store = tx.objectStore('offers');
-        const getTimestamp = store.get('last_update');
         
-        getTimestamp.onsuccess = () => {
-            const time = getTimestamp.result;
-            // تحقق إذا كانت البيانات لم يمر عليها أكثر من ساعة
-            if (time && (Date.now() - time < 3600000)) {
+        const getTime = store.get('last_update');
+        getTime.onsuccess = () => {
+            // إذا كانت البيانات موجودة وحديثة (أقل من ساعة)
+            if (getTime.result && (Date.now() - getTime.result < 3600000)) {
                 const getData = store.get('raw_csv_data');
                 getData.onsuccess = () => resolve(getData.result);
             } else {
                 resolve(null);
             }
         };
+        getTime.onerror = () => resolve(null);
     });
-} 
+}
 async function fetchData(forceReload = false) {
   try {
     showSplashScreen();
