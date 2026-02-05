@@ -2619,58 +2619,120 @@ async function fetchData(forceReload = false) {
   try {
     showSplashScreen();
     
-    // التحقق من وجود بيانات محملة مسبقاً وصالحة
-    const hasData = isDataSharedAndValid(); 
+    const urlParams = new URLSearchParams(window.location.search);
+    const skipLoad = urlParams.get('skipLoad') === 'true';
+    const hasSharedData = isDataSharedAndValid(); 
     
-    // الحالة: البيانات موجودة في الذاكرة والمستخدم لم يطلب "تحديثاً إجبارياً"
-    if (!forceReload && hasData) {
-      console.log('⚡ استخدام البيانات المجهزة مسبقاً من الصفحة الأولى');
-      updateProgress(40, 'جاري فتح البيانات من الذاكرة...');
+    // 1. التحقق من الذاكرة (Memory/Storage) لعدم التحميل المتكرر
+    if (!forceReload && (skipLoad || hasSharedData)) {
+      console.log('⏭️ استخدام البيانات المجهزة مسبقاً');
+      updateProgress(30, 'جاري استرجاع البيانات من الذاكرة...');
       
       const sharedData = await loadSharedData();
+      
       if (sharedData && sharedData.length > 0) {
         allData = sharedData;
         
-        // إكمال عمليات العرض والفلترة فوراً
-        processData();
+        // استخدام نفس تسلسل الدوال الموجودة في ملفك الأصلي
+        computeSavedAndDiscount(allData);
+        computeCombinedScore(allData);   
+        latestTwoDates = findLatestTwoDates(allData);
+        
         initializeFilters();
         dataLoaded = true;
+        applyUrlParams();
         applyAllFilters();
         populateTicker();
         
-        hideSplashScreen();
         document.getElementById('loading').style.display = 'none';
-        return; // الخروج من الدالة لعدم التحميل من الإنترنت
+        switchView('grid');
+        updateComparisonPanel();
+        updateProgress(100, 'تم التحميل!');
+        setTimeout(hideSplashScreen, 500);
+        return; 
       }
     }
 
-    // الحالة: البيانات غير موجودة أو المستخدم ضغط على زر "تحديث"
-    console.log('🌐 جاري التحميل من الإنترنت...');
-    updateProgress(10, 'جاري الاتصال بالسيرفر...');
+    // 2. التحميل من الإنترنت (إذا لم توجد بيانات أو طلب المستخدم تحديث)
+    updateProgress(10, 'جاري جلب البيانات من السيرفر...');
+    const res = await fetch(DATA_URL);
+    if(!res.ok) throw new Error('HTTP ' + res.status);
+    const txt = await res.text();
+    const parsed = Papa.parse(txt, { header:true, skipEmptyLines:true, trim:true, dynamicTyping:true });
     
-    const response = await fetch(DATA_URL);
-    if (!response.ok) throw new Error('فشل الاتصال');
-    const csvText = await response.text();
-    
-    Papa.parse(csvText, {
-      header: true,
-      skipEmptyLines: true,
-      complete: (results) => {
-        // استخدام دالة Mapping الأصلية في ملفك (تأكد من وجودها)
-        allData = results.data.map(item => {
-           /* نفس منطق الـ Mapping الموجود في كودك الأصلي */
-           return item; 
-        });
+    // --- جزء الـ Mapping الـ 60 سطر الأصلي الخاص بك (بدون حذف) ---
+    allData = parsed.data.map(item => {
+      try {
+        const raw = item['فترة سريان العرض'] || item['Validity Period'] || '';
+        const end = parseEndDate(String(raw));
+        const validUntilStr = end ? formatDateShort(end) : (String(raw).split(/to|إلى|حتى|–|—|-|~/i).slice(-1)[0]||'غير متاح');
         
-        saveDataForSharing(allData); // حفظ البيانات للزيارة القادمة
-        processData();
-        initializeFilters();
-        hideSplashScreen();
-      }
-    });
+        const updateDateStr = item['تاريخ تعديل ملف الفلاير'] || 
+                              item['Update Date'] || 
+                              item['تاريخ التحديث'] || 
+                              item['تاريخ التعديل'] || 
+                              item['آخر تحديث'] || 
+                              item['تاريخ'] || '';
+        
+        let updateDate = null;
+        if (updateDateStr && updateDateStr !== 'غير متاح' && updateDateStr.trim() !== '') {
+          updateDate = new Date(updateDateStr);
+          if (isNaN(updateDate.getTime())) {
+            const dateMatch = updateDateStr.match(/\d{4}[\/\-]\d{1,2}[\/\-]\d{1,2}|\d{1,2}[\/\-]\d{1,2}[\/\-]\d{4}/);
+            if (dateMatch) updateDate = new Date(dateMatch[0].replace(/\//g, '-'));
+          }
+          if (isNaN(updateDate.getTime())) updateDate = null;
+        }
+        
+        return {
+          supermarket: String(item['اسم السوبر ماركت'] || item['supermarket'] || 'غير متاح'),
+          product: String(item['الاسم بالعربية'] || item['اسم المنتج (الأساسي)'] || item['اسم المنتج'] || item['Product'] || 'غير متاح'),
+          primaryName: String(item['اسم المنتج (الأساسي)'] || item['اسم المنتج'] || item['Product'] || ''),
+          unit: String(item['الوحدة'] || item['unit'] || ''),
+          category: String(item['الفئة'] || item['category'] || 'غير متاح'),
+          brand: String(item['اسم العلامة التجارية'] || item['brand'] || 'غير متاح'),
+          originalPrice: parseFloat(item['السعر الأصلي']) || 0,
+          currentPrice: parseFloat(item['السعر الحالي']) || 0,
+          discount: parseFloat(item['الخصم %']) || 0,
+          rawPeriod: raw,
+          endDate: end,
+          validUntil: validUntilStr,
+          pageNo: String(item['اسم ملف الفلاير'] || ''),
+          currency: String(item['العملة'] || 'EGP'),
+          solution_key: String(item['solution_key']||item['solution key']||item['Solution_key']||item['solutionKey']||''),
+          updateDate: updateDate,
+          rawUpdateDate: updateDateStr
+        };
+      } catch (e) { return null; }
+    }).filter(item => item !== null);
+    // --- نهاية جزء الـ Mapping ---
+
+    saveDataForSharing(allData); // حفظ للزيارة القادمة
+    
+    // تشغيل دوال المعالجة الموجودة في ملفك
+    computeSavedAndDiscount(allData);
+    computeCombinedScore(allData);   
+    latestTwoDates = findLatestTwoDates(allData);
+    
+    initializeFilters();
+    dataLoaded = true;
+    applyUrlParams();
+    applyAllFilters();
+    populateTicker();
+
+    document.getElementById('loading').style.display = 'none';
+    switchView('grid');
+    updateComparisonPanel();
+    setTimeout(hideSplashScreen, 500);
 
   } catch (err) {
-    console.error('Error:', err);
+    console.error('Fetch Error:', err);
+    document.getElementById('loading').innerHTML = `
+      <div style="text-align:center; padding:40px;">
+        <h3>حدث خطأ</h3>
+        <p>${err.message}</p>
+        <button onclick="fetchData(true)">إعادة المحاولة</button>
+      </div>`;
     hideSplashScreen();
   }
 }
