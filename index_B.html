@@ -2698,6 +2698,10 @@ async function fetchData() {
       const txt = await res.text();
       const parsed = Papa.parse(txt, { header:true, skipEmptyLines:true, trim:true, dynamicTyping:true });
       
+      if (csvText.trim().startsWith('<')) {
+  throw new Error('Returned HTML instead of CSV');
+}
+
       console.log('أسماء الأعمدة في البيانات:', parsed.meta.fields);
       
       allData = parsed.data.map(item=>{
