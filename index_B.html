@@ -1250,6 +1250,12 @@ const DATA_URL = 'https://raw.githubusercontent.com/eg-market/ai/f13f04d254ab37a
 const CACHE_KEY = 'offersData';
 const CACHE_EXPIRY = 3600000; // 1 hour
 
+ const debouncedApplyAllFilters = debounce(()=>applyAllFilters(), 250);
+
+const DB_NAME = 'EG_MARKET_DB';
+const DB_VERSION = 1;
+const STORE_NAME = 'offers';
+      
 // Weight constants for combined sorting
 const WEIGHT_DISCOUNT = 0.6;  // 60% importance to discount percentage
 const WEIGHT_SAVINGS = 0.4;   // 40% importance to savings amount
@@ -2435,8 +2441,6 @@ function showAutocomplete(){
   }
 }
 
-const debouncedApplyAllFilters = debounce(()=>applyAllFilters(), 250);
-
 /* Price controls wiring and helpers */
 function parseNumberInput(el){
   try {
@@ -2627,11 +2631,6 @@ function getItemDate(item) {
   return null;
 }
 
-  <script>
- 
-const DB_NAME = 'EG_MARKET_DB';
-const DB_VERSION = 1;
-const STORE_NAME = 'offers';
 
 function openDB() {
   return new Promise((resolve, reject) => {
@@ -3039,6 +3038,5 @@ function showError(message) {
 /* Kick off */
 document.addEventListener('DOMContentLoaded', initApp);
     </script>
-   </script>
   </body>
 </html>
