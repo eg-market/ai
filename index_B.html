@@ -1,8 +1,6 @@
 <!DOCTYPE html>
 <html dir="rtl" lang="ar">
   <head>
-   
-   
     <meta http-equiv="content-type" content="text/html; charset=utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
     <title>عروض السوبرماركت - أفضل العروض اليومية</title>
@@ -1055,8 +1053,7 @@ defer="defer"></script>
   }
 </style> </head>
   <body>
-    <div class="container">
-      <!-- Hero Banner -->
+    <div class="container"> <!-- Hero Banner -->
       <div class="hero-banner">
         <div class="hero-content">
           <h1>🛒 أفضل عروض السوبرماركت اليومية</h1>
@@ -1245,17 +1242,10 @@ defer="defer"></script>
         <span>حسابي</span> </a> </div>
     <script>
 /* ================= Configuration ================= */
-/*const DATA_URL = 'https://script.google.com/macros/s/AKfycbzD-TIVSoc4BxNhfytOM2Sbzs156Iht420hS2XCSRZkAuNIbBPnVYxQhTVEohgv0u-Fsg/exec';*/
-const DATA_URL = 'https://raw.githubusercontent.com/eg-market/ai/f13f04d254ab37ab83abb7ca55aaa067764a02b0/merged_cleansed_output_with_new_supermarket-xl5.csv';
+const DATA_URL = 'https://script.google.com/macros/s/AKfycbzD-TIVSoc4BxNhfytOM2Sbzs156Iht420hS2XCSRZkAuNIbBPnVYxQhTVEohgv0u-Fsg/exec';
 const CACHE_KEY = 'offersData';
 const CACHE_EXPIRY = 3600000; // 1 hour
 
- const debouncedApplyAllFilters = debounce(()=>applyAllFilters(), 250);
-
-const DB_NAME = 'EG_MARKET_DB';
-const DB_VERSION = 1;
-const STORE_NAME = 'offers';
-      
 // Weight constants for combined sorting
 const WEIGHT_DISCOUNT = 0.6;  // 60% importance to discount percentage
 const WEIGHT_SAVINGS = 0.4;   // 40% importance to savings amount
@@ -1280,6 +1270,88 @@ let supermarketFilterCache = {}; // لحفظ نتائج فلتر السوبرم�
 let bestPriceMode = false;
 
       
+/* ==================== SPLASH SCREEN FUNCTIONS ==================== */
+let progressInterval;
+let currentProgress = 0;
+
+// إظهار شاشة التحميل
+function showSplashScreen() {
+  const splashScreen = document.getElementById('splash-screen');
+  if (splashScreen) {
+    splashScreen.classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+    startProgressAnimation();
+  }
+}
+
+// إخفاء شاشة التحميل
+function hideSplashScreen() {
+  const splashScreen = document.getElementById('splash-screen');
+  if (splashScreen) {
+    clearInterval(progressInterval);
+    splashScreen.classList.add('hidden');
+    document.body.style.overflow = 'auto';
+  }
+}
+
+// بدء مؤشر التقدم المتحرك
+function startProgressAnimation() {
+  currentProgress = 0;
+  updateProgress(10);
+  
+  progressInterval = setInterval(() => {
+    if (currentProgress < 85) {
+      currentProgress += Math.random() * 5 + 1;
+      updateProgress(Math.min(currentProgress, 85));
+    }
+  }, 300);
+}
+
+// تحديث مؤشر التقدم
+function updateProgress(percent) {
+  const progressFill = document.getElementById('progress-fill');
+  const progressText = document.getElementById('progress-text');
+  
+  if (progressFill) {
+    progressFill.style.width = percent + '%';
+  }
+  if (progressText) {
+    progressText.textContent = Math.round(percent) + '%';
+  }
+}
+
+// تحديث الإحصائيات على شاشة التحميل
+function updateSplashStats(dataCount, marketCount) {
+  const dataCountEl = document.getElementById('splash-data-count');
+  const marketCountEl = document.getElementById('splash-market-count');
+  
+  if (dataCountEl) {
+    dataCountEl.textContent = dataCount.toLocaleString();
+  }
+  if (marketCountEl) {
+    marketCountEl.textContent = marketCount;
+  }
+}
+
+// عرض نصائح عشوائية
+const splashTips = [
+  "نقارن أسعار المنتجات بين المتاجر المختلفة لتوفير المال",
+  "يمكنك تصفية العروض حسب النسبة المئوية للخصم",
+  "استخدم خاصية المقارنة لمقارنة 4 منتجات معًا",
+  "العروض الساخنة هي التي تحتوي على خصم أكثر من 50%",
+  "يمكنك حفظ العروض المفضلة للرجوع إليها لاحقًا",
+  "استخدم البحث للعثور على منتجات معينة بسرعة",
+  "تابع العروض التي تنتهي قريبًا للحصول على أفضل الصفقات"
+];
+
+function showRandomTip() {
+  const tipEl = document.querySelector('.splash-tips p');
+  if (tipEl) {
+    const randomTip = splashTips[Math.floor(Math.random() * splashTips.length)];
+    tipEl.textContent = randomTip;
+  }
+}      
+      
 /* Initialize the app */
       
 function normalizeDate(d){
@@ -1295,18 +1367,28 @@ function normalizeDate(d){
   return isNaN(parsed.getTime()) ? null : parsed;
 }
       
-      
-function initApp() {
+/* Initialize the app */
+async function initApp() {
   try {
+    // إظهار شاشة التحميل أولاً
+    showSplashScreen();
+    
+    // تهيئة المستمعين للأحداث
     wireEventListeners();
-    fetchData();
+    
+    // جلب البيانات
+    await fetchData();
   } catch (error) {
     console.error('Error in initApp:', error);
+    // في حالة الخطأ، إخفاء شاشة التحميل
+    setTimeout(() => {
+      hideSplashScreen();
+    }, 1000);
     showError('حدث خطأ في تهيئة التطبيق: ' + error.message);
   }
 }
-
-/* Wire all event listeners */
+      
+      
   /* Wire all event listeners */
 function wireEventListeners() {
   try {
@@ -2441,6 +2523,8 @@ function showAutocomplete(){
   }
 }
 
+const debouncedApplyAllFilters = debounce(()=>applyAllFilters(), 250);
+
 /* Price controls wiring and helpers */
 function parseNumberInput(el){
   try {
@@ -2631,46 +2715,14 @@ function getItemDate(item) {
   return null;
 }
 
-
-function openDB() {
-  return new Promise((resolve, reject) => {
-    const req = indexedDB.open(DB_NAME, DB_VERSION);
-
-    req.onsuccess = () => resolve(req.result);
-    req.onerror = () => reject(req.error);
-  });
-}
-
-async function loadFromDB() {
-  const db = await openDB();
-
-  return new Promise((resolve, reject) => {
-    const tx = db.transaction(STORE_NAME, 'readonly');
-    const store = tx.objectStore(STORE_NAME);
-
-    const req = store.getAll();
-    req.onsuccess = () => resolve(req.result || []);
-    req.onerror = () => reject(req.error);
-  });
-}
   
+// إظهار شاشة التحميل
+
+/* Fetch and prepare data - UPDATED with combined sorting */
 async function fetchData() {
   try {
-    document.getElementById('loading').style.display = 'block';
-  
-    // 1️⃣ تحميل من IndexedDB
-    allData = await loadFromDB();
-
-    if (!allData || !allData.length) {
-      throw new Error('لا توجد بيانات مخزنة في IndexedDB');
-    }
-
-    // 2️⃣ تأكد من التواريخ
-    allData.forEach(item => {
-      if (item.updateDate)
-
-    
-    
+    // لا داعي لاستدعاء showSplashScreen هنا لأنها تم استدعاؤها في initApp
+    // فقط قم بتحديث التقدم
     
     document.getElementById('loading').style.display = 'block';
     document.getElementById('loading').innerHTML = `
@@ -2681,34 +2733,43 @@ async function fetchData() {
       </div>
     `;
 
+    updateProgress(20); // تحديث التقدم
+
+    updateProgress(20); // تحديث التقدم
     const cached = localStorage.getItem(CACHE_KEY);
     const cachedTime = localStorage.getItem(`${CACHE_KEY}_time`);
-    if(cached && cachedTime && (Date.now() - cachedTime) < CACHE_EXPIRY){
+
+    if (cached && cachedTime && (Date.now() - cachedTime) < CACHE_EXPIRY) {
       try { 
         allData = JSON.parse(LZString.decompressFromUTF16(cached)) || []; 
-      } catch(e){ 
+      } catch (e) { 
         console.warn('cache parse failed', e); 
         allData = []; 
       }
     }
 
-    if(!allData || !allData.length){
-      const res = await fetch(DATA_URL);
-      if(!res.ok) throw new Error('HTTP ' + res.status);
-      const txt = await res.text();
-      const parsed = Papa.parse(txt, { header:true, skipEmptyLines:true, trim:true, dynamicTyping:true });
-      
-      if (csvText.trim().startsWith('<')) {
-  throw new Error('Returned HTML instead of CSV');
-}
+    // تحديث الإحصائيات على شاشة التحميل إذا كانت البيانات متوفرة
+    if (allData && allData.length > 0) {
+      const uniqueSupermarkets = [...new Set(allData.map(item => item.supermarket).filter(Boolean))].length;
+      updateSplashStats(allData.length, uniqueSupermarkets);
+      updateProgress(90);
+    }
 
+    // إذا لم توجد بيانات في الكاش، قم بتحميلها من المصدر
+    if (!allData || !allData.length) {    
+      updateProgress(30); // تحديث التقدم
+      const res = await fetch(DATA_URL);
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      const txt = await res.text();
+      const parsed = Papa.parse(txt, { header: true, skipEmptyLines: true, trim: true, dynamicTyping: true });
+   
       console.log('أسماء الأعمدة في البيانات:', parsed.meta.fields);
       
-      allData = parsed.data.map(item=>{
+      allData = parsed.data.map(item => {
         try {
           const raw = item['فترة سريان العرض'] || item['Validity Period'] || '';
           const end = parseEndDate(String(raw));
-          const validUntilStr = end ? formatDateShort(end) : (String(raw).split(/to|إلى|حتى|–|—|-|~/i).slice(-1)[0]||'غير متاح');
+          const validUntilStr = end ? formatDateShort(end) : (String(raw).split(/to|إلى|حتى|–|—|-|~/i).slice(-1)[0] || 'غير متاح');
           
           const updateDateStr = item['تاريخ تعديل ملف الفلاير'] || 
                                 item['Update Date'] || 
@@ -2763,7 +2824,7 @@ async function fetchData() {
       }).filter(item => item !== null);
       
       // تسجيل أسماء السوبرماركت المختلفة
-      const supermarkets = [...new Set(allData.map(i=>i.supermarket))];
+      const supermarkets = [...new Set(allData.map(i => i.supermarket))];
       console.log('السوبرماركت الموجودة في البيانات:', supermarkets);
       
       // حفظ نتائج فلاتر السوبرماركت في الكاش
@@ -2772,26 +2833,38 @@ async function fetchData() {
       try { 
         localStorage.setItem(CACHE_KEY, LZString.compressToUTF16(JSON.stringify(allData))); 
         localStorage.setItem(`${CACHE_KEY}_time`, Date.now()); 
-      } catch(e){ 
+      } catch (e) { 
         console.warn('cache save failed', e); 
+      }
+      
+      // تحديث الإحصائيات بعد تحميل البيانات الجديدة
+      if (allData && allData.length > 0) {
+        const uniqueSupermarkets = [...new Set(allData.map(item => item.supermarket).filter(Boolean))].length;
+        updateSplashStats(allData.length, uniqueSupermarkets);
+        updateProgress(70);
       }
     }
 
+    // معالجة التواريخ في البيانات
     allData.forEach(item => {
-  if (item.updateDate && !(item.updateDate instanceof Date)) {
-    const d = new Date(item.updateDate);
-    item.updateDate = isNaN(d) ? null : d;
-  }
+      if (item.updateDate && !(item.updateDate instanceof Date)) {
+        const d = new Date(item.updateDate);
+        item.updateDate = isNaN(d) ? null : d;
+      }
 
-  if (item.endDate && !(item.endDate instanceof Date)) {
-    const d = new Date(item.endDate);
-    item.endDate = isNaN(d) ? null : d;
-  }
-});
+      if (item.endDate && !(item.endDate instanceof Date)) {
+        const d = new Date(item.endDate);
+        item.endDate = isNaN(d) ? null : d;
+      }
+    });
 
+    updateProgress(75);
     
     computeSavedAndDiscount(allData);
-    computeCombinedScore(allData);   
+    computeCombinedScore(allData);
+    
+    updateProgress(80);
+    
     // حساب أحدث تاريخين من البيانات
     latestTwoDates = findLatestTwoDates(allData);
     
@@ -2815,7 +2888,7 @@ async function fetchData() {
     console.log(`عدد العناصر بتاريخ: ${itemsWithDate} من ${allData.length}`);
     
     // الترتيب الافتراضي: أفضل العروض (مركب من الخصم النسبي وقيمة التوفير)
-    allData.sort((a,b)=> {
+    allData.sort((a,b) => {
       // First by discount percentage (descending)
       const discountDiff = (b._discount_pct || 0) - (a._discount_pct || 0);
       if (Math.abs(discountDiff) > 5) { // If discount difference is significant (5% or more)
@@ -2834,27 +2907,44 @@ async function fetchData() {
       return nameA.localeCompare(nameB, 'ar');
     });
 
+    updateProgress(85);
+    
     initializeFilters();
     dataLoaded = true;
 
-try {
-  applyUrlParams();
-} catch (e) {
-  console.error('applyUrlParams failed:', e);
-}
+    try {
+      applyUrlParams();
+    } catch (e) {
+      console.error('applyUrlParams failed:', e);
+    }
 
-applyAllFilters();
-
-
+    updateProgress(90);
+    
+    applyAllFilters();
     populateTicker();
 
     document.getElementById('loading').style.display = 'none';
     
     switchView('grid');
-    
     updateComparisonPanel();
-  } catch(err){
+    
+    updateProgress(95);
+       
+    // عند اكتمال كل شيء
+    setTimeout(() => {
+      updateProgress(100);
+      setTimeout(() => {
+        hideSplashScreen(); // إخفاء شاشة التحميل بعد اكتمال التحميل
+      }, 500);
+    }, 1000);
+    
+  } catch(err) {
     console.error('Error in fetchData:', err);
+    // حتى في حالة الخطأ، أخفِ شاشة التحميل
+    setTimeout(() => {
+      hideSplashScreen();
+    }, 1000);
+    
     document.getElementById('loading').innerHTML = `
       <div style="text-align: center; padding: 40px;">
         <i class="fas fa-exclamation-triangle" style="font-size: 3rem; color: var(--danger-red); margin-bottom: 20px;"></i>
@@ -2869,7 +2959,6 @@ applyAllFilters();
     track.innerHTML = '<div class="ticker-item">تعذر تحميل العروض</div>';
   }
 }
-
 
 allData.forEach(item => {
   if (item.updateDate && !(item.updateDate instanceof Date)) {
@@ -3013,32 +3102,6 @@ function showError(message) {
   }, 5000);
 }
 
-  function afterDataReady() {
-  computeSavedAndDiscount(allData);
-  computeCombinedScore(allData);
-
-  latestTwoDates = findLatestTwoDates(allData);
-  if (!latestTwoDates.length) {
-    const today = new Date();
-    const yesterday = new Date(today);
-    yesterday.setDate(yesterday.getDate() - 1);
-    latestTwoDates = [
-      today.toISOString().split('T')[0],
-      yesterday.toISOString().split('T')[0]
-    ];
-  }
-
-  initializeFilters();
-  dataLoaded = true;
-
-  try { applyUrlParams(); } catch(e) {}
-
-  applyAllFilters();
-  populateTicker();
-  switchView('grid');
-  updateComparisonPanel();
-}
-  
 /* Kick off */
 document.addEventListener('DOMContentLoaded', initApp);
     </script>
