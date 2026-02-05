@@ -1273,7 +1273,77 @@ let bestPriceMode = false;
       /* ==================== دوال التخزين والمساعدة ==================== */
 const SHARED_DATA_KEY = 'shared_offers_data';
 const SHARED_TIMESTAMP_KEY = 'shared_offers_timestamp';
+/* ==================== نظام التخزين المتقدم IndexedDB ==================== */
+const DB_NAME = 'MarketDataDB';
+const STORE_NAME = 'offers';
 
+// دالة حفظ البيانات في IndexedDB
+function saveToIndexedDB(data) {
+    const request = indexedDB.open(DB_NAME, 1);
+    request.onupgradeneeded = (e) => {
+        e.target.result.createObjectStore(STORE_NAME);
+    };
+    request.onsuccess = (e) => {
+        const db = e.target.result;
+        const tx = db.transaction(STORE_NAME, 'readwrite');
+        tx.objectStore(STORE_NAME).put(data, 'current_data');
+    };
+}
+
+// دالة تحميل البيانات من IndexedDB
+function loadFromIndexedDB() {
+    return new Promise((resolve) => {
+        const request = indexedDB.open(DB_NAME, 1);
+        request.onsuccess = (e) => {
+            const db = e.target.result;
+            if (!db.objectStoreNames.contains(STORE_NAME)) return resolve(null);
+            const tx = db.transaction(STORE_NAME, 'readonly');
+            const getReq = tx.objectStore(STORE_NAME).get('current_data');
+            getReq.onsuccess = () => resolve(getReq.result);
+            getReq.onerror = () => resolve(null);
+        };
+        request.onerror = () => resolve(null);
+    });
+}
+
+/* ==================== دوال مشاركة البيانات ==================== */
+const SHARED_DATA_KEY = 'shared_offers_data';
+const SHARED_TIMESTAMP_KEY = 'shared_offers_timestamp';
+
+function isDataSharedAndValid() {
+    try {
+        const timestamp = localStorage.getItem(SHARED_TIMESTAMP_KEY);
+        if (!timestamp) return false;
+        // صالحة لمدة ساعة واحدة
+        return (Date.now() - parseInt(timestamp)) < (60 * 60 * 1000);
+    } catch (e) { return false; }
+}
+
+function saveDataForSharing(data) {
+    try {
+        saveToIndexedDB(data); // حفظ النسخة الكاملة في IndexedDB
+        
+        // حفظ نسخة مضغوطة في localStorage كاحتياط
+        const compressed = LZString.compressToUTF16(JSON.stringify(data.slice(0, 3000)));
+        localStorage.setItem(SHARED_DATA_KEY, compressed);
+        localStorage.setItem(SHARED_TIMESTAMP_KEY, Date.now().toString());
+    } catch (e) { console.warn('Storage warning:', e); }
+}
+
+async function loadSharedData() {
+    try {
+        // محاولة التحميل من IndexedDB أولاً (لأنه الأضمن للبيانات الكبيرة)
+        let data = await loadFromIndexedDB();
+        if (data && data.length > 0) return data;
+
+        // إذا فشل، نحاول localStorage
+        const compressed = localStorage.getItem(SHARED_DATA_KEY);
+        if (compressed) {
+            return JSON.parse(LZString.decompressFromUTF16(compressed));
+        }
+        return null;
+    } catch (e) { return null; }
+}
 function updateProgress(percent, message) {
   // تحديث شريط التقدم
   const progressFill = document.getElementById('progress-fill');
@@ -2618,22 +2688,17 @@ function showSplashScreen() {
 async function fetchData(forceReload = false) {
   try {
     showSplashScreen();
-    
-    const urlParams = new URLSearchParams(window.location.search);
-    const skipLoad = urlParams.get('skipLoad') === 'true';
     const hasSharedData = isDataSharedAndValid(); 
     
-    // 1. التحقق من الذاكرة (Memory/Storage) لعدم التحميل المتكرر
-    if (!forceReload && (skipLoad || hasSharedData)) {
-      console.log('⏭️ استخدام البيانات المجهزة مسبقاً');
+    // 1. استخدام البيانات المخزنة إذا كانت موجودة (التحميل المسبق من الصفحة الأولى)
+    if (!forceReload && hasSharedData) {
       updateProgress(30, 'جاري استرجاع البيانات من الذاكرة...');
-      
       const sharedData = await loadSharedData();
       
       if (sharedData && sharedData.length > 0) {
         allData = sharedData;
         
-        // استخدام نفس تسلسل الدوال الموجودة في ملفك الأصلي
+        // استخدام دوال المعالجة الموجودة في ملفك الأصلي
         computeSavedAndDiscount(allData);
         computeCombinedScore(allData);   
         latestTwoDates = findLatestTwoDates(allData);
@@ -2647,32 +2712,25 @@ async function fetchData(forceReload = false) {
         document.getElementById('loading').style.display = 'none';
         switchView('grid');
         updateComparisonPanel();
-        updateProgress(100, 'تم التحميل!');
         setTimeout(hideSplashScreen, 500);
         return; 
       }
     }
 
-    // 2. التحميل من الإنترنت (إذا لم توجد بيانات أو طلب المستخدم تحديث)
+    // 2. التحميل من الإنترنت إذا لم تتوفر البيانات
     updateProgress(10, 'جاري جلب البيانات من السيرفر...');
     const res = await fetch(DATA_URL);
     if(!res.ok) throw new Error('HTTP ' + res.status);
     const txt = await res.text();
     const parsed = Papa.parse(txt, { header:true, skipEmptyLines:true, trim:true, dynamicTyping:true });
     
-    // --- جزء الـ Mapping الـ 60 سطر الأصلي الخاص بك (بدون حذف) ---
+    // --- جزء الـ Mapping الـ 60 سطر الأصلي الخاص بك (لضمان عدم وجود صفوف فارغة) ---
     allData = parsed.data.map(item => {
       try {
         const raw = item['فترة سريان العرض'] || item['Validity Period'] || '';
         const end = parseEndDate(String(raw));
         const validUntilStr = end ? formatDateShort(end) : (String(raw).split(/to|إلى|حتى|–|—|-|~/i).slice(-1)[0]||'غير متاح');
-        
-        const updateDateStr = item['تاريخ تعديل ملف الفلاير'] || 
-                              item['Update Date'] || 
-                              item['تاريخ التحديث'] || 
-                              item['تاريخ التعديل'] || 
-                              item['آخر تحديث'] || 
-                              item['تاريخ'] || '';
+        const updateDateStr = item['تاريخ تعديل ملف الفلاير'] || item['Update Date'] || item['تاريخ التحديث'] || '';
         
         let updateDate = null;
         if (updateDateStr && updateDateStr !== 'غير متاح' && updateDateStr.trim() !== '') {
@@ -2681,16 +2739,15 @@ async function fetchData(forceReload = false) {
             const dateMatch = updateDateStr.match(/\d{4}[\/\-]\d{1,2}[\/\-]\d{1,2}|\d{1,2}[\/\-]\d{1,2}[\/\-]\d{4}/);
             if (dateMatch) updateDate = new Date(dateMatch[0].replace(/\//g, '-'));
           }
-          if (isNaN(updateDate.getTime())) updateDate = null;
         }
         
         return {
           supermarket: String(item['اسم السوبر ماركت'] || item['supermarket'] || 'غير متاح'),
-          product: String(item['الاسم بالعربية'] || item['اسم المنتج (الأساسي)'] || item['اسم المنتج'] || item['Product'] || 'غير متاح'),
-          primaryName: String(item['اسم المنتج (الأساسي)'] || item['اسم المنتج'] || item['Product'] || ''),
-          unit: String(item['الوحدة'] || item['unit'] || ''),
-          category: String(item['الفئة'] || item['category'] || 'غير متاح'),
-          brand: String(item['اسم العلامة التجارية'] || item['brand'] || 'غير متاح'),
+          product: String(item['الاسم بالعربية'] || item['اسم المنتج (الأساسي)'] || 'غير متاح'),
+          primaryName: String(item['اسم المنتج (الأساسي)'] || ''),
+          unit: String(item['الوحدة'] || ''),
+          category: String(item['الفئة'] || 'غير متاح'),
+          brand: String(item['اسم العلامة التجارية'] || 'غير متاح'),
           originalPrice: parseFloat(item['السعر الأصلي']) || 0,
           currentPrice: parseFloat(item['السعر الحالي']) || 0,
           discount: parseFloat(item['الخصم %']) || 0,
@@ -2699,17 +2756,17 @@ async function fetchData(forceReload = false) {
           validUntil: validUntilStr,
           pageNo: String(item['اسم ملف الفلاير'] || ''),
           currency: String(item['العملة'] || 'EGP'),
-          solution_key: String(item['solution_key']||item['solution key']||item['Solution_key']||item['solutionKey']||''),
+          solution_key: String(item['solution_key'] || ''),
           updateDate: updateDate,
           rawUpdateDate: updateDateStr
         };
       } catch (e) { return null; }
     }).filter(item => item !== null);
-    // --- نهاية جزء الـ Mapping ---
+    // --- نهاية الـ Mapping ---
 
-    saveDataForSharing(allData); // حفظ للزيارة القادمة
+    saveDataForSharing(allData); // حفظ البيانات للزيارات القادمة
     
-    // تشغيل دوال المعالجة الموجودة في ملفك
+    // تشغيل المعالجة
     computeSavedAndDiscount(allData);
     computeCombinedScore(allData);   
     latestTwoDates = findLatestTwoDates(allData);
@@ -2722,17 +2779,10 @@ async function fetchData(forceReload = false) {
 
     document.getElementById('loading').style.display = 'none';
     switchView('grid');
-    updateComparisonPanel();
     setTimeout(hideSplashScreen, 500);
 
   } catch (err) {
     console.error('Fetch Error:', err);
-    document.getElementById('loading').innerHTML = `
-      <div style="text-align:center; padding:40px;">
-        <h3>حدث خطأ</h3>
-        <p>${err.message}</p>
-        <button onclick="fetchData(true)">إعادة المحاولة</button>
-      </div>`;
     hideSplashScreen();
   }
 }
@@ -2748,278 +2798,7 @@ function finishLoading() {
   if (typeof hideSplashScreen === 'function') hideSplashScreen();
 }
       
-/*async function fetchData(){
-  try {
-    showSplashScreen();
-    
-    const urlParams = new URLSearchParams(window.location.search);
-    const skipLoad = urlParams.get('skipLoad') === 'true';
-    const hasSharedData = isDataSharedAndValid();
-    
-    // التغيير هنا: إذا لم نطلب تحديثاً إجبارياً، وكانت البيانات موجودة، استخدمها وتوقف
-    if (!forceReload && (skipLoad || hasSharedData)) {
-      console.log('⏭️ استخدام البيانات المخزنة (بدون اتصال بالخادم)');
-      updateProgress(30, 'جاري استرجاع البيانات المخزنة...');
-      
-      const sharedData = await loadSharedData();
-      
-      if (sharedData && sharedData.length > 0) {
-        allData = sharedData;
-        updateProgress(70, 'تم استرجاع البيانات...');
-        updateSplashStats(allData.length, [...new Set(allData.map(i => i.supermarket))].length);
-        
-        processData();
-        initializeFilters();
-        dataLoaded = true;
-        applyUrlParams();
-        applyAllFilters();
-        populateTicker();
-        
-        hideSplashScreen();
-        
-        document.getElementById('loading').style.display = 'none';
-        switchView('grid');
-        updateComparisonPanel();
-        updateProgress(100, 'تم التحميل!');
-        setTimeout(hideSplashScreen, 500);
-        
-        return; // توقف هنا ولا تقم بالتحميل من الإنترنت
-      }
-    }
-    
-    // إذا وصلنا لهنا، فإما لا توجد بيانات مخزنة أو المستخدم طلب تحديثاً إجبارياً
-    updateProgress(10, 'جاري الاتصال بالخادم...');
-    
-        // Update stats
-        updateSplashStats(allData.length, 
-          [...new Set(allData.map(item => item.supermarket).filter(Boolean))].length);
-        
-        processData();
-        initializeFilters();
-        dataLoaded = true;
-        
-        applyUrlParams();
-        applyAllFilters();
-        populateTicker();
-        
-        document.getElementById('loading').style.display = 'none';
-        switchView('grid');
-        updateComparisonPanel();
-        
-        updateProgress(100, 'تم التحميل بنجاح!');
-        
-        setTimeout(() => {
-          hideSplashScreen();
-        }, 500);
-        
-        // Hide loading message
-        const loadingElement = document.getElementById('loading');
-        if (loadingElement) {
-          loadingElement.style.display = 'none';
-        }
-        
-        return; // Stop here - do not fetch from network
-    
-       
-    const response = await fetch(DATA_URL); // مثال بسيط، استخدم الكود الأصلي الخاص بك هنا
-    if (!response.ok) throw new Error('فشل الاتصال بالخادم');
-    const csvText = await response.text();
-    
-    Papa.parse(csvText, {
-      header: true,
-      skipEmptyLines: true,
-      complete: async (results) => {
-        allData = processCSVData(results.data);
-        saveDataForSharing(allData); // حفظ البيانات الجديدة للمرة القادمة
-         
-        
-    document.getElementById('loading').style.display = 'block';
-    document.getElementById('loading').innerHTML = `
-      <div style="display: flex; flex-direction: column; align-items: center;">
-        <i class="fas fa-spinner fa-spin" style="font-size: 2.5rem; margin-bottom: 20px; color: var(--primary-blue);"></i>
-        <h3>جارٍ تحميل العروض...</h3>
-        <p>نبحث عن أفضل الصفقات من جميع المتاجر</p>
-      </div>
-    `;
 
-    const cached = localStorage.getItem(CACHE_KEY);
-    const cachedTime = localStorage.getItem(`${CACHE_KEY}_time`);
-    if(cached && cachedTime && (Date.now() - cachedTime) < CACHE_EXPIRY){
-      try { 
-        allData = JSON.parse(LZString.decompressFromUTF16(cached)) || []; 
-      } catch(e){ 
-        console.warn('cache parse failed', e); 
-        allData = []; 
-      }
-    }
-
-    if(!allData || !allData.length){
-      const res = await fetch(DATA_URL);
-      if(!res.ok) throw new Error('HTTP ' + res.status);
-      const txt = await res.text();
-      const parsed = Papa.parse(txt, { header:true, skipEmptyLines:true, trim:true, dynamicTyping:true });
-      
-      console.log('أسماء الأعمدة في البيانات:', parsed.meta.fields);
-      
-      allData = parsed.data.map(item=>{
-        try {
-          const raw = item['فترة سريان العرض'] || item['Validity Period'] || '';
-          const end = parseEndDate(String(raw));
-          const validUntilStr = end ? formatDateShort(end) : (String(raw).split(/to|إلى|حتى|–|—|-|~/i).slice(-1)[0]||'غير متاح');
-          
-          const updateDateStr = item['تاريخ تعديل ملف الفلاير'] || 
-                                item['Update Date'] || 
-                                item['تاريخ التحديث'] ||
-                                item['تاريخ التعديل'] ||
-                                item['آخر تحديث'] ||
-                                item['تاريخ'] ||
-                                '';
-          
-          let updateDate = null;
-          if (updateDateStr && updateDateStr !== 'غير متاح' && updateDateStr.trim() !== '') {
-            try {
-              updateDate = new Date(updateDateStr);
-              
-              if (isNaN(updateDate.getTime())) {
-                const dateMatch = updateDateStr.match(/\d{4}[\/\-]\d{1,2}[\/\-]\d{1,2}|\d{1,2}[\/\-]\d{1,2}[\/\-]\d{4}/);
-                if (dateMatch) {
-                  updateDate = new Date(dateMatch[0].replace(/\//g, '-'));
-                }
-              }
-              
-              if (isNaN(updateDate.getTime())) updateDate = null;
-            } catch (e) {
-              console.warn('فشل تحليل تاريخ التحديث:', updateDateStr, e);
-              updateDate = null;
-            }
-          }
-          
-          return {
-            supermarket: String(item['اسم السوبر ماركت'] || item['supermarket'] || 'غير متاح'),
-            product: String(item['الاسم بالعربية'] || item['اسم المنتج (الأساسي)'] || item['اسم المنتج'] || item['Product'] || 'غير متاح'),
-            primaryName: String(item['اسم المنتج (الأساسي)'] || item['اسم المنتج'] || item['Product'] || ''),
-            unit: String(item['الوحدة'] || item['unit'] || ''),
-            category: String(item['الفئة'] || item['category'] || 'غير متاح'),
-            brand: String(item['اسم العلامة التجارية'] || item['brand'] || 'غير متاح'),
-            originalPrice: parseFloat(item['السعر الأصلي']) || 0,
-            currentPrice: parseFloat(item['السعر الحالي']) || 0,
-            discount: parseFloat(item['الخصم %']) || 0,
-            rawPeriod: raw,
-            endDate: end,
-            validUntil: validUntilStr,
-            pageNo: String(item['اسم ملف الفلاير'] || ''),
-            currency: String(item['العملة'] || 'EGP'),
-            solution_key: String(item['solution_key']||item['solution key']||item['Solution_key']||item['solutionKey']||''),
-            updateDate: updateDate,
-            rawUpdateDate: updateDateStr
-          };
-        } catch (itemError) {
-          console.error('Error parsing item:', itemError, item);
-          return null;
-        }
-      }).filter(item => item !== null);
-      
-      // تسجيل أسماء السوبرماركت المختلفة
-      const supermarkets = [...new Set(allData.map(i=>i.supermarket))];
-      console.log('السوبرماركت الموجودة في البيانات:', supermarkets);
-      
-      // حفظ نتائج فلاتر السوبرماركت في الكاش
-      supermarketFilterCache = {};
-      
-      try { 
-        localStorage.setItem(CACHE_KEY, LZString.compressToUTF16(JSON.stringify(allData))); 
-        localStorage.setItem(`${CACHE_KEY}_time`, Date.now()); 
-      } catch(e){ 
-        console.warn('cache save failed', e); 
-      }
-    }
-
-    allData.forEach(item => {
-  if (item.updateDate && !(item.updateDate instanceof Date)) {
-    const d = new Date(item.updateDate);
-    item.updateDate = isNaN(d) ? null : d;
-  }
-
-  if (item.endDate && !(item.endDate instanceof Date)) {
-    const d = new Date(item.endDate);
-    item.endDate = isNaN(d) ? null : d;
-  }
-});
-
-    
-    computeSavedAndDiscount(allData);
-    computeCombinedScore(allData);   
-    // حساب أحدث تاريخين من البيانات
-    latestTwoDates = findLatestTwoDates(allData);
-    
-    // إذا لم توجد تواريخ، استخدم التواريخ البديلة
-    if (latestTwoDates.length === 0) {
-      console.log('لم يتم العثور على تواريخ في البيانات، استخدام تواريخ بديلة');
-      const today = new Date();
-      const yesterday = new Date(today);
-      yesterday.setDate(yesterday.getDate() - 1);
-      
-      latestTwoDates = [
-        today.toISOString().split('T')[0],
-        yesterday.toISOString().split('T')[0]
-      ];
-    }
-    
-    console.log('أحدث تاريخين سيتم استخدامهم:', latestTwoDates);
-    
-    // تسجيل إحصائية
-    const itemsWithDate = allData.filter(item => item.updateDate || item.endDate || (item.validUntil && item.validUntil !== 'غير متاح')).length;
-    console.log(`عدد العناصر بتاريخ: ${itemsWithDate} من ${allData.length}`);
-    
-   
-      
-      // If discount percentages are close, sort by savings amount
-      const savedDiff = (b._saved || 0) - (a._saved || 0);
-      if (Math.abs(savedDiff) > 0) {
-        return savedDiff;
-      }
-      
-      // Finally, sort alphabetically
-      const nameA = String(a.product || '');
-      const nameB = String(b.product || '');
-      return nameA.localeCompare(nameB, 'ar');
-    });
-
-    initializeFilters();
-    dataLoaded = true;
-
-try {
-  applyUrlParams();
-} catch (e) {
-  console.error('applyUrlParams failed:', e);
-}
-
-applyAllFilters();
-
-
-    populateTicker();
-
-    document.getElementById('loading').style.display = 'none';
-    
-    switchView('grid');
-    
-    updateComparisonPanel();
-
-        } catch(err) {
-    console.error('Fetch Error:', err);
-    document.getElementById('loading').innerHTML = `
-      <div style="text-align:center; padding:40px;">
-        <h3>حدث خطأ</h3>
-        <p>${err.message}</p>
-        <button onclick="fetchData(true)" style="padding:10px 20px; cursor:pointer; background:var(--primary-blue); color:white; border-radius:8px;">
-          حاول مرة أخرى
-        </button>
-      </div>
-    `;
-    hideSplashScreen();
-  }
-}
-}*/
 
 allData.forEach(item => {
   if (item.updateDate && !(item.updateDate instanceof Date)) {
