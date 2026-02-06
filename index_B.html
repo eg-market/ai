@@ -1053,7 +1053,8 @@ defer="defer"></script>
   }
 </style> </head>
   <body>
-    <div class="container"> <!-- Hero Banner -->
+    <div class="container">
+      <!-- Hero Banner -->
       <div class="hero-banner">
         <div class="hero-content">
           <h1>🛒 أفضل عروض السوبرماركت اليومية</h1>
@@ -1185,7 +1186,7 @@ defer="defer"></script>
           <input id="min-discount" placeholder="الحد الأدنى للخصم %" aria-label="الحد الأدنى للخصم"
 
             type="number">
-          <div style="display:flex;gap:8px;"> <button id="reset-btn" aria-label="إعادة تعيين">🔄
+          <div style="display:flex;gap:8px;"> <button id="reset-btn" aria-label="العروض القديمة">🔄
               إعادة تعيين</button> <button id="share-app" aria-label="مشاركة التطبيق"><i
 
                 class="fas fa-share-alt"></i> مشاركة</button> <button id="compare-mode-btn"
@@ -1719,6 +1720,8 @@ function applyAllFilters() {
   //console.log('DEBUG urlSearchTerms:', urlSearchTerms);
 //console.log('DEBUG urlCategories:', urlCategories);
 //console.log('DEBUG allData length:', allData?.length);
+  
+console.log('latestTwoDates:', latestTwoDates);
 
   try {
     const uiSearch =
@@ -1753,67 +1756,79 @@ function applyAllFilters() {
 
     
     /* ===== FILTER ===== */
-    
-    filteredData = allData.filter(item => {
+filteredData = allData.filter(item => {
 
-  /* ===== FORCE LAST TWO DAYS (URL) ===== */
+  /* ===== FORCE LAST TWO DATA DATES ===== */
   if (forceRecentTwoDaysFromURL) {
-    if (!latestTwoDates || latestTwoDates.length < 2) return false;
+    if (!Array.isArray(latestTwoDates) || latestTwoDates.length === 0)
+      return false;
+
     const d =
       item.updateDate ||
       item.endDate ||
       parseEndDate(item.validUntil);
-    if (!d) return false;
-    const dStr = formatDateShort(d);
-    if (!latestTwoDates.includes(dStr)) return false;
+
+    if (!d || !(d instanceof Date) || isNaN(d))
+      return false;
+
+    const dISO =
+      d.getFullYear() + '-' +
+      String(d.getMonth() + 1).padStart(2, '0') + '-' +
+      String(d.getDate()).padStart(2, '0');
+
+    if (!latestTwoDates.includes(dISO))
+      return false;
   }
-    
-       /* === AND SEARCH === */
-      if (effectiveSearchTerms.length) {
-        const hay =
-          `${item.product} ${item.primaryName} ${item.brand} ${item.supermarket}`
-            .toLowerCase();
 
-        if (!effectiveSearchTerms.every(t => hay.includes(t)))
-          return false;
-      }
+  /* ===== AND SEARCH ===== */
+  if (effectiveSearchTerms.length) {
+    const hay =
+      `${item.product} ${item.primaryName} ${item.brand} ${item.supermarket}`
+        .toLowerCase();
 
-      /* === URL CATEGORY === */
-      if (Array.isArray(urlCategories) && urlCategories.length) {
-        const itemCat = String(item.category || '').toLowerCase();
-        if (!urlCategories.some(c => itemCat.includes(c)))
-          return false;
-      }
+    if (!effectiveSearchTerms.every(t => hay.includes(t)))
+      return false;
+  }
 
-      /* === CHIP FILTER === */
-      if (activeChipFilter && activeChipFilter !== 'all') {
-        if (activeChipFilter === 'food' &&
-            !/طعام|غذائ|أطعمة|مأكولات/i.test(item.category || ''))
-          return false;
-      }
+  /* ===== URL CATEGORY ===== */
+  if (Array.isArray(urlCategories) && urlCategories.length) {
+    const itemCat = String(item.category || '').toLowerCase();
+    if (!urlCategories.some(c => itemCat.includes(c)))
+      return false;
+  }
 
-      /* === NORMAL FILTERS === */
-      if (supermarket && item.supermarket !== supermarket)
-        return false;
+  /* ===== CHIP FILTER ===== */
+  if (activeChipFilter && activeChipFilter !== 'all') {
+    if (
+      activeChipFilter === 'food' &&
+      !/طعام|غذائ|أطعمة|مأكولات/i.test(item.category || '')
+    ) {
+      return false;
+    }
+  }
 
-      if (category) {
-        const itemCat = String(item.category || '').toLowerCase();
-        if (!itemCat.includes(category.toLowerCase()))
-          return false;
-      }
+  /* ===== NORMAL FILTERS ===== */
+  if (supermarket && item.supermarket !== supermarket)
+    return false;
 
-      if (brand && item.brand !== brand)
-        return false;
+  if (category) {
+    const itemCat = String(item.category || '').toLowerCase();
+    if (!itemCat.includes(category.toLowerCase()))
+      return false;
+  }
 
-      const price = Number(item.currentPrice) || 0;
-      if (price < minPrice || price > maxPrice)
-        return false;
+  if (brand && item.brand !== brand)
+    return false;
 
-      if ((item._discount_pct || 0) < minDiscount)
-        return false;
+  const price = Number(item.currentPrice) || 0;
+  if (price < minPrice || price > maxPrice)
+    return false;
 
-      return true;
-    });
+  if ((item._discount_pct || 0) < minDiscount)
+    return false;
+
+  return true;
+});
 
 /* ===== BEST PRICE PER CATEGORY ===== */
 if (bestPriceMode) {
