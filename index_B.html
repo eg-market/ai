@@ -2857,20 +2857,20 @@ function reduceBestPricePerCategory(data) {
 }
 
 function applyUrlParams() {
-  
   try {
     const params = new URLSearchParams(window.location.search);
-    const best = params.get('best_price');
-bestPriceMode = best === '1' || best === 'true';
 
-    /* ================= SEARCH (q=جبن,لانشون) ================= */
+    /* ===== AUTO recent_day if ANY param exists ===== */
+    if ([...params.keys()].length > 0) {
+      activeChipFilter = 'recent_day';
+    }
+
+    /* ===== SEARCH (q=...) ===== */
     const rawQ = params.get('q');
-
     urlSearchTerms = rawQ
       ? decodeURIComponent(rawQ)
           .toLowerCase()
-          .split(/\s+/)   // مسافة فقط
-          .map(t => t.trim())
+          .split(/\s+/)
           .filter(Boolean)
       : [];
 
@@ -2883,12 +2883,14 @@ bestPriceMode = best === '1' || best === 'true';
           .filter(Boolean)
       : [];
 
-    /* ================= SUPERMARKET ================= */
+    /* ===== SUPERMARKET ===== */
     const market = params.get('market');
     if (market) {
       const sel = document.getElementById('supermarket-filter');
       if (sel) sel.value = decodeURIComponent(market);
     }
+
+    /* ===== باقي الكود كما هو ===== */
 
     /* ================= DISCOUNT ================= */
     const discount = params.get('discount');
@@ -2923,10 +2925,13 @@ bestPriceMode = best === '1' || best === 'true';
       if (sort) sort.value = 'best-deals';
     }
 
+    
   } catch (e) {
     console.error('applyUrlParams failed:', e);
   }
 }
+  
+
   
 /* Helper function to show errors */
 function showError(message) {
