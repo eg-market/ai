@@ -1159,13 +1159,16 @@ class="whitespace-pre-wrap">items          </span></div>
 // دالة فتح قاعدة البيانات (نستخدم النسخة 3 لضمان تحديث أي إعدادات قديمة)
 function getDB() {
     return new Promise((resolve, reject) => {
+        // توحيد الإصدار على 3 لحل مشكلة الـ VersionError
         const request = indexedDB.open('MarketDataDB', 3);
+        
         request.onupgradeneeded = (e) => {
             const db = e.target.result;
             if (!db.objectStoreNames.contains('offers')) {
                 db.createObjectStore('offers');
             }
         };
+        
         request.onsuccess = (e) => resolve(e.target.result);
         request.onerror = (e) => reject(e.target.error);
     });

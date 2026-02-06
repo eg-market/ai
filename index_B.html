@@ -2741,7 +2741,7 @@ async function fetchData(forceReload = false) {
       rawData = parsed.data;
       
       // حفظ في IndexedDB للزيارة القادمة
-      const db = await new Promise(r => { const req = indexedDB.open('MarketDataDB', 1); req.onsuccess = () => r(req.result); });
+      const db = await new Promise(r => { const req = indexedDB.open('MarketDataDB', 3); req.onsuccess = () => r(req.result); });
       const tx = db.transaction('offers', 'readwrite');
       tx.objectStore('offers').put(rawData, 'raw_csv_data');
       tx.objectStore('offers').put(Date.now(), 'last_update');
