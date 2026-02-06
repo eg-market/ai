@@ -2690,34 +2690,28 @@ function showSplashScreen() {
 // دوال المساعدة للتعامل مع IndexedDB
 async function getStoredData() {
     return new Promise((resolve) => {
-        // يجب أن يكون الإصدار هنا 2 أيضاً
-        const req = indexedDB.open('MarketDataDB', 2); 
+        // ✅ يجب أن يكون نفس رقم الإصدار 3
+        const req = indexedDB.open('MarketDataDB', 3);
         
         req.onupgradeneeded = (e) => {
-            const db = e.target.result;
-            if (!db.objectStoreNames.contains('offers')) {
-                db.createObjectStore('offers');
+            if (!e.target.result.objectStoreNames.contains('offers')) {
+                e.target.result.createObjectStore('offers');
             }
         };
 
         req.onsuccess = () => {
             const db = req.result;
-            // تأكد من أن الجدول موجود قبل بدء العملية (Transaction)
-            if (!db.objectStoreNames.contains('offers')) {
-                console.warn("⚠️ الجدول غير موجود بعد");
-                return resolve(null);
-            }
-
             const tx = db.transaction('offers', 'readonly');
             const store = tx.objectStore('offers');
             const getTime = store.get('last_update');
             
             getTime.onsuccess = () => {
-                if (getTime.result && (Date.now() - getTime.result < 3600000)) {
+                // إذا كانت البيانات عمرها أقل من ساعتين، استخدمها
+                if (getTime.result && (Date.now() - getTime.result < 7200000)) {
                     const getData = store.get('raw_csv_data');
                     getData.onsuccess = () => resolve(getData.result);
                 } else {
-                    resolve(null);
+                    resolve(null); // البيانات قديمة أو غير موجودة، حمل من الإنترنت
                 }
             };
             getTime.onerror = () => resolve(null);
