@@ -1242,7 +1242,9 @@ defer="defer"></script>
         <span>حسابي</span> </a> </div>
     <script>
 /* ================= Configuration ================= */
-const DATA_URL = 'https://script.google.com/macros/s/AKfycbzD-TIVSoc4BxNhfytOM2Sbzs156Iht420hS2XCSRZkAuNIbBPnVYxQhTVEohgv0u-Fsg/exec';
+// const DATA_URL = 'https://script.google.com/macros/s/AKfycbzD-TIVSoc4BxNhfytOM2Sbzs156Iht420hS2XCSRZkAuNIbBPnVYxQhTVEohgv0u-Fsg/exec';
+//   const DATA_URL = 'https://raw.githubusercontent.com/eg-market/ai/f13f04d254ab37ab83abb7ca55aaa067764a02b0/merged_cleansed_output_with_new_supermarket-xl5.csv';
+const DATA_URL = 'https://raw.githubusercontent.com/eg-market/ai/f13f04d254ab37ab83abb7ca55aaa067764a02b0/final.csv';      
 const CACHE_KEY = 'offersData';
 const CACHE_EXPIRY = 3600000; // 1 hour
 
@@ -1269,6 +1271,7 @@ let supermarketFilterCache = {}; // لحفظ نتائج فلتر السوبرم�
       let urlSearchTerms = [];
 let bestPriceMode = false;
 
+let forceRecentTwoDaysFromURL = false;
 
       /* ==================== دوال التخزين والمساعدة ==================== */
 const SHARED_DATA_KEY = 'shared_offers_data';
@@ -1748,8 +1751,22 @@ function applyAllFilters() {
     const sort =
       document.getElementById('sort-by')?.value || 'best-deals';
 
+    
     /* ===== FILTER ===== */
+    
     filteredData = allData.filter(item => {
+
+  /* ===== FORCE LAST TWO DAYS (URL) ===== */
+  if (forceRecentTwoDaysFromURL) {
+    if (!latestTwoDates || latestTwoDates.length < 2) return false;
+    const d =
+      item.updateDate ||
+      item.endDate ||
+      parseEndDate(item.validUntil);
+    if (!d) return false;
+    const dStr = formatDateShort(d);
+    if (!latestTwoDates.includes(dStr)) return false;
+  }
     
        /* === AND SEARCH === */
       if (effectiveSearchTerms.length) {
@@ -2860,12 +2877,12 @@ function applyUrlParams() {
   try {
     const params = new URLSearchParams(window.location.search);
 
-    /* ===== AUTO recent_day if ANY param exists ===== */
+    // ✅ أي باراميتر = فلترة آخر يومين
     if ([...params.keys()].length > 0) {
-      activeChipFilter = 'recent_day';
+      forceRecentTwoDaysFromURL = true;
     }
 
-    /* ===== SEARCH (q=...) ===== */
+    /* ===== SEARCH ===== */
     const rawQ = params.get('q');
     urlSearchTerms = rawQ
       ? decodeURIComponent(rawQ)
@@ -2890,6 +2907,7 @@ function applyUrlParams() {
       if (sel) sel.value = decodeURIComponent(market);
     }
 
+       
     /* ===== باقي الكود كما هو ===== */
 
     /* ================= DISCOUNT ================= */
