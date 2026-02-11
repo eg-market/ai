@@ -10,8 +10,7 @@
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;800&amp;display=swap"
-
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;800&amp;display=swap"
       rel="stylesheet">
     <!-- CSS remains the same as before -->
     <style>
@@ -133,7 +132,7 @@ async function saveToDB(data) {
 /* =======================
    MAIN ENTRY POINT
 ======================= */
-async function fetchData_2() {
+ async function fetchData_2() {
   try {
     showLoading();
 
@@ -142,7 +141,7 @@ async function fetchData_2() {
     if (!Array.isArray(allData) || allData.length === 0) {
       console.log('IndexedDB empty, fetching from CSV...');
       // Call the main fetchData function which will load from CSV
-      if (typeof fetchData === 'function') {
+      if (typeof fetchData_2 === 'function') {
         await fetchData(); // Wait for CSV data to load
       } else {
         throw new Error('fetchData function not found');
@@ -157,7 +156,7 @@ async function fetchData_2() {
     console.error('Error in fetchData_2:', err);
     showFatalError('لا يمكن تحميل البيانات. يرجى تحديث الصفحة.');
   }
-}
+} 
 
 function computeSavedAndDiscount(arr){
   try {
@@ -180,7 +179,21 @@ function processDataAfterLoad() {
   normalizeDates(allData);
   computeSavedAndDiscount(allData);
   computeCombinedScore(allData);
-  latestTwoDates = findLatestTwoDates(allData);
+  
+  // 1. استخراج أحدث تاريخين موجودين في الملف فعلياً
+  latestTwoDates = findLatestTwoDates(allData); 
+
+  // 2. التعديل المطلوب: الفلترة لتقليل حجم البيانات في الذاكرة لآخر يومين فقط
+  if (latestTwoDates && latestTwoDates.length > 0) {
+      console.log("تمت الفلترة لعروض تواريخ: ", latestTwoDates);
+      allData = allData.filter(item => {
+          if (!item.updateDate) return false;
+          // تحويل تاريخ العنصر لصيغة YYYY-MM-DD للمقارنة مع قائمة latestTwoDates
+          const itemDateStr = item.updateDate.toISOString().split('T')[0];
+          return latestTwoDates.includes(itemDateStr);
+      });
+  }
+
   afterDataReady();
 }
 
@@ -192,7 +205,7 @@ function afterDataReady() {
   applyUrlParams();
   applyAllFilters();
   populateTicker();
-  switchView('grid');
+  switchView('table');
   updateComparisonPanel();
   hideLoading();
   dataLoaded = true;
@@ -307,8 +320,7 @@ document.addEventListener('DOMContentLoaded', fetchData_2);
           <p class="hero-subtitle">قارن الأسعار بين كارفور، هايبر وان، سعودي
             ماركت وغيرها - وفر حتى 70%</p>
           <!-- Ticker banner -->
-          <div class="ticker-wrap" aria-live="polite" aria-atomic="true" role="region"
-
+          <div class="ticker-wrap" aria-live="polite" aria-atomic="true" role="region"
             aria-label="أفضل العروض">
             <div class="ticker-label"><i class="fas fa-bolt"></i> عروض مميزة</div>
             <div class="ticker-viewport" id="ticker-viewport">
@@ -362,33 +374,26 @@ document.addEventListener('DOMContentLoaded', fetchData_2);
         </div>
       </div>
       <!-- Quick Filter Chips -->
-      <div class="filter-chips" id="filter-chips"> <button class="chip active"
-
-          data-filter="all"><i class="fas fa-fire"></i> جميع العروض</button> <button
-
+      <div class="filter-chips" id="filter-chips"> <button class="chip active"
+          data-filter="all"><i class="fas fa-fire"></i> جميع العروض</button> <button
           class="chip" data-filter="hot"><i class="fas fa-bolt"></i> العروض
           الساخنة</button> <button class="chip" data-filter="ending"><i class="fas fa-clock"></i>
-          تنتهي قريباً</button> <button class="chip" data-filter="discount"><i
-
-            class="fas fa-percentage"></i> خصومات كبيرة</button> <button class="chip"
-
+          تنتهي قريباً</button> <button class="chip" data-filter="discount"><i
+            class="fas fa-percentage"></i> خصومات كبيرة</button> <button class="chip"
           data-filter="carrefour"><i class="fas fa-shopping-cart"></i> كارفور</button>
         <button class="chip" data-filter="hyperone"><i class="fas fa-store"></i>
           هايبر وان</button> <button class="chip" data-filter="food"><i class="fas fa-utensils"></i>
           منتجات غذائية</button> <button class="chip" data-filter="recent"><i class="fas fa-calendar-day"></i>
           أحدث العروض (آخر يومين)</button> </div>
       <!-- View Toggle -->
-      <div class="view-toggle"> <button class="view-btn active" id="view-grid-btn"><i
-
-            class="fas fa-th-large"></i> عرض شبكي</button> <button class="view-btn"
-
+      <div class="view-toggle"> <button class="view-btn active" id="view-grid-btn"><i
+            class="fas fa-th-large"></i> عرض شبكي</button> <button class="view-btn"
           id="view-table-btn"><i class="fas fa-table"></i> عرض جدول</button> </div>
       <!-- Products Grid -->
       <div class="products-grid" id="products-grid"></div>
       <!-- Controls -->
       <div class="controls" role="region" aria-label="عناصر التحكم">
-        <div class="row" style="flex:1;"> <input id="search-input" placeholder="ابحث عن منتجات أو علامات تجارية..."
-
+        <div class="row" style="flex:1;"> <input id="search-input" placeholder="ابحث عن منتجات أو علامات تجارية..."
             aria-label="حقل البحث" type="text">
           <select id="supermarket-filter" aria-label="تصفية حسب السوبر ماركت">
             <option value="">كل السوبر ماركت</option>
@@ -402,21 +407,15 @@ document.addEventListener('DOMContentLoaded', fetchData_2);
         </div>
         <div class="row" style="width:100%; gap:8px;">
           <!-- Min price with controls -->
-          <div class="price-controls" style="align-items:center;"> <button id="min-decrease"
-
-              type="button" aria-label="نقص الحد الأدنى">−</button> <input id="min-price"
-
-              placeholder="الحد الأدنى للسعر" aria-label="الحد الأدنى للسعر" step="0.5"
-
+          <div class="price-controls" style="align-items:center;"> <button id="min-decrease"
+              type="button" aria-label="نقص الحد الأدنى">−</button> <input id="min-price"
+              placeholder="الحد الأدنى للسعر" aria-label="الحد الأدنى للسعر" step="0.5"
               min="0" type="number"> <button id="min-increase" type="button" aria-label="زيادة الحد الأدنى">+</button>
           </div>
           <!-- Max price with controls -->
-          <div class="price-controls" style="align-items:center;"> <button id="max-decrease"
-
-              type="button" aria-label="نقص الحد الأقصى">−</button> <input id="max-price"
-
-              placeholder="الحد الأعلى للسعر" aria-label="الحد الأعلى للسعر" step="0.5"
-
+          <div class="price-controls" style="align-items:center;"> <button id="max-decrease"
+              type="button" aria-label="نقص الحد الأقصى">−</button> <input id="max-price"
+              placeholder="الحد الأعلى للسعر" aria-label="الحد الأعلى للسعر" step="0.5"
               min="0" type="number"> <button id="max-increase" type="button" aria-label="زيادة الحد الأقصى">+</button>
           </div>
           <select id="sort-by" aria-label="فرز حسب">
@@ -428,14 +427,11 @@ document.addEventListener('DOMContentLoaded', fetchData_2);
             <option value="name-asc">الاسم (أ-ي)</option>
             <option value="name-desc">الاسم (ي-أ)</option>
           </select>
-          <input id="min-discount" placeholder="الحد الأدنى للخصم %" aria-label="الحد الأدنى للخصم"
-
+          <input id="min-discount" placeholder="الحد الأدنى للخصم %" aria-label="الحد الأدنى للخصم"
             type="number">
           <div style="display:flex;gap:8px;"> <button id="reset-btn" aria-label="إعادة تعيين">🔄
-              إعادة تعيين</button> <button id="share-app" aria-label="مشاركة التطبيق"><i
-
-                class="fas fa-share-alt"></i> مشاركة</button> <button id="compare-mode-btn"
-
+              إعادة تعيين</button> <button id="share-app" aria-label="مشاركة التطبيق"><i
+                class="fas fa-share-alt"></i> مشاركة</button> <button id="compare-mode-btn"
               aria-label="وضع المقارنة"><i class="fas fa-balance-scale"></i>
               المقارنة</button> </div>
         </div>
@@ -471,8 +467,7 @@ document.addEventListener('DOMContentLoaded', fetchData_2);
         <h3 style="margin:0;"><i class="fas fa-balance-scale"></i> مقارنة
           المنتجات (<span id="comparison-count">0</span>/4)</h3>
         <div> <button id="clear-comparison" style="margin-left:10px; background:#dc3545; color:white; border:none; padding:8px 16px; border-radius:6px; cursor:pointer;">
-            <i class="fas fa-trash"></i> مسح الكل </button> <button id="close-comparison"
-
+            <i class="fas fa-trash"></i> مسح الكل </button> <button id="close-comparison"
             style="background:#6c757d; color:white; border:none; padding:8px 16px; border-radius:6px; cursor:pointer;">
             <i class="fas fa-times"></i> إغلاق </button> </div>
       </div>
@@ -491,8 +486,7 @@ document.addEventListener('DOMContentLoaded', fetchData_2);
 // Use the large file
 //const DATA_URL = 'https://raw.githubusercontent.com/eg-market/ai/f13f04d254ab37ab83abb7ca55aaa067764a02b0/final.csv';
 const DATA_URL = 'https://raw.githubusercontent.com/eg-market/ai/main/final.csv' // + Date.now();
-      
-      const CACHE_KEY = 'offersData_v2'; // Changed cache key
+const CACHE_KEY = 'offersData_v2'; // Changed cache key
 const CACHE_EXPIRY = 3600000; // 1 hour
 
 // Performance optimization
@@ -502,8 +496,12 @@ const BATCH_SIZE = 500; // Batch size for IndexedDB operations
 // Weight constants for combined sorting
 const WEIGHT_DISCOUNT = 0.6;
 const WEIGHT_SAVINGS = 0.4;
-
 const debouncedApplyAllFilters = debounce(()=>applyAllFilters(), 250);
+
+      let recentData = [];
+let fullData = null;
+let isFullLoaded = false;
+let currentMode = 'recent'; // recent | full
 
 /* ================================================= */
 
@@ -524,6 +522,73 @@ let bestPriceMode = false;
 let forceRecentTwoDaysFromURL = false;
 
 let chunkCounter = 0;
+      
+function showAllOffers() {
+
+  if (isFullLoaded && fullData) {
+    allData = fullData;
+    applyAllFilters();
+    return;
+  }
+
+  // لو لم يكتمل التحميل بعد
+  alert("جاري تجهيز جميع العروض... سيتم العرض خلال ثوانٍ");
+
+}
+async function loadFullDataInBackground() {
+  try {
+    console.log("Loading full dataset in background...");
+
+    const res = await fetch(DATA_URL);
+    const txt = await res.text();
+
+    const parsed = Papa.parse(txt, {
+      header: true,
+      skipEmptyLines: true,
+      trim: true,
+      dynamicTyping: true
+    });
+
+    fullData = transformRows(parsed.data);
+    isFullLoaded = true;
+
+    console.log("Full dataset ready:", fullData.length);
+
+  } catch (err) {
+    console.error("Background full load failed:", err);
+  }
+}
+function transformRows(rows) {
+  return rows.map(item => {
+
+    const updateDateStr =
+      item['تاريخ تعديل ملف الفلاير'] ||
+      item['Update Date'] ||
+      '';
+
+    let updateDate = null;
+    if (updateDateStr) {
+      const d = new Date(updateDateStr);
+      if (!isNaN(d)) updateDate = d;
+    }
+
+    return {
+      supermarket: String(item['اسم السوبر ماركت'] || ''),
+      product: String(item['الاسم بالعربية'] || ''),
+      primaryName: String(item['اسم المنتج (الأساسي)'] || ''),
+      unit: String(item['الوحدة'] || ''),
+      category: String(item['الفئة'] || ''),
+      brand: String(item['اسم العلامة التجارية'] || ''),
+      originalPrice: parseFloat(item['السعر الأصلي']) || 0,
+      currentPrice: parseFloat(item['السعر الحالي']) || 0,
+      discount: parseFloat(item['الخصم %']) || 0,
+      solution_key: String(item['solution_key'] || ''),
+      updateDate: updateDate
+    };
+  });
+}
+
+      
 /* ================================================= */
 /* MAIN DATA LOADING FUNCTION - OPTIMIZED FOR LARGE FILES */
 /* ================================================= */
@@ -554,6 +619,8 @@ async function fetchData() {
         
         // Process cached data
         processDataAfterLoad();
+        setTimeout(loadFullDataInBackground, 200);
+
         return;
       } catch(e) {
         console.warn('Cache parse failed, loading from CSV:', e);
@@ -562,39 +629,87 @@ async function fetchData() {
     }
 
     // Load from CSV with progress tracking
-    console.log('Loading from CSV...');
-    const res = await fetch(DATA_URL);
-    if (!res.ok) throw new Error('HTTP ' + res.status);
-    
-    const txt = await res.text();
-    
-    // Update progress
-    updateProgress(10, 'جاري تحليل البيانات...');
-    
-    // Parse CSV in chunks for better performance
-    const parsed = Papa.parse(txt, {
-      header: true,
-      skipEmptyLines: true,
-      trim: true,
-      dynamicTyping: true,
-      chunk: function(results, parser) {
-        // Process chunks as they come
-        processChunk(results.data);
-        updateProgress(10 + (parser._localChunkIndex / (parser._localExpectedChunks || 100)) * 70);
-      },
-      complete: function() {
-        console.log(`Parsed ${allData.length} items from CSV`);
-        updateProgress(80, 'جاري معالجة البيانات...');
-        
-        // Process and save data
-        processAndSaveData();
-      },
-      error: function(error) {
-        console.error('CSV parsing error:', error);
-        throw error;
-      }
-    });
+console.log('Loading from CSV with early stop...');
 
+/*const res = await fetch(DATA_URL);
+if (!res.ok) throw new Error('HTTP ' + res.status);
+
+const txt = await res.text();*/
+console.log('Streaming CSV with early stop...');
+
+let collectedRows = [];
+let firstDate = null;
+let secondDate = null;
+let stopParsing = false;
+
+Papa.parse(DATA_URL, {
+  download: true,
+  header: true,
+  skipEmptyLines: true,
+  trim: true,
+  dynamicTyping: true,
+
+  chunk: function(results, parser) {
+
+    if (stopParsing) {
+      parser.abort();
+      return;
+    }
+
+    for (const item of results.data) {
+
+      const updateDateStr =
+        item['تاريخ تعديل ملف الفلاير'] ||
+        item['Update Date'] ||
+        '';
+
+      if (!updateDateStr) continue;
+
+      const d = new Date(updateDateStr);
+      if (isNaN(d)) continue;
+
+      const dateOnly = d.toISOString().split('T')[0];
+
+      if (!firstDate) {
+        firstDate = dateOnly;
+      }
+
+      if (dateOnly !== firstDate && !secondDate) {
+        secondDate = dateOnly;
+      }
+
+      if (
+        secondDate &&
+        dateOnly !== firstDate &&
+        dateOnly !== secondDate
+      ) {
+        stopParsing = true;
+        parser.abort();
+        break;
+      }
+
+      collectedRows.push(item);
+    }
+  },
+
+  complete: function() {
+    console.log('Rows collected:', collectedRows.length);
+
+allData = transformRows(collectedRows);
+    
+    recentData = [...allData];
+    currentMode = 'recent';
+
+    processDataAfterLoad();
+    setTimeout(loadFullDataInBackground, 200);
+
+  },
+
+  error: function(err) {
+    console.error('CSV parse error:', err);
+  }
+});
+  
   } catch(err) {
     console.error('Error in fetchData:', err);
     document.getElementById('loading').innerHTML = `
@@ -688,17 +803,34 @@ function updateProgress(percent, message = '') {
   }
 }
 
-
 function processChunk(chunkData) {
   chunkCounter++;
   
   // Process items in the chunk
   const processedChunk = chunkData.map(item => {
     try {
-      const raw = item['فترة سريان العرض'] || item['Validity Period'] || '';
-      const end = parseEndDate(String(raw));
-      const validUntilStr = end ? formatDateShort(end) : (String(raw).split(/to|إلى|حتى|–|—|-|~/i).slice(-1)[0]||'غير متاح');
+      /* ==========================================================
+         التعديل المطلوب: استبدال منطق "فترة سريان العرض" بـ "end_date"
+         مع تجاهل الوقت والاحتفاظ بالتاريخ كنص
+      ========================================================== */
+      // 1. قراءة عمود end_date فقط
+      const rawEndDate = String(item['end_date'] || '').trim();
       
+      // 2. فصل التاريخ عن الوقت (نأخذ ما قبل المسافة أو حرف T)
+      const dateOnly = rawEndDate.split(/[ T]/)[0];
+      
+      // 3. تخزين النتيجة في validUntilStr للعرض المباشر
+      const validUntilStr = dateOnly || 'غير متاح';
+
+      // نحتاج كائن تاريخ لاستخدامه في حسابات "ينتهي قريباً" (Countdown)
+      let endObject = null;
+      if (dateOnly) {
+          const d = new Date(dateOnly);
+          if (!isNaN(d.getTime())) endObject = d;
+      }
+      /* ========================================================== */
+
+      // منطق تاريخ التحديث (كما هو في كودك الأصلي تماماً)
       const updateDateStr = item['تاريخ تعديل ملف الفلاير'] || 
                             item['Update Date'] || 
                             item['تاريخ التحديث'] ||
@@ -726,22 +858,26 @@ function processChunk(chunkData) {
         }
       }
       
+      // إرجاع الكائن بكامل خصائصه الأصلية
       return {
         supermarket: String(item['اسم السوبر ماركت'] || item['supermarket'] || 'غير متاح'),
         product: String(item['الاسم بالعربية'] || item['اسم المنتج (الأساسي)'] || item['اسم المنتج'] || item['Product'] || 'غير متاح'),
-        primaryName: String(item['اسم المنتج (الأساسي)'] || item['اسم المنتج'] || item['Product'] || ''),
-        unit: String(item['الوحدة'] || item['unit'] || ''),
+        primaryName: String(item['اسم المنتج (الأساسي)'] || item['اسم المنتج'] || item['Product'] || ''), // لم يتم الحذف
+        unit: String(item['الوحدة'] || item['unit'] || ''), // لم يتم الحذف
         category: String(item['الفئة'] || item['category'] || 'غير متاح'),
         brand: String(item['اسم العلامة التجارية'] || item['brand'] || 'غير متاح'),
         originalPrice: parseFloat(item['السعر الأصلي']) || 0,
         currentPrice: parseFloat(item['السعر الحالي']) || 0,
         discount: parseFloat(item['الخصم %']) || 0,
-        rawPeriod: raw,
-        endDate: end,
-        validUntil: validUntilStr,
-        pageNo: String(item['اسم ملف الفلاير'] || ''),
-        currency: String(item['العملة'] || 'EGP'),
-        solution_key: String(item['solution_key']||item['solution key']||item['Solution_key']||item['solutionKey']||''),
+        
+        // الحقول المعدلة
+        rawPeriod: rawEndDate,
+        endDate: endObject, // للحفاظ على عمل عداد الأيام المتبقية
+        validUntil: validUntilStr, // للعرض النصي في الجدول (تاريخ فقط)
+
+        pageNo: String(item['اسم ملف الفلاير'] || ''), // لم يتم الحذف
+        currency: String(item['العملة'] || 'EGP'), // لم يتم الحذف
+        solution_key: String(item['solution_key']||item['solution key']||item['Solution_key']||item['solutionKey']||''), // لم يتم الحذف
         updateDate: updateDate,
         rawUpdateDate: updateDateStr
       };
@@ -764,17 +900,25 @@ async function processAndSaveData() {
   try {
     updateProgress(85, 'جاري حساب الخصومات...');
     
-    // Normalize dates
-    allData.forEach(item => {
-      if (item.updateDate && !(item.updateDate instanceof Date)) {
-        const d = new Date(item.updateDate);
-        item.updateDate = isNaN(d) ? null : d;
-      }
-      if (item.endDate && !(item.endDate instanceof Date)) {
-        const d = new Date(item.endDate);
-        item.endDate = isNaN(d) ? null : d;
-      }
-    });
+    // ... الكود الموجود حالياً (Normalize, ComputeScore) ...
+
+    latestTwoDates = findLatestTwoDates(allData);
+    
+    // إضافة الفلتر هنا قبل الحفظ في التخزين
+    if (latestTwoDates && latestTwoDates.length > 0) {
+        allData = allData.filter(item => {
+            if (!item.updateDate) return false;
+            const ds = item.updateDate.toISOString().split('T')[0];
+            return latestTwoDates.includes(ds);
+        });
+    }
+
+    // الآن سيتم حفظ بيانات آخر يومين فقط مما يحسن الأداء جداً
+    await saveToDB(allData);
+    
+    // ... باقي الكود (LocalStorage save & hide loading) ...
+
+
     
     // Compute saved & discount
     computeSavedAndDiscount(allData);
@@ -1542,7 +1686,7 @@ function cleanupUnusedData() {
   });
 }
 
-      function showError(message) {
+function showError(message) {
   console.error('App Error:', message);
   const errorDiv = document.createElement('div');
   errorDiv.style.cssText = `
@@ -1755,28 +1899,34 @@ function wireEventListeners() {
     document.getElementById('view-table-btn').addEventListener('click', () => switchView('table'));
     
     // Filter chips
-    document.querySelectorAll('.chip').forEach(chip => {
-      chip.addEventListener('click', function() {
-        const filterType = this.dataset.filter;
-        
-        if (filterType === 'all') {
-          document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
-          this.classList.add('active');
-          refreshApplication();
-          return;
-        }
-        
-        document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
-        this.classList.add('active');
-        activeChipFilter = filterType;
-        
-        if (activeChipFilter === 'hot') {
-          document.getElementById('sort-by').value = 'saved-desc';
-        } else if (activeChipFilter === 'discount') {
-          document.getElementById('sort-by').value = 'discount-desc';
-        }
-        
-        applyAllFilters();
+document.querySelectorAll('.chip').forEach(chip => {
+  chip.addEventListener('click', function() {
+
+    const filter = this.dataset.filter;
+
+    document.querySelectorAll('.chip')
+      .forEach(c => c.classList.remove('active'));
+
+    this.classList.add('active');
+
+    if (filter === 'all') {
+
+      if (isFullLoaded && fullData) {
+        allData = fullData;
+        currentMode = 'full';
+      } else {
+        alert('جاري تجهيز جميع العروض...');
+        return;
+      }
+
+    } else {
+
+      allData = recentData;
+      currentMode = 'recent';
+      activeChipFilter = filter;
+    }
+
+    applyAllFilters();
       });
     });
     
@@ -1934,15 +2084,11 @@ function refreshApplication() {
 
 function applyAllFilters() {  try {
     const uiSearch = (document.getElementById('search-input')?.value || '').trim().toLowerCase();
-    const effectiveSearchTerms = (Array.isArray(urlSearchTerms) && urlSearchTerms.length)
-      ? urlSearchTerms
-      : (uiSearch ? uiSearch.split(/\s+/) : []);
-
+    const effectiveSearchTerms = (Array.isArray(urlSearchTerms) && urlSearchTerms.length)      ? urlSearchTerms : (uiSearch ? uiSearch.split(/\s+/) : []);
     const supermarket = document.getElementById('supermarket-filter')?.value || '';
     const category = document.getElementById('category-filter')?.value || '';
     const brand = document.getElementById('brand-filter')?.value || '';
     const minDiscount = parseFloat(document.getElementById('min-discount')?.value) || 0;
-
     const minPriceRaw = document.getElementById('min-price')?.value;
     const maxPriceRaw = document.getElementById('max-price')?.value;
 
@@ -1950,26 +2096,19 @@ function applyAllFilters() {  try {
     let maxPrice = maxPriceRaw === '' ? Infinity : Number(maxPriceRaw);
 
     if (minPrice > maxPrice) [minPrice, maxPrice] = [maxPrice, minPrice];
-
     const sort = document.getElementById('sort-by')?.value || 'best-deals';
 
     // PERFORMANCE OPTIMIZATION: Use early returns and efficient filtering
     filteredData = allData.filter(item => {
       // Quick rejections first
-      const price = Number(item.currentPrice) || 0;
-      if (price < minPrice || price > maxPrice) return false;
-      
-      const discount = item._discount_pct || 0;
-      if (discount < minDiscount) return false;
+      const price = Number(item.currentPrice) || 0;      if (price < minPrice || price > maxPrice) return false;
+      const discount = item._discount_pct || 0;      if (discount < minDiscount) return false;
       
       // Force latest two data dates
-      if (forceRecentTwoDaysFromURL) {
-        if (!latestTwoDates.length) return false;
+      if (forceRecentTwoDaysFromURL) {        if (!latestTwoDates.length) return false;
         const d = item.updateDate || item.endDate || parseEndDate(item.validUntil);
         if (!(d instanceof Date) || isNaN(d)) return false;
-        const iso = d.getFullYear() + '-' +
-                    String(d.getMonth() + 1).padStart(2, '0') + '-' +
-                    String(d.getDate()).padStart(2, '0');
+        const iso = d.getFullYear() + '-' +       String(d.getMonth() + 1).padStart(2, '0') + '-' +              String(d.getDate()).padStart(2, '0');
         if (!latestTwoDates.includes(iso)) return false;
       }
       
@@ -1997,56 +2136,31 @@ function applyAllFilters() {  try {
         const itemCat = String(item.category || '').toLowerCase();
         if (!itemCat.includes(category.toLowerCase())) return false;
       }
-      if (brand && item.brand !== brand) return false;
-      
+      if (brand && item.brand !== brand) return false;      
       return true;
     });
 
     // Best price per category
     if (bestPriceMode) {
-      filteredData = reduceBestPricePerCategory(filteredData);
-    }
+      filteredData = reduceBestPricePerCategory(filteredData);    }
 
     // Sorting with performance optimization
     switch(sort) {
-      case 'best-deals':
-        const maxSaved = Math.max(1, ...filteredData.map(i => i._saved || 0));
-        filteredData.sort((a, b) => {
-          const da = (a._discount_pct || 0) / 100;
-          const db = (b._discount_pct || 0) / 100;
-          const sa = (a._saved || 0) / maxSaved;
-          const sb = (b._saved || 0) / maxSaved;
-          return (db * WEIGHT_DISCOUNT + sb * WEIGHT_SAVINGS) -
-                 (da * WEIGHT_DISCOUNT + sa * WEIGHT_SAVINGS);
-        });
-        break;
-      case 'discount-desc':
-        filteredData.sort((a, b) => (b._discount_pct || 0) - (a._discount_pct || 0));
-        break;
-      case 'saved-desc':
-        filteredData.sort((a, b) => (b._saved || 0) - (a._saved || 0));
-        break;
-      case 'price-asc':
-        filteredData.sort((a, b) => (a.currentPrice || 0) - (b.currentPrice || 0));
-        break;
-      case 'price-desc':
-        filteredData.sort((a, b) => (b.currentPrice || 0) - (a.currentPrice || 0));
-        break;
-      case 'name-asc':
-        filteredData.sort((a, b) => (a.product || '').localeCompare(b.product || '', 'ar'));
-        break;
-      case 'name-desc':
-        filteredData.sort((a, b) => (b.product || '').localeCompare(a.product || '', 'ar'));
-        break;
+      case 'best-deals':        const maxSaved = Math.max(1, ...filteredData.map(i => i._saved || 0));        filteredData.sort((a, b) => {
+          const da = (a._discount_pct || 0) / 100;          const db = (b._discount_pct || 0) / 100;
+          const sa = (a._saved || 0) / maxSaved;          const sb = (b._saved || 0) / maxSaved;
+          return (db * WEIGHT_DISCOUNT + sb * WEIGHT_SAVINGS) -        (da * WEIGHT_DISCOUNT + sa * WEIGHT_SAVINGS);
+        });        break;
+      case 'discount-desc':        filteredData.sort((a, b) => (b._discount_pct || 0) - (a._discount_pct || 0));        break;
+      case 'saved-desc':        filteredData.sort((a, b) => (b._saved || 0) - (a._saved || 0));        break;
+      case 'price-asc':        filteredData.sort((a, b) => (a.currentPrice || 0) - (b.currentPrice || 0));        break;
+      case 'price-desc':        filteredData.sort((a, b) => (b.currentPrice || 0) - (a.currentPrice || 0));        break;
+      case 'name-asc':        filteredData.sort((a, b) => (a.product || '').localeCompare(b.product || '', 'ar'));        break;
+      case 'name-desc':        filteredData.sort((a, b) => (b.product || '').localeCompare(a.product || '', 'ar'));        break;
     }
 
-    currentPage = 1;
-    renderContent();
-    updateStats();
-
-  } catch (e) {
-    console.error('applyAllFilters failed:', e);
-  }
+    currentPage = 1;    renderContent();    updateStats();
+  } catch (e) {    console.error('applyAllFilters failed:', e);  }
 }
 
 // Add other missing essential functions as needed...
