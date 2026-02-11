@@ -10,7 +10,8 @@
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;800&amp;display=swap"
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;800&amp;display=swap"
+
       rel="stylesheet">
     <!-- CSS remains the same as before -->
     <style>
@@ -309,8 +310,7 @@ function findLatestTwoDates(data) {
 document.addEventListener('DOMContentLoaded', fetchData_2);
     </script>
   </head>
-  <body>
-    <!-- HTML content remains exactly the same as in your original file -->
+  <body> <!-- HTML content remains exactly the same as in your original file -->
     <!-- I'm including the exact same HTML structure -->
     <div class="container">
       <!-- Hero Banner -->
@@ -320,7 +320,8 @@ document.addEventListener('DOMContentLoaded', fetchData_2);
           <p class="hero-subtitle">قارن الأسعار بين كارفور، هايبر وان، سعودي
             ماركت وغيرها - وفر حتى 70%</p>
           <!-- Ticker banner -->
-          <div class="ticker-wrap" aria-live="polite" aria-atomic="true" role="region"
+          <div class="ticker-wrap" aria-live="polite" aria-atomic="true" role="region"
+
             aria-label="أفضل العروض">
             <div class="ticker-label"><i class="fas fa-bolt"></i> عروض مميزة</div>
             <div class="ticker-viewport" id="ticker-viewport">
@@ -374,26 +375,33 @@ document.addEventListener('DOMContentLoaded', fetchData_2);
         </div>
       </div>
       <!-- Quick Filter Chips -->
-      <div class="filter-chips" id="filter-chips"> <button class="chip active"
-          data-filter="all"><i class="fas fa-fire"></i> جميع العروض</button> <button
+      <div class="filter-chips" id="filter-chips"> <button class="chip active"
+
+          data-filter="all"><i class="fas fa-fire"></i> جميع العروض</button> <button
+
           class="chip" data-filter="hot"><i class="fas fa-bolt"></i> العروض
           الساخنة</button> <button class="chip" data-filter="ending"><i class="fas fa-clock"></i>
-          تنتهي قريباً</button> <button class="chip" data-filter="discount"><i
-            class="fas fa-percentage"></i> خصومات كبيرة</button> <button class="chip"
+          تنتهي قريباً</button> <button class="chip" data-filter="discount"><i
+
+            class="fas fa-percentage"></i> خصومات كبيرة</button> <button class="chip"
+
           data-filter="carrefour"><i class="fas fa-shopping-cart"></i> كارفور</button>
         <button class="chip" data-filter="hyperone"><i class="fas fa-store"></i>
           هايبر وان</button> <button class="chip" data-filter="food"><i class="fas fa-utensils"></i>
           منتجات غذائية</button> <button class="chip" data-filter="recent"><i class="fas fa-calendar-day"></i>
           أحدث العروض (آخر يومين)</button> </div>
       <!-- View Toggle -->
-      <div class="view-toggle"> <button class="view-btn active" id="view-grid-btn"><i
-            class="fas fa-th-large"></i> عرض شبكي</button> <button class="view-btn"
+      <div class="view-toggle"> <button class="view-btn active" id="view-grid-btn"><i
+
+            class="fas fa-th-large"></i> عرض شبكي</button> <button class="view-btn"
+
           id="view-table-btn"><i class="fas fa-table"></i> عرض جدول</button> </div>
       <!-- Products Grid -->
       <div class="products-grid" id="products-grid"></div>
       <!-- Controls -->
       <div class="controls" role="region" aria-label="عناصر التحكم">
-        <div class="row" style="flex:1;"> <input id="search-input" placeholder="ابحث عن منتجات أو علامات تجارية..."
+        <div class="row" style="flex:1;"> <input id="search-input" placeholder="ابحث عن منتجات أو علامات تجارية..."
+
             aria-label="حقل البحث" type="text">
           <select id="supermarket-filter" aria-label="تصفية حسب السوبر ماركت">
             <option value="">كل السوبر ماركت</option>
@@ -407,15 +415,21 @@ document.addEventListener('DOMContentLoaded', fetchData_2);
         </div>
         <div class="row" style="width:100%; gap:8px;">
           <!-- Min price with controls -->
-          <div class="price-controls" style="align-items:center;"> <button id="min-decrease"
-              type="button" aria-label="نقص الحد الأدنى">−</button> <input id="min-price"
-              placeholder="الحد الأدنى للسعر" aria-label="الحد الأدنى للسعر" step="0.5"
+          <div class="price-controls" style="align-items:center;"> <button id="min-decrease"
+
+              type="button" aria-label="نقص الحد الأدنى">−</button> <input id="min-price"
+
+              placeholder="الحد الأدنى للسعر" aria-label="الحد الأدنى للسعر" step="0.5"
+
               min="0" type="number"> <button id="min-increase" type="button" aria-label="زيادة الحد الأدنى">+</button>
           </div>
           <!-- Max price with controls -->
-          <div class="price-controls" style="align-items:center;"> <button id="max-decrease"
-              type="button" aria-label="نقص الحد الأقصى">−</button> <input id="max-price"
-              placeholder="الحد الأعلى للسعر" aria-label="الحد الأعلى للسعر" step="0.5"
+          <div class="price-controls" style="align-items:center;"> <button id="max-decrease"
+
+              type="button" aria-label="نقص الحد الأقصى">−</button> <input id="max-price"
+
+              placeholder="الحد الأعلى للسعر" aria-label="الحد الأعلى للسعر" step="0.5"
+
               min="0" type="number"> <button id="max-increase" type="button" aria-label="زيادة الحد الأقصى">+</button>
           </div>
           <select id="sort-by" aria-label="فرز حسب">
@@ -427,11 +441,14 @@ document.addEventListener('DOMContentLoaded', fetchData_2);
             <option value="name-asc">الاسم (أ-ي)</option>
             <option value="name-desc">الاسم (ي-أ)</option>
           </select>
-          <input id="min-discount" placeholder="الحد الأدنى للخصم %" aria-label="الحد الأدنى للخصم"
+          <input id="min-discount" placeholder="الحد الأدنى للخصم %" aria-label="الحد الأدنى للخصم"
+
             type="number">
           <div style="display:flex;gap:8px;"> <button id="reset-btn" aria-label="إعادة تعيين">🔄
-              إعادة تعيين</button> <button id="share-app" aria-label="مشاركة التطبيق"><i
-                class="fas fa-share-alt"></i> مشاركة</button> <button id="compare-mode-btn"
+              إعادة تعيين</button> <button id="share-app" aria-label="مشاركة التطبيق"><i
+
+                class="fas fa-share-alt"></i> مشاركة</button> <button id="compare-mode-btn"
+
               aria-label="وضع المقارنة"><i class="fas fa-balance-scale"></i>
               المقارنة</button> </div>
         </div>
@@ -467,7 +484,8 @@ document.addEventListener('DOMContentLoaded', fetchData_2);
         <h3 style="margin:0;"><i class="fas fa-balance-scale"></i> مقارنة
           المنتجات (<span id="comparison-count">0</span>/4)</h3>
         <div> <button id="clear-comparison" style="margin-left:10px; background:#dc3545; color:white; border:none; padding:8px 16px; border-radius:6px; cursor:pointer;">
-            <i class="fas fa-trash"></i> مسح الكل </button> <button id="close-comparison"
+            <i class="fas fa-trash"></i> مسح الكل </button> <button id="close-comparison"
+
             style="background:#6c757d; color:white; border:none; padding:8px 16px; border-radius:6px; cursor:pointer;">
             <i class="fas fa-times"></i> إغلاق </button> </div>
       </div>
@@ -588,7 +606,6 @@ function transformRows(rows) {
   });
 }
 
-      
 /* ================================================= */
 /* MAIN DATA LOADING FUNCTION - OPTIMIZED FOR LARGE FILES */
 /* ================================================= */
@@ -1332,9 +1349,9 @@ function attachCardEventListeners() {
   // alert (item.pageNo || 'itemmmmmmmm');
 // const flyerCurrency = product.currency || '';
 // const flyerFileName = product.solution_key || '';
-          const flyerPageNo= product.pageNo.indexOf("page_") || '';
-          const flyerFileName = product.pageNo.substring(flyerPageNo);
-         
+
+          const flyerPageNo = item.pageNo ? item.pageNo.indexOf("page_") : -1;
+const flyerFileName = flyerPageNo >= 0 ? item.pageNo.substring(flyerPageNo) : 'صورة الصنف';
           openWithOverlay(url, flyerFileName);
         }
       });
@@ -1452,9 +1469,9 @@ function renderTable(){
         const url = item.solution_key ? `https://www.yabalashoffers.com/flyer.php?d=${encodeURIComponent(item.solution_key)}&c=eg` : '#';
 //        const flyerFileName = item.solution_key || '';
  
-        const flyerPageNo= item.pageNo.indexOf("page_") || '';
-        const flyerFileName =  item.pageNo.substring(flyerPageNo);
-       
+        const flyerPageNo = item.pageNo ? item.pageNo.indexOf("page_") : -1;
+const flyerFileName = flyerPageNo >= 0 ? item.pageNo.substring(flyerPageNo) : 'صورة الصنف';
+        
         if(url && url!=='#'){ 
           tr.style.cursor='pointer'; 
           tr.title='انقر لزيارة صفحة العرض'; 
