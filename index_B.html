@@ -5,14 +5,17 @@
     <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
     <title>عروض السوبرماركت - أفضل العروض اليومية</title>
     <!-- External libs used by original file -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.0/papaparse.min.js"
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.0/papaparse.min.js"
+
 defer="defer"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/lz-string/1.4.4/lz-string.min.js"
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lz-string/1.4.4/lz-string.min.js"
+
 defer="defer"></script>
     <!-- Font Awesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Google Fonts for Arabic -->
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;800&amp;display=swap"
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;800&amp;display=swap"
+
       rel="stylesheet">
     <style>
     :root{
@@ -1598,7 +1601,8 @@ defer="defer"></script>
           <p class="hero-subtitle">قارن الأسعار بين كارفور، هايبر وان، سعودي
             ماركت وغيرها - وفر حتى 70%</p>
           <!-- Ticker banner -->
-          <div class="ticker-wrap" aria-live="polite" aria-atomic="true" role="region"
+          <div class="ticker-wrap" aria-live="polite" aria-atomic="true" role="region"
+
             aria-label="أفضل العروض">
             <div class="ticker-label"><i class="fas fa-bolt"></i> عروض مميزة</div>
             <div class="ticker-viewport" id="ticker-viewport">
@@ -1654,27 +1658,35 @@ defer="defer"></script>
       <!-- Quick Filter Chips with View Toggle inline (removed hyperone button) -->
       <!-- Filter Row with inline view toggle (removed hyperone button) -->
       <div class="filter-row">
-        <div class="filter-chips" id="filter-chips"> <button class="chip active"
-            data-filter="all"><i class="fas fa-fire"></i> العروض القديمة </button>
-          <button class="chip" data-filter="hot"><i class="fas fa-bolt"></i>
-            العروض الساخنة</button> <button class="chip" data-filter="ending"><i
-              class="fas fa-clock"></i> تنتهي قريباً</button> <button class="chip"
-            data-filter="discount"><i class="fas fa-percentage"></i> خصومات
-            كبيرة</button> <button class="chip" data-filter="carrefour"><i class="fas fa-shopping-cart"></i>
-            كارفور</button> <button class="chip" data-filter="food"><i class="fas fa-utensils"></i>
-            منتجات غذائية</button> <button class="chip" data-filter="recent"><i
-              class="fas fa-calendar-day"></i> عروض&nbsp; آخر &nbsp; يومين</button>
-        </div>
+        <div class="filter-chips" id="filter-chips"> <button class="chip active"
+
+            data-filter="all"><i class="fas fa-fire"></i> العروض
+            القديمة </button> <button class="chip" data-filter="hot"><i
+
+              class="fas fa-bolt"></i> العروض الساخنة</button> <button class="chip"
+
+            data-filter="ending"><i class="fas fa-clock"></i> تنتهي قريباً</button>
+          <button class="chip" data-filter="discount"><i class="fas fa-percentage"></i>
+            خصومات كبيرة</button> <button class="chip" data-filter="carrefour"><i
+
+              class="fas fa-shopping-cart"></i> كارفور</button> <button class="chip"
+
+            data-filter="food"><i class="fas fa-utensils"></i> منتجات غذائية</button>
+          <button class="chip" data-filter="recent"><i class="fas fa-calendar-day"></i>
+            عروض&nbsp; آخر &nbsp; يومين</button> </div>
         <!-- View Toggle -->
-        <div class="view-toggle"> <button class="view-btn active" id="view-grid-btn"><i
-              class="fas fa-th-large"></i> عرض شبكي</button> <button class="view-btn"
+        <div class="view-toggle"> <button class="view-btn active" id="view-grid-btn"><i
+
+              class="fas fa-th-large"></i> عرض شبكي</button> <button class="view-btn"
+
             id="view-table-btn"><i class="fas fa-table"></i> عرض جدول</button> </div>
       </div>
       <!-- Products Grid -->
       <div class="products-grid" id="products-grid"></div>
       <!-- Controls -->
       <div class="controls" role="region" aria-label="عناصر التحكم">
-        <div class="row" style="flex:1;"> <input id="search-input" placeholder="ابحث عن منتجات أو علامات تجارية..."
+        <div class="row" style="flex:1;"> <input id="search-input" placeholder="ابحث عن منتجات أو علامات تجارية..."
+
             aria-label="حقل البحث" type="text">
           <select id="supermarket-filter" aria-label="تصفية حسب السوبر ماركت">
             <option value="">كل السوبر ماركت</option>
@@ -1688,15 +1700,21 @@ defer="defer"></script>
         </div>
         <div class="row" style="width:100%; gap:8px;">
           <!-- Min price with controls -->
-          <div class="price-controls" style="align-items:center;"> <button id="min-decrease"
-              type="button" aria-label="نقص الحد الأدنى">−</button> <input id="min-price"
-              placeholder="الحد الأدنى للسعر" aria-label="الحد الأدنى للسعر" step="0.5"
+          <div class="price-controls" style="align-items:center;"> <button id="min-decrease"
+
+              type="button" aria-label="نقص الحد الأدنى">−</button> <input id="min-price"
+
+              placeholder="الحد الأدنى للسعر" aria-label="الحد الأدنى للسعر" step="0.5"
+
               min="0" type="number"> <button id="min-increase" type="button" aria-label="زيادة الحد الأدنى">+</button>
           </div>
           <!-- Max price with controls -->
-          <div class="price-controls" style="align-items:center;"> <button id="max-decrease"
-              type="button" aria-label="نقص الحد الأقصى">−</button> <input id="max-price"
-              placeholder="الحد الأعلى للسعر" aria-label="الحد الأعلى للسعر" step="0.5"
+          <div class="price-controls" style="align-items:center;"> <button id="max-decrease"
+
+              type="button" aria-label="نقص الحد الأقصى">−</button> <input id="max-price"
+
+              placeholder="الحد الأعلى للسعر" aria-label="الحد الأعلى للسعر" step="0.5"
+
               min="0" type="number"> <button id="max-increase" type="button" aria-label="زيادة الحد الأقصى">+</button>
           </div>
           <select id="sort-by" aria-label="فرز حسب">
@@ -1708,7 +1726,8 @@ defer="defer"></script>
             <option value="name-asc">الاسم (أ-ي)</option>
             <option value="name-desc">الاسم (ي-أ)</option>
           </select>
-          <input id="min-discount" placeholder="الحد الأدنى للخصم %" aria-label="الحد الأدنى للخصم"
+          <input id="min-discount" placeholder="الحد الأدنى للخصم %" aria-label="الحد الأدنى للخصم"
+
             type="number">
           <div style="display:flex;gap:8px;"> <button id="reset-btn" aria-label="إعادة تعيين">🔄العروض
               السارية</button> <button id="share-app" aria-label="مشاركة التطبيق">
@@ -1747,7 +1766,8 @@ defer="defer"></script>
         <h3 style="margin:0;"><i class="fas fa-balance-scale"></i> مقارنة
           المنتجات (<span id="comparison-count">0</span>/4)</h3>
         <div> <button id="clear-comparison" style="margin-left:10px; background:#dc3545; color:white; border:none; padding:8px 16px; border-radius:6px; cursor:pointer;">
-            <i class="fas fa-trash"></i> مسح الكل </button> <button id="close-comparison"
+            <i class="fas fa-trash"></i> مسح الكل </button> <button id="close-comparison"
+
             style="background:#6c757d; color:white; border:none; padding:8px 16px; border-radius:6px; cursor:pointer;">
             <i class="fas fa-times"></i> إغلاق </button> </div>
       </div>
@@ -3083,8 +3103,52 @@ tr.innerHTML = `
         document.getElementById('sort-by').addEventListener('change', debouncedApplyAllFilters);
         document.getElementById('min-discount').addEventListener('input', debouncedApplyAllFilters);
 
-        document.getElementById('reset-btn').addEventListener('click', ()=>{ resetAllFilters(); });
-
+// داخل initializeFilters، تعديل معالج reset-btn
+document.getElementById('reset-btn').addEventListener('click', async function() {
+  try {
+    document.getElementById('loading').style.display = 'block';
+    document.getElementById('loading').innerHTML = 'جاري تحميل العروض السارية...';
+    
+    const res = await fetch(DATA_URL);
+    const txt = await res.text();
+    const parsed = Papa.parse(txt, {
+      header: true,
+      skipEmptyLines: true,
+      trim: true,
+      dynamicTyping: true
+    });
+    
+    // تصفية: فقط الأصناف التي status ليست "العرض منتهى" وليست "س"
+    const activeOffers = parsed.data.filter(item => {
+      const status = String(item['status'] || '').trim();
+      return status !== 'العرض منتهى' && status !== 'س';
+    });
+    
+    allData = transformRows(activeOffers);
+    normalizeDates(allData);
+    computeSavedAndDiscount(allData);
+    computeCombinedScore(allData);
+    
+    // إعادة تعيين المدخلات فقط (بدون لمس حالة الشيب)
+    document.getElementById('search-input').value = '';
+    document.getElementById('supermarket-filter').value = '';
+    document.getElementById('category-filter').value = '';
+    document.getElementById('brand-filter').value = '';
+    document.getElementById('min-discount').value = '';
+    document.getElementById('min-price').value = '';
+    document.getElementById('max-price').value = '';
+    document.getElementById('sort-by').value = 'best-deals';
+    
+    initializeFilters();
+    applyAllFilters();
+    populateTicker();
+    document.getElementById('loading').style.display = 'none';
+    
+  } catch(err) {
+    console.error('Error loading active offers:', err);
+    document.getElementById('loading').innerHTML = `<b>خطأ:</b> ${err.message}`;
+  }
+});
         wirePriceControls();
       } catch (error) {
         console.error('Error in initializeFilters:', error);
@@ -3171,49 +3235,97 @@ tr.innerHTML = `
     }
           
     // Wire event listeners
-    function wireEventListeners() {
+function wireEventListeners() {
   try {
     document.getElementById('view-grid-btn').addEventListener('click', () => switchView('grid'));
     document.getElementById('view-table-btn').addEventListener('click', () => switchView('table'));
-    
+
     document.querySelectorAll('.chip').forEach(chip => {
       chip.addEventListener('click', async function() {
         const filter = this.dataset.filter;
         
         document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
         this.classList.add('active');
+        activeChipFilter = filter; // ✅ حدّث الفلتر أولاً
 
-        if (filter === 'all' || filter === 'ending') {
-          if (!isFullLoaded) {
-            const loadingEl = document.getElementById('loading');
-            if (loadingEl) {
-              loadingEl.style.display = 'block';
-              loadingEl.innerHTML = `
-                <div style="text-align:center">
-                  <i class="fas fa-spinner fa-spin" style="font-size:2rem;color:#00539F"></i><br><br>
-                  جاري تحميل <strong>جميع العروض</strong>...
-                </div>
-              `;
-            }
-            await loadFullDataInBackground();
-            if (loadingEl) loadingEl.style.display = 'none';
+        // ✅ الكود الجديد لزر "آخر يومين"
+        if (filter === 'recent') {
+          try {
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('loading').innerHTML = 'جاري تحميل عروض آخر يومين...';
+            
+            const res = await fetch(DATA_URL);
+            const txt = await res.text();
+            const parsed = Papa.parse(txt, {
+              header: true,
+              skipEmptyLines: true,
+              trim: true,
+              dynamicTyping: true
+            });
+            
+            let allItems = transformRows(parsed.data);
+            normalizeDates(allItems);
+            latestTwoDates = findLatestTwoDates(allItems);
+            
+            allData = allItems.filter(item => {
+              if (!item.updateDate) return false;
+              const itemDateStr = item.updateDate.toISOString().split('T')[0];
+              return latestTwoDates.includes(itemDateStr);
+            });
+            
+            computeSavedAndDiscount(allData);
+            computeCombinedScore(allData);
+            
+            initializeFilters();
+            applyAllFilters();
+            populateTicker();
+            document.getElementById('loading').style.display = 'none';
+            
+          } catch(err) {
+            console.error('Error loading recent offers:', err);
+            document.getElementById('loading').innerHTML = `<b>خطأ:</b> ${err.message}`;
           }
-          allData = fullData;
-          currentMode = 'full';
-        } 
-        else {
-          allData = recentData;
-          currentMode = 'recent';
         }
-
-        activeChipFilter = filter;
-        
-        // ✅ تحديث القوائم بعد تغيير البيانات
-        refreshFilterDropdowns();
-        
-        applyAllFilters();
+        // ✅ زر "العروض السارية" (active offers)
+// داخل wireEventListeners، تعديل معالج الشيب all
+else if (filter === 'all') {
+  try {
+    document.getElementById('loading').style.display = 'block';
+    document.getElementById('loading').innerHTML = 'جاري تحميل جميع العروض...';
+    
+    const res = await fetch(DATA_URL);
+    const txt = await res.text();
+    const parsed = Papa.parse(txt, {
+      header: true,
+      skipEmptyLines: true,
+      trim: true,
+      dynamicTyping: true
+    });
+    
+    // لا تصفية حسب الحالة – تحميل كل الصفوف
+    allData = transformRows(parsed.data);
+    normalizeDates(allData);
+    computeSavedAndDiscount(allData);
+    computeCombinedScore(allData);
+    latestTwoDates = findLatestTwoDates(allData);
+    
+    initializeFilters();
+    applyAllFilters();
+    populateTicker();
+    document.getElementById('loading').style.display = 'none';
+    
+  } catch(err) {
+    console.error('Error loading all offers:', err);
+    document.getElementById('loading').innerHTML = `<b>خطأ:</b> ${err.message}`;
+  }
+}
+        // ✅ أزرار أخرى (hot, discount, food, carrefour, ending)
+        else {
+          applyAllFilters(); // ✅ تطبيق الفلتر على allData الحالية مباشرة
+        }
       });
     });
+   
   } catch (error) {
     console.error('Error in wireEventListeners:', error);
   }
