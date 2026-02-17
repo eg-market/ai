@@ -1415,31 +1415,23 @@ defer="defer"></script>
     /* =======================
        MAIN ENTRY POINT
     ======================= */
-    async function fetchData_2() {
-      try {
+async function fetchData_2() {
+    try {
         showLoading();
-
         allData = await loadFromDB();
 
         if (!Array.isArray(allData) || allData.length === 0) {
-          // console.log('IndexedDB empty, fetching from CSV...');
-          // Call the main fetchData function which will load from CSV
-          if (typeof fetchData_2 === 'function') {
-            await fetchData(); // Wait for CSV data to load
-          } else {
-            throw new Error('fetchData function not found');
-          }
+            console.log('IndexedDB فارغ، جاري التحميل من CSV...');
+            await fetchData(); // هذه الدالة موجودة في السكريبت الثاني
         } else {
-          // console.log(`Loaded ${allData.length} items from IndexedDB`);
-          // Process data loaded from DB
-          processDataAfterLoad();
+            console.log(`تم تحميل ${allData.length} عنصر من IndexedDB`);
+            processDataAfterLoad();
         }
-
-      } catch (err) {
-        console.error('Error in fetchData_2:', err);
+    } catch (err) {
+        console.error('خطأ في fetchData_2:', err);
         showFatalError('لا يمكن تحميل البيانات. يرجى تحديث الصفحة.');
-      }
-    } 
+    }
+}
 
     function computeSavedAndDiscount(arr){
       try {
@@ -1467,27 +1459,27 @@ function processDataAfterLoad() {
     computeSavedAndDiscount(allData);
     computeCombinedScore(allData);
     
+    // حساب أحدث تاريخين (سنستخدمها كـ fallback إذا لم توجد isRecent)
+    latestTwoDates = findLatestTwoDates(allData);
+    
     // التحقق من وجود باراميتر recent في الرابط
     const urlParams = new URLSearchParams(window.location.search);
     const recentMode = urlParams.get('recent') === '1';
     
     if (recentMode) {
-        // استخدام البيانات الحديثة (isRecent)
+        // محاولة استخدام isRecent أولاً (إذا كانت البيانات محملة من index.html)
         filteredData = allData.filter(item => item.isRecent === true);
         
-        // إذا لم توجد بيانات حديثة (قد يحدث لو تم التحميل بدون isRecent)، نستخدم أحدث تاريخين كـ fallback
-        if (filteredData.length === 0) {
-            latestTwoDates = findLatestTwoDates(allData);
-            if (latestTwoDates && latestTwoDates.length > 0) {
-                filteredData = allData.filter(item => {
-                    if (!item.updateDate) return false;
-                    const itemDateStr = item.updateDate.toISOString().split('T')[0];
-                    return latestTwoDates.includes(itemDateStr);
-                });
-            }
+        // إذا لم توجد isRecent، نستخدم أحدث تاريخين
+        if (filteredData.length === 0 && latestTwoDates.length > 0) {
+            filteredData = allData.filter(item => {
+                if (!item.updateDate) return false;
+                const itemDateStr = item.updateDate.toISOString().split('T')[0];
+                return latestTwoDates.includes(itemDateStr);
+            });
         }
         
-        // إضافة زر "عرض جميع العروض" في banner الإرشادي
+        // إضافة رسالة وزر "عرض جميع العروض" في banner الإرشادي
         setTimeout(() => {
             const guideBanner = document.getElementById('user-guide');
             if (guideBanner) {
@@ -1498,24 +1490,22 @@ function processDataAfterLoad() {
                     </button></span>
                 `;
                 document.getElementById('load-all-offers').addEventListener('click', function() {
-                    filteredData = allData; // كل البيانات
+                    filteredData = allData;
                     computeSavedAndDiscount(filteredData);
                     computeCombinedScore(filteredData);
-                    initializeFilters(); // إعادة تعبئة القوائم المنسدلة
-                    applyAllFilters();   // تطبيق الفلاتر (يبقي على أي فلتر سابق)
-                    populateTicker();    // تحديث الشريط المتحرك
-                    // إخفاء الزر بعد التحميل
+                    initializeFilters();
+                    applyAllFilters();
+                    populateTicker();
                     guideBanner.style.display = 'none';
                 });
             }
         }, 100);
     } else {
-        // وضع عادي: نعرض كل البيانات (ربما مع فلترة حسب آخر يومين كما في الكود الأصلي)
-        // (اختياري: يمكنك حذف هذا الجزء إذا أردت عرض الكل دائماً في الوضع العادي)
+        // وضع عادي: نعرض كل البيانات
         filteredData = allData;
     }
 
-    afterDataReady(); // استدعاء الدالة التي تهيئ الفلاتر وتعرض البيانات
+    afterDataReady();
 }
 
 
@@ -2108,6 +2098,9 @@ async function loadFullDataInBackground() {
     // ✅ تحويل وتخزين كل البيانات
     fullData = transformRows(parsed.data);
     isFullLoaded = true;
+    
+        // تخزين في IndexedDB
+        await saveToDB(fullData);
     
     console.log(`✅ اكتمل التحميل الكامل: ${fullData.length} عرض (بما فيها المنتهية)`);
 
