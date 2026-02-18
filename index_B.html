@@ -2069,6 +2069,7 @@ async function fetchData() {
 // 3. تعديل processDataAfterLoad لعدم البحث عن التواريخ
 // =====================================================
 function processDataAfterLoad() {
+      const urlParams = new URLSearchParams(window.location.search);
    if (urlParams == "full") {showAllOffers();} 
 
   normalizeDates(allData);
