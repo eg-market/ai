@@ -1333,6 +1333,8 @@ defer="defer"></script>
       animation: pulse 2s infinite;
     }
   </style>
+
+    
   </head>
   <body>
     <div class="container"> <!-- Hero Banner -->
@@ -1522,23 +1524,22 @@ defer="defer"></script>
         <span>المفضلة</span> </a> <a href="#" class="mobile-nav-item"> <i class="fas fa-user"></i>
         <span>حسابي</span> </a> </div>
     <script>
-      /* =======================
-         GLOBAL STATE
-      ======================= */
-      let allData = [];
-      let filteredData = [];
-      let latestTwoDates = [];
-      let dataLoaded = false;
-      let fullData = null; // لتخزين البيانات الكاملة إذا تم تحميلها
-      let isFullLoaded = false;
+        /* =======================
+       GLOBAL STATE
+    ======================= */
+    let allData = [];
+    let filteredData = [];
+    let latestTwoDates = [];
+    let dataLoaded = false;
 
-        let comparisonItems = JSON.parse(localStorage.getItem('comparison')) || [];
-    let currentView = 'table';
-          const itemsPerPage = 20;
-    const debouncedApplyAllFilters = debounce(()=>applyAllFilters(), 250);
-    let activeChipFilter = 'all';
+    /* =======================
+       INDEXED DB
+    ======================= */
+    const DB_NAME = 'EG_MARKET_DB_V2'; // Changed version
+    const DB_VERSION = 2;
+    const STORE_NAME = 'offers';
 
-        /* ================= Configuration ================= */
+    /* ================= Configuration ================= */
     // Use the large file
     const DATA_URL = 'https://raw.githubusercontent.com/eg-market/ai/main/final.csv';
     const CACHE_KEY = 'offersData_v2';
@@ -1551,16 +1552,23 @@ defer="defer"></script>
     // Weight constants for combined sorting
     const WEIGHT_DISCOUNT = 0.6;
     const WEIGHT_SAVINGS = 0.4;
+    const debouncedApplyAllFilters = debounce(()=>applyAllFilters(), 250);
 
     let recentData = [];
+    let fullData = null;
+    let isFullLoaded = false;
     let currentMode = 'recent';
 
     /* ================================================= */
 
     // Global variables
     let currentPage = 1;
+    const itemsPerPage = 20;
     let debounceTimer = null;
     let favorites = JSON.parse(localStorage.getItem('favorites')) || [];
+    let comparisonItems = JSON.parse(localStorage.getItem('comparison')) || [];
+    let currentView = 'table';
+    let activeChipFilter = 'all';
     let supermarketFilterCache = {};
 
     // URL parameters
@@ -1570,99 +1578,235 @@ defer="defer"></script>
     let forceRecentTwoDaysFromURL = false;
 
     let chunkCounter = 0;
-      
-      /* =======================
-         INDEXED DB
-      ======================= */
-      const DB_NAME = 'EG_MARKET_DB_V2';
-      const DB_VERSION = 2;
-      const STORE_NAME = 'offers';
 
-      function openDB() {
+let externalAllMode = false;
+
+/* ===========================
+   ENTRY POINT
+=========================== */
+document.addEventListener('DOMContentLoaded', initApp);
+
+async function initApp() {
+  try {
+    showLoading();
+
+    const params = new URLSearchParams(window.location.search);
+    externalAllMode = params.has('all');
+
+    allData = await getData();
+
+    processDataAfterLoad();
+    hideLoading();
+
+  } catch (err) {
+    console.error('Init error:', err);
+  }
+}
+async function getData() {
+
+  // 1️⃣ إذا البيانات قادمة من صفحة سابقة
+  if (window.preloadedData && Array.isArray(window.preloadedData)) {
+    console.log('Using window.preloadedData');
+    return window.preloadedData;
+  }
+
+  // 2️⃣ إذا موجودة في sessionStorage
+  const cached = sessionStorage.getItem('PRELOADED_DATA');
+  if (cached) {
+    console.log('Using sessionStorage');
+    return JSON.parse(cached);
+  }
+
+  // 3️⃣ إذا موجودة في IndexedDB
+  const dbData = await loadFromDB();
+  if (dbData && dbData.length) {
+    console.log('Using IndexedDB');
+    return dbData;
+  }
+
+  // 4️⃣ أخيراً: تحميل من CSV
+  console.log('Fetching from CSV...');
+  return await fetchFromCSV();
+}
+async function fetchFromCSV() {
+
+  const res = await fetch(DATA_URL);
+  if (!res.ok) throw new Error('HTTP ' + res.status);
+
+  const txt = await res.text();
+
+  const parsed = Papa.parse(txt, {
+    header: true,
+    skipEmptyLines: true,
+    trim: true,
+    dynamicTyping: true
+  });
+
+  let data = transformRows(parsed.data);
+
+  // 🔵 فلترة status تلقائياً إذا لم يوجد بارامتر all
+  if (!externalAllMode) {
+    data = data.filter(item =>
+      item.status !== 'العرض منتهى' &&
+      item.status !== 'س'
+    );
+  }
+
+  computeSavedAndDiscount(data);
+  computeCombinedScore(data);
+
+  // تخزين
+  sessionStorage.setItem('PRELOADED_DATA', JSON.stringify(data));
+  saveToDB(data);
+
+  return data;
+}
+// =====================================================
+// 1. تعديل دالة transformRows لإضافة حقل status
+// =====================================================
+function transformRows(rows) {
+  let statusValue = String(item.status || '').trim();
+  
+  return rows.map(item => {
+    
+    const rawEndDate = String(item['end_date'] || '').trim();
+const cleanedEndDate = rawEndDate.split(/[ T]/)[0];
+    const dateOnly = rawEndDate.split(/[ T]/)[0];
+
+    let endObject = null;
+    if (dateOnly) {
+      const d = new Date(dateOnly);
+      if (!isNaN(d.getTime())) endObject = d;
+    }
+
+    const updateDateStr = item['تاريخ تعديل ملف الفلاير'] || 
+                          item['Update Date'] || '';
+    let updateDate = null;
+    if (updateDateStr) {
+      const d = new Date(updateDateStr);
+      if (!isNaN(d.getTime())) updateDate = d;
+    }
+
+ 
+        let rawValidUntil = String(item.validUntil || '').trim();
+        let statusValue = String(item.status || '').trim();
+
+        // تحويل "س" إلى "منتهي"
+        if (statusValue === "س") {
+            statusValue = "منتهي";
+        }
+        let finalValidUntil;
+        // إذا كانت القيمة غير متاح أو فارغة → استخدم status
+        if (!rawValidUntil || rawValidUntil === "غير متاح") {
+            finalValidUntil = statusValue || "غير متاح";
+        } else {
+            finalValidUntil = rawValidUntil;
+        }
+    
+    return {
+      supermarket: String(item['اسم السوبر ماركت'] || ''),
+      product: String(item['الاسم بالعربية'] || ''),
+      primaryName: String(item['اسم المنتج (الأساسي)'] || ''),
+      unit: String(item['الوحدة'] || ''),
+      category: String(item['الفئة'] || ''),
+      brand: String(item['اسم العلامة التجارية'] || ''),
+      originalPrice: parseFloat(item['السعر الأصلي']) || 0,
+      currentPrice: parseFloat(item['السعر الحالي']) || 0,
+      discount: parseFloat(item['الخصم %']) || 0,
+      pageNo: String(item['اسم ملف الفلاير'] || ''),
+      solution_key: String(item['solution_key'] || ''),
+
+//      endDate: endObject,
+//      validUntil: dateOnly || 'غير متاح',
+            validUntil: finalValidUntil,
+      updateDate: updateDate,
+      
+ status: statusValue,
+  endDate: parseEndDate(item.end_date),
+       
+//      status: status  // ✅ إضافة حقل الحالة
+    };
+  });
+}
+
+
+    
+    function openDB() {
+      return new Promise((resolve, reject) => {
+        const req = indexedDB.open(DB_NAME, DB_VERSION);
+        
+        req.onupgradeneeded = (event) => {
+          const db = event.target.result;
+          if (!db.objectStoreNames.contains(STORE_NAME)) {
+            const store = db.createObjectStore(STORE_NAME, { keyPath: 'id', autoIncrement: true });
+            // Create indexes for faster searching
+            store.createIndex('product', 'product', { unique: false });
+            store.createIndex('supermarket', 'supermarket', { unique: false });
+            store.createIndex('category', 'category', { unique: false });
+            store.createIndex('brand', 'brand', { unique: false });
+            store.createIndex('discount', '_discount_pct', { unique: false });
+            store.createIndex('price', 'currentPrice', { unique: false });
+          }
+        };
+        
+        req.onsuccess = () => resolve(req.result);
+        req.onerror = () => reject(req.error);
+      });
+    }
+    async function loadFromDB() {
+      try {
+        const db = await openDB();
         return new Promise((resolve, reject) => {
-          const req = indexedDB.open(DB_NAME, DB_VERSION);
-          
-          req.onupgradeneeded = (event) => {
-            const db = event.target.result;
-            if (!db.objectStoreNames.contains(STORE_NAME)) {
-              const store = db.createObjectStore(STORE_NAME, { keyPath: 'id', autoIncrement: true });
-              store.createIndex('product', 'product', { unique: false });
-              store.createIndex('supermarket', 'supermarket', { unique: false });
-              store.createIndex('category', 'category', { unique: false });
-              store.createIndex('brand', 'brand', { unique: false });
-              store.createIndex('discount', '_discount_pct', { unique: false });
-              store.createIndex('price', 'currentPrice', { unique: false });
-            }
-          };
-          
-          req.onsuccess = () => resolve(req.result);
+          const tx = db.transaction(STORE_NAME, 'readonly');
+          const store = tx.objectStore(STORE_NAME);
+          const req = store.getAll();
+          req.onsuccess = () => resolve(req.result || []);
           req.onerror = () => reject(req.error);
         });
+      } catch (error) {
+        console.log('Error loading from DB:', error);
+        return [];
       }
-
-      async function loadFromDB() {
-        try {
-          const db = await openDB();
-          return new Promise((resolve, reject) => {
-            const tx = db.transaction(STORE_NAME, 'readonly');
-            const store = tx.objectStore(STORE_NAME);
-            const req = store.getAll();
-            req.onsuccess = () => resolve(req.result || []);
-            req.onerror = () => reject(req.error);
+    }
+    async function saveToDB(data) {
+      try {
+        const db = await openDB();
+        return new Promise((resolve, reject) => {
+          const tx = db.transaction(STORE_NAME, 'readwrite');
+          const store = tx.objectStore(STORE_NAME);
+          
+          // Clear existing data
+          store.clear();
+          
+          // Add new data
+          data.forEach((item, index) => {
+            item.id = index + 1; // Add unique ID
+            store.add(item);
           });
-        } catch (error) {
-          console.log('Error loading from DB:', error);
-          return [];
-        }
+          
+          tx.oncomplete = () => resolve();
+          tx.onerror = (e) => reject(e);
+        });
+      } catch (error) {
+        console.log('Error saving to DB:', error);
       }
-
-      async function saveToDB(data) {
-        try {
-          const db = await openDB();
-          return new Promise((resolve, reject) => {
-            const tx = db.transaction(STORE_NAME, 'readwrite');
-            const store = tx.objectStore(STORE_NAME);
-            
-            store.clear();
-            
-            data.forEach((item, index) => {
-              item.id = index + 1;
-              store.add(item);
-            });
-            
-            tx.oncomplete = () => resolve();
-            tx.onerror = (e) => reject(e);
-          });
-        } catch (error) {
-          console.log('Error saving to DB:', error);
-        }
+    }
+      function computeSavedAndDiscount(arr){
+      try {
+        arr.forEach(item=>{
+          const orig = Number(item.originalPrice) || 0;
+          const curr = Number(item.currentPrice) || 0;
+          let saved = 0;
+          if (orig>0 && curr>0) saved = orig - curr;
+          else if (orig>0 && item.discount) saved = orig * (Number(item.discount)/100);
+          else if (curr>0 && item.discount) saved = curr * (Number(item.discount)/100);
+          item._saved = Math.max(0, Number((saved||0).toFixed(2)));
+          item._discount_pct = (item.discount && !isNaN(item.discount)) ? Number(item.discount) : (orig>0 && curr>0 ? Math.round(((orig-curr)/orig)*100) : 0);
+        });
+      } catch (error) {
+        console.error('Error in computeSavedAndDiscount:', error);
       }
-
-      /* =======================
-         MAIN ENTRY POINT - دمج المنطق هنا للسرعة والثبات
-      ======================= */
-      async function fetchData_2() {
-        try {
-          showLoading();
-
-          // دائمًا تحقق من IndexedDB أولاً للسرعة
-          allData = await loadFromDB();
-
-          if (!Array.isArray(allData) || allData.length === 0) {
-            console.log('IndexedDB empty, fetching from CSV...');
-            await fetchData(); // تحميل من CSV مرة واحدة فقط
-            await saveToDB(allData); // حفظ في DB للمرات القادمة
-          } else {
-            console.log(`Loaded ${allData.length} items from IndexedDB`);
-          }
-
-          // معالجة البيانات مرة واحدة فقط
-          processDataAfterLoad();
-        } catch (err) {
-          console.error('Error in fetchData_2:', err);
-          showFatalError('لا يمكن تحميل البيانات. يرجى تحديث الصفحة.');
-        }
-      }
+    }      
     /* =======================
        AFTER DATA READY
     ======================= */
@@ -1675,8 +1819,8 @@ defer="defer"></script>
       updateComparisonPanel();
       hideLoading();
       dataLoaded = true;
-    }      
- /* =======================
+    }
+    /* =======================
        HELPERS
     ======================= */
     function normalizeDates(arr) {
@@ -1691,25 +1835,21 @@ defer="defer"></script>
         }
       });
     }
-
     function showLoading() {
       const el = document.getElementById('loading');
       if (!el) return;
       el.style.display = 'block';
       el.innerHTML = 'جارٍ تحميل البيانات…';
     }
-
     function hideLoading() {
       const el = document.getElementById('loading');
       if (el) el.style.display = 'none';
     }
-
     function showFatalError(msg) {
       console.error(msg);
       const el = document.getElementById('loading');
       if (el) el.innerHTML = `<b>خطأ:</b> ${msg}`;
     }
-
     function findLatestTwoDates(data) {
       try {
         const allDates = [];
@@ -1768,93 +1908,181 @@ defer="defer"></script>
       }
     }
 
+    /* =======================
+       START
+    ======================= */
+    document.addEventListener('DOMContentLoaded', fetchData_2);
+
       
-// 1. تعديل دالة transformRows لإضافة حقل status
-// =====================================================
-function transformRows(rows) {
-  return rows.map(item => {
+      function refreshFilterDropdowns() {
+  try {
+    // =============== تحديث السوبرماركت ===============
+    const supermarketSelect = document.getElementById('supermarket-filter');
+    const currentSupermarket = supermarketSelect.value; // احفظ القيمة الحالية
     
-    const rawEndDate = String(item['end_date'] || '').trim();
-const cleanedEndDate = rawEndDate.split(/[ T]/)[0];
-    const dateOnly = rawEndDate.split(/[ T]/)[0];
+    supermarketSelect.innerHTML = '<option value="">كل السوبر ماركت</option>';
+    let supermarkets = [...new Set(allData.map(i=>i.supermarket))].filter(Boolean);
+    supermarkets.sort((a, b) => String(a || '').localeCompare(String(b || ''), 'ar'));
+    supermarkets.forEach(s=>{ 
+      const o = document.createElement('option'); 
+      o.value = s; 
+      o.textContent = String(s || ''); 
+      supermarketSelect.appendChild(o); 
+    });
+    supermarketSelect.value = currentSupermarket; // استعد القيمة
 
-    let endObject = null;
-    if (dateOnly) {
-      const d = new Date(dateOnly);
-      if (!isNaN(d.getTime())) endObject = d;
-    }
-
-    const updateDateStr = item['تاريخ تعديل ملف الفلاير'] || 
-                          item['Update Date'] || '';
-    let updateDate = null;
-    if (updateDateStr) {
-      const d = new Date(updateDateStr);
-      if (!isNaN(d.getTime())) updateDate = d;
-    }
-
- 
-        let rawValidUntil = String(item.validUntil || '').trim();
-        let statusValue = String(item.status || '').trim();
-
-        // تحويل "س" إلى "منتهي"
-        if (statusValue === "س") {
-            statusValue = "منتهي";
-        }
-        let finalValidUntil;
-        // إذا كانت القيمة غير متاح أو فارغة → استخدم status
-        if (!rawValidUntil || rawValidUntil === "غير متاح") {
-            finalValidUntil = statusValue || "غير متاح";
-        } else {
-            finalValidUntil = rawValidUntil;
-        }
+    // =============== تحديث الفئات ===============
+    const categorySelect = document.getElementById('category-filter');
+    const currentCategory = categorySelect.value;
     
-    return {
-      supermarket: String(item['اسم السوبر ماركت'] || ''),
-      product: String(item['الاسم بالعربية'] || ''),
-      primaryName: String(item['اسم المنتج (الأساسي)'] || ''),
-      unit: String(item['الوحدة'] || ''),
-      category: String(item['الفئة'] || ''),
-      brand: String(item['اسم العلامة التجارية'] || ''),
-      originalPrice: parseFloat(item['السعر الأصلي']) || 0,
-      currentPrice: parseFloat(item['السعر الحالي']) || 0,
-      discount: parseFloat(item['الخصم %']) || 0,
-      pageNo: String(item['اسم ملف الفلاير'] || ''),
-      solution_key: String(item['solution_key'] || ''),
+    categorySelect.innerHTML = '<option value="">كل الفئات</option>';
+    let categories = [...new Set(allData.map(i=>i.category))].filter(Boolean);
+    categories.sort((a, b) => String(a || '').localeCompare(String(b || ''), 'ar'));
+    categories.forEach(c=>{ 
+      const o = document.createElement('option'); 
+      o.value = c; 
+      o.textContent = String(c || ''); 
+      categorySelect.appendChild(o); 
+    });
+    categorySelect.value = currentCategory;
 
-      endDate: endObject,
-//      validUntil: dateOnly || 'غير متاح',
-            validUntil: finalValidUntil,
-      updateDate: updateDate,
-      status: status  // ✅ إضافة حقل الحالة
-    };
-  });
+    // =============== تحديث العلامات التجارية ===============
+    const brandSelect = document.getElementById('brand-filter');
+    const currentBrand = brandSelect.value;
+    
+    brandSelect.innerHTML = '<option value="">كل العلامات</option>';
+    let brands = [...new Set(allData.map(i=>i.brand))].filter(Boolean);
+    brands.sort((a, b) => String(a || '').localeCompare(String(b || ''), 'ar'));
+    brands.forEach(b=>{ 
+      const o = document.createElement('option'); 
+      o.value = b; 
+      o.textContent = String(b || ''); 
+      brandSelect.appendChild(o); 
+    });
+    brandSelect.value = currentBrand;
+    
+    console.log(`✅ تحدثت القوائم - السوبرماركت: ${supermarkets.length}, الفئات: ${categories.length}, العلامات: ${brands.length}`);
+  } catch (error) {
+    console.error('Error in refreshFilterDropdowns:', error);
+  }
 }
-
+// =====================================================
 // 2. تعديل دالة fetchData للتوقف عند "العرض منتهى"
 // =====================================================
-      async function fetchData() {
-        // الكود الأصلي لتحميل من CSV، لكن بدون إعادة تحميل متكرر
-        // ... (الحفاظ على الكود الأصلي هنا، مثل fetch، Papa.parse، transformRows)
+async function fetchData() {
+  try {
+    document.getElementById('loading').style.display = 'block';
+    document.getElementById('loading').innerHTML = `
+      <div style="display: flex; flex-direction: column; align-items: center;">
+        <i class="fas fa-spinner fa-spin" style="font-size: 2.5rem; margin-bottom: 20px; color: var(--primary-blue);"></i>
+        <h3>جارٍ تحميل العروض النشطة...</h3>
+        <p>جاري البحث عن جميع العروض الساريــــة</p>
+        <div id="progress-bar" style="width: 80%; background: #f0f0f0; height: 10px; border-radius: 5px; margin-top: 20px; overflow: hidden;">
+          <div id="progress-fill" style="width: 0%; height: 100%; background: var(--primary-blue); transition: width 0.3s;"></div>
+        </div>
+        <div id="progress-text" style="margin-top: 10px; font-size: 0.9rem; color: #666;">0%</div>
+      </div>
+    `;
+
+    // Check cache first
+    const cached = localStorage.getItem(CACHE_KEY);
+    const cachedTime = localStorage.getItem(`${CACHE_KEY}_time`);
+    
+    if (cached && cachedTime && (Date.now() - cachedTime) < CACHE_EXPIRY) {
+      try {
+        console.log('Loading from cache...');
+        allData = JSON.parse(LZString.decompressFromUTF16(cached)) || [];
+        console.log(`Loaded ${allData.length} items from cache`);
+        processDataAfterLoad();
+        return;
+      } catch(e) {
+        console.warn('Cache parse failed, loading from CSV:', e);
+        allData = [];
       }
+    }
 
-      function processDataAfterLoad() {
-        normalizeDates(allData);
-        computeSavedAndDiscount(allData);
-        computeCombinedScore(allData);
-        
-        latestTwoDates = findLatestTwoDates(allData);
+    console.log('Streaming CSV - Loading ACTIVE offers only...');
 
-        if (latestTwoDates && latestTwoDates.length > 0) {
-          allData = allData.filter(item => {
-            if (!item.updateDate) return false;
-            const itemDateStr = item.updateDate.toISOString().split('T')[0];
-            return latestTwoDates.includes(itemDateStr);
-          });
+    let collectedRows = [];
+    let foundEndOfActiveOffers = false;
+
+    Papa.parse(DATA_URL, {
+      download: true,
+      header: true,
+      skipEmptyLines: true,
+      trim: true,
+      dynamicTyping: true,
+      chunk: function(results, parser) {
+        if (foundEndOfActiveOffers) {
+          parser.abort();
+          return;
         }
 
-        afterDataReady();
-      }
+        for (const item of results.data) {
+          // ✅ التحقق من حقل status
+          const status = String(item['status'] || '').trim();
+          
+          // إذا وجدنا "العرض منتهى" نتوقف عن الجمع
+          if (status === 'العرض منتهى') {
+            foundEndOfActiveOffers = true;
+            parser.abort();
+            console.log(`🛑 توقفنا عند صف به: "${status}". تم جمع ${collectedRows.length} عرضاً نشطاً`);
+            break;
+          }
 
+          // جمع العروض النشطة (الخانة فارغة أو تحتوي على أي قيمة غير "العرض منتهى")
+          collectedRows.push(item);
+        }
+      },
+
+      complete: function() {
+        console.log(`✅ جمع اكتمل: ${collectedRows.length} عرض نشط`);
+        allData = transformRows(collectedRows);
+        recentData = [...allData];
+        currentMode = 'active'; // ✅ تغيير الوضع إلى 'نشط'
+        processDataAfterLoad();
+      },
+
+      error: function(err) {
+        console.error('CSV parse error:', err);
+      }
+    });
+
+  } catch(err) {
+    console.error('Error in fetchData:', err);
+    document.getElementById('loading').innerHTML = `
+      <div style="text-align: center; padding: 40px;">
+        <i class="fas fa-exclamation-triangle" style="font-size: 3rem; color: var(--danger-red); margin-bottom: 20px;"></i>
+        <h3>حدث خطأ أثناء تحميل البيانات</h3>
+        <p>${err.message}</p>
+        <button onclick="retryWithCache()" style="margin-top: 20px; padding: 10px 20px; background: var(--primary-blue); color: white; border: none; border-radius: 8px; cursor: pointer;">
+          <i class="fas fa-redo"></i> حاول تحميل النسخة المخبأة
+        </button>
+      </div>
+    `;
+  }
+}
+
+// =====================================================
+// 3. تعديل processDataAfterLoad لعدم البحث عن التواريخ
+// =====================================================
+function processDataAfterLoad() {
+      const urlParams = new URLSearchParams(window.location.search);
+   if (urlParams == "full") {showAllOffers();} 
+
+  normalizeDates(allData);
+  computeSavedAndDiscount(allData);
+  computeCombinedScore(allData);
+  
+  // ✅ بدلاً من البحث عن آخر يومين، نستخدم كل البيانات المحملة
+  // لأنها بالفعل تم تصفيتها حسب status
+  
+  console.log(`✅ تم تحميل ${allData.length} عرض نشط`);
+
+  afterDataReady();
+}
+
+// =====================================================
 // 4. تعديل الزر "جميع العروض" لتحميل كل البيانات
 // =====================================================
 function showAllOffers() {
@@ -1869,6 +2097,7 @@ function showAllOffers() {
   alert("جاري تجهيز جمي�� العروض (بما فيها المنتهية)... سيتم العرض خلال ثوانٍ");
 }
 
+// =====================================================
 // 5. تعديل loadFullDataInBackground لتحميل ALL offers
 // =====================================================
 async function loadFullDataInBackground() {
@@ -1897,11 +2126,13 @@ async function loadFullDataInBackground() {
   }
 }
 
+// =====================================================
 // 6. إضافة دالة لقراءة حقل status في chip filters
 // =====================================================
 function handleStatusChipFilter() {
 }
-           
+      
+      
     function populateTicker(){
       try {
         const track = document.getElementById('ticker-track');
@@ -2982,15 +3213,6 @@ document.getElementById('reset-btn').addEventListener('click', async function() 
         showError('حدث خطأ في تهيئة الفلاتر: ' + error.message);
       }
     }
-    
-    function initApp() {
-      try {
-        wireEventListeners();
-      } catch (error) {
-        console.error('Error in initApp:', error);
-        showError('حدث خطأ في تهيئة التطبيق: ' + error.message);
-      }
-    }
 
     function applyUrlParams() {
       try {
@@ -3061,50 +3283,104 @@ document.getElementById('reset-btn').addEventListener('click', async function() 
       };
     }
           
-//         WIRE EVENT LISTENERS - تعديل لمنع إعادة التحميل
-//      ======================= */
-      function wireEventListeners() {
-        // ... (الكود الأصلي للـ view toggle، إلخ)
+    // Wire event listeners
+function wireEventListeners() {
+  try {
+    document.getElementById('view-grid-btn').addEventListener('click', () => switchView('grid'));
+    document.getElementById('view-table-btn').addEventListener('click', () => switchView('table'));
 
-        document.querySelectorAll('.chip').forEach(chip => {
-          chip.addEventListener('click', function() {
-            const filter = this.dataset.filter;
+    document.querySelectorAll('.chip').forEach(chip => {
+      chip.addEventListener('click', async function() {
+        const filter = this.dataset.filter;
+        
+        document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+        this.classList.add('active');
+        activeChipFilter = filter; // ✅ حدّث الفلتر أولاً
+
+        // ✅ الكود الجديد لزر "آخر يومين"
+        if (filter === 'recent') {
+          try {
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('loading').innerHTML = 'جاري تحميل عروض آخر يومين...';
             
-            document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
-            this.classList.add('active');
-            activeChipFilter = filter;
+            const res = await fetch(DATA_URL);
+            const txt = await res.text();
+            const parsed = Papa.parse(txt, {
+              header: true,
+              skipEmptyLines: true,
+              trim: true,
+              dynamicTyping: true
+            });
+            
+            let allItems = transformRows(parsed.data);
+            normalizeDates(allItems);
+            latestTwoDates = findLatestTwoDates(allItems);
+            
+            allData = allItems.filter(item => {
+              if (!item.updateDate) return false;
+              const itemDateStr = item.updateDate.toISOString().split('T')[0];
+              return latestTwoDates.includes(itemDateStr);
+            });
+            
+            computeSavedAndDiscount(allData);
+            computeCombinedScore(allData);
+            
+            initializeFilters();
+            applyAllFilters();
+            populateTicker();
+            document.getElementById('loading').style.display = 'none';
+            
+          } catch(err) {
+            console.error('Error loading recent offers:', err);
+            document.getElementById('loading').innerHTML = `<b>خطأ:</b> ${err.message}`;
+          }
+        }
+        // ✅ زر "العروض السارية" (active offers)
+// داخل wireEventListeners، تعديل معالج الشيب all
+else if (filter === 'all') {
+  try {
+    document.getElementById('loading').style.display = 'block';
+    document.getElementById('loading').innerHTML = 'جاري تحميل جميع العروض...';
+    
+    const res = await fetch(DATA_URL);
+    const txt = await res.text();
+    const parsed = Papa.parse(txt, {
+      header: true,
+      skipEmptyLines: true,
+      trim: true,
+      dynamicTyping: true
+    });
+    
+    // لا تصفية حسب الحالة – تحميل كل الصفوف
+    allData = transformRows(parsed.data);
+    normalizeDates(allData);
+    computeSavedAndDiscount(allData);
+    computeCombinedScore(allData);
+    latestTwoDates = findLatestTwoDates(allData);
+    
+    initializeFilters();
+    applyAllFilters();
+    populateTicker();
+    document.getElementById('loading').style.display = 'none';
+    
+  } catch(err) {
+    console.error('Error loading all offers:', err);
+    document.getElementById('loading').innerHTML = `<b>خطأ:</b> ${err.message}`;
+  }
+}
+        // ✅ أزرار أخرى (hot, discount, food, carrefour, ending)
+        else {
+          applyAllFilters(); // ✅ تطبيق الفلتر على allData الحالية مباشرة
+        }
+      });
+    });
+   
+  } catch (error) {
+    console.error('Error in wireEventListeners:', error);
+  }
+}
 
-            // بدون إعادة تحميل: فقط تطبيق فلاتر على allData الموجودة
-            // إذا كان 'all'، استخدم fullData إذا محملة، أو allData
-            if (filter === 'all' && isFullLoaded && fullData) {
-              allData = fullData;
-            } else if (filter === 'recent') {
-              // صفِ allData إلى latestTwoDates دون تحميل جديد
-              allData = allData.filter(item => {
-                if (!item.updateDate) return false;
-                const itemDateStr = item.updateDate.toISOString().split('T')[0];
-                return latestTwoDates.includes(itemDateStr);
-              });
-            }
-
-            applyAllFilters(); // تطبيق الفلاتر دون تحميل
-          });
-        });
-
-        // لـ reset-btn: بدون إعادة تحميل كامل، فقط تصفية السارية من allData
-        document.getElementById('reset-btn').addEventListener('click', function() {
-          const activeOffers = allData.filter(item => {
-            const status = String(item['status'] || '').trim();
-            return status !== 'العرض منتهى' && status !== 'س';
-          });
-          allData = activeOffers;
-          resetAllFilters();
-        });
-      }
-
-      // ... (باقي الدوال الأصلية مثل applyAllFilters، initializeFilters، إلخ دون تغيير)
-
-   //   document.addEventListener('DOMContentLoaded', initApp);
+    document.addEventListener('DOMContentLoaded', initApp);
 
     /* ================================================= */
     /* UTILITY FUNCTIONS */
@@ -3369,8 +3645,6 @@ case 'all':
         console.error('applyAllFilters failed:', e);
       }
     }
-
-      document.addEventListener('DOMContentLoaded', fetchData_2);
-    </script>
+  </script>
   </body>
 </html>
