@@ -1909,7 +1909,9 @@ function processDataAfterLoad() {
 // =====================================================
 function transformRows(rows) {
   return rows.map(item => {
+    
     const rawEndDate = String(item['end_date'] || '').trim();
+const cleanedEndDate = rawEndDate.split(/[ T]/)[0];
     const dateOnly = rawEndDate.split(/[ T]/)[0];
 
     let endObject = null;
@@ -1926,9 +1928,22 @@ function transformRows(rows) {
       if (!isNaN(d.getTime())) updateDate = d;
     }
 
-    // ✅ إضافة حقل status من البيانات الأصلية
-    const status = String(item['status'] || '').trim();
+ 
+        let rawValidUntil = String(item.validUntil || '').trim();
+        let statusValue = String(item.status || '').trim();
 
+        // تحويل "س" إلى "منتهي"
+        if (statusValue === "س") {
+            statusValue = "منتهي";
+        }
+        let finalValidUntil;
+        // إذا كانت القيمة غير متاح أو فارغة → استخدم status
+        if (!rawValidUntil || rawValidUntil === "غير متاح") {
+            finalValidUntil = statusValue || "غير متاح";
+        } else {
+            finalValidUntil = rawValidUntil;
+        }
+    
     return {
       supermarket: String(item['اسم السوبر ماركت'] || ''),
       product: String(item['الاسم بالعربية'] || ''),
@@ -1943,7 +1958,8 @@ function transformRows(rows) {
       solution_key: String(item['solution_key'] || ''),
 
       endDate: endObject,
-      validUntil: dateOnly || 'غير متاح',
+//      validUntil: dateOnly || 'غير متاح',
+            validUntil: finalValidUntil,
       updateDate: updateDate,
       status: status  // ✅ إضافة حقل الحالة
     };
@@ -2252,6 +2268,22 @@ function handleStatusChipFilter() {
         }
       }
       
+      
+        let rawValidUntil = String(item.validUntil || '').trim();
+        let statusValue = String(item.status || '').trim();
+        // تحويل "س" إلى "منتهي"
+        if (statusValue === "س") {
+            statusValue = "منتهي";
+       }
+        let finalValidUntil;
+        // إذا كانت القيمة غير متاح أو فارغة → استخدم status
+        if (!rawValidUntil || rawValidUntil === "غير متاح") {
+            finalValidUntil = statusValue || "غير متاح";
+        } else {
+            finalValidUntil = rawValidUntil;
+        }
+      
+      
       // إرجاع الكائن بكامل خصائصه الأصلية
       return {
         supermarket: String(item['اسم السوبر ماركت'] || item['supermarket'] || 'غير متاح'),
@@ -2266,8 +2298,8 @@ function handleStatusChipFilter() {
              // الحقول المعدلة
         rawPeriod: rawEndDate,
         endDate: endObject, // للحفاظ على عمل عداد الأيام المتبقية
-        validUntil: validUntilStr, // للعرض النصي في الجدول (تاريخ فقط)
-
+//        validUntil: validUntilStr, // للعرض النصي في الجدول (تاريخ فقط)
+validUntil : finalValidUntil,
         pageNo: String(item['اسم ملف الفلاير'] || ''), // لم يتم الحذف
         currency: String(item['العملة'] || 'EGP'), // لم يتم الحذف
         solution_key: String(item['solution_key']||item['solution key']||item['Solution_key']||item['solutionKey']||''), // لم يتم الحذف
