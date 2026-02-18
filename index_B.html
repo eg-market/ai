@@ -1335,8 +1335,7 @@ defer="defer"></script>
   </style>
   </head>
   <body>
-    <div class="container">
-      <!-- Hero Banner -->
+    <div class="container"> <!-- Hero Banner -->
       <div class="hero-banner">
         <div class="hero-content">
           <h1>🛒 أفضل عروض السوبرماركت اليومية</h1>
@@ -1402,20 +1401,19 @@ defer="defer"></script>
       <div class="filter-row">
         <div class="filter-chips" id="filter-chips"> <button class="chip active"
 
-            data-filter="all"><i class="fas fa-fire"></i> العروض
-            القديمة والجديدة </button> <button class="chip" data-filter="hot"><i
+            data-filter="all"><i class="fas fa-fire"></i> العروض القديمة </button>
+          <button class="chip" data-filter="hot"><i class="fas fa-bolt"></i>
+            العروض الساخنة</button> <button class="chip" data-filter="ending"><i
 
-              class="fas fa-bolt"></i> العروض الساخنة</button> <button class="chip"
+              class="fas fa-clock"></i> تنتهي قريباً</button> <button class="chip"
 
-            data-filter="ending"><i class="fas fa-clock"></i> تنتهي قريباً</button>
-          <button class="chip" data-filter="discount"><i class="fas fa-percentage"></i>
-            خصومات كبيرة</button> <button class="chip" data-filter="carrefour"><i
+            data-filter="discount"><i class="fas fa-percentage"></i> خصومات
+            كبيرة</button> <button class="chip" data-filter="carrefour"><i class="fas fa-shopping-cart"></i>
+            كارفور</button> <button class="chip" data-filter="food"><i class="fas fa-utensils"></i>
+            منتجات غذائية</button> <button class="chip" data-filter="recent"><i
 
-              class="fas fa-shopping-cart"></i> كارفور</button> <button class="chip"
-
-            data-filter="food"><i class="fas fa-utensils"></i> منتجات غذائية</button>
-          <button class="chip" data-filter="recent"><i class="fas fa-calendar-day"></i>
-            عروض&nbsp; آخر &nbsp; يومين</button> </div>
+              class="fas fa-calendar-day"></i> عروض&nbsp; آخر &nbsp; يومين</button>
+        </div>
         <!-- View Toggle -->
         <div class="view-toggle"> <button class="view-btn active" id="view-grid-btn"><i
 
@@ -3106,6 +3104,8 @@ document.getElementById('reset-btn').addEventListener('click', async function() 
 
       // ... (باقي الدوال الأصلية مثل applyAllFilters، initializeFilters، إلخ دون تغيير)
 
+   //   document.addEventListener('DOMContentLoaded', initApp);
+
     /* ================================================= */
     /* UTILITY FUNCTIONS */
     /* ================================================= */
@@ -3371,7 +3371,6 @@ case 'all':
     }
 
       document.addEventListener('DOMContentLoaded', fetchData_2);
-   //   document.addEventListener('DOMContentLoaded', initApp);
     </script>
   </body>
 </html>
