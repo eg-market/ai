@@ -1349,6 +1349,8 @@ defer="defer"></script>
     const DB_VERSION = 2;
     const STORE_NAME = 'offers';
 
+      let allowAllStatus = false;  // افتراضياً لا نسمح بالمنتهي
+
     function openDB() {
       return new Promise((resolve, reject) => {
         const req = indexedDB.open(DB_NAME, DB_VERSION);
@@ -1425,6 +1427,8 @@ async function fetchData_2() {
             await fetchData(); // هذه الدالة موجودة في السكريبت الثاني
         } else {
             console.log(`تم تحميل ${allData.length} عنصر من IndexedDB`);
+          allData = applyBaseStatusFilter(allData);
+
             processDataAfterLoad();
         }
     } catch (err) {
@@ -1625,11 +1629,23 @@ function processDataAfterLoad() {
         return [];
       }
     }
+      
+function applyBaseStatusFilter(dataArray) {
+
+  if (allowAllStatus) return dataArray;
+
+  return dataArray.filter(item => {
+    const status = String(item.status || '').trim();
+    return status !== 'العرض منتهي' && status !== 'س';
+  });
+
+}
 
     /* =======================
        START
     ======================= */
     document.addEventListener('DOMContentLoaded', fetchData_2);
+
   </script>
   </head>
   <body>
