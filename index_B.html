@@ -1455,6 +1455,16 @@ async function fetchData_2() {
 //  تعديل processDataAfterLoad (الموجودة في السكريبت الأول) - نستبدلها بالدالة afterDataLoad
 // =====================================================
 function processDataAfterLoad() {
+   allData = applyBaseStatusFilter(allData);
+  computeSavedAndDiscount(allData);
+  computeCombinedScore(allData);
+  initializeFilters();
+  applyAllFilters();
+  populateTicker();
+  switchView('grid');
+  updateComparisonPanel();
+
+/*
     normalizeDates(allData);
     computeSavedAndDiscount(allData);
     computeCombinedScore(allData);
@@ -1506,6 +1516,7 @@ function processDataAfterLoad() {
     }
 
     afterDataReady();
+*/    
 }
 
 
@@ -2068,25 +2079,17 @@ async function fetchData() {
 // =====================================================
 // 3. تعديل processDataAfterLoad لعدم البحث عن التواريخ
 // =====================================================
-  function processDataAfterLoad() {
-
-  allData = applyBaseStatusFilter(allData);
-
+function processDataAfterLoad() {
+  normalizeDates(allData);
   computeSavedAndDiscount(allData);
   computeCombinedScore(allData);
-
-  initializeFilters();
-  applyAllFilters();
-  populateTicker();
-  switchView('grid');
-  updateComparisonPanel();
-
   
-//  normalizeDates(allData);
   // ✅ بدلاً من البحث عن آخر يومين، نستخدم كل البيانات المحملة
   // لأنها بالفعل تم تصفيتها حسب status
+  
   console.log(`✅ تم تحميل ${allData.length} عرض نشط`);
-//  afterDataReady();
+
+  afterDataReady();
 }
 
 // =====================================================
