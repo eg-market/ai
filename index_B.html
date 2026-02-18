@@ -1465,8 +1465,12 @@ function processDataAfterLoad() {
     // التحقق من وجود باراميتر recent في الرابط
     const urlParams = new URLSearchParams(window.location.search);
     const recentMode = urlParams.get('recent') === '1';
-    
-    if (recentMode) {
+  
+if (urlParams == "full") {
+showAllOffers();
+} 
+  
+  if (recentMode) {
         // محاولة استخدام isRecent أولاً (إذا كانت البيانات محملة من index.html)
         filteredData = allData.filter(item => item.isRecent === true);
         
@@ -2086,8 +2090,8 @@ function showAllOffers() {
   if (isFullLoaded && fullData) {
     allData = fullData;
     currentMode = 'full';
-    applyAllFilters();
-    refreshFilterDropdowns(); // تحديث القوائم المنسدلة
+//    applyAllFilters();
+//    refreshFilterDropdowns(); // تحديث القوائم المنسدلة
     console.log(`✅ تم التبديل إلى: جميع العروض (${allData.length} عرض)`);
     return;
   }
