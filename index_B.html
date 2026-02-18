@@ -1466,9 +1466,7 @@ function processDataAfterLoad() {
     const urlParams = new URLSearchParams(window.location.search);
     const recentMode = urlParams.get('recent') === '1';
   
-if (urlParams == "full") {
-showAllOffers();
-} 
+// if (urlParams == "full") {showAllOffers();} 
   
   if (recentMode) {
         // محاولة استخدام isRecent أولاً (إذا كانت البيانات محملة من index.html)
@@ -2071,6 +2069,8 @@ async function fetchData() {
 // 3. تعديل processDataAfterLoad لعدم البحث عن التواريخ
 // =====================================================
 function processDataAfterLoad() {
+   if (urlParams == "full") {showAllOffers();} 
+
   normalizeDates(allData);
   computeSavedAndDiscount(allData);
   computeCombinedScore(allData);
