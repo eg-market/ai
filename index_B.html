@@ -1622,8 +1622,7 @@ function processDataAfterLoad() {
   </script>
   </head>
   <body>
-    <div class="container">
-      <!-- Hero Banner -->
+    <div class="container"> <!-- Hero Banner -->
       <div class="hero-banner">
         <div class="hero-content">
           <h1>🛒 أفضل عروض السوبرماركت اليومية</h1>
@@ -1689,20 +1688,19 @@ function processDataAfterLoad() {
       <div class="filter-row">
         <div class="filter-chips" id="filter-chips"> <button class="chip active"
 
-            data-filter="all"><i class="fas fa-fire"></i> العروض
-            القديمة </button> <button class="chip" data-filter="hot"><i
+            data-filter="all"><i class="fas fa-fire"></i> العروض القديمة </button>
+          <button class="chip" data-filter="hot"><i class="fas fa-bolt"></i>
+            العروض الساخنة</button> <button class="chip" data-filter="ending"><i
 
-              class="fas fa-bolt"></i> العروض الساخنة</button> <button class="chip"
+              class="fas fa-clock"></i> تنتهي قريباً</button> <button class="chip"
 
-            data-filter="ending"><i class="fas fa-clock"></i> تنتهي قريباً</button>
-          <button class="chip" data-filter="discount"><i class="fas fa-percentage"></i>
-            خصومات كبيرة</button> <button class="chip" data-filter="carrefour"><i
+            data-filter="discount"><i class="fas fa-percentage"></i> خصومات
+            كبيرة</button> <button class="chip" data-filter="carrefour"><i class="fas fa-shopping-cart"></i>
+            كارفور</button> <button class="chip" data-filter="food"><i class="fas fa-utensils"></i>
+            منتجات غذائية</button> <button class="chip" data-filter="recent"><i
 
-              class="fas fa-shopping-cart"></i> كارفور</button> <button class="chip"
-
-            data-filter="food"><i class="fas fa-utensils"></i> منتجات غذائية</button>
-          <button class="chip" data-filter="recent"><i class="fas fa-calendar-day"></i>
-            عروض&nbsp; آخر &nbsp; يومين</button> </div>
+              class="fas fa-calendar-day"></i> عروض&nbsp; آخر &nbsp; يومين</button>
+        </div>
         <!-- View Toggle -->
         <div class="view-toggle"> <button class="view-btn active" id="view-grid-btn"><i
 
@@ -1850,7 +1848,9 @@ function processDataAfterLoad() {
     let forceRecentTwoDaysFromURL = false;
 
     let chunkCounter = 0;
-      
+
+      let allowAllStatus = false;  // افتراضياً لا نسمح بالمنتهي
+
  function refreshFilterDropdowns() {
   try {
     // =============== تحديث السوبرماركت ===============
@@ -2068,17 +2068,25 @@ async function fetchData() {
 // =====================================================
 // 3. تعديل processDataAfterLoad لعدم البحث عن التواريخ
 // =====================================================
-function processDataAfterLoad() {
-  normalizeDates(allData);
+  function processDataAfterLoad() {
+
+  allData = applyBaseStatusFilter(allData);
+
   computeSavedAndDiscount(allData);
   computeCombinedScore(allData);
+
+  initializeFilters();
+  applyAllFilters();
+  populateTicker();
+  switchView('grid');
+  updateComparisonPanel();
+
   
+//  normalizeDates(allData);
   // ✅ بدلاً من البحث عن آخر يومين، نستخدم كل البيانات المحملة
   // لأنها بالفعل تم تصفيتها حسب status
-  
   console.log(`✅ تم تحميل ${allData.length} عرض نشط`);
-
-  afterDataReady();
+//  afterDataReady();
 }
 
 // =====================================================
@@ -2129,13 +2137,6 @@ async function loadFullDataInBackground() {
 // 6. إضافة دالة لقراءة حقل status في chip filters
 // =====================================================
 function handleStatusChipFilter() {
-  // في applyAllFilters، يمكنك إضافة حالة جديدة:
-  // case 'active':
-  //   if (item.status === 'العرض منتهى') return false;
-  //   break;
-  // case 'expired':
-  //   if (item.status !== 'العرض منتهى') return false;
-  //   break;
 }
       
       
@@ -2299,7 +2300,7 @@ function handleStatusChipFilter() {
         rawPeriod: rawEndDate,
         endDate: endObject, // للحفاظ على عمل عداد الأيام المتبقية
 //        validUntil: validUntilStr, // للعرض النصي في الجدول (تاريخ فقط)
-validUntil : finalValidUntil,
+validUntil: finalValidUntil,
         pageNo: String(item['اسم ملف الفلاير'] || ''), // لم يتم الحذف
         currency: String(item['العملة'] || 'EGP'), // لم يتم الحذف
         solution_key: String(item['solution_key']||item['solution key']||item['Solution_key']||item['solutionKey']||''), // لم يتم الحذف
@@ -3395,6 +3396,8 @@ else if (filter === 'all') {
   }
 }
 
+      
+allData = applyBaseStatusFilter(allData);    
     document.addEventListener('DOMContentLoaded', initApp);
 
     /* ================================================= */
@@ -3538,6 +3541,16 @@ else if (filter === 'all') {
       }
     }
 
+      function applyBaseStatusFilter(dataArray) {
+
+  if (allowAllStatus) return dataArray;
+
+  return dataArray.filter(item => {
+    const status = String(item.status || '').trim();
+    return status !== 'العرض منتهي' && status !== 'س';
+  });
+
+}
     function applyAllFilters() {  
       try {
         const uiSearch = (document.getElementById('search-input')?.value || '').trim().toLowerCase();
@@ -3551,6 +3564,9 @@ else if (filter === 'all') {
 
         let minPrice = minPriceRaw === '' ? 0 : Number(minPriceRaw);
         let maxPrice = maxPriceRaw === '' ? Infinity : Number(maxPriceRaw);
+
+        const params = new URLSearchParams(window.location.search);
+allowAllStatus = params.has('all'); 
 
         if (minPrice > maxPrice) [minPrice, maxPrice] = [maxPrice, minPrice];
         const sort = document.getElementById('sort-by')?.value || 'best-deals';
