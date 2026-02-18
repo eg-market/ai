@@ -1349,8 +1349,6 @@ defer="defer"></script>
     const DB_VERSION = 2;
     const STORE_NAME = 'offers';
 
-      let allowAllStatus = false;  // افتراضياً لا نسمح بالمنتهي
-
     function openDB() {
       return new Promise((resolve, reject) => {
         const req = indexedDB.open(DB_NAME, DB_VERSION);
@@ -1427,8 +1425,6 @@ async function fetchData_2() {
             await fetchData(); // هذه الدالة موجودة في السكريبت الثاني
         } else {
             console.log(`تم تحميل ${allData.length} عنصر من IndexedDB`);
-          allData = applyBaseStatusFilter(allData);
-
             processDataAfterLoad();
         }
     } catch (err) {
@@ -1459,16 +1455,6 @@ async function fetchData_2() {
 //  تعديل processDataAfterLoad (الموجودة في السكريبت الأول) - نستبدلها بالدالة afterDataLoad
 // =====================================================
 function processDataAfterLoad() {
-   allData = applyBaseStatusFilter(allData);
-  computeSavedAndDiscount(allData);
-  computeCombinedScore(allData);
-  initializeFilters();
-  applyAllFilters();
-  populateTicker();
-  switchView('grid');
-  updateComparisonPanel();
-
-/*
     normalizeDates(allData);
     computeSavedAndDiscount(allData);
     computeCombinedScore(allData);
@@ -1520,7 +1506,6 @@ function processDataAfterLoad() {
     }
 
     afterDataReady();
-*/    
 }
 
 
@@ -1629,23 +1614,11 @@ function processDataAfterLoad() {
         return [];
       }
     }
-      
-function applyBaseStatusFilter(dataArray) {
-
-  if (allowAllStatus) return dataArray;
-
-  return dataArray.filter(item => {
-    const status = String(item.status || '').trim();
-    return status !== 'العرض منتهي' && status !== 'س';
-  });
-
-}
 
     /* =======================
        START
     ======================= */
     document.addEventListener('DOMContentLoaded', fetchData_2);
-
   </script>
   </head>
   <body>
@@ -1875,9 +1848,7 @@ function applyBaseStatusFilter(dataArray) {
     let forceRecentTwoDaysFromURL = false;
 
     let chunkCounter = 0;
-
-      let allowAllStatus = false;  // افتراضياً لا نسمح بالمنتهي
-
+      
  function refreshFilterDropdowns() {
   try {
     // =============== تحديث السوبرماركت ===============
@@ -2156,6 +2127,13 @@ async function loadFullDataInBackground() {
 // 6. إضافة دالة لقراءة حقل status في chip filters
 // =====================================================
 function handleStatusChipFilter() {
+  // في applyAllFilters، يمكنك إضافة حالة جديدة:
+  // case 'active':
+  //   if (item.status === 'العرض منتهى') return false;
+  //   break;
+  // case 'expired':
+  //   if (item.status !== 'العرض منتهى') return false;
+  //   break;
 }
       
       
@@ -3415,8 +3393,6 @@ else if (filter === 'all') {
   }
 }
 
-      
-allData = applyBaseStatusFilter(allData);    
     document.addEventListener('DOMContentLoaded', initApp);
 
     /* ================================================= */
@@ -3560,16 +3536,6 @@ allData = applyBaseStatusFilter(allData);
       }
     }
 
-      function applyBaseStatusFilter(dataArray) {
-
-  if (allowAllStatus) return dataArray;
-
-  return dataArray.filter(item => {
-    const status = String(item.status || '').trim();
-    return status !== 'العرض منتهي' && status !== 'س';
-  });
-
-}
     function applyAllFilters() {  
       try {
         const uiSearch = (document.getElementById('search-input')?.value || '').trim().toLowerCase();
@@ -3583,9 +3549,6 @@ allData = applyBaseStatusFilter(allData);
 
         let minPrice = minPriceRaw === '' ? 0 : Number(minPriceRaw);
         let maxPrice = maxPriceRaw === '' ? Infinity : Number(maxPriceRaw);
-
-        const params = new URLSearchParams(window.location.search);
-allowAllStatus = params.has('all'); 
 
         if (minPrice > maxPrice) [minPrice, maxPrice] = [maxPrice, minPrice];
         const sort = document.getElementById('sort-by')?.value || 'best-deals';
