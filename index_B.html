@@ -7,11 +7,11 @@
     <!-- Font Awesome & Google Fonts -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;800&display=swap" rel="stylesheet">
-    <!-- PapaParse & lz-string (لضغط الكاش) -->
+    <!-- PapaParse & lz-string -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.0/papaparse.min.js" defer></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/lz-string/1.4.4/lz-string.min.js" defer></script>
     <style>
-        /* نفس الأنماط الموجودة مع بعض التحسينات البسيطة */
+        /* نفس الأنماط مع تحسينات الألوان والتباين */
         :root{
             --primary-blue: #00539F;
             --accent-orange: #FF6B00;
@@ -20,7 +20,6 @@
             --danger-red: #DC3545;
             --info-teal: #17a2b8;
             --purple: #6f42c1;
-            --pink: #e83e8c;
             --light-bg: #F8F9FA;
             --card-shadow: 0 8px 30px rgba(0,0,0,0.08);
             --border-radius: 16px;
@@ -31,6 +30,7 @@
             --text: #222;
             --muted: #666;
             --control-height: 46px;
+            --btn-text: #ffffff;
         }
         *{box-sizing:border-box}
         body{
@@ -136,10 +136,11 @@
             display: flex;
             align-items: center;
             gap: 4px;
+            color: var(--text); /* تحسين التباين */
         }
         .chip.active {
             background: var(--primary-blue);
-            color: white;
+            color: white !important;
             border-color: var(--primary-blue);
         }
         .chip[data-filter="all"] { color: var(--primary-blue); }
@@ -168,7 +169,7 @@
         }
         .view-btn.active {
             background: var(--primary-blue);
-            color: white;
+            color: white !important;
             border-color: var(--primary-blue);
         }
 
@@ -271,9 +272,10 @@
             align-items: center;
             justify-content: center;
             gap: 8px;
+            color: white; /* لون النص أبيض لجميع الأزرار */
         }
         .btn-primary { background: var(--primary-blue); color: white; }
-        .btn-secondary { background: #f0f0f0; color: #555; }
+        .btn-secondary { background: #6c757d; color: white; } /* تعديل اللون لضمان التباين */
         .favorite-btn, .compare-btn, .share-btn {
             position: absolute;
             background: white;
@@ -293,6 +295,7 @@
         .compare-btn { top: 65px; left: 15px; }
         .share-btn { bottom: 15px; left: 15px; }
         .favorite-btn.active { color: var(--danger-red); }
+        .compare-btn.active { color: var(--success-green); }
 
         /* Controls */
         .controls {
@@ -317,6 +320,7 @@
             background: white;
             font-size: 15px;
             font-family: 'Cairo', sans-serif;
+            color: var(--text);
         }
         input:focus, select:focus {
             outline: none;
@@ -330,7 +334,7 @@
             color: white;
             border: none;
         }
-        #reset-btn { background: #f0f0f0; color: #666; }
+        #reset-btn { background: #6c757d; color: white; }
         .price-controls {
             display: flex;
             gap: 8px;
@@ -395,6 +399,33 @@
             gap: 10px;
         }
 
+        /* Pagination */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            gap: 5px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+        .pagination button {
+            height: 36px;
+            min-width: 36px;
+            padding: 0 8px;
+            background: white;
+            color: var(--primary-blue);
+            border: 1px solid #dee2e6;
+            border-radius: 6px;
+        }
+        .pagination button.active {
+            background: var(--primary-blue);
+            color: white;
+            border-color: var(--primary-blue);
+        }
+        .pagination button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
         /* Mobile */
         @media (max-width: 900px) {
             .filter-row { flex-direction: column; align-items: stretch; }
@@ -443,8 +474,8 @@
     <!-- Filter Row -->
     <div class="filter-row">
         <div class="filter-chips" id="filter-chips">
-            <button class="chip active" data-filter="all"><i class="fas fa-archive"></i> العروض القديمة</button>
-            <button class="chip" data-filter="active"><i class="fas fa-check-circle"></i> العروض السارية</button>
+            <button class="chip" data-filter="all"><i class="fas fa-archive"></i> العروض القديمة</button>
+            <button class="chip active" data-filter="active"><i class="fas fa-check-circle"></i> العروض السارية</button>
             <button class="chip" data-filter="hot"><i class="fas fa-bolt"></i> ساخنة</button>
             <button class="chip" data-filter="ending"><i class="fas fa-clock"></i> تنتهي قريباً</button>
             <button class="chip" data-filter="discount"><i class="fas fa-percentage"></i> خصومات كبيرة</button>
@@ -546,7 +577,7 @@
         // -------------------- الإعدادات العامة --------------------
         const DATA_URL = 'https://raw.githubusercontent.com/eg-market/ai/main/final.csv';
         const CACHE_KEY = 'offersData_v3';
-        const CACHE_EXPIRY = 24 * 60 * 60 * 1000; // 24 ساعة
+        const CACHE_EXPIRY = 7 * 24 * 60 * 60 * 1000; // 7 أيام (بدلاً من 24 ساعة)
         const DB_NAME = 'EG_MARKET_DB_V3';
         const DB_VERSION = 3;
         const STORE_NAME = 'offers';
@@ -565,6 +596,7 @@
         let favorites = JSON.parse(localStorage.getItem('favorites')) || [];
         let comparisonItems = JSON.parse(localStorage.getItem('comparison')) || [];
         let debounceTimer;
+        let dataLoaded = false;          // لمنع إعادة التحميل إذا كانت البيانات موجودة بالفعل
 
         // -------------------- دوال IndexedDB --------------------
         function openDB() {
@@ -619,7 +651,6 @@
         // -------------------- دوال تحويل البيانات --------------------
         function transformRows(rows) {
             return rows.map(item => {
-                // قراءة end_date ومعالجتها
                 let rawEndDate = String(item['end_date'] || '').trim();
                 let dateOnly = rawEndDate.split(/[ T]/)[0];
                 let endObject = null;
@@ -628,15 +659,12 @@
                     if (!isNaN(d.getTime())) endObject = d;
                 }
 
-                // قراءة status
                 let status = String(item['status'] || '').trim();
                 if (status === 'س') status = 'منتهي';
 
-                // قراءة validUntil
                 let validUntil = String(item.validUntil || '').trim();
                 if (!validUntil || validUntil === 'غير متاح') validUntil = status || 'غير متاح';
 
-                // تاريخ التحديث
                 let updateDateStr = item['تاريخ تعديل ملف الفلاير'] || item['Update Date'] || '';
                 let updateDate = null;
                 if (updateDateStr) {
@@ -661,12 +689,11 @@
                     validUntil: validUntil,
                     updateDate: updateDate,
                     status: status,
-                    // حقول محسوبة ستضاف لاحقاً
                     _saved: 0,
                     _discount_pct: 0,
                     _score: 0
                 };
-            }).filter(item => item.product); // تجاهل الصفوف الفارغة
+            }).filter(item => item.product);
         }
 
         // -------------------- دوال مساعدة --------------------
@@ -735,10 +762,14 @@
 
         // -------------------- تحميل البيانات (المسار الرئيسي) --------------------
         async function loadData() {
+            if (dataLoaded && allData.length > 0) {
+                // البيانات موجودة بالفعل في الذاكرة
+                return;
+            }
+
             showLoading('جارٍ تحميل البيانات من المخزن المحلي...');
             let data = await loadFromDB();
 
-            // التحقق من صلاحية الكاش (نستخدم localStorage للتوقيت)
             const cacheTime = localStorage.getItem(`${CACHE_KEY}_time`);
             const cacheValid = cacheTime && (Date.now() - parseInt(cacheTime) < CACHE_EXPIRY);
 
@@ -765,7 +796,6 @@
                 computeSavedAndDiscount(allData);
                 computeCombinedScore(allData);
 
-                // حفظ في IndexedDB و localStorage
                 await saveToDB(allData);
                 localStorage.setItem(`${CACHE_KEY}_time`, Date.now());
                 console.log(`تم حفظ ${allData.length} عنصر في IndexedDB`);
@@ -779,75 +809,76 @@
         }
 
         function processDataAfterLoad() {
-            // حساب آخر تاريخين
             latestTwoDates = findLatestTwoDates(allData);
 
-            // التحقق من وجود باراميتر all في الرابط
             const urlParams = new URLSearchParams(window.location.search);
             if (urlParams.has('all')) {
                 showAllOffers = true;
                 activeChipFilter = 'all';
-                // ننشط الشيب المناسب
                 document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
                 const chipAll = document.querySelector('.chip[data-filter="all"]');
                 if (chipAll) chipAll.classList.add('active');
             } else {
                 showAllOffers = false;
-                activeChipFilter = 'active'; // الفلتر الافتراضي هو العروض السارية
+                activeChipFilter = 'active';
                 document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
                 const chipActive = document.querySelector('.chip[data-filter="active"]');
                 if (chipActive) chipActive.classList.add('active');
             }
 
-            // تهيئة القوائم المنسدلة
+            // تهيئة القوائم المنسدلة (تعتمد على allData)
             populateFilters();
 
-            // تطبيق الفلاتر
             applyAllFilters();
-
-            // تعبئة الشريط المتحرك
             populateTicker();
-
-            // إخفاء التحميل
             hideLoading();
+            dataLoaded = true;
         }
 
         // -------------------- دوال تهيئة واجهة المستخدم --------------------
         function populateFilters() {
+            // نستخدم filteredData إذا كانت متاحة، وإلا allData
+            const source = filteredData.length ? filteredData : allData;
             const supermarketSet = new Set();
             const categorySet = new Set();
             const brandSet = new Set();
 
-            allData.forEach(item => {
+            source.forEach(item => {
                 if (item.supermarket) supermarketSet.add(item.supermarket);
                 if (item.category) categorySet.add(item.category);
                 if (item.brand) brandSet.add(item.brand);
             });
 
             const supermarketSelect = document.getElementById('supermarket-filter');
+            const currentSupermarket = supermarketSelect.value;
             supermarketSelect.innerHTML = '<option value="">كل السوبرماركت</option>';
             Array.from(supermarketSet).sort().forEach(s => {
                 let opt = document.createElement('option');
                 opt.value = s;
                 opt.textContent = s;
+                if (s === currentSupermarket) opt.selected = true;
                 supermarketSelect.appendChild(opt);
             });
 
             const categorySelect = document.getElementById('category-filter');
+            const currentCategory = categorySelect.value;
             categorySelect.innerHTML = '<option value="">كل الفئات</option>';
             Array.from(categorySet).sort().forEach(c => {
                 let opt = document.createElement('option');
                 opt.value = c;
                 opt.textContent = c;
+                if (c === currentCategory) opt.selected = true;
                 categorySelect.appendChild(opt);
             });
 
             const brandSelect = document.getElementById('brand-filter');
+            const currentBrand = brandSelect.value;
             brandSelect.innerHTML = '<option value="">كل العلامات</option>';
             Array.from(brandSet).sort().forEach(b => {
                 let opt = document.createElement('option');
                 opt.value = b;
                 opt.textContent = b;
+                if (b === currentBrand) opt.selected = true;
                 brandSelect.appendChild(opt);
             });
         }
@@ -877,36 +908,24 @@
             const sort = document.getElementById('sort-by').value;
 
             filteredData = allData.filter(item => {
-                // 1. فلتر الحالة (إلا إذا كان showAllOffers مفعل)
+                // فلتر الحالة
                 if (!showAllOffers && activeChipFilter !== 'all') {
                     if (item.status === 'منتهي' || item.status === 'العرض منتهى') return false;
                 }
 
-                // 2. فلتر البحث
                 if (searchVal) {
                     const hay = (item.product + ' ' + item.primaryName + ' ' + item.brand + ' ' + item.supermarket).toLowerCase();
                     if (!hay.includes(searchVal)) return false;
                 }
 
-                // 3. فلتر السوبرماركت
                 if (supermarket && item.supermarket !== supermarket) return false;
-
-                // 4. فلتر الفئة
-                if (category) {
-                    if (!item.category || !item.category.toLowerCase().includes(category.toLowerCase())) return false;
-                }
-
-                // 5. فلتر العلامة التجارية
+                if (category && (!item.category || !item.category.toLowerCase().includes(category.toLowerCase()))) return false;
                 if (brand && item.brand !== brand) return false;
-
-                // 6. فلتر الخصم الأدنى
                 if (minDiscount > 0 && (item._discount_pct || 0) < minDiscount) return false;
 
-                // 7. فلتر السعر
                 const price = item.currentPrice || 0;
                 if (price < minPrice || price > maxPrice) return false;
 
-                // 8. الفلاتر السريعة (chips)
                 switch (activeChipFilter) {
                     case 'hot':
                         if ((item._discount_pct || 0) < 30) return false;
@@ -933,16 +952,15 @@
                         const ds = d instanceof Date ? d.toISOString().split('T')[0] : null;
                         if (!ds || !latestTwoDates.includes(ds)) return false;
                         break;
-                    // case 'all' و 'active' يتم التعامل معهم أعلاه (الحالة)
                 }
-
                 return true;
             });
 
-            // الترتيب
             sortData(filteredData, sort);
 
-            // إعادة تعيين الصفحة إلى الأولى
+            // تحديث القوائم المنسدلة بناءً على filteredData
+            populateFilters();
+
             currentPage = 1;
             renderContent();
             updateStats();
@@ -1072,7 +1090,6 @@
                 </tr>`;
             }).join('');
 
-            // إضافة حدث النقر على الصف
             document.querySelectorAll('#table-body tr').forEach(tr => {
                 tr.addEventListener('click', function(e) {
                     let url = this.dataset.url;
@@ -1090,11 +1107,45 @@
                 pagination.innerHTML = '';
                 return;
             }
+
             let html = '';
-            for (let i = 1; i <= totalPages; i++) {
-                if (i === currentPage) html += `<button class="active" style="background:var(--primary-blue); color:white;">${i}</button>`;
-                else html += `<button onclick="window.goToPage(${i})">${i}</button>`;
+            const maxVisible = 5; // عدد الأزرار المرئية
+
+            // زر الصفحة الأولى
+            if (currentPage > 1) {
+                html += `<button onclick="window.goToPage(1)"><i class="fas fa-angle-double-right"></i></button>`;
             }
+
+            // الصفحات المحيطة
+            let startPage = Math.max(1, currentPage - Math.floor(maxVisible / 2));
+            let endPage = Math.min(totalPages, startPage + maxVisible - 1);
+            if (endPage - startPage + 1 < maxVisible) {
+                startPage = Math.max(1, endPage - maxVisible + 1);
+            }
+
+            if (startPage > 1) {
+                html += `<button onclick="window.goToPage(1)">1</button>`;
+                if (startPage > 2) html += `<span>...</span>`;
+            }
+
+            for (let i = startPage; i <= endPage; i++) {
+                if (i === currentPage) {
+                    html += `<button class="active" disabled>${i}</button>`;
+                } else {
+                    html += `<button onclick="window.goToPage(${i})">${i}</button>`;
+                }
+            }
+
+            if (endPage < totalPages) {
+                if (endPage < totalPages - 1) html += `<span>...</span>`;
+                html += `<button onclick="window.goToPage(${totalPages})">${totalPages}</button>`;
+            }
+
+            // زر الصفحة الأخيرة
+            if (currentPage < totalPages) {
+                html += `<button onclick="window.goToPage(${totalPages})"><i class="fas fa-angle-double-left"></i></button>`;
+            }
+
             pagination.innerHTML = html;
         }
         window.goToPage = (page) => { currentPage = page; renderContent(); };
@@ -1123,7 +1174,6 @@
                 span.innerHTML = `<span class="badge">${item._discount_pct}%</span> ${item.product} - ${item.supermarket}`;
                 track.appendChild(span);
             });
-            // تكرار المحتوى للتمرير المستمر
             top.forEach(item => {
                 let span = document.createElement('div');
                 span.className = 'ticker-item';
@@ -1135,7 +1185,6 @@
 
         // -------------------- أحداث العناصر --------------------
         function attachCardEvents() {
-            // favourite
             document.querySelectorAll('.favorite-btn').forEach(btn => {
                 btn.addEventListener('click', (e) => {
                     e.stopPropagation();
@@ -1151,7 +1200,6 @@
                 });
             });
 
-            // مقارنة
             document.querySelectorAll('.compare-btn').forEach(btn => {
                 btn.addEventListener('click', (e) => {
                     e.stopPropagation();
@@ -1173,7 +1221,6 @@
                 });
             });
 
-            // مشاركة
             document.querySelectorAll('.share-btn').forEach(btn => {
                 btn.addEventListener('click', (e) => {
                     e.stopPropagation();
@@ -1188,7 +1235,6 @@
                 });
             });
 
-            // زر الشراء (صورة)
             document.querySelectorAll('.buy-now-btn').forEach(btn => {
                 btn.addEventListener('click', (e) => {
                     e.stopPropagation();
@@ -1200,7 +1246,6 @@
                 });
             });
 
-            // زر التفاصيل
             document.querySelectorAll('.view-details-btn').forEach(btn => {
                 btn.addEventListener('click', (e) => {
                     e.stopPropagation();
@@ -1224,7 +1269,7 @@
                     <div>${item.supermarket}</div>
                     <div style="color:var(--primary-blue); font-weight:700;">${item.currentPrice} ${item.currency}</div>
                     <div>خصم ${item._discount_pct}%</div>
-                    <button onclick="removeFromComparison('${item.product}')" style="background:#dc3545; color:white; border:none; border-radius:4px; padding:5px 10px; margin-top:10px;">إزالة</button>
+                    <button onclick="window.removeFromComparison('${item.product}')" style="background:#dc3545; color:white; border:none; border-radius:4px; padding:5px 10px; margin-top:10px;">إزالة</button>
                 </div>
             `).join('');
             panel.style.display = comparisonItems.length ? 'block' : 'none';
@@ -1233,7 +1278,6 @@
             comparisonItems = comparisonItems.filter(c => c.product !== productId);
             localStorage.setItem('comparison', JSON.stringify(comparisonItems));
             updateComparisonPanel();
-            // تحديث حالة الأزرار في البطاقات
             document.querySelectorAll('.compare-btn').forEach(btn => {
                 if (btn.dataset.id === productId) btn.classList.remove('active');
             });
@@ -1241,7 +1285,6 @@
 
         // أحداث الفلاتر
         function wireEventListeners() {
-            // أزرار العرض
             document.getElementById('view-grid-btn').addEventListener('click', () => { currentView='grid'; switchView(); });
             document.getElementById('view-table-btn').addEventListener('click', () => { currentView='table'; switchView(); });
 
@@ -1251,14 +1294,11 @@
                 renderContent();
             }
 
-            // أزرار الشيب
             document.querySelectorAll('.chip').forEach(chip => {
                 chip.addEventListener('click', function() {
                     let filter = this.dataset.filter;
                     activeChipFilter = filter;
-                    // تحديث حالة showAllOffers
-                    if (filter === 'all') showAllOffers = true;
-                    else showAllOffers = false;
+                    showAllOffers = (filter === 'all');
 
                     document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
                     this.classList.add('active');
@@ -1266,7 +1306,6 @@
                 });
             });
 
-            // أحداث الإدخال
             document.getElementById('search-input').addEventListener('input', debounce(applyAllFilters, 300));
             document.getElementById('supermarket-filter').addEventListener('change', applyAllFilters);
             document.getElementById('category-filter').addEventListener('change', applyAllFilters);
@@ -1274,7 +1313,6 @@
             document.getElementById('min-discount').addEventListener('input', debounce(applyAllFilters, 300));
             document.getElementById('sort-by').addEventListener('change', applyAllFilters);
 
-            // تحكمات السعر
             function adjustInput(id, delta) {
                 let inp = document.getElementById(id);
                 let val = parseFloat(inp.value) || 0;
@@ -1289,7 +1327,6 @@
             document.getElementById('min-price').addEventListener('input', debounce(applyAllFilters, 300));
             document.getElementById('max-price').addEventListener('input', debounce(applyAllFilters, 300));
 
-            // زر إعادة التعيين
             document.getElementById('reset-btn').addEventListener('click', () => {
                 document.getElementById('search-input').value = '';
                 document.getElementById('supermarket-filter').value = '';
@@ -1299,7 +1336,6 @@
                 document.getElementById('max-price').value = '';
                 document.getElementById('min-discount').value = '';
                 document.getElementById('sort-by').value = 'best-deals';
-                // إعادة تعيين الشيب إلى الحالة الافتراضية (سارية)
                 showAllOffers = false;
                 activeChipFilter = 'active';
                 document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
@@ -1307,7 +1343,6 @@
                 applyAllFilters();
             });
 
-            // أزرار إضافية
             document.getElementById('share-app').addEventListener('click', () => {
                 if (navigator.share) navigator.share({ title: 'عروض السوبرماركت', url: window.location.href });
                 else alert('انسخ الرابط: ' + window.location.href);
@@ -1328,11 +1363,50 @@
                 document.getElementById('comparison-panel').style.display = 'none';
             });
 
-            // النقر خارج الإكمال التلقائي
             document.addEventListener('click', (e) => {
                 let list = document.getElementById('autocomplete-list');
                 if (list && !list.contains(e.target) && e.target.id !== 'search-input') list.remove();
             });
+
+            // إكمال تلقائي بناءً على filteredData
+            document.getElementById('search-input').addEventListener('input', function() {
+                let val = this.value.trim().toLowerCase();
+                clearAutocomplete();
+                if (!val) return;
+                let suggestions = [];
+                if (filteredData.length) {
+                    suggestions = [...new Set(filteredData.map(i => i.product).concat(filteredData.map(i => i.primaryName).filter(Boolean)))]
+                        .filter(s => s && s.toLowerCase().includes(val))
+                        .slice(0, 8);
+                } else {
+                    suggestions = [...new Set(allData.map(i => i.product).concat(allData.map(i => i.primaryName).filter(Boolean)))]
+                        .filter(s => s && s.toLowerCase().includes(val))
+                        .slice(0, 8);
+                }
+                if (!suggestions.length) return;
+                let list = document.createElement('div');
+                list.id = 'autocomplete-list';
+                suggestions.forEach(s => {
+                    let div = document.createElement('div');
+                    div.textContent = s;
+                    div.addEventListener('click', () => {
+                        document.getElementById('search-input').value = s;
+                        clearAutocomplete();
+                        applyAllFilters();
+                    });
+                    list.appendChild(div);
+                });
+                document.body.appendChild(list);
+                let rect = this.getBoundingClientRect();
+                list.style.left = rect.left + 'px';
+                list.style.top = (rect.bottom + window.scrollY) + 'px';
+                list.style.minWidth = rect.width + 'px';
+            });
+        }
+
+        function clearAutocomplete() {
+            let list = document.getElementById('autocomplete-list');
+            if (list) list.remove();
         }
 
         function debounce(fn, delay) {
