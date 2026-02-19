@@ -659,6 +659,8 @@
     let urlCategories = [];
     let bestPriceMode = false;
 
+let urlMarket = null; // أضف هذا السطر في الأعلى
+  
   // تعريف مخزن البيانات في نطاق واسع ليتم الوصول إليه من كل الدوال
 const queryCache = JSON.parse(sessionStorage.getItem('queryCache')) || {};
   
@@ -832,7 +834,7 @@ async function loadData() {
     }
 
     // ==================== تطبيق باراميترات الرابط ====================
-    function applyUrlParams() {
+function applyUrlParams() {
         try {
             const params = new URLSearchParams(window.location.search);
             
@@ -848,13 +850,15 @@ async function loadData() {
                 ? decodeURIComponent(catParam).split(',').map(c => c.trim().toLowerCase()).filter(Boolean)
                 : [];
 
-            const market = params.get('market');
-            if (market) {
+            // --- إصلاح كود الماركت هنا ---
+            const marketParam = params.get('market');
+            if (marketParam) {
+                urlMarket = decodeURIComponent(marketParam); // حفظ القيمة لاستخدامها لاحقاً
                 const sel = document.getElementById('supermarket-filter');
-                if (sel) {
-                    sel.value = decodeURIComponent(market);
+                if (sel && sel.options.length > 1) { 
+                    sel.value = urlMarket;
                 }
-            }
+            } // <--- هذا هو القوس الذي كان ناقصاً وتسبب في الخطأ
 
             const discount = params.get('discount');
             if (discount) {
@@ -888,29 +892,7 @@ async function loadData() {
             console.error('applyUrlParams failed:', e);
         }
     }
-
-    // ==================== تحميل البيانات (سريع) ====================
-/*    async function loadData() {
-        showLoading('جارٍ تحميل البيانات من المخزن المحلي...');
-        let stored = await loadFromDB();
-        
-        if (stored.length > 0) {
-            allData = stored;
-            hideLoading();
-            processDataAfterLoad();
-
-            // تحديث في الخلفية إذا انتهت الصلاحية
-            const cacheTime = localStorage.getItem(`${CACHE_KEY}_time`);
-            const cacheValid = cacheTime && (Date.now() - parseInt(cacheTime) < CACHE_EXPIRY);
-            if (!cacheValid && !backgroundUpdateInProgress) {
-                backgroundUpdateInProgress = true;
-//                fetchFreshDataInBackground();
-            }
-        } else {
-            // أول مرة: تحميل كامل مع شاشة انتظار
-            await fetchFreshDataWithLoading();
-        }
-    }   */
+      
 
   async function loadDataFromCache() {
     try {
@@ -1020,7 +1002,7 @@ async function loadData() {
     }
 
     // ==================== دوال تهيئة واجهة المستخدم ====================
-    function populateFilters() {
+function populateFilters() {
         const source = filteredData.length ? filteredData : allData;
         const supermarketSet = new Set();
         const categorySet = new Set();
@@ -1033,13 +1015,17 @@ async function loadData() {
         });
 
         const supermarketSelect = document.getElementById('supermarket-filter');
-        const currentSupermarket = supermarketSelect.value;
+        
+        // --- التعديل هنا: نأخذ القيمة من المتغير العام (إذا كان موجوداً) أو من القائمة ---
+        const currentSupermarket = (typeof urlMarket !== 'undefined' && urlMarket) ? urlMarket : supermarketSelect.value;
+        
         supermarketSelect.innerHTML = '<option value="">كل السوبرماركت</option>';
         Array.from(supermarketSet).sort().forEach(s => {
             let opt = document.createElement('option');
             opt.value = s;
             opt.textContent = s;
-            if (s === currentSupermarket) opt.selected = true;
+            // سيتم وضع علامة "selected" تلقائياً إذا تطابق الاسم مع الرابط
+            if (s === currentSupermarket) opt.selected = true; 
             supermarketSelect.appendChild(opt);
         });
 
@@ -1064,6 +1050,11 @@ async function loadData() {
             if (b === currentBrand) opt.selected = true;
             brandSelect.appendChild(opt);
         });
+        
+        // تفريغ المتغير بعد استخدامه أول مرة حتى لا يتعارض مع الفلترة اليدوية لاحقاً
+        if (typeof urlMarket !== 'undefined') {
+            urlMarket = null; 
+        }
     }
 
     function showLoading(msg) {
