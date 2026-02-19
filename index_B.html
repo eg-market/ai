@@ -9,15 +9,15 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.0/papaparse.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/lz-string/1.4.4/lz-string.min.js"></script>
     <style>
-        /* نفس الأنماط المحسنة مع إضافة pagination متقدمة */
+        /* تحسين التباين والألوان */
         :root{
-            --primary-blue: #00539F;
+            --primary-blue: #004080; /* أغمق لتباين أفضل */
             --accent-orange: #FF6B00;
             --success-green: #28A745;
             --warning-yellow: #FFC107;
-            --danger-red: #DC3545;
-            --info-teal: #17a2b8;
-            --purple: #6f42c1;
+            --danger-red: #C82333; /* أغمق قليلاً */
+            --info-teal: #138496;
+            --purple: #5a32a3;
             --light-bg: #F8F9FA;
             --card-shadow: 0 8px 30px rgba(0,0,0,0.08);
             --border-radius: 16px;
@@ -26,7 +26,7 @@
             --ticker-text: #fff;
             --ticker-accent: #ffd54f;
             --text: #222;
-            --muted: #666;
+            --muted: #495057; /* أغمق للتباين */
             --control-height: 46px;
         }
         *{box-sizing:border-box}
@@ -41,7 +41,7 @@
         .container{ max-width:1400px; margin:0 auto; padding:0 16px; }
 
         .hero-banner {
-            background: linear-gradient(rgba(0,83,159,0.85), rgba(0,83,159,0.75)), 
+            background: linear-gradient(rgba(0,64,128,0.85), rgba(0,64,128,0.75)), 
                         url('https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?auto=format&fit=crop&w=1400&q=80');
             background-size: cover;
             background-position: center;
@@ -99,9 +99,9 @@
             align-items: center;
             gap: 8px;
         }
-        .stat-icon{ font-size:1.5rem; width:35px; text-align:center; }
-        .stat-value{ font-size:1.2rem; font-weight:700; color:var(--primary-blue); line-height:1.2; }
-        .stat-label{ font-size:0.75rem; color:var(--muted); }
+        .stat-icon{ font-size:1.5rem; width:35px; text-align:center; color: var(--primary-blue); }
+        .stat-value{ font-size:1.2rem; font-weight:700; color: var(--primary-blue); line-height:1.2; }
+        .stat-label{ font-size:0.75rem; color: var(--muted); font-weight:600; }
 
         .filter-row {
             display: flex;
@@ -265,7 +265,7 @@
             color: white;
         }
         .btn-primary { background: var(--primary-blue); color: white; }
-        .btn-secondary { background: #6c757d; color: white; }
+        .btn-secondary { background: #6c757d; color: white; } /* لون ثانوي بتباين جيد */
         .favorite-btn, .compare-btn, .share-btn {
             position: absolute;
             background: white;
@@ -352,7 +352,7 @@
         table { width: 100%; border-collapse: collapse; font-size: 14px; }
         thead th { background: var(--primary-blue); color: white; padding: 16px; text-align: right; }
         tbody td { padding: 14px 16px; border-bottom: 1px solid #f0f0f0; }
-        .highlight { background: #fff3b0 !important; }
+        .highlight { background: #ffeeba !important; } /* لون أصفر فاتح بتباين أفضل */
 
         #autocomplete-list {
             position: absolute;
@@ -372,7 +372,7 @@
         #autocomplete-list div:hover { background: #f8f9fa; }
 
         .user-guide-banner {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #5a32a3 0%, #004080 100%);
             color: white;
             padding: 10px 15px;
             border-radius: 8px;
@@ -423,6 +423,7 @@
 </head>
 <body>
 <div class="container">
+    <!-- Hero Banner -->
     <div class="hero-banner">
         <div class="hero-content">
             <h1>🛒 أفضل عروض السوبرماركت اليومية</h1>
@@ -440,7 +441,7 @@
 
     <div class="user-guide-banner" id="user-guide">
         <i class="fas fa-info-circle"></i>
-        <span>انقر على أي منتج للتفاصيل. زر "العروض القديمة" يعرض جميع العروض (بما فيها المنتهية).</span>
+        <span>انقر على أي صف في الجدول لفتح صورة الفلاير مع تعليمات التصفح.</span>
     </div>
 
     <div class="stats-dashboard">
@@ -463,8 +464,8 @@
             <button class="chip" data-filter="recent"><i class="fas fa-calendar-day"></i> آخر يومين</button>
         </div>
         <div class="view-toggle">
-            <button class="view-btn active" id="view-grid-btn"><i class="fas fa-th-large"></i> شبكي</button>
-            <button class="view-btn" id="view-table-btn"><i class="fas fa-table"></i> جدول</button>
+            <button class="view-btn" id="view-grid-btn"><i class="fas fa-th-large"></i> شبكي</button>
+            <button class="view-btn active" id="view-table-btn"><i class="fas fa-table"></i> جدول</button>
         </div>
     </div>
 
@@ -505,7 +506,7 @@
     </div>
 
     <div id="loading" style="text-align:center; padding:40px;">جارٍ تحميل البيانات...</div>
-    <div id="data-table" style="display:none;">
+    <div id="data-table" style="display:block;">
         <table>
             <thead>
                 <tr>
@@ -553,13 +554,13 @@
 
     // ==================== الحالة العامة ====================
     let allData = [];
-    let fullData = [];           // جميع البيانات (بما فيها المنتهية) للتحميل الخلفي
+    let fullData = [];
     let filteredData = [];
     let latestTwoDates = [];
     let currentPage = 1;
-    let currentView = 'grid';
+    let currentView = 'table'; // تغيير القيمة الافتراضية إلى جدول
     let activeChipFilter = 'active';
-    let showAllOffers = false;    // إذا true يتم تجاهل فلتر الحالة
+    let showAllOffers = false;
     let favorites = JSON.parse(localStorage.getItem('favorites')) || [];
     let comparisonItems = JSON.parse(localStorage.getItem('comparison')) || [];
     let debounceTimer;
@@ -739,40 +740,35 @@
         try {
             const params = new URLSearchParams(window.location.search);
             
-            // best_price
             bestPriceMode = params.get('best_price') === '1';
 
-            // q (search terms)
             const rawQ = params.get('q');
             urlSearchTerms = rawQ
                 ? decodeURIComponent(rawQ).toLowerCase().split(/\s+/).map(t => t.trim()).filter(Boolean)
                 : [];
 
-            // category (comma separated)
             const catParam = params.get('category');
             urlCategories = catParam
                 ? decodeURIComponent(catParam).split(',').map(c => c.trim().toLowerCase()).filter(Boolean)
                 : [];
 
-            // market (supermarket)
             const market = params.get('market');
             if (market) {
                 const sel = document.getElementById('supermarket-filter');
-                if (sel) sel.value = decodeURIComponent(market);
+                if (sel) {
+                    sel.value = decodeURIComponent(market);
+                }
             }
 
-            // discount
             const discount = params.get('discount');
             if (discount) {
                 const el = document.getElementById('min-discount');
                 if (el) el.value = discount;
             }
 
-            // page
             const page = parseInt(params.get('page'), 10);
             if (!isNaN(page) && page > 1) currentPage = page;
 
-            // one_day
             if (params.has('one_day')) {
                 activeChipFilter = 'recent';
                 const v = params.get('one_day');
@@ -780,7 +776,6 @@
                 if (el && v) el.value = v;
             }
 
-            // week_percent
             if (params.has('week_percent')) {
                 activeChipFilter = 'recent';
                 const v = params.get('week_percent');
@@ -788,13 +783,11 @@
                 if (el && v) el.value = v;
             }
 
-            // all
             if (params.has('all')) {
                 showAllOffers = true;
                 activeChipFilter = 'all';
             }
 
-            // recent (من السكريبت الأول)
             if (params.get('recent') === '1') {
                 forceRecentTwoDaysFromURL = true;
             }
@@ -804,9 +797,8 @@
         }
     }
 
-    // ==================== تحميل البيانات (المسار الرئيسي) ====================
+    // ==================== تحميل البيانات ====================
     async function loadData() {
-        // محاولة التحميل من IndexedDB أولاً
         showLoading('جارٍ تحميل البيانات من المخزن المحلي...');
         let data = await loadFromDB();
         
@@ -815,21 +807,17 @@
             hideLoading();
             processDataAfterLoad();
 
-            // التحقق من صلاحية الكاش في الخلفية
             const cacheTime = localStorage.getItem(`${CACHE_KEY}_time`);
             const cacheValid = cacheTime && (Date.now() - parseInt(cacheTime) < CACHE_EXPIRY);
             if (!cacheValid && !backgroundUpdateInProgress) {
                 backgroundUpdateInProgress = true;
-                // تحديث في الخلفية (تحميل كامل)
                 fetchFullDataInBackground();
             }
         } else {
-            // لا توجد بيانات مخزنة، نحتاج لتحميل العروض السارية أولاً
             await fetchActiveOffers();
         }
     }
 
-    // تحميل العروض السارية فقط (حتى أول "العرض منتهى")
     function fetchActiveOffers() {
         return new Promise((resolve, reject) => {
             showLoading('جارٍ تحميل العروض السارية...');
@@ -862,7 +850,6 @@
                     computeSavedAndDiscount(allData);
                     computeCombinedScore(allData);
 
-                    // حفظ في IndexedDB
                     saveToDB(allData).then(() => {
                         localStorage.setItem(`${CACHE_KEY}_time`, Date.now());
                     });
@@ -871,7 +858,6 @@
                     processDataAfterLoad();
                     resolve();
 
-                    // بعد ذلك، تحميل البيانات الكاملة في الخلفية
                     fetchFullDataInBackground();
                 },
                 error: (err) => {
@@ -882,7 +868,6 @@
         });
     }
 
-    // تحميل جميع البيانات (بما فيها المنتهية) في الخلفية
     async function fetchFullDataInBackground() {
         try {
             console.log('بدء تحميل البيانات الكاملة في الخلفية...');
@@ -894,19 +879,14 @@
             computeSavedAndDiscount(fullData);
             computeCombinedScore(fullData);
 
-            // حفظ في IndexedDB (استبدال القديم)
             await saveToDB(fullData);
             localStorage.setItem(`${CACHE_KEY}_time`, Date.now());
 
-            // تحديث allData إذا كانت لا تزال بحاجة (مثلاً عند الضغط على "العروض القديمة")
             if (showAllOffers) {
                 allData = fullData;
                 processDataAfterLoad();
             } else {
-                // فقط نخزنها للاستخدام لاحقاً
-                allData = fullData; // لكن لا نعيد تطبيق الفلاتر إلا إذا تغير الوضع
-                // يمكن ترك allData كما هي لأن showAllOffers = false
-                // لكن قد نريد تحديث latestTwoDates
+                allData = fullData;
                 latestTwoDates = findLatestTwoDates(fullData);
             }
 
@@ -931,7 +911,6 @@
             document.querySelector('.chip[data-filter="active"]').classList.add('active');
         }
 
-        // تهيئة القوائم المنسدلة
         populateFilters();
 
         applyAllFilters();
@@ -939,7 +918,6 @@
         dataLoaded = true;
     }
 
-    // ==================== دوال تهيئة واجهة المستخدم ====================
     function populateFilters() {
         const source = filteredData.length ? filteredData : allData;
         const supermarketSet = new Set();
@@ -1010,22 +988,18 @@
         if (minPrice > maxPrice) [minPrice, maxPrice] = [maxPrice, minPrice];
         const sort = document.getElementById('sort-by').value;
 
-        // دمج search من URL مع manual
         const effectiveSearchTerms = urlSearchTerms.length ? urlSearchTerms : (searchVal ? searchVal.split(/\s+/) : []);
 
         filteredData = allData.filter(item => {
-            // فلتر الحالة
             if (!showAllOffers && activeChipFilter !== 'all') {
                 if (item.status === 'منتهي' || item.status === 'العرض منتهى') return false;
             }
 
-            // بحث
             if (effectiveSearchTerms.length) {
                 const hay = (item.product + ' ' + item.primaryName + ' ' + item.brand + ' ' + item.supermarket).toLowerCase();
                 if (!effectiveSearchTerms.every(t => hay.includes(t))) return false;
             }
 
-            // فلتر URL categories
             if (urlCategories.length) {
                 const itemCat = String(item.category || '').toLowerCase();
                 if (!urlCategories.some(c => itemCat.includes(c))) return false;
@@ -1059,15 +1033,7 @@
                     if (!item.category || !/طعام|غذائ|مأكولات/i.test(item.category)) return false;
                     break;
                 case 'recent':
-                    if (forceRecentTwoDaysFromURL) {
-                        // استخدام أحدث تاريخين
-                        if (!latestTwoDates.length) return false;
-                        const d = item.updateDate || item.endDate;
-                        if (!d) return false;
-                        const ds = d instanceof Date ? d.toISOString().split('T')[0] : null;
-                        if (!ds || !latestTwoDates.includes(ds)) return false;
-                    } else {
-                        // فلتر آخر يومين العادي
+                    if (forceRecentTwoDaysFromURL || true) {
                         if (!latestTwoDates.length) return false;
                         const d = item.updateDate || item.endDate;
                         if (!d) return false;
@@ -1079,14 +1045,13 @@
             return true;
         });
 
-        // إذا كان bestPriceMode مفعلاً
         if (bestPriceMode) {
             filteredData = reduceBestPricePerCategory(filteredData);
         }
 
         sortData(filteredData, sort);
 
-        populateFilters(); // تحديث القوائم بناءً على filteredData
+        populateFilters();
 
         currentPage = 1;
         renderContent();
@@ -1222,7 +1187,7 @@
             let rowClass = item._discount_pct > 20 ? 'class="highlight"' : '';
             let flyerId = item.pageNo?.match(/flyer_(\d+)/)?.[1] || item.solution_key || '';
             let url = flyerId ? `https://www.yabalashoffers.com/flyer.php?d=${encodeURIComponent(flyerId)}&c=eg` : '#';
-            return `<tr ${rowClass} data-url="${url}" style="cursor:pointer;">
+            return `<tr ${rowClass} data-url="${url}" data-flyer="${flyerId}" data-page="${item.pageNo}" style="cursor:pointer;">
                 <td>${item.supermarket}</td>
                 <td><strong>${item.product}</strong></td>
                 <td>${item.primaryName || ''}</td>
@@ -1236,14 +1201,87 @@
             </tr>`;
         }).join('');
 
+        // إضافة حدث النقر مع فتح نافذة بها تعليمات
         document.querySelectorAll('#table-body tr').forEach(tr => {
             tr.addEventListener('click', function(e) {
                 let url = this.dataset.url;
-                if (url && url !== '#') window.open(url, '_blank');
+                let flyerId = this.dataset.flyer;
+                let pageNo = this.dataset.page;
+                let pageNumber = pageNo?.match(/page_(\d+)/)?.[1] || '';
+                if (url && url !== '#') {
+                    openWithOverlay(url, pageNumber);
+                }
             });
         });
 
         updatePagination();
+    }
+
+    // دالة فتح النافذة مع التعليمات (مثل الإصدار القديم)
+    function openWithOverlay(url, flyerFileName) {
+        try {
+            const newWin = window.open('', '_blank');
+            if (newWin) {
+                newWin.document.write(`
+                    <!DOCTYPE html>
+                    <html>
+                    <head>
+                        <style>
+                            body { margin: 0; padding: 0; overflow: hidden; background: #f0f0f0; font-family: 'Cairo', sans-serif; }
+                            .overlay {
+                                position: fixed;
+                                bottom: 5px;
+                                left: 50%;
+                                transform: translateX(-50%);
+                                width: auto;
+                                max-width: 90vw;
+                                padding: 15px 30px;
+                                background: #1e3c72;
+                                color: white;
+                                font-size: 1.8rem;
+                                border-radius: 50px;
+                                box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+                                display: flex;
+                                align-items: center;
+                                justify-content: center;
+                                gap: 15px;
+                                z-index: 10000;
+                                text-align: center;
+                                direction: rtl;
+                            }
+                            .iframe-wrapper {
+                                width: 100vw;
+                                height: 100vh;
+                                display: flex;
+                                flex-direction: column;
+                            }
+                            iframe {
+                                width: 100vw;
+                                height: 150vh;
+                                border: none;
+                                clip-path: inset(38% 0 16.2% 0);
+                                margin-top: -37vh;
+                            }
+                        </style>
+                    </head>
+                    <body>
+                        <div class="iframe-wrapper">
+                            <iframe src="${url}" scrolling="yes" onload="document.getElementById('guide-overlay').style.display='flex';"></iframe>
+                            <div class="overlay" id="guide-overlay" style="display: none;">
+                                اسحب الشاشة للأسفل حتى الصورة رقم ${flyerFileName || ''} واضغط عليها للتكبير
+                            </div>
+                        </div>
+                    </body>
+                    </html>
+                `);
+                newWin.document.close();
+            } else {
+                window.open(url, '_blank');
+            }
+        } catch (error) {
+            console.error('Error in openWithOverlay:', error);
+            window.open(url, '_blank');
+        }
     }
 
     function updatePagination() {
@@ -1257,7 +1295,6 @@
         let html = '';
         const maxVisible = 5;
 
-        // السابق
         if (currentPage > 1) {
             html += `<button onclick="window.goToPage(1)"><i class="fas fa-angle-double-right"></i></button>`;
             html += `<button onclick="window.goToPage(${currentPage-1})"><i class="fas fa-angle-right"></i></button>`;
@@ -1287,7 +1324,6 @@
             html += `<button onclick="window.goToPage(${totalPages})">${totalPages}</button>`;
         }
 
-        // التالي
         if (currentPage < totalPages) {
             html += `<button onclick="window.goToPage(${currentPage+1})"><i class="fas fa-angle-left"></i></button>`;
             html += `<button onclick="window.goToPage(${totalPages})"><i class="fas fa-angle-double-left"></i></button>`;
@@ -1309,7 +1345,6 @@
         document.getElementById('total-supermarkets').textContent = markets;
     }
 
-    // ==================== الشريط المتحرك ====================
     function populateTicker() {
         const track = document.getElementById('ticker-track');
         if (!allData.length) return;
@@ -1330,7 +1365,6 @@
         track.classList.add('animate');
     }
 
-    // ==================== أحداث العناصر ====================
     function attachCardEvents() {
         document.querySelectorAll('.favorite-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
@@ -1389,7 +1423,10 @@
                 let sol = btn.dataset.solution;
                 let flyerId = page?.match(/flyer_(\d+)/)?.[1] || sol || '';
                 let url = flyerId ? `https://www.yabalashoffers.com/flyer.php?d=${encodeURIComponent(flyerId)}&c=eg` : '#';
-                if (url !== '#') window.open(url, '_blank');
+                if (url !== '#') {
+                    let pageNumber = page?.match(/page_(\d+)/)?.[1] || '';
+                    openWithOverlay(url, pageNumber);
+                }
             });
         });
 
@@ -1430,7 +1467,6 @@
         });
     };
 
-    // ==================== دوال إضافية ====================
     function adjustNumberInput(inputEl, delta) {
         let val = parseFloat(inputEl.value) || 0;
         val = Math.max(0, val + delta);
@@ -1461,7 +1497,6 @@
         applyAllFilters();
     }
 
-    // ==================== ربط الأحداث ====================
     function wireEventListeners() {
         document.getElementById('view-grid-btn').addEventListener('click', () => { currentView='grid'; switchView(); });
         document.getElementById('view-table-btn').addEventListener('click', () => { currentView='table'; switchView(); });
@@ -1491,7 +1526,6 @@
         document.getElementById('min-discount').addEventListener('input', debounce(applyAllFilters, 300));
         document.getElementById('sort-by').addEventListener('change', applyAllFilters);
 
-        // تحكمات السعر
         document.getElementById('min-decrease').addEventListener('click', () => {
             adjustNumberInput(document.getElementById('min-price'), -1);
             applyAllFilters();
@@ -1538,7 +1572,6 @@
             if (list && !list.contains(e.target) && e.target.id !== 'search-input') list.remove();
         });
 
-        // إكمال تلقائي
         document.getElementById('search-input').addEventListener('input', function() {
             let val = this.value.trim().toLowerCase();
             clearAutocomplete();
@@ -1586,7 +1619,6 @@
         };
     }
 
-    // بدء التطبيق
     document.addEventListener('DOMContentLoaded', () => {
         loadData();
         wireEventListeners();
