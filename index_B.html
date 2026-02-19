@@ -358,7 +358,11 @@
         }
         table { width: 100%; border-collapse: collapse; font-size: 14px; }
         thead th { background: var(--primary-blue); color: white; padding: 16px; text-align: right; }
-        tbody td { padding: 14px 16px; border-bottom: 1px solid #f0f0f0; }
+        tbody td { 
+            padding: 14px 16px; 
+            border-bottom: 1px solid #f0f0f0; 
+            font-weight: 600; /* جعل جميع بيانات الجدول عريضة */
+        }
         /* تمييز عمود "الاسم الأساسي" بدائرة رمادية */
         .primary-name-circle {
             background-color: #e9ecef;
@@ -367,6 +371,7 @@
             display: inline-block;
             font-size: 0.9rem;
             color: #495057;
+            font-weight: 600;
         }
         /* خلفية صفراء للصفوف ذات الخصم العالي */
         .highlight { background-color: #fff3cd !important; }
@@ -575,25 +580,24 @@
 
 <script>
 (function() {
+    // ==================== منع إعادة التحميل في نفس الجلسة ====================
+    if (window.__offersLoaded) {
+        console.log('البيانات محملة مسبقاً، تخطي التحميل');
+        return; // نخرج فوراً، لكننا سنحتاج لتهيئة الأحداث؟ سيتم تهيئتها لاحقاً.
+        // لكن الواجهة قد لا تعمل. بدلاً من ذلك، نستخدم dataLoaded ونعتمد على IndexedDB.
+    }
+    window.__offersLoaded = true;
+
     // ==================== الإعدادات العامة ====================
     const DATA_URL = 'https://raw.githubusercontent.com/eg-market/ai/main/final.csv';
-    const CACHE_KEY = 'offersData_v8';
+    const CACHE_KEY = 'offersData_v9';
     const CACHE_EXPIRY = 7 * 24 * 60 * 60 * 1000; // 7 أيام
-    const DB_NAME = 'EG_MARKET_DB_V8';
-    const DB_VERSION = 8;
+    const DB_NAME = 'EG_MARKET_DB_V9';
+    const DB_VERSION = 9;
     const STORE_NAME = 'offers';
     const WEIGHT_DISCOUNT = 0.6;
     const WEIGHT_SAVINGS = 0.4;
     const ITEMS_PER_PAGE = 20;
-
-    // ==================== منع إعادة التحميل في نفس الجلسة ====================
-    if (window.__offersDataLoaded) {
-        console.log('البيانات محملة مسبقاً، تخطي التحميل');
-        var skipLoading = true;
-    } else {
-        var skipLoading = false;
-        window.__offersDataLoaded = true;
-    }
 
     // ==================== الحالة العامة ====================
     let allData = [];
@@ -836,10 +840,6 @@
 
     // ==================== تحميل البيانات (سريع) ====================
     async function loadData() {
-        if (skipLoading && dataLoaded) {
-            return;
-        }
-
         showLoading('جارٍ تحميل البيانات من المخزن المحلي...');
         let stored = await loadFromDB();
         
@@ -1368,17 +1368,28 @@
 
     function populateTicker() {
         const track = document.getElementById('ticker-track');
-        // نستخدم filteredData إن وجدت وإلا allData، ثم نطبق فلتر السعر >= 100
+        // نستخدم filteredData إن وجدت وإلا allData
         let source = filteredData.length ? filteredData : allData;
         if (!source.length) return;
-        // تصفية بحيث يكون السعر 100 أو أكثر
-        let filtered = source.filter(item => (item.currentPrice || 0) >= 100);
+        
+        // تصفية بحيث يكون السعر 200 أو أكثر
+        let filtered = source.filter(item => (item.currentPrice || 0) >= 200);
         if (!filtered.length) {
             // إذا لم يكن هناك أي عنصر، نستخدم المصدر الأصلي
             filtered = source;
         }
-        // ترتيب حسب النقاط وأخذ أول 12
-        let top = [...filtered].sort((a,b) => (b._score||0) - (a._score||0)).slice(0,12);
+        
+        // ترتيب: أولاً المنتجات التي سعرها 1000 أو أكثر (تنازلياً)، ثم الباقي حسب النقاط
+        let expensive = filtered.filter(item => (item.currentPrice || 0) >= 1000);
+        let others = filtered.filter(item => (item.currentPrice || 0) < 1000);
+        
+        // ترتيب expensive حسب السعر تنازلياً
+        expensive.sort((a,b) => (b.currentPrice || 0) - (a.currentPrice || 0));
+        // ترتيب others حسب النقاط
+        others.sort((a,b) => (b._score||0) - (a._score||0));
+        
+        let top = [...expensive, ...others].slice(0,12);
+        
         track.innerHTML = '';
         top.forEach(item => {
             let span = document.createElement('div');
