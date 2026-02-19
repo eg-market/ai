@@ -9,15 +9,14 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.0/papaparse.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/lz-string/1.4.4/lz-string.min.js"></script>
     <style>
-        /* تحسين التباين والألوان (كما في السابق مع بعض التحسينات) */
         :root{
-            --primary-blue: #004080;
+            --primary-blue: #0066CC; /* أفتح قليلاً */
             --accent-orange: #FF6B00;
             --success-green: #28A745;
             --warning-yellow: #FFC107;
-            --danger-red: #C82333;
-            --info-teal: #138496;
-            --purple: #5a32a3;
+            --danger-red: #DC3545; /* أحمر فاقع */
+            --info-teal: #17a2b8;
+            --purple: #6f42c1;
             --light-bg: #F8F9FA;
             --card-shadow: 0 8px 30px rgba(0,0,0,0.08);
             --border-radius: 16px;
@@ -40,8 +39,9 @@
         }
         .container{ max-width:1400px; margin:0 auto; padding:0 16px; }
 
+        /* Hero Banner - أفتح وأكثر جمالاً */
         .hero-banner {
-            background: linear-gradient(rgba(0,64,128,0.85), rgba(0,64,128,0.75)), 
+            background: linear-gradient(rgba(0,102,204,0.7), rgba(0,102,204,0.6)), 
                         url('https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?auto=format&fit=crop&w=1400&q=80');
             background-size: cover;
             background-position: center;
@@ -50,10 +50,12 @@
             border-radius: 0 0 var(--border-radius) var(--border-radius);
             margin-bottom: 15px;
             text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
         }
-        .hero-banner h1 { font-size:1.8rem; font-weight:800; margin:0 0 5px; }
-        .hero-subtitle { font-size:1rem; opacity:0.9; margin-bottom:10px; }
+        .hero-banner h1 { font-size:1.8rem; font-weight:800; margin:0 0 5px; text-shadow: 0 2px 4px rgba(0,0,0,0.2); }
+        .hero-subtitle { font-size:1rem; opacity:0.95; margin-bottom:10px; }
 
+        /* Ticker */
         .ticker-wrap {
             width:100%;
             background:var(--ticker-bg);
@@ -83,6 +85,7 @@
         @keyframes ticker-scroll{ from{transform:translateX(0);} to{transform:translateX(-50%);} }
         .ticker-item .badge{ background:var(--ticker-accent); color:#000; padding:3px 6px; border-radius:4px; font-weight:700; }
 
+        /* Stats Dashboard */
         .stats-dashboard {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
@@ -103,6 +106,7 @@
         .stat-value{ font-size:1.2rem; font-weight:700; color: var(--primary-blue); line-height:1.2; }
         .stat-label{ font-size:0.75rem; color: var(--muted); font-weight:600; }
 
+        /* Filter Row */
         .filter-row {
             display: flex;
             flex-wrap: wrap;
@@ -164,6 +168,7 @@
             border-color: var(--primary-blue);
         }
 
+        /* Products Grid */
         .products-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -264,8 +269,8 @@
             gap: 8px;
             color: white;
         }
-        .btn-primary { background: var(--primary-blue); color: white; }
-        .btn-secondary { background: #6c757d; color: white; }
+        .btn-primary { background: linear-gradient(135deg, #0066CC, #004999); color: white; }
+        .btn-secondary { background: linear-gradient(135deg, #6c757d, #5a6268); color: white; }
         .favorite-btn, .compare-btn, .share-btn {
             position: absolute;
             background: white;
@@ -287,6 +292,7 @@
         .favorite-btn.active { color: var(--danger-red); }
         .compare-btn.active { color: var(--success-green); }
 
+        /* Controls */
         .controls {
             background: white;
             border-radius: var(--border-radius);
@@ -342,6 +348,7 @@
             border: 1px solid #ddd;
         }
 
+        /* Table */
         #data-table {
             background: white;
             border-radius: var(--border-radius);
@@ -352,8 +359,11 @@
         table { width: 100%; border-collapse: collapse; font-size: 14px; }
         thead th { background: var(--primary-blue); color: white; padding: 16px; text-align: right; }
         tbody td { padding: 14px 16px; border-bottom: 1px solid #f0f0f0; }
-        .highlight { background: #ffeeba !important; }
+        /* تمييز عمود "اسم المنتج (الأساسي)" */
+        td:nth-child(3) { background-color: #f1f3f4; }
+        .highlight { background: #fff3cd !important; } /* أصفر للخصم العالي */
 
+        /* Autocomplete */
         #autocomplete-list {
             position: absolute;
             z-index: 9999;
@@ -371,8 +381,9 @@
         }
         #autocomplete-list div:hover { background: #f8f9fa; }
 
+        /* User Guide Banner - مع تأثير نبض */
         .user-guide-banner {
-            background: linear-gradient(135deg, #5a32a3 0%, #004080 100%);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             padding: 10px 15px;
             border-radius: 8px;
@@ -383,8 +394,15 @@
             align-items: center;
             justify-content: center;
             gap: 10px;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+            100% { transform: scale(1); }
         }
 
+        /* Pagination */
         .pagination {
             display: flex;
             justify-content: center;
@@ -542,42 +560,27 @@
 (function() {
     // ==================== الإعدادات العامة ====================
     const DATA_URL = 'https://raw.githubusercontent.com/eg-market/ai/main/final.csv';
-    const CACHE_KEY = 'offersData_v5';
+    const CACHE_KEY = 'offersData_v6';
     const CACHE_EXPIRY = 7 * 24 * 60 * 60 * 1000; // 7 أيام
-    const DB_NAME = 'EG_MARKET_DB_V5';
-    const DB_VERSION = 5;
+    const DB_NAME = 'EG_MARKET_DB_V6';
+    const DB_VERSION = 6;
     const STORE_NAME = 'offers';
     const WEIGHT_DISCOUNT = 0.6;
     const WEIGHT_SAVINGS = 0.4;
     const ITEMS_PER_PAGE = 20;
 
-    // ==================== متغيرات منع إعادة التحميل ====================
-    // التحقق من وجود علامة في sessionStorage تعني أن الصفحة قد حملت البيانات بالفعل في هذه الجلسة
-    if (sessionStorage.getItem('offers_loaded') === 'true' && window.name === 'offers_app_loaded') {
-        console.log('تم تحميل البيانات سابقاً في هذه الجلسة، نتخطى إعادة التحميل.');
-        // ولكننا ما زلنا بحاجة للتأكد من أن allData موجودة، سنستخدم IndexedDB مباشرة
-        // لكننا سنقوم بتعيين متغير لمنع أي تحميل إضافي
-        var skipInitialLoad = true;
-    } else {
-        var skipInitialLoad = false;
-        sessionStorage.setItem('offers_loaded', 'true');
-        window.name = 'offers_app_loaded';
-    }
-
     // ==================== الحالة العامة ====================
-    let activeOffers = [];      // العروض السارية فقط (بدون المنتهية)
-    let fullData = [];          // جميع العروض (بما فيها المنتهية) - للتحميل الخلفي
+    let allData = [];               // جميع البيانات (من IndexedDB أو التحميل)
     let filteredData = [];
-    let latestTwoDates = [];    // يتم حسابها من fullData بعد تحميلها
+    let latestTwoDates = [];        // سيتم حسابها من allData
     let currentPage = 1;
     let currentView = 'table';
     let activeChipFilter = 'active';
-    let showAllOffers = false;  // إذا true نعرض fullData (العروض القديمة) وإلا نعرض activeOffers
+    let showAllOffers = false;      // إذا true يتم تجاهل فلتر الحالة
     let favorites = JSON.parse(localStorage.getItem('favorites')) || [];
     let comparisonItems = JSON.parse(localStorage.getItem('comparison')) || [];
     let debounceTimer;
-    let dataLoaded = false;      // هل تم تحميل activeOffers على الأقل؟
-    let fullDataLoaded = false;  // هل تم تحميل fullData؟
+    let dataLoaded = false;
     let backgroundUpdateInProgress = false;
 
     // متغيرات URL parameters
@@ -810,93 +813,52 @@
         }
     }
 
-    // ==================== تحميل البيانات الأساسية (العروض السارية) ====================
+    // ==================== تحميل البيانات (استراتيجية سريعة) ====================
     async function loadData() {
-        if (skipInitialLoad && dataLoaded) {
-            // إذا تخطينا التحميل، نحتاج للتأكد من وجود allData من IndexedDB
-            let stored = await loadFromDB();
-            if (stored.length > 0) {
-                activeOffers = stored.filter(item => item.status !== 'منتهي' && item.status !== 'العرض منتهى');
-                fullData = stored; // قد تكون كلها
-                fullDataLoaded = true;
-                dataLoaded = true;
-                processDataAfterLoad();
-            } else {
-                // لا توجد بيانات مخزنة، نضطر للتحميل
-                await fetchActiveOffers();
-            }
-            return;
-        }
-
         showLoading('جارٍ تحميل البيانات من المخزن المحلي...');
+
+        // محاولة التحميل من IndexedDB أولاً
         let stored = await loadFromDB();
-        
         if (stored.length > 0) {
-            // تصنيف المخزون إلى سارية وكاملة
-            activeOffers = stored.filter(item => item.status !== 'منتهي' && item.status !== 'العرض منتهى');
-            fullData = stored;
-            fullDataLoaded = true;
+            allData = stored;
             hideLoading();
             processDataAfterLoad();
 
-            // التحقق من صلاحية الكاش
+            // التحقق من صلاحية الكاش في الخلفية
             const cacheTime = localStorage.getItem(`${CACHE_KEY}_time`);
             const cacheValid = cacheTime && (Date.now() - parseInt(cacheTime) < CACHE_EXPIRY);
             if (!cacheValid && !backgroundUpdateInProgress) {
                 backgroundUpdateInProgress = true;
-                // تحديث في الخلفية
-                fetchFullDataInBackground();
+                fetchFreshDataInBackground();
             }
         } else {
-            // لا توجد بيانات مخزنة، نبدأ بتحميل العروض السارية فقط أولاً
-            await fetchActiveOffers();
+            // لا توجد بيانات مخزنة، نضطر لتحميلها مباشرة (مع شاشة انتظار)
+            await fetchFreshDataWithLoading();
         }
     }
 
-    // تحميل العروض السارية فقط (حتى أول "العرض منتهى") - باستخدام Papa.parse streaming
-    function fetchActiveOffers() {
+    // تحميل بيانات جديدة من CSV مع شاشة انتظار (لأول مرة)
+    function fetchFreshDataWithLoading() {
         return new Promise((resolve, reject) => {
-            showLoading('جارٍ تحميل العروض السارية...');
-            let activeRows = [];
-            let stopParsing = false;
-
+            showLoading('جارٍ تحميل العروض من الخادم...');
             Papa.parse(DATA_URL, {
                 download: true,
                 header: true,
                 skipEmptyLines: true,
                 trim: true,
-                step: function(results, parser) {
-                    if (stopParsing) {
-                        parser.abort();
-                        return;
-                    }
-                    const item = results.data;
-                    const status = String(item['status'] || '').trim();
-                    if (status === 'العرض منتهى' || status === 'س') {
-                        stopParsing = true;
-                        parser.abort();
-                        console.log(`تم التوقف عند أول صف منته، تم جمع ${activeRows.length} عرض ساري`);
-                        return;
-                    }
-                    activeRows.push(item);
-                },
-                complete: () => {
-                    activeOffers = transformRows(activeRows);
-                    normalizeDates(activeOffers);
-                    computeSavedAndDiscount(activeOffers);
-                    computeCombinedScore(activeOffers);
+                complete: (results) => {
+                    allData = transformRows(results.data);
+                    normalizeDates(allData);
+                    computeSavedAndDiscount(allData);
+                    computeCombinedScore(allData);
 
-                    // حفظ العروض السارية في IndexedDB
-                    saveToDB(activeOffers).then(() => {
+                    saveToDB(allData).then(() => {
                         localStorage.setItem(`${CACHE_KEY}_time`, Date.now());
                     });
 
                     hideLoading();
                     processDataAfterLoad();
                     resolve();
-
-                    // بعد ذلك، نبدأ تحميل البيانات الكاملة في الخلفية
-                    fetchFullDataInBackground();
                 },
                 error: (err) => {
                     console.error('CSV parse error:', err);
@@ -906,50 +868,39 @@
         });
     }
 
-    // تحميل جميع البيانات (بما فيها المنتهية) في الخلفية
-    async function fetchFullDataInBackground() {
-        if (fullDataLoaded && !backgroundUpdateInProgress) return;
+    // تحميل بيانات جديدة في الخلفية (بدون إزعاج المستخدم)
+    async function fetchFreshDataInBackground() {
         try {
-            console.log('بدء تحميل البيانات الكاملة في الخلفية...');
+            console.log('بدء تحديث البيانات في الخلفية...');
             const res = await fetch(DATA_URL);
             const txt = await res.text();
             const parsed = Papa.parse(txt, { header: true, skipEmptyLines: true, trim: true });
-            fullData = transformRows(parsed.data);
-            normalizeDates(fullData);
-            computeSavedAndDiscount(fullData);
-            computeCombinedScore(fullData);
+            let newData = transformRows(parsed.data);
+            normalizeDates(newData);
+            computeSavedAndDiscount(newData);
+            computeCombinedScore(newData);
 
-            // حفظ كامل البيانات في IndexedDB (استبدال القديم)
-            await saveToDB(fullData);
+            await saveToDB(newData);
             localStorage.setItem(`${CACHE_KEY}_time`, Date.now());
 
-            fullDataLoaded = true;
-            // تحديث latestTwoDates من fullData
-            latestTwoDates = findLatestTwoDates(fullData);
+            // استبدال allData بالبيانات الجديدة
+            allData = newData;
+            latestTwoDates = findLatestTwoDates(allData);
 
-            // إذا كان المستخدم في وضع "العروض القديمة"، نحدث allData إلى fullData
-            if (showAllOffers) {
-                // ولكن activeOffers يبقى كما هو، ونحتاج لإعادة التصفية
-                // الأسهل: إعادة استدعاء applyAllFilters لأن filteredData ستعتمد على fullData الآن
-                applyAllFilters();
-            }
+            // إعادة تطبيق الفلاتر إذا كان المستخدم لا يزال في نفس الوضع
+            applyAllFilters();
+            populateTicker();
 
             backgroundUpdateInProgress = false;
-            console.log(`اكتمل تحميل البيانات الكاملة: ${fullData.length} عنصر`);
+            console.log('تم تحديث البيانات في الخلفية');
         } catch (err) {
-            console.error('فشل تحميل البيانات الكاملة في الخلفية:', err);
+            console.error('فشل تحديث البيانات في الخلفية:', err);
             backgroundUpdateInProgress = false;
         }
     }
 
-    // دالة معالجة ما بعد التحميل (لكل من activeOffers و fullData)
     function processDataAfterLoad() {
-        // نحتاج latestTwoDates من fullData إن وجدت، وإلا من activeOffers
-        if (fullDataLoaded && fullData.length) {
-            latestTwoDates = findLatestTwoDates(fullData);
-        } else {
-            latestTwoDates = findLatestTwoDates(activeOffers);
-        }
+        latestTwoDates = findLatestTwoDates(allData);
 
         // تطبيق باراميترات الرابط
         applyUrlParams();
@@ -958,6 +909,8 @@
         document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
         if (activeChipFilter === 'all') {
             document.querySelector('.chip[data-filter="all"]').classList.add('active');
+        } else if (activeChipFilter === 'recent') {
+            document.querySelector('.chip[data-filter="recent"]').classList.add('active');
         } else {
             document.querySelector('.chip[data-filter="active"]').classList.add('active');
         }
@@ -971,10 +924,7 @@
 
     // ==================== دوال تهيئة واجهة المستخدم ====================
     function populateFilters() {
-        // نستخدم filteredData إذا كانت موجودة، وإلا نستخدم المصدر المناسب
-        let source = filteredData.length ? filteredData : (showAllOffers ? fullData : activeOffers);
-        if (!source.length) source = activeOffers; // fallback
-
+        const source = filteredData.length ? filteredData : allData;
         const supermarketSet = new Set();
         const categorySet = new Set();
         const brandSet = new Set();
@@ -1033,15 +983,6 @@
 
     // ==================== تطبيق الفلاتر ====================
     function applyAllFilters() {
-        // تحديد المصدر: إذا showAllOffers نستخدم fullData وإلا activeOffers
-        const sourceData = showAllOffers ? (fullData.length ? fullData : activeOffers) : activeOffers;
-        if (!sourceData.length) {
-            filteredData = [];
-            renderContent();
-            updateStats();
-            return;
-        }
-
         const searchVal = document.getElementById('search-input').value.trim().toLowerCase();
         const supermarket = document.getElementById('supermarket-filter').value;
         const category = document.getElementById('category-filter').value;
@@ -1054,9 +995,9 @@
 
         const effectiveSearchTerms = urlSearchTerms.length ? urlSearchTerms : (searchVal ? searchVal.split(/\s+/) : []);
 
-        filteredData = sourceData.filter(item => {
-            // فلتر الحالة: إذا لم يكن showAllOffers، نستبعد المنتهية
-            if (!showAllOffers) {
+        filteredData = allData.filter(item => {
+            // فلتر الحالة: يُطبق فقط إذا لم يكن showAllOffers وليس الفلتر recent
+            if (!showAllOffers && activeChipFilter !== 'all' && activeChipFilter !== 'recent') {
                 if (item.status === 'منتهي' || item.status === 'العرض منتهى') return false;
             }
 
@@ -1258,7 +1199,7 @@
                 <td>${item.category || ''}</td>
                 <td>${item.brand || ''}</td>
                 <td>${item.currentPrice} ${item.currency}</td>
-                <td>${item._discount_pct ? item._discount_pct+'%' : ''}</td>
+                <td><span style="background:var(--danger-red); color:white; padding:3px 8px; border-radius:4px;">${item._discount_pct ? item._discount_pct+'%' : ''}</span></td>
                 <td>${item.updateDate ? formatDateShort(item.updateDate) : ''}</td>
                 <td>${item.validUntil || ''}</td>
             </tr>`;
@@ -1408,10 +1349,8 @@
 
     function populateTicker() {
         const track = document.getElementById('ticker-track');
-        let source = showAllOffers && fullData.length ? fullData : activeOffers;
-        if (!source.length) source = activeOffers;
-        if (!source.length) return;
-        let top = [...source].sort((a,b) => (b._score||0) - (a._score||0)).slice(0,12);
+        if (!allData.length) return;
+        let top = [...allData].sort((a,b) => (b._score||0) - (a._score||0)).slice(0,12);
         track.innerHTML = '';
         top.forEach(item => {
             let span = document.createElement('div');
@@ -1448,7 +1387,7 @@
             btn.addEventListener('click', (e) => {
                 e.stopPropagation();
                 let productId = btn.dataset.id;
-                let item = (showAllOffers ? fullData : activeOffers).find(i => i.product === productId);
+                let item = allData.find(i => i.product === productId);
                 if (!item) return;
                 if (comparisonItems.some(c => c.product === productId)) {
                     comparisonItems = comparisonItems.filter(c => c.product !== productId);
@@ -1497,7 +1436,7 @@
             btn.addEventListener('click', (e) => {
                 e.stopPropagation();
                 let prodId = btn.dataset.id;
-                let item = (showAllOffers ? fullData : activeOffers).find(i => i.product === prodId);
+                let item = allData.find(i => i.product === prodId);
                 if (item) {
                     alert(`المنتج: ${item.product}\nالسوبرماركت: ${item.supermarket}\nالسعر: ${item.currentPrice}\nالخصم: ${item._discount_pct}%\nساري حتى: ${item.validUntil}`);
                 }
@@ -1639,9 +1578,7 @@
             let val = this.value.trim().toLowerCase();
             clearAutocomplete();
             if (!val) return;
-            let source = showAllOffers && fullData.length ? fullData : activeOffers;
-            if (!source.length) return;
-            let suggestions = [...new Set(source.map(i => i.product).concat(source.map(i => i.primaryName).filter(Boolean)))]
+            let suggestions = [...new Set(allData.map(i => i.product).concat(allData.map(i => i.primaryName).filter(Boolean)))]
                 .filter(s => s && s.toLowerCase().includes(val))
                 .slice(0, 8);
             if (!suggestions.length) return;
