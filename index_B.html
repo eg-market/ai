@@ -663,22 +663,29 @@
 const queryCache = JSON.parse(sessionStorage.getItem('queryCache')) || {};
   
     // ==================== دوال IndexedDB ====================
-    function openDB() {
-        return new Promise((resolve, reject) => {
-            const req = indexedDB.open(DB_NAME, DB_VERSION);
-            req.onupgradeneeded = (e) => {
-                const db = e.target.result;
-                if (!db.objectStoreNames.contains(STORE_NAME)) {
-                    const store = db.createObjectStore(STORE_NAME, { keyPath: 'id', autoIncrement: true });
-                    store.createIndex('product', 'product', { unique: false });
-                    store.createIndex('supermarket', 'supermarket', { unique: false });
-                    store.createIndex('category', 'category', { unique: false });
-                }
-            };
-            req.onsuccess = () => resolve(req.result);
-            req.onerror = () => reject(req.error);
-        });
+async function loadData() {
+    let stored = await loadFromDB(); // جلب البيانات من IndexedDB
+    
+    if (stored && stored.length > 0) {
+        console.log("✅ تم العثور على بيانات في المخزن المحلي.");
+        allData = stored;
+        hideLoading();
+        processDataAfterLoad(); // عرض البيانات فوراً
+
+        // التحقق من صلاحية البيانات (التحديث الصامت في الخلفية)
+        const cacheTime = localStorage.getItem(`${CACHE_KEY}_time`);
+        const cacheValid = cacheTime && (Date.now() - parseInt(cacheTime) < CACHE_EXPIRY);
+        
+        if (!cacheValid && !backgroundUpdateInProgress) {
+            backgroundUpdateInProgress = true;
+            fetchFreshDataInBackground(); // تحديث دون إزعاج المستخدم
+        }
+    } else {
+        console.log("❌ المخزن فارغ، جاري التحميل من الخادم...");
+        // أول مرة على الإطلاق: تحميل كامل مع شاشة انتظار
+        await fetchFreshDataWithLoading();
     }
+}
 
     async function loadFromDB() {
         try {
@@ -1425,6 +1432,7 @@ const queryCache = JSON.parse(sessionStorage.getItem('queryCache')) || {};
     }
     window.goToPage = (page) => { currentPage = page; renderContent(); };
 
+                
     function updateStats() {
         document.getElementById('total-offers').textContent = filteredData.length;
         let avg = filteredData.reduce((s,i) => s + (i._discount_pct || 0), 0) / (filteredData.length || 1);
@@ -1729,23 +1737,35 @@ const queryCache = JSON.parse(sessionStorage.getItem('queryCache')) || {};
         };
     }
 
+
     // بدء التطبيق
-    document.addEventListener('DOMContentLoaded', () => {
+ // بدء التطبيق
+document.addEventListener('DOMContentLoaded', async () => {
+    // 1. استدعاء دالة التحميل الذكية (تفحص المخزن أولاً ثم الخادم)
+    await loadData();
+    
+    // 2. ربط الأحداث (الأزرار، البحث، إلخ)
+    wireEventListeners();
+    
+    console.log("🚀 التطبيق جاهز");
+});
+
+/* document.addEventListener('DOMContentLoaded', () => {
 // بدلاً من استدعاء fetchFreshDataWithLoading مباشرة:
 async function startApp() {
     const loadedFromCache = await loadDataFromCache();
-    
     if (!loadedFromCache) {
         // إذا لم نجد شيئاً في الذاكرة، نضطر لإظهار شاشة التحميل والذهاب للخادم
         await fetchFreshDataWithLoading();
-    }
-}
+    }}
 
 // تشغيل التطبيق
 startApp();
       loadData();
         wireEventListeners();
-    });
+    });  
+*/
+
 })();
 </script>
   </body>
