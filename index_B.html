@@ -870,14 +870,14 @@ function applyUrlParams() {
             if (!isNaN(page) && page > 1) currentPage = page;
 
             if (params.has('one_day')) {
-                activeChipFilter = 'recent';
+//                activeChipFilter = 'recent';
                 const v = params.get('one_day');
                 const el = document.getElementById('min-discount');
                 if (el && v) el.value = v;
             }
 
             if (params.has('week_percent')) {
-                activeChipFilter = 'recent';
+   //             activeChipFilter = 'recent';
                 const v = params.get('week_percent');
                 const el = document.getElementById('min-discount');
                 if (el && v) el.value = v;
