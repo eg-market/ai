@@ -908,7 +908,7 @@ const queryCache = JSON.parse(sessionStorage.getItem('queryCache')) || {};
   async function loadDataFromCache() {
     try {
         // محاولة جلب البيانات من IndexedDB (يفترض وجود دالة getFromDB لديك)
-        const cachedData = await getFromDB(); 
+        const cachedData = await loadFromDB(); 
         const lastCacheTime = localStorage.getItem(`${CACHE_KEY}_time`);
         
         // التحقق من وجود بيانات وأنها لم تنتهِ صلاحيتها (مثلاً أقل من ساعة)
