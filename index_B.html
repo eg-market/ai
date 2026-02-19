@@ -1,3400 +1,1353 @@
 <!DOCTYPE html>
 <html dir="rtl" lang="ar">
-  <head>
-    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+<head>
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
     <title>عروض السوبرماركت - أفضل العروض اليومية</title>
-    <!-- External libs used by original file -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.0/papaparse.min.js"
-
-defer="defer"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/lz-string/1.4.4/lz-string.min.js"
-
-defer="defer"></script>
-    <!-- Font Awesome for icons -->
+    <!-- Font Awesome & Google Fonts -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Google Fonts for Arabic -->
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;800&amp;display=swap"
-
-      rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <!-- PapaParse & lz-string (لضغط الكاش) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.0/papaparse.min.js" defer></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lz-string/1.4.4/lz-string.min.js" defer></script>
     <style>
-    :root{
-      --primary-blue: #00539F;  /* Carrefour blue */
-      --accent-orange: #FF6B00; /* Hyper Panda orange */
-      --success-green: #28A745; /* Ok Market green */
-      --warning-yellow: #FFC107;
-      --danger-red: #DC3545;
-      --info-teal: #17a2b8;
-      --purple: #6f42c1;
-      --pink: #e83e8c;
-      --light-bg: #F8F9FA;
-      --card-shadow: 0 8px 30px rgba(0,0,0,0.08);
-      --border-radius: 16px;
-      --transition: all 0.3s ease;
-      
-      --bg-1: linear-gradient(135deg,#667eea 0%,#764ba2 100%);
-      --card-bg:#fff;
-      --muted:#666;
-      --accent:#4caf50;
-      --danger:#ff4444;
-      --gap:12px;
-      --radius:12px;
-      --text:#222;
-      --control-height:46px;
-      --base-font:15px;
-      --ticker-bg:#0b3b6f;
-      --ticker-text:#fff;
-      --ticker-accent:#ffd54f;
-      
-      /* Dark mode variables */
-      --dark-bg: #1a1a1a;
-      --dark-card: #2d2d2d;
-      --dark-text: #f0f0f0;
-    }
-    
-    *{box-sizing:border-box}
-    html,body{height:100%}
-    body{
-      margin:0;
-      font-family: 'Cairo', 'Segoe UI', Roboto, Arial, sans-serif;
-      background: var(--light-bg);
-      color:var(--text);
-      padding:0;
-      -webkit-font-smoothing:antialiased;
-      line-height: 1.6;
-    }
-    
-    .container{ max-width:1400px; margin:0 auto; padding:0 16px; }
-    
+        /* نفس الأنماط الموجودة مع بعض التحسينات البسيطة */
+        :root{
+            --primary-blue: #00539F;
+            --accent-orange: #FF6B00;
+            --success-green: #28A745;
+            --warning-yellow: #FFC107;
+            --danger-red: #DC3545;
+            --info-teal: #17a2b8;
+            --purple: #6f42c1;
+            --pink: #e83e8c;
+            --light-bg: #F8F9FA;
+            --card-shadow: 0 8px 30px rgba(0,0,0,0.08);
+            --border-radius: 16px;
+            --transition: all 0.3s ease;
+            --ticker-bg: #0b3b6f;
+            --ticker-text: #fff;
+            --ticker-accent: #ffd54f;
+            --text: #222;
+            --muted: #666;
+            --control-height: 46px;
+        }
+        *{box-sizing:border-box}
+        body{
+            margin:0;
+            font-family: 'Cairo', sans-serif;
+            background: var(--light-bg);
+            color: var(--text);
+            -webkit-font-smoothing:antialiased;
+            line-height: 1.6;
+        }
+        .container{ max-width:1400px; margin:0 auto; padding:0 16px; }
 
-/* Hero Banner - Reduced height by 50% */
-.hero-banner {
-  background: linear-gradient(rgba(0,83,159,0.85), rgba(0,83,159,0.75)), 
-              url('https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?ixlib=rb-1.2.1&auto=format&fit=crop&w=1400&q=80');
-  background-size: cover;
-  background-position: center;
-  color: white;
-  padding: 15px 20px;
-  border-radius: 0 0 var(--border-radius) var(--border-radius);
-  margin-bottom: 15px;
-  text-align: center;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.15);
-  position: relative;
-  overflow: hidden;
-}
+        /* Hero Banner */
+        .hero-banner {
+            background: linear-gradient(rgba(0,83,159,0.85), rgba(0,83,159,0.75)), 
+                        url('https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?auto=format&fit=crop&w=1400&q=80');
+            background-size: cover;
+            background-position: center;
+            color: white;
+            padding: 15px 20px;
+            border-radius: 0 0 var(--border-radius) var(--border-radius);
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        .hero-banner h1 { font-size:1.8rem; font-weight:800; margin:0 0 5px; }
+        .hero-subtitle { font-size:1rem; opacity:0.9; margin-bottom:10px; }
 
-.hero-banner::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z' fill='%23ffffff' fill-opacity='0.05' fill-rule='evenodd'/%3E%3C/svg%3E");
-  opacity: 0.3;
-}
+        /* Ticker */
+        .ticker-wrap {
+            width:100%;
+            background:var(--ticker-bg);
+            color:var(--ticker-text);
+            border-radius:8px;
+            display:flex;
+            align-items:center;
+            padding:4px 8px;
+            box-shadow:0 4px 12px rgba(0,0,0,0.12);
+            margin-top:5px;
+        }
+        .ticker-label{
+            flex:0 0 auto;
+            font-weight:700;
+            margin-left:8px;
+            color:var(--ticker-accent);
+            background:rgba(255,255,255,0.1);
+            padding:4px 8px;
+            border-radius:6px;
+            display:flex;
+            align-items:center;
+            gap:5px;
+        }
+        .ticker-viewport{ flex:1; overflow:hidden; height:30px; display:flex; align-items:center; }
+        .ticker-track{ display:inline-flex; white-space:nowrap; gap:20px; will-change:transform; }
+        .ticker-track.animate{ animation: ticker-scroll linear infinite; }
+        @keyframes ticker-scroll{ from{transform:translateX(0);} to{transform:translateX(-50%);} }
+        .ticker-item .badge{ background:var(--ticker-accent); color:#000; padding:3px 6px; border-radius:4px; font-weight:700; }
 
-.hero-content {
-  position: relative;
-  z-index: 2;
-}
+        /* Stats Dashboard */
+        .stats-dashboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 12px;
+            margin: 15px 0;
+        }
+        .stat-card {
+            background: white;
+            border-radius: 10px;
+            padding: 10px;
+            box-shadow: var(--card-shadow);
+            border: 1px solid #f0f0f0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .stat-icon{ font-size:1.5rem; width:35px; text-align:center; }
+        .stat-value{ font-size:1.2rem; font-weight:700; color:var(--primary-blue); line-height:1.2; }
+        .stat-label{ font-size:0.75rem; color:var(--muted); }
 
-.hero-banner h1 {
-  margin: 0 0 5px 0;
-  font-size: 1.8rem;
-  font-weight: 800;
-  text-shadow: 0 2px 4px rgba(0,0,0,0.2);
-}
+        /* Filter Row */
+        .filter-row {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 10px;
+            margin: 10px 0;
+        }
+        .filter-chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            flex: 1;
+        }
+        .chip {
+            padding: 6px 12px;
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 30px;
+            font-family: 'Cairo', sans-serif;
+            font-weight: 600;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .chip.active {
+            background: var(--primary-blue);
+            color: white;
+            border-color: var(--primary-blue);
+        }
+        .chip[data-filter="all"] { color: var(--primary-blue); }
+        .chip[data-filter="all"].active { background: var(--primary-blue); color: white; }
 
-.hero-subtitle {
-  font-size: 1rem;
-  opacity: 0.9;
-  margin-bottom: 10px;
-}
+        .view-toggle {
+            display: flex;
+            background: white;
+            border-radius: 8px;
+            padding: 3px;
+            box-shadow: var(--card-shadow);
+        }
+        .view-btn {
+            padding: 6px 12px;
+            border: 1px solid #e0e0e0;
+            background: white;
+            font-family: 'Cairo', sans-serif;
+            font-weight: 600;
+            font-size: 0.85rem;
+            cursor: pointer;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            color: var(--primary-blue);
+        }
+        .view-btn.active {
+            background: var(--primary-blue);
+            color: white;
+            border-color: var(--primary-blue);
+        }
 
-/* Ticker banner */
-.ticker-wrap {
-  width: 100%;
-  background: var(--ticker-bg);
-  color: var(--ticker-text);
-  border-radius: 8px;
-  overflow: hidden;
-  display: flex;
-  align-items: center;
-  padding: 4px 8px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.12);
-  margin-top: 5px;
-}
+        /* Products Grid */
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 24px;
+            margin: 25px 0;
+        }
+        .product-card {
+            background: white;
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            box-shadow: var(--card-shadow);
+            transition: var(--transition);
+            position: relative;
+        }
+        .product-badge {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: var(--danger-red);
+            color: white;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            z-index: 2;
+        }
+        .product-image {
+            height: 180px;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .product-image i { font-size: 4rem; color: rgba(0,0,0,0.1); }
+        .product-info { padding: 20px; }
+        .product-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin: 0 0 10px;
+            color: #333;
+            height: 52px;
+            overflow: hidden;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+        }
+        .price-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin: 15px 0;
+        }
+        .current-price { font-size: 1.5rem; font-weight: 800; color: var(--primary-blue); }
+        .discount-badge {
+            background: var(--danger-red);
+            color: white;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 700;
+        }
+        .product-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #eee;
+        }
+        .countdown {
+            background: rgba(255,107,0,0.1);
+            color: var(--accent-orange);
+            padding: 5px 10px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        .btn {
+            padding: 10px 15px;
+            border-radius: 8px;
+            border: none;
+            font-family: 'Cairo', sans-serif;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        .btn-primary { background: var(--primary-blue); color: white; }
+        .btn-secondary { background: #f0f0f0; color: #555; }
+        .favorite-btn, .compare-btn, .share-btn {
+            position: absolute;
+            background: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            color: #666;
+            cursor: pointer;
+            z-index: 2;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        .favorite-btn { top: 15px; left: 15px; }
+        .compare-btn { top: 65px; left: 15px; }
+        .share-btn { bottom: 15px; left: 15px; }
+        .favorite-btn.active { color: var(--danger-red); }
 
-.ticker-label { 
-  flex: 0 0 auto; 
-  font-weight: 700; 
-  margin-left: 8px; 
-  color: var(--ticker-accent); 
-  background: rgba(255,255,255,0.1); 
-  padding: 4px 8px; 
-  border-radius: 6px;
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  font-size: 0.9rem;
-}
+        /* Controls */
+        .controls {
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: var(--card-shadow);
+        }
+        .controls .row {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+            margin-bottom: 15px;
+        }
+        input, select, button {
+            height: var(--control-height);
+            padding: 0 16px;
+            border-radius: 10px;
+            border: 2px solid #e0e0e0;
+            background: white;
+            font-size: 15px;
+            font-family: 'Cairo', sans-serif;
+        }
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--primary-blue);
+        }
+        #search-input { flex: 1; min-width: 200px; }
+        button {
+            cursor: pointer;
+            font-weight: 600;
+            background: var(--primary-blue);
+            color: white;
+            border: none;
+        }
+        #reset-btn { background: #f0f0f0; color: #666; }
+        .price-controls {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            background: #f8f9fa;
+            padding: 5px;
+            border-radius: 10px;
+        }
+        .price-controls button {
+            width: 36px;
+            height: 36px;
+            padding: 0;
+            font-size: 18px;
+            background: white;
+            color: #333;
+            border: 1px solid #ddd;
+        }
 
-.ticker-viewport { 
-  flex: 1 1 auto; 
-  overflow: hidden; 
-  position: relative; 
-  height: 30px;
-  display: flex; 
-  align-items: center; 
-}
+        /* Table */
+        #data-table {
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--card-shadow);
+            overflow-x: auto;
+            margin-top: 20px;
+        }
+        table { width: 100%; border-collapse: collapse; font-size: 14px; }
+        thead th { background: var(--primary-blue); color: white; padding: 16px; text-align: right; }
+        tbody td { padding: 14px 16px; border-bottom: 1px solid #f0f0f0; }
+        .highlight { background: #fff3b0 !important; }
 
-.ticker-track { 
-  display: inline-flex; 
-  white-space: nowrap; 
-  will-change: transform; 
-  align-items: center; 
-  gap: 20px;
-}
+        /* Autocomplete */
+        #autocomplete-list {
+            position: absolute;
+            z-index: 9999;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 6px 18px rgba(0,0,0,0.12);
+            max-height: 240px;
+            overflow: auto;
+            border: 1px solid #e0e0e0;
+        }
+        #autocomplete-list div {
+            padding: 12px 16px;
+            cursor: pointer;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        #autocomplete-list div:hover { background: #f8f9fa; }
 
-.ticker-item { 
-  display: inline-flex; 
-  gap: 8px;
-  align-items: center; 
-  padding: 4px 8px;
-  background: transparent; 
-  color: var(--ticker-text); 
-  font-size: 14px;
-}
+        /* User Guide Banner */
+        .user-guide-banner {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 10px 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            text-align: center;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
 
-.ticker-item .badge { 
-  background: var(--ticker-accent); 
-  color: #000; 
-  padding: 3px 6px;
-  border-radius: 4px;
-  font-weight: 700; 
-  font-size: 0.8rem;
-}
-
-.ticker-track.animate { 
-  animation: ticker-scroll linear infinite; 
-  animation-duration: var(--ticker-duration, 18s); 
-}
-
-@keyframes ticker-scroll {
-  from { transform: translateX(0); }
-  to { transform: translateX(-50%); }
-}
-
-/* Stats Dashboard */
-.stats-dashboard {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-  gap: 12px;
-  margin: 15px 0;
-}
-
-.stat-card {
-  background: white;
-  border-radius: 10px;
-  padding: 10px;
-  box-shadow: var(--card-shadow);
-  border: 1px solid #f0f0f0;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  min-height: 65px;
-}
-
-.stat-icon {
-  font-size: 1.5rem;
-  flex-shrink: 0;
-  width: 35px;
-  height: 35px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.stat-value {
-  font-size: 1.2rem;
-  font-weight: 700;
-  color: var(--primary-blue);
-  margin-bottom: 2px;
-  line-height: 1.2;
-}
-
-.stat-label {
-  font-size: 0.75rem;
-  color: var(--muted);
-  line-height: 1.2;
-}
-
-/* Filter Row with inline view toggle */
-.filter-row {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 10px;
-  margin: 10px 0;
-}
-
-.filter-chips {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  flex: 1;
-}
-
-.chip {
-  padding: 6px 12px;  /* Smaller padding */
-  background: white;
-  border: 1px solid #e0e0e0;
-  border-radius: 30px;
-  font-family: 'Cairo', sans-serif;
-  font-weight: 600;
-  font-size: 0.85rem;  /* Smaller font */
-  cursor: pointer;
-  transition: var(--transition);
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  white-space: nowrap;
-}
-
-.chip i {
-  font-size: 0.8rem;  /* Smaller icons */
-}
-
-/* Specific style for the recent button to make it shorter */
-.chip[data-filter="recent"] {
-  padding: 6px 8px;  /* Even smaller padding */
-  font-size: 0.8rem;  /* Smaller font */
-}
-
-.chip[data-filter="recent"] i {
-  font-size: 0.75rem;
-}
-
-/* View Toggle */
-.view-toggle {
-  display: flex;
-  background: white;
-  border-radius: 8px;
-  padding: 3px;
-  box-shadow: var(--card-shadow);
-  border: 1px solid #f0f0f0;
-  overflow: hidden;
-  flex-shrink: 0;
-}
-
-.view-btn {
-  padding: 6px 12px;  /* Smaller padding */
-  border: 1px solid #e0e0e0;
-  background: white;
-  font-family: 'Cairo', sans-serif;
-  font-weight: 600;
-  font-size: 0.85rem;  /* Smaller font */
-  cursor: pointer;
-  border-radius: 5px;
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  color: var(--primary-blue);
-  transition: var(--transition);
-  white-space: nowrap;
-}
-
-.view-btn i {
-  font-size: 0.9rem;  /* Smaller icons */
-}
-
-/* Responsive */
-@media (max-width: 900px) {
-  .hero-banner {
-    padding: 12px 15px;
-    margin-bottom: 12px;
-  }
-  
-  .hero-banner h1 {
-    font-size: 1.5rem;
-  }
-  
-  .hero-subtitle {
-    font-size: 0.9rem;
-    margin-bottom: 8px;
-  }
-  
-  .filter-row {
-    flex-direction: column;
-    align-items: stretch;
-  }
-  
-  .filter-chips {
-    width: 100%;
-    overflow-x: auto;
-    padding-bottom: 5px;
-    flex-wrap: nowrap;
-  }
-  
-  .view-toggle {
-    width: 100%;
-    justify-content: center;
-  }
-  
-  .stats-dashboard {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-
-@media (max-width: 600px) {
-  .hero-banner h1 {
-    font-size: 1.3rem;
-  }
-  
-  .hero-subtitle {
-    font-size: 0.8rem;
-  }
-  
-  .ticker-viewport {
-    height: 26px;
-  }
-  
-  .ticker-item {
-    font-size: 12px;
-  }
-  
-  .stats-dashboard {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 8px;
-  }
-  
-  .stat-card {
-    padding: 8px;
-    min-height: 60px;
-  }
-  
-  .stat-value {
-    font-size: 1.1rem;
-  }
-}
-/*  .view-btn {
-    padding: 6px 12px;
-    font-size: 0.85rem;
-  }
-}*/
-    
-    
-    
-    /* Stats Dashboard - UPDATED: Horizontal layout 
-    .stats-dashboard {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-      gap: 16px;
-      margin: 25px 0;
-    }
-    
-    .stat-card {
-      background: white;
-      border-radius: 12px;
-      padding: 15px;
-      box-shadow: var(--card-shadow);
-      transition: var(--transition);
-      border: 1px solid #f0f0f0;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      min-height: 80px;
-    }
-  
-    
-    
-    .stat-card:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 15px 35px rgba(0,0,0,0.1);
-    }
-    
-    .stat-icon {
-      font-size: 1.8rem;
-      flex-shrink: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      width: 40px;
-      height: 40px;
-    }
-    
-    .stat-content {
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      flex: 1;
-      min-width: 0;
-    }
-    
-    .stat-value {
-      font-size: 1.4rem;
-      font-weight: 700;
-      color: var(--primary-blue);
-      margin-bottom: 2px;
-      line-height: 1.2;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-    
-    .stat-label {
-      font-size: 0.8rem;
-      color: var(--muted);
-      line-height: 1.2;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-*/
-    
-    
-    /* Quick Filter Chips - Colored */
-    .filter-chips {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      padding: 10px 0;
-    }
-    
-    .chip {
-      padding: 10px 18px;
-      background: white;
-      border: 2px solid #e0e0e0;
-      border-radius: 50px;
-      font-family: 'Cairo', sans-serif;
-      font-weight: 600;
-      font-size: 0.95rem;
-      cursor: pointer;
-      transition: var(--transition);
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      position: relative;
-      overflow: hidden;
-    }
-    
-    .chip::after {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: currentColor;
-      opacity: 0;
-      transition: var(--transition);
-      z-index: 0;
-    }
-    
-    .chip > * {
-      position: relative;
-      z-index: 1;
-    }
-    
-    .chip:hover {
-      border-color: currentColor;
-      transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-    }
-    
-    .chip.active {
-      color: white;
-      border-color: transparent;
-    }
-    
-    .chip.active::after {
-      opacity: 1;
-    }
-    
-    /* Specific chip colors */
-    .chip[data-filter="all"] {
-      color: var(--primary-blue);
-    }
-    .chip[data-filter="all"]::after {
-      background: var(--primary-blue);
-    }
-    
-    .chip[data-filter="hot"] {
-      color: var(--danger-red);
-    }
-    .chip[data-filter="hot"]::after {
-      background: var(--danger-red);
-    }
-    
-    .chip[data-filter="ending"] {
-      color: var(--warning-yellow);
-    }
-    .chip[data-filter="ending"]::after {
-      background: var(--warning-yellow);
-    }
-    
-    .chip[data-filter="discount"] {
-      color: var(--success-green);
-    }
-    .chip[data-filter="discount"]::after {
-      background: var(--success-green);
-    }
-    
-    .chip[data-filter="carrefour"] {
-      color: #004080;
-    }
-    .chip[data-filter="carrefour"]::after {
-      background: #004080;
-    }
-    
-    .chip[data-filter="food"] {
-      color: var(--info-teal);
-    }
-    .chip[data-filter="food"]::after {
-      background: var(--info-teal);
-    }
-    
-    .chip[data-filter="recent"] {
-      color: var(--purple);
-    }
-    
-    .chip[data-filter="recent"]::after {
-      background: var(--purple);
-    }
-    
-    /* View Toggle - Updated with colors */
-    .view-toggle {
-      display: flex;
-      background: white;
-      border-radius: 12px;
-      padding: 5px;
-      width: fit-content;
-      box-shadow: var(--card-shadow);
-      border: 1px solid #f0f0f0;
-      overflow: hidden;
-    }
-    
-    .view-btn {
-      padding: 10px 20px;
-      border: 2px solid #e0e0e0;
-      background: white;
-      font-family: 'Cairo', sans-serif;
-      font-weight: 600;
-      cursor: pointer;
-      border-radius: 8px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      color: var(--primary-blue);
-      transition: var(--transition);
-      position: relative;
-      overflow: hidden;
-    }
-    
-    .view-btn::after {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: var(--primary-blue);
-      opacity: 0;
-      transition: var(--transition);
-      z-index: 0;
-    }
-    
-    .view-btn > * {
-      position: relative;
-      z-index: 1;
-    }
-    
-    .view-btn:hover {
-      border-color: var(--primary-blue);
-      transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-    }
-    
-    .view-btn.active {
-      color: white;
-      border-color: transparent;
-    }
-    
-    .view-btn.active::after {
-      opacity: 1;
-    }
-    
-    /* Specific colors for view buttons */
-    #view-grid-btn {
-      border-top-right-radius: 0;
-      border-bottom-right-radius: 0;
-      border-right: none;
-    }
-    
-    #view-table-btn {
-      border-top-left-radius: 0;
-      border-bottom-left-radius: 0;
-      border-left: none;
-    }
-    
-    /* Products Grid */
-    .products-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-      gap: 24px;
-      margin: 25px 0;
-    }
-    
-    .product-card {
-      background: white;
-      border-radius: var(--border-radius);
-      overflow: hidden;
-      box-shadow: var(--card-shadow);
-      transition: var(--transition);
-      position: relative;
-      border: 1px solid #f0f0f0;
-    }
-    
-    .product-card:hover {
-      transform: translateY(-10px);
-      box-shadow: 0 20px 40px rgba(0,0,0,0.15);
-    }
-    
-    .product-badge {
-      position: absolute;
-      top: 15px;
-      right: 15px;
-      background: var(--danger-red);
-      color: white;
-      padding: 5px 12px;
-      border-radius: 20px;
-      font-size: 0.8rem;
-      font-weight: 700;
-      z-index: 2;
-    }
-    
-    .product-image {
-      height: 180px;
-      background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      position: relative;
-      overflow: hidden;
-    }
-    
-    .product-image::after {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: linear-gradient(to bottom, transparent 50%, rgba(0,0,0,0.05));
-    }
-    
-    .product-image i {
-      font-size: 4rem;
-      color: rgba(0,0,0,0.1);
-    }
-    
-    .product-info {
-      padding: 20px;
-    }
-    
-    .product-title {
-      font-size: 1.1rem;
-      font-weight: 700;
-      margin: 0 0 10px 0;
-      color: #333;
-      height: 52px;
-      overflow: hidden;
-      display: -webkit-box;
-      -webkit-line-clamp: 2;
-      -webkit-box-orient: vertical;
-    }
-    
-    .product-unit {
-      font-size: 0.85rem;
-      color: var(--muted);
-      margin-bottom: 10px;
-      display: flex;
-      align-items: center;
-      gap: 5px;
-    }
-    
-    .price-container {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin: 15px 0;
-    }
-    
-    .current-price {
-      font-size: 1.5rem;
-      font-weight: 800;
-      color: var(--primary-blue);
-    }
-    
-    .discount-badge {
-      background: var(--danger-red);
-      color: white;
-      padding: 5px 12px;
-      border-radius: 20px;
-      font-size: 0.9rem;
-      font-weight: 700;
-    }
-    
-    .product-meta {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-top: 15px;
-      padding-top: 15px;
-      border-top: 1px solid #eee;
-    }
-    
-    .supermarket-logo {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      font-weight: 600;
-      color: #555;
-    }
-    
-    .countdown {
-      background: rgba(255,107,0,0.1);
-      color: var(--accent-orange);
-      padding: 5px 10px;
-      border-radius: 8px;
-      font-size: 0.85rem;
-      font-weight: 600;
-      display: flex;
-      align-items: center;
-      gap: 5px;
-    }
-    
-    .action-buttons {
-      display: flex;
-      gap: 10px;
-      margin-top: 15px;
-    }
-    
-    .btn {
-      padding: 10px 15px;
-      border-radius: 8px;
-      border: none;
-      font-family: 'Cairo', sans-serif;
-      font-weight: 600;
-      cursor: pointer;
-      transition: var(--transition);
-      flex: 1;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-    }
-    
-    .btn-primary {
-      background: var(--primary-blue);
-      color: white;
-    }
-    
-    .btn-primary:hover {
-      background: #004080;
-    }
-    
-    .btn-secondary {
-      background: #f0f0f0;
-      color: #555;
-    }
-    
-    .btn-secondary:hover {
-      background: #e0e0e0;
-    }
-    
-    .favorite-btn {
-      position: absolute;
-      top: 15px;
-      left: 15px;
-      background: white;
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.2rem;
-      color: #ccc;
-      cursor: pointer;
-      z-index: 2;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-      transition: var(--transition);
-    }
-    
-    .favorite-btn:hover, .favorite-btn.active {
-      color: var(--danger-red);
-    }
-    
-    /* Ticker banner */
-    .ticker-wrap{
-      width:100%;
-      background:var(--ticker-bg);
-      color:var(--ticker-text);
-      border-radius:10px;
-      overflow:hidden;
-      display:flex;
-      align-items:center;
-      padding:6px 12px;
-      box-shadow:0 6px 18px rgba(0,0,0,0.12);
-      margin-top:8px;
-    }
-    .ticker-label{ 
-      flex:0 0 auto; 
-      font-weight:700; 
-      margin-left:12px; 
-      color:var(--ticker-accent); 
-      background:rgba(255,255,255,0.1); 
-      padding:6px 12px; 
-      border-radius:8px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-    .ticker-viewport{ flex:1 1 auto; overflow:hidden; position:relative; height:36px; display:flex; align-items:center; }
-    .ticker-track{ display:inline-flex; white-space:nowrap; will-change:transform; align-items:center; gap:28px; }
-    .ticker-item{ display:inline-flex; gap:12px; align-items:center; padding:6px 10px; background:transparent; color:var(--ticker-text); font-size:15px; }
-    .ticker-item .badge{ background:var(--ticker-accent); color:#000; padding:4px 8px; border-radius:6px; font-weight:700; }
-    
-    .ticker-track.animate{ animation: ticker-scroll linear infinite; animation-duration: var(--ticker-duration, 18s); }
-    @keyframes ticker-scroll {
-      from { transform: translateX(0); }
-      to { transform: translateX(-50%); }
-    }
-    
-    /* Controls */
-    .controls{ 
-      background: white;
-      border-radius: var(--border-radius);
-      padding: 20px;
-      margin-bottom: 20px;
-      box-shadow: var(--card-shadow);
-      border: 1px solid #f0f0f0;
-    }
-    
-    .controls .row{ 
-      display:flex; 
-      gap:12px; 
-      align-items:center; 
-      flex-wrap:wrap; 
-      margin-bottom: 15px;
-    }
-    
-    input,select,button{ 
-      height:var(--control-height); 
-      padding:0 16px; 
-      border-radius:10px; 
-      border:2px solid #e0e0e0; 
-      background:white; 
-      font-size:15px;
-      font-family: 'Cairo', sans-serif;
-      transition: var(--transition);
-    }
-    
-    input:focus, select:focus {
-      outline: none;
-      border-color: var(--primary-blue);
-      box-shadow: 0 0 0 3px rgba(0,83,159,0.1);
-    }
-    
-    #search-input {
-      flex: 1;
-      min-width: 200px;
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23666' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='8'%3E%3C/circle%3E%3Cline x1='21' y1='21' x2='16.65' y2='16.65'%3E%3C/line%3E%3C/svg%3E");
-      background-repeat: no-repeat;
-      background-position: right 16px center;
-      background-size: 16px;
-      padding-right: 45px;
-    }
-    
-    button{ 
-      cursor:pointer; 
-      font-weight: 600;
-      background: var(--primary-blue);
-      color: white;
-      border: none;
-    }
-    
-    button:hover {
-      background: #004080;
-    }
-    
-    #reset-btn {
-      background: #f0f0f0;
-      color: #666;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-    
-    #reset-btn:hover {
-      background: #e0e0f0;
-    }
-    
-    .price-controls{ 
-      display:flex; 
-      gap:8px; 
-      align-items:center;
-      background: #f8f9fa;
-      padding: 5px;
-      border-radius: 10px;
-    }
-    
-    .price-controls button{ 
-      width:36px; 
-      height:36px; 
-      padding:0; 
-      font-size:18px; 
-      line-height:1;
-      background: white;
-      color: #333;
-      border: 1px solid #ddd;
-    }
-    
-    .price-controls button:hover {
-      background: #f0f0f0;
-    }
-    
-    /* Table */
-    #data-table{ 
-      background:white; 
-      border-radius:var(--border-radius); 
-      box-shadow:var(--card-shadow); 
-      overflow:hidden; 
-      margin-top:20px; 
-      padding:0;
-      border: 1px solid #f0f0f0;
-    }
-    
-    table{ 
-      width:100%; 
-      border-collapse:collapse; 
-      font-size:14px; 
-    }
-    
-    thead th{ 
-      background:var(--primary-blue); 
-      color:#fff; 
-      padding:16px; 
-      text-align:right; 
-      position:sticky; 
-      top:0; 
-      font-weight: 600; 
-      border-bottom: 2px solid rgba(255,255,255,0.1);
-    }
-    
-    tbody td{ 
-      padding:14px 16px; 
-      border-bottom:1px solid #f0f0f0; 
-    }
-    
-    tbody tr:hover { 
-      background: #f8f9fa; 
-    }
-    
-    .highlight{ 
-      background:#fff3b0 !important; 
-    }
-    
-    .card-list{ display:none }
-    
-    #loading{ 
-      text-align:center; 
-      padding:40px; 
-      color:#666; 
-      font-size:1.2rem; 
-    }
-    
-    /* Autocomplete */
-    #autocomplete-list{ 
-      position:absolute; 
-      z-index:9999; 
-      background:white; 
-      border-radius:8px; 
-      box-shadow:0 6px 18px rgba(0,0,0,0.12); 
-      max-height:240px; 
-      overflow:auto;
-      border: 1px solid #e0e0e0;
-    }
-    
-    #autocomplete-list div {
-      padding: 12px 16px;
-      cursor: pointer;
-      border-bottom: 1px solid #f0f0f0;
-      transition: var(--transition);
-    }
-    
-    #autocomplete-list div:hover {
-      background: #f8f9fa;
-    }
-    
-    /* Mobile Navigation */
-    .mobile-nav {
-      display: none;
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      background: white;
-      padding: 12px 16px;
-      box-shadow: 0 -4px 20px rgba(0,0,0,0.1);
-      z-index: 1000;
-      justify-content: space-around;
-      border-top: 1px solid #e0e0e0;
-    }
-    
-    .mobile-nav-item {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      text-decoration: none;
-      color: #666;
-      font-size: 0.8rem;
-      gap: 5px;
-    }
-    
-    .mobile-nav-item i {
-      font-size: 1.2rem;
-    }
-    
-    .mobile-nav-item.active {
-      color: var(--primary-blue);
-    }
-    
-    /* Comparison Panel */
-    .comparison-panel {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      background: white;
-      box-shadow: 0 -4px 20px rgba(0,0,0,0.15);
-      z-index: 1001;
-      padding: 20px;
-      display: none;
-      border-top: 3px solid var(--primary-blue);
-    }
-    
-    .comparison-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 15px;
-    }
-    
-    .comparison-items {
-      display: flex;
-      gap: 15px;
-      overflow-x: auto;
-      padding: 10px 0;
-    }
-    
-    .comparison-item {
-      min-width: 200px;
-      background: #f8f9fa;
-      border-radius: 8px;
-      padding: 15px;
-      border: 1px solid #e0e0e0;
-    }
-    
-    /* Unit badge */
-    .unit-badge {
-      background: #e9ecef;
-      color: #495057;
-      padding: 3px 8px;
-      border-radius: 6px;
-      font-size: 0.8rem;
-      font-weight: 600;
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-    }
-    
-    /* Share button */
-    .share-btn {
-      position: absolute;
-      bottom: 15px;
-      left: 15px;
-      background: white;
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.2rem;
-      color: #666;
-      cursor: pointer;
-      z-index: 2;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-      transition: var(--transition);
-    }
-    
-    .share-btn:hover {
-      background: var(--primary-blue);
-      color: white;
-    }
-    
-    /* Compare button */
-    .compare-btn {
-      position: absolute;
-      top: 65px;
-      left: 15px;
-      background: white;
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.2rem;
-      color: #666;
-      cursor: pointer;
-      z-index: 2;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-      transition: var(--transition);
-    }
-    
-    .compare-btn:hover {
-      background: var(--success-green);
-      color: white;
-    }
-    
-    /* User Guide Banner */
-    .user-guide-banner {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
-      padding: 10px 15px;
-      border-radius: 8px;
-      margin: 15px 0;
-      text-align: center;
-      font-weight: 600;
-      font-size: 0.95rem;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
-      animation: pulse 2s infinite;
-    }
-    
-    .user-guide-banner i {
-      font-size: 1.2rem;
-    }
-    
-    /* Responsive */
-    @media (max-width: 900px){
-      .container {
-        padding: 0 12px;
-      }
-      
-      .hero-banner {
-        padding: 30px 15px;
-        margin-bottom: 20px;
-      }
-      
-      .hero-banner h1 {
-        font-size: 1.8rem;
-      }
-      
-      .hero-subtitle {
-        font-size: 1rem;
-      }
-      
-      .stats-dashboard {
-        grid-template-columns: repeat(2, 1fr);
-        gap: 12px;
-        margin: 15px 0;
-      }
-      
-      .products-grid {
-        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-        gap: 16px;
-      }
-      
-      .controls .row {
-        flex-direction: column;
-        align-items: stretch;
-      }
-      
-      #data-table {
-        overflow-x: auto;
-        display: block;
-      }
-      
-      table {
-        min-width: 800px;
-      }
-      
-      .mobile-nav {
-        display: flex;
-      }
-      
-      .ticker-label{ display:none; }
-      
-      .user-guide-banner {
-        font-size: 0.85rem;
-        padding: 8px 12px;
-        margin: 10px 0;
-      }
-      
-      /* Responsive adjustments for the new inline layout */
-      .filter-chips {
-        width: 100%;
-      }
-      
-      .view-toggle {
-        width: 100%;
-        justify-content: center;
-        margin-top: 0;
-      }
-    }
-    
-    @media (max-width: 600px){
-      .products-grid {
-        grid-template-columns: 1fr;
-      }
-      
-      .stat-card {
-        padding: 12px 10px;
-        gap: 10px;
-        min-height: 70px;
-      }
-      
-      .stat-icon {
-        font-size: 1.5rem;
-        width: 35px;
-        height: 35px;
-      }
-      
-      .stat-value {
-        font-size: 1.2rem;
-      }
-      
-      .stat-label {
-        font-size: 0.75rem;
-      }
-      
-      .filter-chips {
-        overflow-x: auto;
-        padding-bottom: 10px;
-        flex-wrap: nowrap;
-      }
-      
-      .chip {
-        white-space: nowrap;
-      }
-      
-      .view-btn {
-        padding: 8px 12px;
-        font-size: 0.9rem;
-      }
-      
-      .stats-dashboard {
-        grid-template-columns: repeat(2, 1fr);
-        gap: 10px;
-      }
-      
-      .user-guide-banner {
-        font-size: 0.8rem;
-        padding: 6px 10px;
-      }
-    }
-    
-    @media (max-width: 400px){
-      .stats-dashboard {
-        grid-template-columns: 1fr;
-      }
-      
-      .stat-card {
-        padding: 10px;
-      }
-    }
-    
-    /* Animation for discount badges */
-    @keyframes pulse {
-      0% { transform: scale(1); }
-      50% { transform: scale(1.05); }
-      100% { transform: scale(1); }
-    }
-    
-    .discount-badge.pulse {
-      animation: pulse 2s infinite;
-    }
-  </style>
-  </head>
-  <body>
-    <div class="container"> <!-- Hero Banner -->
-      <div class="hero-banner">
+        /* Mobile */
+        @media (max-width: 900px) {
+            .filter-row { flex-direction: column; align-items: stretch; }
+            .filter-chips { overflow-x: auto; flex-wrap: nowrap; }
+            .stats-dashboard { grid-template-columns: repeat(2,1fr); }
+        }
+        @media (max-width: 600px) {
+            .products-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <!-- Hero Banner -->
+    <div class="hero-banner">
         <div class="hero-content">
-          <h1>🛒 أفضل عروض السوبرماركت اليومية</h1>
-          <p class="hero-subtitle">قارن الأسعار بين كارفور، هايبر وان، سعودي
-            ماركت وغيرها - وفر حتى 70%</p>
-          <!-- Ticker banner -->
-          <div class="ticker-wrap" aria-live="polite" aria-atomic="true" role="region"
-
-            aria-label="أفضل العروض">
-            <div class="ticker-label"><i class="fas fa-bolt"></i> عروض مميزة</div>
-            <div class="ticker-viewport" id="ticker-viewport">
-              <div class="ticker-track" id="ticker-track" aria-hidden="false">
-                <div class="ticker-item">جارٍ تحميل العروض...</div>
-              </div>
+            <h1>🛒 أفضل عروض السوبرماركت اليومية</h1>
+            <p class="hero-subtitle">قارن الأسعار بين كبرى المتاجر - وفر حتى 70%</p>
+            <!-- Ticker -->
+            <div class="ticker-wrap">
+                <div class="ticker-label"><i class="fas fa-bolt"></i> عروض مميزة</div>
+                <div class="ticker-viewport" id="ticker-viewport">
+                    <div class="ticker-track" id="ticker-track">
+                        <div class="ticker-item">جارٍ تحميل العروض...</div>
+                    </div>
+                </div>
             </div>
-          </div>
         </div>
-      </div>
-      <!-- User Guide Banner -->
-      <div class="user-guide-banner" id="user-guide"> <span>انقر على أي منتج
-          لعرض التفاصيل، واضغط على زر "العروض القديمة" لعرض أصناف جميع العروض
-          سواء الحالية والمنتهية - وزر"عرض شبكي" للعرض التفصيلي</span> </div>
-      <!-- Stats Dashboard -->
-      <div class="stats-dashboard">
-        <div class="stat-card">
-          <div class="stat-icon">💰</div>
-          <div class="stat-content">
-            <div id="total-offers" class="stat-value">0</div>
-            <div class="stat-label">إجمالي العروض</div>
-          </div>
+    </div>
+
+    <!-- User Guide Banner -->
+    <div class="user-guide-banner" id="user-guide">
+        <i class="fas fa-info-circle"></i>
+        <span>انقر على أي منتج للتفاصيل. زر "العروض القديمة" يعرض جميع العروض (بما فيها المنتهية).</span>
+    </div>
+
+    <!-- Stats Dashboard -->
+    <div class="stats-dashboard">
+        <div class="stat-card"><div class="stat-icon">💰</div><div><div id="total-offers" class="stat-value">0</div><div class="stat-label">إجمالي العروض</div></div></div>
+        <div class="stat-card"><div class="stat-icon">📉</div><div><div id="avg-discount" class="stat-value">0%</div><div class="stat-label">متوسط الخصم</div></div></div>
+        <div class="stat-card"><div class="stat-icon">🔥</div><div><div id="hot-deals" class="stat-value">0</div><div class="stat-label">عروض ساخنة</div></div></div>
+        <div class="stat-card"><div class="stat-icon">⏰</div><div><div id="ending-soon" class="stat-value">0</div><div class="stat-label">تنتهي قريباً</div></div></div>
+        <div class="stat-card"><div class="stat-icon">🛒</div><div><div id="total-supermarkets" class="stat-value">0</div><div class="stat-label">عدد السوبرماركات</div></div></div>
+    </div>
+
+    <!-- Filter Row -->
+    <div class="filter-row">
+        <div class="filter-chips" id="filter-chips">
+            <button class="chip active" data-filter="all"><i class="fas fa-archive"></i> العروض القديمة</button>
+            <button class="chip" data-filter="active"><i class="fas fa-check-circle"></i> العروض السارية</button>
+            <button class="chip" data-filter="hot"><i class="fas fa-bolt"></i> ساخنة</button>
+            <button class="chip" data-filter="ending"><i class="fas fa-clock"></i> تنتهي قريباً</button>
+            <button class="chip" data-filter="discount"><i class="fas fa-percentage"></i> خصومات كبيرة</button>
+            <button class="chip" data-filter="carrefour"><i class="fas fa-shopping-cart"></i> كارفور</button>
+            <button class="chip" data-filter="food"><i class="fas fa-utensils"></i> منتجات غذائية</button>
+            <button class="chip" data-filter="recent"><i class="fas fa-calendar-day"></i> آخر يومين</button>
         </div>
-        <div class="stat-card">
-          <div class="stat-icon">📉</div>
-          <div class="stat-content">
-            <div id="avg-discount" class="stat-value">0%</div>
-            <div class="stat-label">متوسط الخصم</div>
-          </div>
+        <div class="view-toggle">
+            <button class="view-btn active" id="view-grid-btn"><i class="fas fa-th-large"></i> شبكي</button>
+            <button class="view-btn" id="view-table-btn"><i class="fas fa-table"></i> جدول</button>
         </div>
-        <div class="stat-card">
-          <div class="stat-icon">🔥</div>
-          <div class="stat-content">
-            <div id="hot-deals" class="stat-value">0</div>
-            <div class="stat-label">عروض ساخنة</div>
-          </div>
+    </div>
+
+    <!-- Products Grid -->
+    <div class="products-grid" id="products-grid"></div>
+
+    <!-- Controls -->
+    <div class="controls">
+        <div class="row">
+            <input type="text" id="search-input" placeholder="ابحث عن منتج...">
+            <select id="supermarket-filter"><option value="">كل السوبرماركت</option></select>
+            <select id="category-filter"><option value="">كل الفئات</option></select>
+            <select id="brand-filter"><option value="">كل العلامات</option></select>
         </div>
-        <div class="stat-card">
-          <div class="stat-icon">⏰</div>
-          <div class="stat-content">
-            <div id="ending-soon" class="stat-value">0</div>
-            <div class="stat-label">تنتهي قريباً</div>
-          </div>
+        <div class="row">
+            <div class="price-controls">
+                <button id="min-decrease">−</button>
+                <input type="number" id="min-price" placeholder="السعر من" step="0.5" min="0">
+                <button id="min-increase">+</button>
+            </div>
+            <div class="price-controls">
+                <button id="max-decrease">−</button>
+                <input type="number" id="max-price" placeholder="السعر إلى" step="0.5" min="0">
+                <button id="max-increase">+</button>
+            </div>
+            <select id="sort-by">
+                <option value="best-deals">أفضل العروض (مركب)</option>
+                <option value="discount-desc">الخصم % - تنازلي</option>
+                <option value="saved-desc">التوفير - تنازلي</option>
+                <option value="price-asc">السعر - تصاعدي</option>
+                <option value="price-desc">السعر - تنازلي</option>
+                <option value="name-asc">الاسم (أ-ي)</option>
+                <option value="name-desc">الاسم (ي-أ)</option>
+            </select>
+            <input type="number" id="min-discount" placeholder="الحد الأدنى للخصم %">
+            <button id="reset-btn"><i class="fas fa-undo"></i> إعادة تعيين</button>
+            <button id="share-app"><i class="fas fa-share-alt"></i> مشاركة</button>
+            <button id="compare-mode-btn"><i class="fas fa-balance-scale"></i> مقارنة</button>
         </div>
-        <div class="stat-card">
-          <div class="stat-icon">🛒</div>
-          <div class="stat-content">
-            <div id="total-supermarkets" class="stat-value">0</div>
-            <div class="stat-label">عدد السوبرماركات</div>
-          </div>
-        </div>
-      </div>
-      <!-- Quick Filter Chips with View Toggle inline (removed hyperone button) -->
-      <!-- Filter Row with inline view toggle (removed hyperone button) -->
-      <div class="filter-row">
-        <div class="filter-chips" id="filter-chips"> <button class="chip active"
+    </div>
 
-            data-filter="all"><i class="fas fa-fire"></i> العروض القديمة </button>
-          <button class="chip" data-filter="hot"><i class="fas fa-bolt"></i>
-            العروض الساخنة</button> <button class="chip" data-filter="ending"><i
-
-              class="fas fa-clock"></i> تنتهي قريباً</button> <button class="chip"
-
-            data-filter="discount"><i class="fas fa-percentage"></i> خصومات
-            كبيرة</button> <button class="chip" data-filter="carrefour"><i class="fas fa-shopping-cart"></i>
-            كارفور</button> <button class="chip" data-filter="food"><i class="fas fa-utensils"></i>
-            منتجات غذائية</button> <button class="chip" data-filter="recent"><i
-
-              class="fas fa-calendar-day"></i> عروض&nbsp; آخر &nbsp; يومين</button>
-        </div>
-        <!-- View Toggle -->
-        <div class="view-toggle"> <button class="view-btn active" id="view-grid-btn"><i
-
-              class="fas fa-th-large"></i> عرض شبكي</button> <button class="view-btn"
-
-            id="view-table-btn"><i class="fas fa-table"></i> عرض جدول</button> </div>
-      </div>
-      <!-- Products Grid -->
-      <div class="products-grid" id="products-grid"></div>
-      <!-- Controls -->
-      <div class="controls" role="region" aria-label="عناصر التحكم">
-        <div class="row" style="flex:1;"> <input id="search-input" placeholder="ابحث عن منتجات أو علامات تجارية..."
-
-            aria-label="حقل البحث" type="text">
-          <select id="supermarket-filter" aria-label="تصفية حسب السوبر ماركت">
-            <option value="">كل السوبر ماركت</option>
-          </select>
-          <select id="category-filter" aria-label="تصفية حسب الفئة">
-            <option value="">كل الفئات</option>
-          </select>
-          <select id="brand-filter" aria-label="تصفية حسب العلامة التجارية">
-            <option value="">كل البرندات</option>
-          </select>
-        </div>
-        <div class="row" style="width:100%; gap:8px;">
-          <!-- Min price with controls -->
-          <div class="price-controls" style="align-items:center;"> <button id="min-decrease"
-
-              type="button" aria-label="نقص الحد الأدنى">−</button> <input id="min-price"
-
-              placeholder="الحد الأدنى للسعر" aria-label="الحد الأدنى للسعر" step="0.5"
-
-              min="0" type="number"> <button id="min-increase" type="button" aria-label="زيادة الحد الأدنى">+</button>
-          </div>
-          <!-- Max price with controls -->
-          <div class="price-controls" style="align-items:center;"> <button id="max-decrease"
-
-              type="button" aria-label="نقص الحد الأقصى">−</button> <input id="max-price"
-
-              placeholder="الحد الأعلى للسعر" aria-label="الحد الأعلى للسعر" step="0.5"
-
-              min="0" type="number"> <button id="max-increase" type="button" aria-label="زيادة الحد الأقصى">+</button>
-          </div>
-          <select id="sort-by" aria-label="فرز حسب">
-            <option value="best-deals" selected="selected">أفضل العروض (مركب)</option>
-            <option value="discount-desc">الخصم % - تنازلي</option>
-            <option value="saved-desc">قيمة التوفير - تنازلي</option>
-            <option value="price-asc">السعر - تصاعدي</option>
-            <option value="price-desc">السعر - تنازلي</option>
-            <option value="name-asc">الاسم (أ-ي)</option>
-            <option value="name-desc">الاسم (ي-أ)</option>
-          </select>
-          <input id="min-discount" placeholder="الحد الأدنى للخصم %" aria-label="الحد الأدنى للخصم"
-
-            type="number">
-          <div style="display:flex;gap:8px;"> <button id="reset-btn" aria-label="إعادة تعيين">🔄العروض
-              السارية</button> <button id="share-app" aria-label="مشاركة التطبيق">
-              مشاركة</button> <button id="compare-mode-btn" aria-label="وضع المقارنة">
-              المقارنة</button> </div>
-        </div>
-      </div>
-      <!-- Data Table -->
-      <div id="loading">جارٍ تحميل البيانات...</div>
-      <div id="data-table" role="region" aria-label="جدول العروض" style="display:none;">
-        <table aria-label="قائمة العروض">
-          <thead>
-            <tr>
-              <th>🏪 السوبر ماركت</th>
-              <th>🛒 المنتج</th>
-              <th>📝 اسم المنتج (الأساسي)</th>
-              <th>📦 الوحدة</th>
-              <th>📂 الفئة</th>
-              <th>🏷️ العلامة التجارية</th>
-              <th>💵 السعر الحالي</th>
-              <th>📉 الخصم</th>
-              <th>📅 التاريخ</th>
-              <th>⏰ ساري حتى</th>
-            </tr>
-          </thead>
-          <tbody id="table-body">
-          </tbody>
+    <!-- Data Table -->
+    <div id="loading" style="text-align:center; padding:40px;">جارٍ تحميل البيانات...</div>
+    <div id="data-table" style="display:none;">
+        <table>
+            <thead>
+                <tr>
+                    <th>السوبر ماركت</th>
+                    <th>المنتج</th>
+                    <th>الاسم الأساسي</th>
+                    <th>الوحدة</th>
+                    <th>الفئة</th>
+                    <th>العلامة التجارية</th>
+                    <th>السعر الحالي</th>
+                    <th>الخصم</th>
+                    <th>تاريخ التحديث</th>
+                    <th>ساري حتى</th>
+                </tr>
+            </thead>
+            <tbody id="table-body"></tbody>
         </table>
-        <div class="card-list" id="card-list" aria-hidden="true"></div>
-        <div class="pagination" id="pagination" role="navigation" aria-label="تنقل الصفحات"></div>
-      </div>
+        <div class="pagination" id="pagination"></div>
     </div>
-    <!-- Comparison Panel -->
-    <div class="comparison-panel" id="comparison-panel">
-      <div class="comparison-header">
-        <h3 style="margin:0;"><i class="fas fa-balance-scale"></i> مقارنة
-          المنتجات (<span id="comparison-count">0</span>/4)</h3>
-        <div> <button id="clear-comparison" style="margin-left:10px; background:#dc3545; color:white; border:none; padding:8px 16px; border-radius:6px; cursor:pointer;">
-            <i class="fas fa-trash"></i> مسح الكل </button> <button id="close-comparison"
-
-            style="background:#6c757d; color:white; border:none; padding:8px 16px; border-radius:6px; cursor:pointer;">
-            <i class="fas fa-times"></i> إغلاق </button> </div>
-      </div>
-      <div class="comparison-items" id="comparison-items">
-        <!-- Comparison items will be added here --> </div>
-    </div>
-    <!-- Mobile Navigation -->
-    <div class="mobile-nav"> <a href="#" class="mobile-nav-item active"> <i class="fas fa-home"></i>
-        <span>الرئيسية</span> </a> <a href="#" class="mobile-nav-item"> <i class="fas fa-percentage"></i>
-        <span>العروض</span> </a> <a href="#" class="mobile-nav-item"> <i class="fas fa-search"></i>
-        <span>بحث</span> </a> <a href="#" class="mobile-nav-item"> <i class="fas fa-heart"></i>
-        <span>المفضلة</span> </a> <a href="#" class="mobile-nav-item"> <i class="fas fa-user"></i>
-        <span>حسابي</span> </a> </div>
-    <script>
-      /* =======================
-         GLOBAL STATE
-      ======================= */
-      let allData = [];
-      let filteredData = [];
-      let latestTwoDates = [];
-      let dataLoaded = false;
-      let fullData = null; // لتخزين البيانات الكاملة إذا تم تحميلها
-      let isFullLoaded = false;
-
-        let comparisonItems = JSON.parse(localStorage.getItem('comparison')) || [];
-    let currentView = 'table';
-          const itemsPerPage = 20;
-    const debouncedApplyAllFilters = debounce(()=>applyAllFilters(), 250);
-    let activeChipFilter = 'all';
-
-        /* ================= Configuration ================= */
-    // Use the large file
-    const DATA_URL = 'https://raw.githubusercontent.com/eg-market/ai/main/final.csv';
-    const CACHE_KEY = 'offersData_v2';
-    const CACHE_EXPIRY = 3600000; // 1 hour
-
-    // Performance optimization
-    const CHUNK_SIZE = 1000;
-    const BATCH_SIZE = 500;
-
-    // Weight constants for combined sorting
-    const WEIGHT_DISCOUNT = 0.6;
-    const WEIGHT_SAVINGS = 0.4;
-
-    let recentData = [];
-    let currentMode = 'recent';
-
-    /* ================================================= */
-
-    // Global variables
-    let currentPage = 1;
-    let debounceTimer = null;
-    let favorites = JSON.parse(localStorage.getItem('favorites')) || [];
-    let supermarketFilterCache = {};
-
-    // URL parameters
-    let urlCategories = [];
-    let urlSearchTerms = [];
-    let bestPriceMode = false;
-    let forceRecentTwoDaysFromURL = false;
-
-    let chunkCounter = 0;
-      
-      /* =======================
-         INDEXED DB
-      ======================= */
-      const DB_NAME = 'EG_MARKET_DB_V2';
-      const DB_VERSION = 2;
-      const STORE_NAME = 'offers';
-
-      
-
-
-      function openDB() {
-        return new Promise((resolve, reject) => {
-          const req = indexedDB.open(DB_NAME, DB_VERSION);
-          
-          req.onupgradeneeded = (event) => {
-            const db = event.target.result;
-            if (!db.objectStoreNames.contains(STORE_NAME)) {
-              const store = db.createObjectStore(STORE_NAME, { keyPath: 'id', autoIncrement: true });
-              store.createIndex('product', 'product', { unique: false });
-              store.createIndex('supermarket', 'supermarket', { unique: false });
-              store.createIndex('category', 'category', { unique: false });
-              store.createIndex('brand', 'brand', { unique: false });
-              store.createIndex('discount', '_discount_pct', { unique: false });
-              store.createIndex('price', 'currentPrice', { unique: false });
-            }
-          };
-          
-          req.onsuccess = () => resolve(req.result);
-          req.onerror = () => reject(req.error);
-        });
-      }
-
-      async function loadFromDB() {
-        try {
-          const db = await openDB();
-          return new Promise((resolve, reject) => {
-            const tx = db.transaction(STORE_NAME, 'readonly');
-            const store = tx.objectStore(STORE_NAME);
-            const req = store.getAll();
-            req.onsuccess = () => resolve(req.result || []);
-            req.onerror = () => reject(req.error);
-          });
-        } catch (error) {
-          console.log('Error loading from DB:', error);
-          return [];
-        }
-      }
-
-      async function saveToDB(data) {
-        try {
-          const db = await openDB();
-          return new Promise((resolve, reject) => {
-            const tx = db.transaction(STORE_NAME, 'readwrite');
-            const store = tx.objectStore(STORE_NAME);
-            
-            store.clear();
-            
-            data.forEach((item, index) => {
-              item.id = index + 1;
-              store.add(item);
-            });
-            
-            tx.oncomplete = () => resolve();
-            tx.onerror = (e) => reject(e);
-          });
-        } catch (error) {
-          console.log('Error saving to DB:', error);
-        }
-      }
-
-      /* =======================
-         MAIN ENTRY POINT - دمج المنطق مع ضمان عدم إعادة التحميل
-      ======================= */
-      async function fetchData_2() {
-        try {
-          showLoading();
-
-          // تحقق من IndexedDB أولاً
-          fullData = await loadFromDB();
-
-          if (!Array.isArray(fullData) || fullData.length === 0) {
-            console.log('IndexedDB empty, fetching from CSV...');
-            await fetchData(); // تحميل الكامل من CSV
-            fullData = allData; // حفظ الكامل
-            await saveToDB(fullData); // حفظ الكامل في DB
-          } else {
-            console.log(`Loaded ${fullData.length} items from IndexedDB`);
-          }
-
-          isFullLoaded = true;
-
-          // تعيين allData افتراضيًا إلى أحدث يومين من fullData
-          allData = filterToLatestTwoDates(fullData);
-
-          // معالجة البيانات
-          normalizeDates(allData);
-          computeSavedAndDiscount(allData);
-          computeCombinedScore(allData);
-
-          afterDataReady();
-        } catch (err) {
-          console.error('Error in fetchData_2:', err);
-          showFatalError('لا يمكن تحميل البيانات. يرجى تحديث الصفحة.');
-        }
-      }
-
-      function filterToLatestTwoDates(data) {
-        latestTwoDates = findLatestTwoDates(data);
-        if (latestTwoDates && latestTwoDates.length > 0) {
-          return data.filter(item => {
-            if (!item.updateDate) return false;
-            const itemDateStr = item.updateDate.toISOString().split('T')[0];
-            return latestTwoDates.includes(itemDateStr);
-          });
-        }
-        return data; // إذا لم يكن هناك تواريخ، ارجع الكامل
-      }
-
-      async function fetchData() {
-        // الكود الأصلي لتحميل من CSV (الحفاظ عليه، لكن ينادى مرة واحدة فقط)
-        // ... (افترض أنه يعين allData إلى البيانات الكاملة من Papa.parse)
-      }
-
-      function processDataAfterLoad() {
-        // غير ضروري الآن، نقل المنطق إلى fetchData_2
-      }
-
-      /* =======================
-         WIRE EVENT LISTENERS - تعديل للعمل مع fullData دون إعادة تحميل
-      ======================= */
-      function wireEventListeners() {
-        // ... (الكود الأصلي للـ view toggle، إلخ)
-
-        document.querySelectorAll('.chip').forEach(chip => {
-          chip.addEventListener('click', function() {
-            const filter = this.dataset.filter;
-            
-            document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
-            this.classList.add('active');
-            activeChipFilter = filter;
-
-            // اختيار allData بناءً على الشيب دون تحميل جديد
-            if (filter === 'all' && isFullLoaded && fullData) {
-              allData = fullData.slice(); // نسخة من الكامل
-            } else if (filter === 'recent') {
-              allData = filterToLatestTwoDates(fullData);
-            } else {
-              allData = filterToLatestTwoDates(fullData); // افتراضي
-            }
-
-            applyAllFilters();
-          });
-        });
-
-        // لـ reset-btn: تصفية السارية، لكن إذا كانت كلها منتهية، عرض الكامل مع تحذير
-        document.getElementById('reset-btn').addEventListener('click', function() {
-          let activeOffers = fullData.filter(item => {
-            const status = String(item['status'] || '').trim();
-            return status !== 'العرض منتهى' && status !== 'س';
-          });
-
-          if (activeOffers.length === 0) {
-            // إذا لا توجد سارية، استخدم الكامل وأظهر تحذير
-            allData = fullData.slice();
-            console.warn('جميع العروض منتهية، عرض الكامل');
-            // يمكن إضافة عنصر UI للتحذير هنا، مثل alert أو div
-            alert('جميع العروض منتهية حاليًا. عرض جميع البيانات المتاحة.');
-          } else {
-            allData = activeOffers;
-          }
-
-          resetAllFilters();
-          applyAllFilters();
-        });
-      }
-
-      // ... (باقي الدوال الأصلية مثل applyAllFilters، initializeFilters، إلخ دون تغيير كبير)
-
-      // في applyAllFilters، أضف التصفية حسب activeChipFilter إذا لزم، لكنها موجودة بالفعل
-
-   
-
-  //  ======================= */
-    function afterDataReady() {
-      initializeFilters();
-      applyUrlParams();
-      applyAllFilters();
-      populateTicker();
-      switchView('table');
-      updateComparisonPanel();
-      hideLoading();
-      dataLoaded = true;
-    }      
- /* =======================
-       HELPERS
-    ======================= */
-    function normalizeDates(arr) {
-      arr.forEach(i => {
-        if (i.updateDate && !(i.updateDate instanceof Date)) {
-          const d = new Date(i.updateDate);
-          i.updateDate = isNaN(d) ? null : d;
-        }
-        if (i.endDate && !(i.endDate instanceof Date)) {
-          const d = new Date(i.endDate);
-          i.endDate = isNaN(d) ? null : d;
-        }
-      });
-    }
-
-    function showLoading() {
-      const el = document.getElementById('loading');
-      if (!el) return;
-      el.style.display = 'block';
-      el.innerHTML = 'جارٍ تحميل البيانات…';
-    }
-
-    function hideLoading() {
-      const el = document.getElementById('loading');
-      if (el) el.style.display = 'none';
-    }
-
-    function showFatalError(msg) {
-      console.error(msg);
-      const el = document.getElementById('loading');
-      if (el) el.innerHTML = `<b>خطأ:</b> ${msg}`;
-    }
-
-    function findLatestTwoDates(data) {
-      try {
-        const allDates = [];
-        
-        data.forEach(item => {
-          let dateFound = null;
-          
-          if (item.updateDate) {
-            dateFound = item.updateDate;
-          }
-          else if (item.endDate) {
-            dateFound = item.endDate;
-          }
-          else if (item.validUntil && item.validUntil !== 'غير متاح') {
-            const parsedDate = parseEndDate(item.validUntil);
-            if (parsedDate) {
-              dateFound = parsedDate;
-            }
-          }
-          
-          if (dateFound && dateFound instanceof Date && !isNaN(dateFound.getTime())) {
-            const year = dateFound.getFullYear();
-            const month = String(dateFound.getMonth() + 1).padStart(2, '0');
-            const day = String(dateFound.getDate()).padStart(2, '0');
-            const dateStr = `${year}-${month}-${day}`;
-            
-            allDates.push({
-              date: dateFound,
-              dateStr: dateStr,
-              item: item
-            });
-          }
-        });
-        
-        if (allDates.length === 0) return [];
-        
-        allDates.sort((a, b) => b.date - a.date);
-        
-        const uniqueDateStrs = [];
-        const uniqueDates = [];
-        
-        for (const dateObj of allDates) {
-          if (!uniqueDateStrs.includes(dateObj.dateStr)) {
-            uniqueDateStrs.push(dateObj.dateStr);
-            uniqueDates.push(dateObj.dateStr);
-          }
-          
-          if (uniqueDates.length >= 2) break;
-        }
-        
-        console.log('أحدث تاريخين في البيانات:', uniqueDates);
-        return uniqueDates;
-      } catch (error) {
-        console.error('Error in findLatestTwoDates:', error);
-        return [];
-      }
-    }
-
-      
-// 1. تعديل دالة transformRows لإضافة حقل status
-// =====================================================
-function transformRows(rows) {
-  return rows.map(item => {
-    
-    const rawEndDate = String(item['end_date'] || '').trim();
-const cleanedEndDate = rawEndDate.split(/[ T]/)[0];
-    const dateOnly = rawEndDate.split(/[ T]/)[0];
-
-    let endObject = null;
-    if (dateOnly) {
-      const d = new Date(dateOnly);
-      if (!isNaN(d.getTime())) endObject = d;
-    }
-
-    const updateDateStr = item['تاريخ تعديل ملف الفلاير'] || 
-                          item['Update Date'] || '';
-    let updateDate = null;
-    if (updateDateStr) {
-      const d = new Date(updateDateStr);
-      if (!isNaN(d.getTime())) updateDate = d;
-    }
-
- 
-        let rawValidUntil = String(item.validUntil || '').trim();
-        let statusValue = String(item.status || '').trim();
-
-        // تحويل "س" إلى "منتهي"
-        if (statusValue === "س") {
-            statusValue = "منتهي";
-        }
-        let finalValidUntil;
-        // إذا كانت القيمة غير متاح أو فارغة → استخدم status
-        if (!rawValidUntil || rawValidUntil === "غير متاح") {
-            finalValidUntil = statusValue || "غير متاح";
-        } else {
-            finalValidUntil = rawValidUntil;
-        }
-    
-    return {
-      supermarket: String(item['اسم السوبر ماركت'] || ''),
-      product: String(item['الاسم بالعربية'] || ''),
-      primaryName: String(item['اسم المنتج (الأساسي)'] || ''),
-      unit: String(item['الوحدة'] || ''),
-      category: String(item['الفئة'] || ''),
-      brand: String(item['اسم العلامة التجارية'] || ''),
-      originalPrice: parseFloat(item['السعر الأصلي']) || 0,
-      currentPrice: parseFloat(item['السعر الحالي']) || 0,
-      discount: parseFloat(item['الخصم %']) || 0,
-      pageNo: String(item['اسم ملف الفلاير'] || ''),
-      solution_key: String(item['solution_key'] || ''),
-
-      endDate: endObject,
-//      validUntil: dateOnly || 'غير متاح',
-            validUntil: finalValidUntil,
-      updateDate: updateDate,
-      status: status  // ✅ إضافة حقل الحالة
-    };
-  });
-}
-
-
-
-
-// 4. تعديل الزر "جميع العروض" لتحميل كل البيانات
-// =====================================================
-function showAllOffers() {
-  if (isFullLoaded && fullData) {
-    allData = fullData;
-    currentMode = 'full';
-//    applyAllFilters();
-//    refreshFilterDropdowns(); // تحديث القوائم المنسدلة
-    console.log(`✅ تم التبديل إلى: جميع العروض (${allData.length} عرض)`);
-    return;
-  }
-  alert("جاري تجهيز جمي�� العروض (بما فيها المنتهية)... سيتم العرض خلال ثوانٍ");
-}
-
-// 5. تعديل loadFullDataInBackground لتحميل ALL offers
-// =====================================================
-async function loadFullDataInBackground() {
-  try {
-    console.log("📥 جاري تحميل البيانات الكاملة في الخلفية...");
-    const res = await fetch(DATA_URL);
-    const txt = await res.text();
-    const parsed = Papa.parse(txt, {
-      header: true,
-      skipEmptyLines: true,
-      trim: true,
-      dynamicTyping: true
-    });
-    
-    // ✅ تحويل وتخزين كل البيانات
-    fullData = transformRows(parsed.data);
-    isFullLoaded = true;
-    
-        // تخزين في IndexedDB
-        await saveToDB(fullData);
-    
-    console.log(`✅ اكتمل التحميل الكامل: ${fullData.length} عرض (بما فيها المنتهية)`);
-
-  } catch (err) {
-    console.error("❌ فشل التحميل في الخلفية:", err);
-  }
-}
-
-// 6. إضافة دالة لقراءة حقل status في chip filters
-// =====================================================
-function handleStatusChipFilter() {
-}
-           
-    function populateTicker(){
-      try {
-        const track = document.getElementById('ticker-track');
-        track.innerHTML = '';
-        const maxSavings = Math.max(...allData.map(i => i._saved || 0), 500);
-       
-        const top = [...allData].filter(i=>i._discount_pct>0).sort((a,b)=>{
-          const discountA = Math.min((a._discount_pct || 0), 100) / 100;
-          const discountB = Math.min((b._discount_pct || 0), 100) / 100;
-          const savedA = (a._saved || 0) / maxSavings;
-          const savedB = (b._saved || 0) / maxSavings;
-          const scoreA = (discountA * WEIGHT_DISCOUNT) + (savedA * WEIGHT_SAVINGS);
-          const scoreB = (discountB * WEIGHT_DISCOUNT) + (savedB * WEIGHT_SAVINGS);
-          return scoreB - scoreA;
-        }).slice(0,12);
-        
-        if(!top.length){
-          track.innerHTML = '<div class="ticker-item">لا توجد عروض مميزة حالياً</div>';
-          return;
-        }
-        
-        const supermarketIcons = {
-          'كارفور': '🛒',
-          'هايبر وان': '🏪',
-          'هايبر': '🏪',
-          'سعودي': '🛍️',
-          'سوبر': '🏬',
-          'ماركت': '🏪'
-        };
-        
-        const fragment = document.createDocumentFragment();
-        top.forEach(item=>{
-          const el = document.createElement('div');
-          el.className = 'ticker-item';
-          const name = String(item.product || 'منتج');
-          const market = String(item.supermarket || '');
-          const discount = item._discount_pct ? `${item._discount_pct}%` : '';
-          const saved = item._saved ? `${item._saved} ${item.currency||'EGP'}` : '';
-          let icon = '🏷️';
-          for (const [key, value] of Object.entries(supermarketIcons)) {
-            if (market.includes(key)) {
-              icon = value;
-              break;
-            }
-          }
-          el.innerHTML = `<span class="badge">${discount}</span> <span>${icon} ${name}</span> <span style="opacity:.85">— ${market}</span> <span style="color:var(--ticker-accent); margin-inline-start:8px;">وفر ${saved}</span>`;
-          fragment.appendChild(el);
-        });
-        track.appendChild(fragment.cloneNode(true));
-        track.appendChild(fragment.cloneNode(true));
-        requestAnimationFrame(()=>{
-          const viewport = document.getElementById('ticker-viewport');
-          const trackWidth = track.scrollWidth;
-          const viewportWidth = viewport.clientWidth || 600;
-          const speed = 80;
-          const duration = Math.max(8, Math.round(trackWidth / speed));
-          track.style.setProperty('--ticker-duration', duration + 's');
-          track.classList.add('animate');
-        });
-      } catch (error) {
-        console.error('Error in populateTicker:', error);
-      }
-    }
-          
-    function updateProgress(percent, message = '') {
-      const fill = document.getElementById('progress-fill');
-      const text = document.getElementById('progress-text');
-      if (fill) fill.style.width = percent + '%';
-      if (text) {
-        text.textContent = `${Math.round(percent)}%`;
-        if (message) text.textContent += ` - ${message}`;
-      }
-    }
-
-    function processChunk(chunkData) {
-  chunkCounter++;
-  
-  // Process items in the chunk
-  const processedChunk = chunkData.map(item => {
-    try {
-      /* ==========================================================
-         التعديل المطلوب: استبدال منطق "فترة سريان العرض" بـ "end_date"
-         مع تجاهل الوقت والاحتفاظ بالتاريخ كنص
-      ========================================================== */
-      // 1. قراءة عمود end_date فقط
-      const rawEndDate = String(item['end_date'] || '').trim();
-      
-      // 2. فصل التاريخ عن الوقت (نأخذ ما قبل المسافة أو حرف T)
-      const dateOnly = rawEndDate.split(/[ T]/)[0];
-      
-      // 3. تخزين النتيجة في validUntilStr للعرض المباشر
-      const validUntilStr = dateOnly || 'غير متاح';
-
-      // نحتاج كائن تاريخ لاستخدامه في حسابات "ينتهي قريباً" (Countdown)
-      let endObject = null;
-      if (dateOnly) {
-          const d = new Date(dateOnly);
-          if (!isNaN(d.getTime())) endObject = d;
-      }
-      /* ========================================================== */
-
-      // منطق تاريخ التحديث (كما هو في كودك الأصلي تماماً)
-      const updateDateStr = item['تاريخ تعديل ملف الفلاير'] || 
-                            item['Update Date'] || 
-                            item['تاريخ التحديث'] ||
-                            item['تاريخ التعديل'] ||
-                            item['آخر تحديث'] ||
-                            item['تاريخ'] ||
-                            '';
-      
-      let updateDate = null;
-      if (updateDateStr && updateDateStr !== 'غير متاح' && updateDateStr.trim() !== '') {
-        try {
-          updateDate = new Date(updateDateStr);
-          
-          if (isNaN(updateDate.getTime())) {
-            const dateMatch = updateDateStr.match(/\d{4}[\/\-]\d{1,2}[\/\-]\d{1,2}|\d{1,2}[\/\-]\d{1,2}[\/\-]\d{4}/);
-            if (dateMatch) {
-              updateDate = new Date(dateMatch[0].replace(/\//g, '-'));
-            }
-          }
-          
-          if (isNaN(updateDate.getTime())) updateDate = null;
-        } catch (e) {
-          console.warn('فشل تحليل تاريخ التحديث:', updateDateStr, e);
-          updateDate = null;
-        }
-      }
-      
-      
-        let rawValidUntil = String(item.validUntil || '').trim();
-        let statusValue = String(item.status || '').trim();
-        // تحويل "س" إلى "منتهي"
-        if (statusValue === "س") {
-            statusValue = "منتهي";
-       }
-        let finalValidUntil;
-        // إذا كانت القيمة غير متاح أو فارغة → استخدم status
-        if (!rawValidUntil || rawValidUntil === "غير متاح") {
-            finalValidUntil = statusValue || "غير متاح";
-        } else {
-            finalValidUntil = rawValidUntil;
-        }
-      
-      
-      // إرجاع الكائن بكامل خصائصه الأصلية
-      return {
-        supermarket: String(item['اسم السوبر ماركت'] || item['supermarket'] || 'غير متاح'),
-        product: String(item['الاسم بالعربية'] || item['اسم المنتج (الأساسي)'] || item['اسم المنتج'] || item['Product'] || 'غير متاح'),
-        primaryName: String(item['اسم المنتج (الأساسي)'] || item['اسم المنتج'] || item['Product'] || ''), // لم يتم الحذف
-        unit: String(item['الوحدة'] || item['unit'] || ''), // لم يتم الحذف
-        category: String(item['الفئة'] || item['category'] || 'غير متاح'),
-        brand: String(item['اسم العلامة التجارية'] || item['brand'] || 'غير متاح'),
-        originalPrice: parseFloat(item['السعر الأصلي']) || 0,
-        currentPrice: parseFloat(item['السعر الحالي']) || 0,
-        discount: parseFloat(item['الخصم %']) || 0,
-             // الحقول المعدلة
-        rawPeriod: rawEndDate,
-        endDate: endObject, // للحفاظ على عمل عداد الأيام المتبقية
-//        validUntil: validUntilStr, // للعرض النصي في الجدول (تاريخ فقط)
-validUntil: finalValidUntil,
-        pageNo: String(item['اسم ملف الفلاير'] || ''), // لم يتم الحذف
-        currency: String(item['العملة'] || 'EGP'), // لم يتم الحذف
-        solution_key: String(item['solution_key']||item['solution key']||item['Solution_key']||item['solutionKey']||''), // لم يتم الحذف
-        updateDate: updateDate,
-        rawUpdateDate: updateDateStr
-      };
-    } catch (itemError) {
-      console.error('Error parsing item:', itemError, item);
-      return null;
-    }
-  }).filter(item => item !== null);
-  
-  // Add to allData
-  allData = allData.concat(processedChunk);
-  
-  // Log progress every 10 chunks
-  if (chunkCounter % 10 === 0) {
-    console.log(`Processed ${chunkCounter} chunks, total items: ${allData.length}`);
-  }
-}
-
-    async function processAndSaveData() {
-      try {
-        updateProgress(85, 'جاري حساب الخصومات...');
-        latestTwoDates = findLatestTwoDates(allData);
-        if (latestTwoDates && latestTwoDates.length > 0) {
-          allData = allData.filter(item => {
-            if (!item.updateDate) return false;
-            const ds = item.updateDate.toISOString().split('T')[0];
-            return latestTwoDates.includes(ds);
-          });
-        }
-        await saveToDB(allData);
-        computeSavedAndDiscount(allData);
-        computeCombinedScore(allData);
-        latestTwoDates = findLatestTwoDates(allData);
-        if (latestTwoDates.length === 0) {
-          const today = new Date();
-          const yesterday = new Date(today);
-          yesterday.setDate(yesterday.getDate() - 1);
-          latestTwoDates = [
-            today.toISOString().split('T')[0],
-            yesterday.toISOString().split('T')[0]
-          ];
-        }
-        allData.sort((a,b) => {
-          const discountDiff = (b._discount_pct || 0) - (a._discount_pct || 0);
-          if (Math.abs(discountDiff) > 5) return discountDiff;
-          const savedDiff = (b._saved || 0) - (a._saved || 0);
-          if (Math.abs(savedDiff) > 0) return savedDiff;
-          const nameA = String(a.product || '');
-          const nameB = String(b.product || '');
-          return nameA.localeCompare(nameB, 'ar');
-        });
-        updateProgress(90, 'جاري حفظ البيانات...');
-        try {
-          localStorage.setItem(CACHE_KEY, LZString.compressToUTF16(JSON.stringify(allData)));
-          localStorage.setItem(`${CACHE_KEY}_time`, Date.now());
-          console.log(`Saved ${allData.length} items to cache`);
-        } catch(e) {
-          console.warn('Cache save failed:', e);
-        }
-        setTimeout(() => {
-          saveToDB(allData).then(() => {
-            console.log(`Saved ${allData.length} items to IndexedDB`);
-          }).catch(err => {
-            console.warn('Failed to save to IndexedDB:', err);
-          });
-        }, 100);
-        updateProgress(95, 'جاري تهيئة التطبيق...');
-        initializeFilters();
-        dataLoaded = true;
-        applyUrlParams();
-        applyAllFilters();
-        populateTicker();
-        document.getElementById('loading').style.display = 'none';
-        switchView(currentView);
-        updateComparisonPanel();
-        console.log(`Application ready with ${allData.length} items`);
-      } catch (error) {
-        console.error('Error processing data:', error);
-        throw error;
-      }
-    }
-
-    function retryWithCache() {
-      const cached = localStorage.getItem(CACHE_KEY);
-      if (cached) {
-        try {
-          allData = JSON.parse(LZString.decompressFromUTF16(cached)) || [];
-          if (allData.length > 0) {
-            processDataAfterLoad();
-            return;
-          }
-        } catch(e) {
-          console.warn('Cache load failed:', e);
-        }
-      }
-      showFatalError('لا توجد بيانات مخزنة. يرجى التحقق من اتصال الإنترنت.');
-    }
-
-    function wirePriceControls(){
-      try {
-        const minEl = document.getElementById('min-price');
-        const maxEl = document.getElementById('max-price');
-        const minDec = document.getElementById('min-decrease');
-        const minInc = document.getElementById('min-increase');
-        const maxDec = document.getElementById('max-decrease');
-        const maxInc = document.getElementById('max-increase');
-
-        minDec.addEventListener('click', ()=>{ adjustNumberInput(minEl, -1); });
-        minInc.addEventListener('click', ()=>{ adjustNumberInput(minEl, +1); });
-        maxDec.addEventListener('click', ()=>{ adjustNumberInput(maxEl, -1); });
-        maxInc.addEventListener('click', ()=>{ adjustNumberInput(maxEl, +1); });
-
-        ['input','change','keyup'].forEach(evt=>{
-          minEl.addEventListener(evt, ()=>{
-            normalizeMinMax(minEl, maxEl);
-            debouncedApplyAllFilters();
-          });
-          maxEl.addEventListener(evt, ()=>{
-            normalizeMinMax(minEl, maxEl);
-            debouncedApplyAllFilters();
-          });
-        });
-
-        minEl.addEventListener('blur', ()=>{ if(parseNumberInput(minEl) < 0 || isNaN(parseNumberInput(minEl))) minEl.value=''; debouncedApplyAllFilters(); });
-        maxEl.addEventListener('blur', ()=>{ if(parseNumberInput(maxEl) < 0 || isNaN(parseNumberInput(maxEl))) maxEl.value=''; debouncedApplyAllFilters(); });
-      } catch (error) {
-        console.error('Error in wirePriceControls:', error);
-      }
-    }  
-    
-    function renderContent() {
-      try {
-        if (currentView === 'grid') {
-          renderProductsGrid();
-        } else {
-          renderTable();
-        }
-      } catch (error) {
-        console.error('Error in renderContent:', error);
-      }
-    }
-    
-    function switchView(view) {
-      try {
-        currentView = view;
-        const gridBtn = document.getElementById('view-grid-btn');
-        const tableBtn = document.getElementById('view-table-btn');
-        const productsGrid = document.getElementById('products-grid');
-        const dataTable = document.getElementById('data-table');
-        
-        tableBtn.classList.toggle('active', view === 'table');
-        gridBtn.classList.toggle('active', view === 'grid');
-
-        if (view === 'grid') {
-          productsGrid.style.display = 'grid';
-          dataTable.style.display = 'none';
-          renderProductsGrid();
-        } else {
-          productsGrid.style.display = 'none';
-          dataTable.style.display = 'block';
-          renderTable();
-        }
-      } catch (error) {
-        console.error('Error in switchView:', error);
-      }
-    }
-    
-function renderProductsGrid() {
-      try {
-        const grid = document.getElementById('products-grid');
-        grid.innerHTML = '';
-        grid.style.gridTemplateColumns = 'repeat(auto-fill, minmax(280px, 1fr))';
-       
-        const start = (currentPage-1)*itemsPerPage;
-        const pageData = filteredData.slice(start, start+itemsPerPage);
-       
-        if (pageData.length === 0) {
-          grid.innerHTML = `
-            <div style="grid-column: 1/-1; text-align: center; padding: 40px; color: #666;">
-              <i class="fas fa-search" style="font-size: 3rem; margin-bottom: 20px; opacity: 0.3;"></i>
-              <h3>لا توجد عروض مطابقة</h3>
-              <p>حاول استخدام مصطلحات بحث مختلفة أو إزالة بعض الفلاتر</p>
-              ${activeChipFilter === 'recent' ? '<p style="color: var(--purple); margin-top: 10px;"><i class="fas fa-info-circle"></i> ملاحظة: فلتر "أحدث العروض" يبحث عن المنتجات في أحدث تاريخين في البيانات</p>' : ''}
-            </div>
-          `;
-          return;
-        }
-       
-        pageData.forEach(item => {
-          try {
-            const card = document.createElement('div');
-            card.className = 'product-card';
-           
-            const isFavorite = (item.solution_key && typeof favorites !== 'undefined') 
-                       ? favorites.includes(item.solution_key) 
-                       : false;
-            
-            const isInComparison = comparisonItems.some(i => i.product === item.product);
-           
-            let productIcon = 'fa-box';
-            if (item.category) {
-              const category = String(item.category || '').toLowerCase();
-              if (category.includes('غذائي') || category.includes('طعام')) productIcon = 'fa-utensils';
-              else if (category.includes('مشروب')) productIcon = 'fa-wine-bottle';
-              else if (category.includes('تنظيف')) productIcon = 'fa-soap';
-              else if (category.includes('صحي')) productIcon = 'fa-heart';
-            }
-           
-            let countdownHtml = '';
-            if (item.endDate) {
-              const now = new Date();
-              const diffDays = Math.ceil((item.endDate - now) / (1000 * 60 * 60 * 24));
-              if (diffDays <= 7 && diffDays >= 0) {
-                countdownHtml = `<div class="countdown"><i class="fas fa-clock"></i> ${diffDays} يوم متبقي</div>`;
-              }
-            }
-           
-            let marketIcon = 'fa-store';
-            if (item.supermarket) {
-              const market = String(item.supermarket || '').toLowerCase();
-              if (market.includes('كارفور')) marketIcon = 'fa-shopping-cart';
-              else if (market.includes('هايبر')) marketIcon = 'fa-store-alt';
-            }
-           
-            let newBadge = '';
-            if (activeChipFilter === 'recent' && (item.updateDate || item.endDate)) {
-              newBadge = '<div class="product-badge" style="background: var(--purple);"><i class="fas fa-star"></i> حديث</div>';
-            }
-           
-            let bestDealBadge = '';
-            const sortBy = document.getElementById('sort-by').value;
-            if (sortBy === 'best-deals' && pageData.indexOf(item) < 3 && (item._discount_pct > 30 || item._saved > 20)) {
-              bestDealBadge = '<div class="product-badge" style="background: linear-gradient(135deg, #FF6B00, #FF0000);"><i class="fas fa-crown"></i> أفضل عرض</div>';
-            }
-           
-            card.innerHTML = `
-              ${bestDealBadge}
-              ${item._discount_pct > 50 ? '<div class="product-badge"><i class="fas fa-fire"></i> عروض ساخنة</div>' : ''}
-              ${newBadge}
-              <div class="favorite-btn ${isFavorite ? 'active' : ''}" data-id="${item.product}">
-                <i class="fas fa-heart"></i>
-              </div>
-              <div class="compare-btn ${isInComparison ? 'active' : ''}" data-id="${item.product}">
-                <i class="fas fa-balance-scale"></i>
-              </div>
-              <div class="share-btn" title="مشاركة هذا العرض">
-                <i class="fas fa-share-alt"></i>
-              </div>
-              <div class="product-image">
-                <i class="fas ${productIcon}"></i>
-              </div>
-              <div class="product-info">
-                <h3 class="product-title">${item.product || 'غير متاح'}</h3>
-                ${item.primaryName ? `<div style="font-size: 0.9rem; color: #666; margin-bottom: 5px;">${item.primaryName}</div>` : ''}
-                ${item.unit ? `<div class="product-unit"><i class="fas fa-weight"></i> ${item.unit}</div>` : ''}
-                <div class="price-container">
-                  <div style="display: flex; flex-direction: column; gap: 3px;">
-                    <span class="current-price">${item.currentPrice ? `${item.currentPrice} ${item.currency||'EGP'}` : 'غير متاح'}</span>
-                    <span style="font-size: 0.85rem; color: #555; font-weight: 500;">
-                      <i class="fas fa-calendar-alt"></i> 
-                      ${item.updateDate ? formatDateShort(item.updateDate) : 'غير متاح'}
-                    </span>
-                  </div>
-                  ${item._discount_pct ? `<span class="discount-badge pulse">-${item._discount_pct}%</span>` : ''}
-                </div>
-                <div class="product-meta">
-                  <div class="supermarket-logo">
-                    <i class="fas ${marketIcon}"></i>
-                    <span>${item.supermarket || 'غير متاح'}</span>
-                  </div>
-                  ${countdownHtml}
-                </div>
-                ${activeChipFilter === 'recent' && (item.updateDate || item.endDate) ? `
-                  <div style="font-size: 0.8rem; color: var(--purple); margin-top: 10px; padding: 5px; background: rgba(111, 66, 193, 0.1); border-radius: 5px;">
-                    <i class="fas fa-calendar-alt"></i> ${item.updateDate ? `تم التحديث: ${formatDateShort(item.updateDate)}` : `تنتهي: ${item.validUntil}`}
-                  </div>
-                ` : ''}
-                
-             <div class="action-buttons">
-  <button class="btn btn-primary buy-now-btn" data-id="${item.product}">
-    <i class="fas fa-image"></i> صورة الصنف
-  </button>
-  <button class="btn btn-secondary view-details-btn" data-id="${item.product}">
-    <i class="fas fa-info-circle"></i> التفاصيل
-  </button>
 </div>
 
-              </div>
-            `;
-            grid.appendChild(card);
-          } catch (itemError) {
-            console.error('Error rendering product card:', itemError, item);
-          }
-        });
-       
-        attachCardEventListeners();
-        updatePagination();
-      } catch (error) {
-        console.error('Error in renderProductsGrid:', error);
-      }
-    }     
-    
-    function updateStats(){
-      try {
-        document.getElementById('total-offers').textContent = filteredData.length.toLocaleString();
-        const discounts = filteredData.filter(i=>i._discount_pct).map(i=>i._discount_pct);
-        const avgDiscount = discounts.length ? Math.round(discounts.reduce((a,b)=>a+b,0)/discounts.length) : 0;
-        document.getElementById('avg-discount').textContent = `${avgDiscount}%`;
-        const hotDeals = filteredData.filter(i=>i._discount_pct > 30).length;
-        document.getElementById('hot-deals').textContent = hotDeals.toLocaleString();
-        const now = new Date();
-        const endingSoon = filteredData.filter(i => {
-          if (!i.endDate) return false;
-          const diffDays = Math.ceil((i.endDate - now) / (1000 * 60 * 60 * 24));
-          return diffDays <= 3 && diffDays >= 0;
-        }).length;
-        document.getElementById('ending-soon').textContent = endingSoon.toLocaleString();
-        const uniqueSupermarkets = [...new Set(filteredData.map(item => item.supermarket).filter(Boolean))].length;
-        document.getElementById('total-supermarkets').textContent = uniqueSupermarkets.toLocaleString();
-      } catch (error) {
-        console.error('Error in updateStats:', error);
-      }
-    }   
-    
-    function updateComparisonPanel() {
-      try {
-        const panel = document.getElementById('comparison-panel');
-        const itemsContainer = document.getElementById('comparison-items');
-        const countElement = document.getElementById('comparison-count');
-        
-        countElement.textContent = comparisonItems.length;
-        
-        itemsContainer.innerHTML = '';
-        
-        comparisonItems.forEach(item => {
-          const itemEl = document.createElement('div');
-          itemEl.className = 'comparison-item';
-          itemEl.innerHTML = `
-            <div style="display: flex; justify-content: space-between; align-items: flex-start;">
-              <h4 style="margin: 0 0 10px 0; font-size: 0.9rem;">${item.product || ''}</h4>
-              <button onclick="removeFromComparison('${item.product}')" style="background: none; border: none; color: #dc3545; cursor: pointer;">
-                <i class="fas fa-times"></i>
-              </button>
-            </div>
-            <div style="font-size: 0.85rem; color: #666; margin-bottom: 8px;">${item.supermarket || ''}</div>
-            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 10px;">
-              <span style="font-weight: 700; color: var(--primary-blue);">${item.currentPrice || 0} ${item.currency||'EGP'}</span>
-            </div>
-            ${item._discount_pct ? `<div style="background: var(--danger-red); color: white; padding: 3px 8px; border-radius: 4px; font-size: 0.8rem; font-weight: 700; text-align: center;">خصم ${item._discount_pct}%</div>` : ''}
-          `;
-          itemsContainer.appendChild(itemEl);
-        });
-        
-        if (comparisonItems.length > 0) {
-          panel.style.display = 'block';
-        }
-      } catch (error) {
-        console.error('Error in updateComparisonPanel:', error);
-      }
-    } 
-    
-    function attachCardEventListeners() {  
-      try {
-        document.querySelectorAll('.favorite-btn').forEach(btn => {
-          btn.addEventListener('click', function(e) {
-            e.stopPropagation();
-            const productId = this.dataset.id;
-            toggleFavorite(productId);
-            this.classList.toggle('active');
-          });
-        });
-       
-        document.querySelectorAll('.compare-btn').forEach(btn => {
-          btn.addEventListener('click', function(e) {
-            e.stopPropagation();
-            const productId = this.dataset.id;
-            toggleComparison(productId);
-            this.classList.toggle('active');
-          });
-        });
-       
-        document.querySelectorAll('.view-details-btn').forEach(btn => {
-          btn.addEventListener('click', function(e) {
-            e.stopPropagation();
-            const productId = this.dataset.id;
-            const product = allData.find(p => p.product === productId);
-            if (product) {
-              let details = `
-                <strong>اسم ملف الفلاير:</strong> ${product.pageNo || 'غير متاح'}<br>    
-                <strong>اسم المنتج:</strong> ${product.product || 'غير متاح'}<br>
-                <strong>الاسم الأساسي:</strong> ${product.primaryName || 'غير متاح'}<br>
-                <strong>الوحدة:</strong> ${product.unit || 'غير متاح'}<br>
-                <strong>السوبرماركت:</strong> ${product.supermarket || 'غير متاح'}<br>
-                <strong>الفئة:</strong> ${product.category || 'غير متاح'}<br>
-                <strong>العلامة التجارية:</strong> ${product.brand || 'غير متاح'}<br>
-                <strong>السعر الحالي:</strong> ${product.currentPrice ? `${product.currentPrice} ${product.currency||'EGP'}` : 'غير متاح'}<br>
-                <strong>الخصم:</strong> ${product._discount_pct ? `${product._discount_pct}%` : 'غير متاح'}<br>
-                <strong>التوفير:</strong> ${product._saved ? `${product._saved} ${product.currency||'EGP'}` : 'غير متاح'}<br>
-                <strong>ساري حتى:</strong> ${product.validUntil || 'غير متاح'}<br>
-                ${product.updateDate ? `<strong>تاريخ التحديث:</strong> ${formatDateShort(product.updateDate)}<br>` : ''}
-              `;
-              alert(details);
-            }
-          });
-        });
-       
- document.querySelectorAll('.buy-now-btn').forEach(btn => {
-  btn.addEventListener('click', function(e) {
-    e.stopPropagation();
-    const productId = this.dataset.id;
-    const product = allData.find(p => p.product === productId);
-    if (product && product.pageNo) {
-      const flyerNumber = product.pageNo.match(/flyer_(\d+)/)?.[1] || product.solution_key || '';
-      const pageNumber = product.pageNo.match(/page_(\d+)/)?.[1] || 'صورة الصنف';
-      const url = `https://www.yabalashoffers.com/flyer.php?d=${encodeURIComponent(flyerNumber)}&c=eg`;
-      openWithOverlay(url, pageNumber);
-    }
-  });
-});
+<!-- Comparison Panel -->
+<div class="comparison-panel" id="comparison-panel" style="display:none; position:fixed; bottom:0; left:0; right:0; background:white; box-shadow:0 -4px 20px rgba(0,0,0,0.15); padding:20px; border-top:3px solid var(--primary-blue); z-index:1001;">
+    <div class="comparison-header" style="display:flex; justify-content:space-between; align-items:center;">
+        <h3 style="margin:0;"><i class="fas fa-balance-scale"></i> مقارنة المنتجات (<span id="comparison-count">0</span>/4)</h3>
+        <div>
+            <button id="clear-comparison" style="background:#dc3545; color:white; border:none; padding:8px 16px; border-radius:6px;"><i class="fas fa-trash"></i> مسح</button>
+            <button id="close-comparison" style="background:#6c757d; color:white; border:none; padding:8px 16px; border-radius:6px;"><i class="fas fa-times"></i> إغلاق</button>
+        </div>
+    </div>
+    <div class="comparison-items" id="comparison-items" style="display:flex; gap:15px; overflow-x:auto; padding:10px 0;"></div>
+</div>
 
-        document.querySelectorAll('.share-btn').forEach(btn => {
-          btn.addEventListener('click', function(e) {
-            e.stopPropagation();
-            const card = this.closest('.product-card');
-            const productName = card.querySelector('.product-title').textContent;
-            const price = card.querySelector('.current-price').textContent;
-           
-            if (navigator.share) {
-              navigator.share({
-                title: `عرض مميز: ${productName}`,
-                text: `اكتشف هذا العرض: ${productName} بسعر ${price}`,
-                url: window.location.href,
-              });
-            } else {
-              navigator.clipboard.writeText(`عرض مميز: ${productName} بسعر ${price} - ${window.location.href}`);
-              alert('تم نسخ تفاصيل العرض! شاركه مع أصدقائك.');
-            }
-          });
-        });
-      } catch (error) {
-        console.error('Error in attachCardEventListeners:', error);
-      }
-    }    
+<!-- Mobile Navigation (اختياري) -->
+<div class="mobile-nav" style="display:none; position:fixed; bottom:0; left:0; right:0; background:white; padding:12px; box-shadow:0 -4px 20px rgba(0,0,0,0.1); justify-content:space-around;">
+    <a href="#" class="mobile-nav-item"><i class="fas fa-home"></i><span>الرئيسية</span></a>
+    <a href="#" class="mobile-nav-item"><i class="fas fa-percentage"></i><span>العروض</span></a>
+    <a href="#" class="mobile-nav-item"><i class="fas fa-search"></i><span>بحث</span></a>
+    <a href="#" class="mobile-nav-item"><i class="fas fa-heart"></i><span>المفضلة</span></a>
+    <a href="#" class="mobile-nav-item"><i class="fas fa-user"></i><span>حسابي</span></a>
+</div>
 
-    function updatePagination(){
-      try {
-        const pagination = document.getElementById('pagination');
-        pagination.innerHTML = '';
-        const totalPages = Math.max(1, Math.ceil(filteredData.length / itemsPerPage));
-        
-        if (totalPages <= 1) return;
-        
-        const btn = (text, disabled, onClick) => { 
-          const b = document.createElement('button'); 
-          b.textContent = text; 
-          b.disabled = !!disabled; 
-          b.addEventListener('click', onClick); 
-          return b; 
-        };
-        
-        pagination.appendChild(btn('الأولى', currentPage===1, ()=>{ currentPage=1; renderContent(); }));
-        pagination.appendChild(btn('السابق', currentPage===1, ()=>{ if(currentPage>1){ currentPage--; renderContent(); }}));
-        
-        const pageNumbers = document.createElement('div'); 
-        pageNumbers.style.display='flex'; 
-        pageNumbers.style.gap='6px'; 
-        pageNumbers.style.overflowX='auto';
-        
-        const pagesToShow = new Set([1, totalPages]);
-        for (let i = Math.max(1, currentPage - 2); i <= Math.min(totalPages, currentPage + 2); i++) {
-          pagesToShow.add(i);
-        }
-        
-        let prevPage = 0;
-        Array.from(pagesToShow).sort((a, b) => a - b).forEach(i => {
-          if (i - prevPage > 1) {
-            const ellipsis = document.createElement('span');
-            ellipsis.textContent = '...';
-            ellipsis.style.padding = '0 10px';
-            ellipsis.style.color = '#666';
-            ellipsis.style.display = 'flex';
-            ellipsis.style.alignItems = 'center';
-            pageNumbers.appendChild(ellipsis);
-          }
-          
-          const p = document.createElement('button'); 
-          p.textContent = i;
-          if(i===currentPage){ 
-            p.style.background = 'var(--primary-blue)'; 
-            p.style.color='white'; 
-            p.style.borderColor = 'var(--primary-blue)';
-          }
-          p.addEventListener('click', ()=>{ currentPage=i; renderContent(); });
-          pageNumbers.appendChild(p);
-          prevPage = i;
-        });
-        
-        pagination.appendChild(pageNumbers);
-        pagination.appendChild(btn('التالي', currentPage===totalPages, ()=>{ if(currentPage<totalPages){ currentPage++; renderContent(); }}));
-        pagination.appendChild(btn('الأخيرة', currentPage===totalPages, ()=>{ currentPage=totalPages; renderContent(); }));
-      } catch (error) {
-        console.error('Error in updatePagination:', error);
-      }
-    }
-    
-    /* Render table */
-    function renderTable(){
-      try {
-        const tbody = document.getElementById('table-body');
-        tbody.innerHTML = '';
-        const start = (currentPage-1)*itemsPerPage;
-        const pageData = filteredData.slice(start, start+itemsPerPage);
-        
-        if (pageData.length === 0) {
-          tbody.innerHTML = `
-            <tr>
-              <td colspan="10" style="text-align: center; padding: 40px; color: #666;">
-                <i class="fas fa-search" style="font-size: 2rem; margin-bottom: 10px; opacity: 0.3; display: block;"></i>
-                <h3 style="margin: 0 0 10px 0;">لا توجد عروض مطابقة</h3>
-                <p style="margin: 0;">حاول استخدام مصطلحات بحث مختلفة أو إزالة بعض الفلاتر</p>
-                ${activeChipFilter === 'recent' ? '<p style="color: var(--purple); margin-top: 10px;"><i class="fas fa-info-circle"></i> ملاحظة: فلتر "أحدث العروض" يبحث عن المنتجات في أحدث تاريخين في البيانات</p>' : ''}
-              </td>
-            </tr>
-          `;
-          updatePagination();
-          return;
-        }
-        
-        pageData.forEach(item=>{
-          try {
+<script>
+    (function() {
+        // -------------------- الإعدادات العامة --------------------
+        const DATA_URL = 'https://raw.githubusercontent.com/eg-market/ai/main/final.csv';
+        const CACHE_KEY = 'offersData_v3';
+        const CACHE_EXPIRY = 24 * 60 * 60 * 1000; // 24 ساعة
+        const DB_NAME = 'EG_MARKET_DB_V3';
+        const DB_VERSION = 3;
+        const STORE_NAME = 'offers';
+        const WEIGHT_DISCOUNT = 0.6;
+        const WEIGHT_SAVINGS = 0.4;
+        const ITEMS_PER_PAGE = 20;
 
-const isFavorite = (item.solution_key && typeof favorites !== 'undefined') 
-                       ? favorites.includes(item.solution_key) 
-                       : false;
+        // -------------------- الحالة العامة --------------------
+        let allData = [];              // جميع البيانات المحملة (من IndexedDB أو CSV)
+        let filteredData = [];          // البيانات بعد تطبيق الفلاتر
+        let latestTwoDates = [];        // آخر تاريخين للاستخدام في فلتر "آخر يومين"
+        let currentPage = 1;
+        let currentView = 'grid';        // 'grid' أو 'table'
+        let activeChipFilter = 'active'; // الفلتر النشط (افتراضياً العروض السارية)
+        let showAllOffers = false;       // إذا كان true، يتم تجاهل فلتر الحالة (يعرض الكل)
+        let favorites = JSON.parse(localStorage.getItem('favorites')) || [];
+        let comparisonItems = JSON.parse(localStorage.getItem('comparison')) || [];
+        let debounceTimer;
 
-            const tr = document.createElement('tr');
-            const flyerNumber = item.pageNo?.match(/flyer_(\d+)/)?.[1] || item.solution_key || '';
-            const pageNumber = item.pageNo?.match(/page_(\d+)/)?.[1] || '';
-            const url = flyerNumber ? `https://www.yabalashoffers.com/flyer.php?d=${encodeURIComponent(flyerNumber)}&c=eg` : '#';
-            const flyerFileName = pageNumber || 'صورة الصنف';
-            
-            if(url && url!=='#'){ 
-              tr.style.cursor='pointer'; 
-              tr.title='انقر لزيارة صفحة العرض'; 
-              tr.onclick = ()=>{ openWithOverlay(url, flyerFileName); };
-            }
-
-            if(item._discount_pct && item._discount_pct >= 20) tr.classList.add('highlight');
-            if(activeChipFilter === 'recent') tr.style.borderLeft = '3px solid var(--purple)';
-            
-tr.innerHTML = `
-  <td>${item.supermarket || 'غير متاح'}</td>
-  <td><strong>${item.product || 'غير متاح'}</strong></td>
-  <td>${item.primaryName || 'غير متاح'}</td>
-  <td>${item.unit ? `<span class="unit-badge">${item.unit}</span>` : 'غير متاح'}</td>
-  <td>${item.category || 'غير متاح'}</td>
-  <td>${item.brand || 'غير متاح'}</td>
-  <td><strong style="color: var(--primary-blue);">${item.currentPrice ? item.currentPrice + ' ' + (item.currency||'EGP') : 'غير متاح'}</strong></td>
-  <td>${item._discount_pct ? `<span class="discount-badge" style="display: inline-block; padding: 3px 8px; background: var(--danger-red); color: white; border-radius: 4px; font-weight: 700;">${item._discount_pct}%</span>` : 'غير متاح'}</td>
-  <td>${item.updateDate ? `<span style="color: #0066cc; font-weight: 600;">${formatDateShort(item.updateDate)}</span>` : 'غير متاح'}</td>
-  <td>${item.validUntil || 'غير متاح'}</td>
-`;
-              
-              tbody.appendChild(tr);
-          } catch (itemError) {
-            console.error('Error rendering table row:', itemError, item);
-          }
-        });
-
-        updatePagination();
-      } catch (error) {
-        console.error('Error in renderTable:', error);
-      }
-    }
-    
-    function openWithOverlay(url, flyerFileName) {
-      try {
-        const newWin = window.open('', '_blank');
-        if (newWin) {
-          newWin.document.write(`
-            <!DOCTYPE html>
-            <html>
-            <head>
-              <style>
-                body { margin: 0; padding: 0; overflow: hidden; background: #f0f0f0; }
-                .overlay {
-                  position: fixed;
-                  bottom: 5px;
-                  left: 50%;
-                  transform: translateX(-50%);
-                  width: auto;
-                  max-width: 190vw;
-                  padding: 15px 30px;
-                  background: #1e3c72;
-                  color: white;
-                  font-size: 3.2rem;
-                  border-radius: 50px;
-                  box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-                  display: flex;
-                  align-items: center;
-                  justify-content: center;
-                  gap: 15px;
-                  z-index: 10000;
-                }
-                .iframe-wrapper {
-                  width: 100vw;
-                  height: 100vh;
-                  display: flex;
-                  flex-direction: column;
-                }
-                iframe {
-                  width: 100vw;
-                  height: 150vh;
-                  border: none;
-                  clip-path: inset(38% 0 16.2% 0);
-                  margin-top: -37vh;
-                }
-              </style>
-            </head>
-            <body>
-              <div class="iframe-wrapper">
-                <iframe src="${url}" scrolling="yes" onload="document.getElementById('guide-overlay').style.display='flex';"></iframe>
-                <div class="overlay" id="guide-overlay" style="display: none;">
-                  اسحب الشاشة للأسفل حتى الصورة رقم ${flyerFileName || ''} واضغط عليها للتكبير
-                </div>
-              </div>
-            </body>
-            </html>
-          `);
-          newWin.document.close();
-        } else {
-          window.open(url, '_blank');
-        }
-      } catch (error) {
-        console.error('Error in openWithOverlay:', error);
-        window.open(url, '_blank');
-      }
-    }
-    
-    function showAutocomplete(){
-      try {
-        clearAutocomplete();
-        const val = document.getElementById('search-input').value.trim().toLowerCase();
-        if(!val) return;
-        const list = document.createElement('div');
-        list.id = 'autocomplete-list';
-        document.body.appendChild(list);
-        const suggestions = [...new Set(allData.map(i=>i.product).concat(allData.map(i=>i.primaryName||'')))]
-          .filter(s=>s && String(s).toLowerCase().includes(val)).slice(0,8);
-        suggestions.forEach(s=>{
-          const d = document.createElement('div');
-          d.textContent = s;
-          d.style.padding='12px 16px';
-          d.style.cursor='pointer';
-          d.style.borderBottom='1px solid #f0f0f0';
-          d.addEventListener('click', ()=>{
-            document.getElementById('search-input').value = s;
-            clearAutocomplete();
-            debouncedApplyAllFilters();
-          });
-          d.addEventListener('mouseenter', () => d.style.background='#f8f9fa');
-          d.addEventListener('mouseleave', () => d.style.background='white');
-          list.appendChild(d);
-        });
-        const rect = document.getElementById('search-input').getBoundingClientRect();
-        list.style.left = `${Math.max(8, rect.left + window.scrollX)}px`;
-        list.style.top = `${rect.bottom + window.scrollY}px`;
-        list.style.minWidth = `${rect.width}px`;
-      } catch (error) {
-        console.error('Error in showAutocomplete:', error);
-      }
-    }      
-    
-    function clearAutocomplete(){
-      const list = document.getElementById('autocomplete-list');
-      if(list) list.remove();
-    }   
-    
-    function parseNumberInput(el){
-      try {
-        const v = parseFloat(el.value);
-        return isFinite(v) ? v : NaN;
-      } catch {
-        return NaN;
-      }
-    }      
-    
-    function normalizeMinMax(minEl, maxEl){
-      try {
-        const minV = parseNumberInput(minEl);
-        const maxV = parseNumberInput(maxEl);
-        if(!isNaN(minV) && !isNaN(maxV) && minV > maxV){
-          const tmp = minEl.value;
-          minEl.value = maxEl.value;
-          maxEl.value = tmp;
-        }
-      } catch (error) {
-        console.error('Error in normalizeMinMax:', error);
-      }
-    }
-    
-    function resetAllFilters(){
-      try {
-        document.getElementById('search-input').value='';
-        document.getElementById('supermarket-filter').value='';
-        document.getElementById('category-filter').value='';
-        document.getElementById('brand-filter').value='';
-        document.getElementById('min-discount').value='';
-        document.getElementById('min-price').value='';
-        document.getElementById('max-price').value='';
-        document.getElementById('sort-by').value='best-deals';
-        
-        activeChipFilter = 'all';
-        document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
-        const allChip = document.querySelector('.chip[data-filter="all"]');
-        if (allChip) allChip.classList.add('active');
-        
-        applyAllFilters();
-      } catch (error) {
-        console.error('Error in resetAllFilters:', error);
-      }
-    }
-      
-    function computeSavedAndDiscount(arr) {
-      try {
-        for (let i = 0; i < arr.length; i++) {
-          const item = arr[i];
-          const orig = Number(item.originalPrice) || 0;
-          const curr = Number(item.currentPrice) || 0;
-          let saved = 0;
-          
-          if (orig > 0 && curr > 0) {
-            saved = orig - curr;
-          } else if (orig > 0 && item.discount) {
-            saved = orig * (Number(item.discount) / 100);
-          } else if (curr > 0 && item.discount) {
-            saved = curr * (Number(item.discount) / 100);
-          }
-          
-          item._saved = Math.max(0, Number((saved || 0).toFixed(2)));
-          item._discount_pct = (item.discount && !isNaN(item.discount)) 
-            ? Number(item.discount) 
-            : (orig > 0 && curr > 0 ? Math.round(((orig - curr) / orig) * 100) : 0);
-        }
-      } catch (error) {
-        console.error('Error in computeSavedAndDiscount:', error);
-      }
-    }
-
-    function cleanupUnusedData() {
-      allData.forEach(item => {
-        delete item.rawUpdateDate;
-        delete item.rawPeriod;
-      });
-    }
-
-    function showError(message) {
-      console.error('App Error:', message);
-      const errorDiv = document.createElement('div');
-      errorDiv.style.cssText = `
-        position: fixed;
-        top: 20px;
-        right: 20px;
-        background: var(--danger-red);
-        color: white;
-        padding: 15px 20px;
-        border-radius: 8px;
-        z-index: 9999;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-        max-width: 400px;
-      `;
-      errorDiv.innerHTML = `
-        <strong><i class="fas fa-exclamation-triangle"></i> خطأ:</strong>
-        <p style="margin: 5px 0 0 0; font-size: 0.9rem;">${message}</p>
-      `;
-      document.body.appendChild(errorDiv);
-      
-      setTimeout(() => {
-        if (errorDiv.parentNode) {
-          errorDiv.parentNode.removeChild(errorDiv);
-        }
-      }, 5000);
-    }
-    
-    /* ================================================= */
-    /* INITIALIZATION */
-    /* ================================================= */
-    function initializeFilters(){
-      try {
-        const supermarketSelect = document.getElementById('supermarket-filter');
-        supermarketSelect.innerHTML = '<option value="">كل السوبر ماركت</option>';
-        let supermarkets = [...new Set(allData.map(i=>i.supermarket))].filter(Boolean);
-        
-        supermarkets.sort((a, b) => {
-          const strA = String(a || '');
-          const strB = String(b || '');
-          return strA.localeCompare(strB, 'ar');
-        });
-        
-        supermarkets.forEach(s=>{ 
-          const o=document.createElement('option'); 
-          o.value=s; 
-          o.textContent=String(s || ''); 
-          supermarketSelect.appendChild(o); 
-        });
-
-        const categorySelect = document.getElementById('category-filter');
-        categorySelect.innerHTML = '<option value="">كل الفئات</option>';
-        let categories = [...new Set(allData.map(i=>i.category))].filter(Boolean);
-        
-        categories.sort((a, b) => {
-          const strA = String(a || '');
-          const strB = String(b || '');
-          return strA.localeCompare(strB, 'ar');
-        });
-        
-        categories.forEach(c=>{ 
-          const o=document.createElement('option'); 
-          o.value=c; 
-          o.textContent=String(c || ''); 
-          categorySelect.appendChild(o); 
-        });
-
-        const brandSelect = document.getElementById('brand-filter');
-        brandSelect.innerHTML = '<option value="">كل العلامات</option>';
-        let brands = [...new Set(allData.map(i=>i.brand))].filter(Boolean);
-        
-        brands.sort((a, b) => {
-          const strA = String(a || '');
-          const strB = String(b || '');
-          return strA.localeCompare(strB, 'ar');
-        });
-        
-        brands.forEach(b=>{ 
-          const o=document.createElement('option'); 
-          o.value=b; 
-          o.textContent=String(b || ''); 
-          brandSelect.appendChild(o); 
-        });
-
-        const search = document.getElementById('search-input');
-        search.addEventListener('input', ()=>{ showAutocomplete(); debouncedApplyAllFilters(); });
-        search.addEventListener('keydown', (e)=>{ 
-          if(e.key === 'Enter'){ 
-            e.preventDefault(); 
-            clearAutocomplete(); 
-            applyAllFilters(); 
-          } 
-        });
-
-        document.addEventListener('click', (e)=>{
-          const list = document.getElementById('autocomplete-list');
-          const input = document.getElementById('search-input');
-          if(!list) return;
-          if(e.target.closest && (e.target.closest('#autocomplete-list') || e.target === input)) return;
-          clearAutocomplete();
-        });
-
-        supermarketSelect.addEventListener('change', debouncedApplyAllFilters);
-        categorySelect.addEventListener('change', debouncedApplyAllFilters);
-        brandSelect.addEventListener('change', debouncedApplyAllFilters);
-        document.getElementById('sort-by').addEventListener('change', debouncedApplyAllFilters);
-        document.getElementById('min-discount').addEventListener('input', debouncedApplyAllFilters);
-
-// داخل initializeFilters، تعديل معالج reset-btn
-document.getElementById('reset-btn').addEventListener('click', async function() {
-  try {
-    document.getElementById('loading').style.display = 'block';
-    document.getElementById('loading').innerHTML = 'جاري تحميل العروض السارية...';
-    
-    const res = await fetch(DATA_URL);
-    const txt = await res.text();
-    const parsed = Papa.parse(txt, {
-      header: true,
-      skipEmptyLines: true,
-      trim: true,
-      dynamicTyping: true
-    });
-    
-    // تصفية: فقط الأصناف التي status ليست "العرض منتهى" وليست "س"
-    const activeOffers = parsed.data.filter(item => {
-      const status = String(item['status'] || '').trim();
-      return status !== 'العرض منتهى' && status !== 'س';
-    });
-    
-    allData = transformRows(activeOffers);
-    normalizeDates(allData);
-    computeSavedAndDiscount(allData);
-    computeCombinedScore(allData);
-    
-    // إعادة تعيين المدخلات فقط (بدون لمس حالة الشيب)
-    document.getElementById('search-input').value = '';
-    document.getElementById('supermarket-filter').value = '';
-    document.getElementById('category-filter').value = '';
-    document.getElementById('brand-filter').value = '';
-    document.getElementById('min-discount').value = '';
-    document.getElementById('min-price').value = '';
-    document.getElementById('max-price').value = '';
-    document.getElementById('sort-by').value = 'best-deals';
-    
-    initializeFilters();
-    applyAllFilters();
-    populateTicker();
-    document.getElementById('loading').style.display = 'none';
-    
-  } catch(err) {
-    console.error('Error loading active offers:', err);
-    document.getElementById('loading').innerHTML = `<b>خطأ:</b> ${err.message}`;
-  }
-});
-        wirePriceControls();
-      } catch (error) {
-        console.error('Error in initializeFilters:', error);
-        showError('حدث خطأ في تهيئة الفلاتر: ' + error.message);
-      }
-    }
-    
-    function initApp() {
-      try {
-        wireEventListeners();
-      } catch (error) {
-        console.error('Error in initApp:', error);
-        showError('حدث خطأ في تهيئة التطبيق: ' + error.message);
-      }
-    }
-
-    function applyUrlParams() {
-      try {
-        const params = new URLSearchParams(window.location.search);
-        const best = params.get('best_price');
-        bestPriceMode = best === '1' || best === 'true';
-
-        const rawQ = params.get('q');
-        urlSearchTerms = rawQ
-          ? decodeURIComponent(rawQ)
-              .toLowerCase()
-              .split(/\s+/)
-              .map(t => t.trim())
-              .filter(Boolean)
-          : [];
-
-        const catParam = params.get('category');
-        urlCategories = catParam
-          ? decodeURIComponent(catParam)
-              .split(',')
-              .map(c => c.trim().toLowerCase())
-              .filter(Boolean)
-          : [];
-
-        const market = params.get('market');
-        if (market) {
-          const sel = document.getElementById('supermarket-filter');
-          if (sel) sel.value = decodeURIComponent(market);
-        }
-
-        const discount = params.get('discount');
-        if (discount) {
-          const el = document.getElementById('min-discount');
-          if (el) el.value = discount;
-        }
-
-        const page = parseInt(params.get('page'), 10);
-        if (!isNaN(page) && page > 1) currentPage = page;
-
-        if (params.has('one_day')) {
-          activeChipFilter = 'recent_day';
-          const v = params.get('one_day');
-          const el = document.getElementById('min-discount');
-          if (el && v) el.value = v;
-        }
-
-        if (params.has('week_percent')) {
-          activeChipFilter = 'recent_extended';
-          const v = params.get('week_percent');
-          const el = document.getElementById('min-discount');
-          if (el && v) el.value = v;
-        }
-
-        if (params.has('one_day') || params.has('week_percent')) {
-          const sort = document.getElementById('sort-by');
-          if (sort) sort.value = 'best-deals';
-        }
-
-      } catch (e) {
-        console.error('applyUrlParams failed:', e);
-      }
-    }      
-
-    function debounce(fn, wait=250){
-      return function(...args){
-        clearTimeout(debounceTimer);
-        debounceTimer = setTimeout(()=>fn.apply(this,args), wait);
-      };
-    }
-          
-
-   //   document.addEventListener('DOMContentLoaded', initApp);
-
-    /* ================================================= */
-    /* UTILITY FUNCTIONS */
-    /* ================================================= */
-
-    function parseEndDate(period) {
-      try {
-        if (period === null || period === undefined) return null;
-        const s = String(period).trim();
-        if (!s || s === 'غير متاح' || s.toLowerCase() === 'undefined') return null;
-        const parts = s
-          .split(/to|إلى|حتى|–|—|-|~/i)
-          .map(p => p && p.trim())
-          .filter(p => p && p !== 'غير متاح');
-        if (!parts.length) return null;
-        let candidate = parts[parts.length - 1];
-        if (!candidate) return null;
-        candidate = candidate.replace(/^(من|إلى|حتى)\s*/i, '').trim();
-        if (!candidate) return null;
-        let d = new Date(candidate);
-        if (isNaN(d.getTime())) {
-          const dm = candidate.match(/(\d{1,2})[\/\.-](\d{1,2})[\/\.-](\d{2,4})/);
-          if (dm) {
-            let day = dm[1].padStart(2, '0');
-            let month = dm[2].padStart(2, '0');
-            let year = dm[3];
-            if (year.length === 2) year = '20' + year;
-            d = new Date(`${year}-${month}-${day}`);
-          } else {
-            const ym = candidate.match(/(\d{4})[\/\.-](\d{1,2})[\/\.-](\d{1,2})/);
-            if (ym) {
-              d = new Date(
-                `${ym[1]}-${ym[2].padStart(2, '0')}-${ym[3].padStart(2, '0')}`
-              );
-            }
-          }
-        }
-        return (d instanceof Date && !isNaN(d.getTime())) ? d : null;
-      } catch (error) {
-        console.error('Error in parseEndDate:', error, period);
-        return null;
-      }
-    }
-
-    function formatDateShort(d) {
-      try {
-        if (!(d instanceof Date) || isNaN(d.getTime())) return 'غير متاح';
-        const y = d.getFullYear();
-        const m = String(d.getMonth() + 1).padStart(2, '0');
-        const day = String(d.getDate()).padStart(2, '0');
-        return `${y}-${m}-${day}`;
-      } catch {
-        return 'غير متاح';
-      }
-    }
-
-    function computeCombinedScore(arr) {
-      try {
-        if (!arr || !arr.length) return;
-        const savedVals = arr.map(i => i._saved || 0);
-        const pctVals = arr.map(i => i._discount_pct || 0);
-        const maxSaved = Math.max(...savedVals, 0);
-        const minSaved = Math.min(...savedVals, 0);
-        const maxPct = Math.max(...pctVals, 0);
-        const minPct = Math.min(...pctVals, 0);
-        const savedRange = (maxSaved - minSaved) || 1;
-        const pctRange = (maxPct - minPct) || 1;
-        
-        arr.forEach(item => {
-          const ns = ((item._saved || 0) - minSaved) / savedRange;
-          const np = ((item._discount_pct || 0) - minPct) / pctRange;
-          item._score = Math.max(ns, np);
-        });
-      } catch (error) {
-        console.error('Error in computeCombinedScore:', error);
-      }
-    }
-
-    function reduceBestPricePerCategory(data) {
-      const bestByCategory = new Map();
-
-      for (const item of data) {
-        const category = String(item.category || 'other').toLowerCase();
-        const price = Number(item.currentPrice);
-
-        if (!price || price <= 0) continue;
-
-        if (!bestByCategory.has(category)) {
-          bestByCategory.set(category, item);
-          continue;
-        }
-
-        const best = bestByCategory.get(category);
-        const bestPrice = Number(best.currentPrice);
-
-        if (
-          price < bestPrice ||
-          (price === bestPrice &&
-            (item._discount_pct || 0) > (best._discount_pct || 0))
-        ) {
-          bestByCategory.set(category, item);
-        }
-      }
-
-      return Array.from(bestByCategory.values());
-    }
-
-    function refreshApplication() {
-      try {
-        window.history.replaceState({}, document.title, window.location.pathname);
-        
-        document.getElementById('search-input').value = '';
-        document.getElementById('supermarket-filter').value = '';
-        document.getElementById('category-filter').value = '';
-        document.getElementById('brand-filter').value = '';
-        document.getElementById('min-discount').value = '';
-        document.getElementById('min-price').value = '';
-        document.getElementById('max-price').value = '';
-        document.getElementById('sort-by').value = 'best-deals';
-        
-        switchView('grid');
-        
-        activeChipFilter = 'all';
-        document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
-        const allChip = document.querySelector('.chip[data-filter="all"]');
-        if (allChip) allChip.classList.add('active');
-        
-        clearAutocomplete();
-        
-        urlCategories = [];
-        urlSearchTerms = [];
-        bestPriceMode = false;
-        forceRecentTwoDaysFromURL = false;
-        
-        applyAllFilters();
-        
-      } catch (error) {
-        console.error('Error in refreshApplication:', error);
-        window.location.reload();
-      }
-    }
-
-    function applyAllFilters() {  
-      try {
-        const uiSearch = (document.getElementById('search-input')?.value || '').trim().toLowerCase();
-        const effectiveSearchTerms = (Array.isArray(urlSearchTerms) && urlSearchTerms.length) ? urlSearchTerms : (uiSearch ? uiSearch.split(/\s+/) : []);
-        const supermarket = document.getElementById('supermarket-filter')?.value || '';
-        const category = document.getElementById('category-filter')?.value || '';
-        const brand = document.getElementById('brand-filter')?.value || '';
-        const minDiscount = parseFloat(document.getElementById('min-discount')?.value) || 0;
-        const minPriceRaw = document.getElementById('min-price')?.value;
-        const maxPriceRaw = document.getElementById('max-price')?.value;
-
-        let minPrice = minPriceRaw === '' ? 0 : Number(minPriceRaw);
-        let maxPrice = maxPriceRaw === '' ? Infinity : Number(maxPriceRaw);
-
-        if (minPrice > maxPrice) [minPrice, maxPrice] = [maxPrice, minPrice];
-        const sort = document.getElementById('sort-by')?.value || 'best-deals';
-
-        filteredData = allData.filter(item => {
-          const price = Number(item.currentPrice) || 0;
-          if (price < minPrice || price > maxPrice) return false;
-          const discount = item._discount_pct || 0;
-          if (discount < minDiscount) return false;
-          
-          if (forceRecentTwoDaysFromURL) {
-            if (!latestTwoDates.length) return false;
-            const d = item.updateDate || item.endDate || parseEndDate(item.validUntil);
-            if (!(d instanceof Date) || isNaN(d)) return false;
-            const iso = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
-            if (!latestTwoDates.includes(iso)) return false;
-          }
-          
-          if (effectiveSearchTerms.length) {
-            const hay = `${item.product} ${item.primaryName} ${item.brand} ${item.supermarket}`.toLowerCase();
-            if (!effectiveSearchTerms.every(t => hay.includes(t))) return false;
-          }
-          
-          if (Array.isArray(urlCategories) && urlCategories.length) {
-            const itemCat = String(item.category || '').toLowerCase();
-            if (!urlCategories.some(c => itemCat.includes(c))) return false;
-          }
-          
-          if (activeChipFilter && activeChipFilter !== 'all') {
-            switch(activeChipFilter) {
-              case 'food':  if (!/طعام|غذائ|أطعمة|مأكولات/i.test(item.category || '')) return false; break;
-              case 'carrefour': if (!item.supermarket.includes('كارفور')) return false; break;
-              case 'hot': if (!item._discount_pct || item._discount_pct < 30) return false; break;
-//              case 'ending': if (!item.endDate) return false; const now = new Date(); const diffDays = Math.ceil((item.endDate - now) / (1000 * 60 * 60 * 24)); if (diffDays > 3 || diffDays < 0) return false; break;
-case 'ending':
-  if (!item.endDate) return false;
-  const now = new Date();
-  const diffDays = Math.ceil((item.endDate - now) / (1000 * 60 * 60 * 24));
-  return diffDays >= 0 && diffDays <= 7;   // تنتهي خلال 7 أيام (يمكنك تغيير الرقم)
-
-              case 'discount': if (!item._discount_pct || item._discount_pct < 20) return false; break;
-              case 'recent': const d = item.updateDate || item.endDate || parseEndDate(item.validUntil); if (!d) return false; const iso = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); if (!latestTwoDates.includes(iso)) return false; break;
-            }
-          }
-          
-          if (supermarket && item.supermarket !== supermarket) return false;
-          if (category) {
-            const itemCat = String(item.category || '').toLowerCase();
-            if (!itemCat.includes(category.toLowerCase())) return false;
-          }
-          if (brand && item.brand !== brand) return false;
-          
-          return true;
-        });
-
-        if (bestPriceMode) {
-          filteredData = reduceBestPricePerCategory(filteredData);
-        }
-
-        switch(sort) {
-          case 'best-deals':
-            const maxSaved = Math.max(1, ...filteredData.map(i => i._saved || 0));
-            filteredData.sort((a, b) => {
-              const da = (a._discount_pct || 0) / 100;
-              const db = (b._discount_pct || 0) / 100;
-              const sa = (a._saved || 0) / maxSaved;
-              const sb = (b._saved || 0) / maxSaved;
-              return (db * WEIGHT_DISCOUNT + sb * WEIGHT_SAVINGS) - (da * WEIGHT_DISCOUNT + sa * WEIGHT_SAVINGS);
+        // -------------------- دوال IndexedDB --------------------
+        function openDB() {
+            return new Promise((resolve, reject) => {
+                const req = indexedDB.open(DB_NAME, DB_VERSION);
+                req.onupgradeneeded = (e) => {
+                    const db = e.target.result;
+                    if (!db.objectStoreNames.contains(STORE_NAME)) {
+                        const store = db.createObjectStore(STORE_NAME, { keyPath: 'id', autoIncrement: true });
+                        store.createIndex('product', 'product', { unique: false });
+                        store.createIndex('supermarket', 'supermarket', { unique: false });
+                        store.createIndex('category', 'category', { unique: false });
+                    }
+                };
+                req.onsuccess = () => resolve(req.result);
+                req.onerror = () => reject(req.error);
             });
-            break;
-          case 'discount-desc':
-            filteredData.sort((a, b) => (b._discount_pct || 0) - (a._discount_pct || 0));
-            break;
-          case 'saved-desc':
-            filteredData.sort((a, b) => (b._saved || 0) - (a._saved || 0));
-            break;
-          case 'price-asc':
-            filteredData.sort((a, b) => (a.currentPrice || 0) - (b.currentPrice || 0));
-            break;
-          case 'price-desc':
-            filteredData.sort((a, b) => (b.currentPrice || 0) - (a.currentPrice || 0));
-            break;
-          case 'name-asc':
-            filteredData.sort((a, b) => (a.product || '').localeCompare(b.product || '', 'ar'));
-            break;
-          case 'name-desc':
-            filteredData.sort((a, b) => (b.product || '').localeCompare(a.product || '', 'ar'));
-            break;
-
-// في القسم الخاص بـ CHIP FILTER أضف:
-case 'active':
-  if (item.status === 'العرض منتهى') return false;
-  break;
-case 'expired':
-  if (item.status !== 'العرض منتهى') return false;
-  break;
-case 'all':
-  // لا تصفية - اعرض الكل
-  break;
-
         }
 
-        currentPage = 1;
-        renderContent();
-        updateStats();
-      } catch (e) {
-        console.error('applyAllFilters failed:', e);
-      }
-    }
+        async function loadFromDB() {
+            try {
+                const db = await openDB();
+                return new Promise((resolve, reject) => {
+                    const tx = db.transaction(STORE_NAME, 'readonly');
+                    const store = tx.objectStore(STORE_NAME);
+                    const req = store.getAll();
+                    req.onsuccess = () => resolve(req.result || []);
+                    req.onerror = () => reject(req.error);
+                });
+            } catch (e) {
+                console.warn('فشل تحميل IndexedDB:', e);
+                return [];
+            }
+        }
 
-      document.addEventListener('DOMContentLoaded', fetchData_2);
-    </script>
-  </body>
+        async function saveToDB(data) {
+            try {
+                const db = await openDB();
+                return new Promise((resolve, reject) => {
+                    const tx = db.transaction(STORE_NAME, 'readwrite');
+                    const store = tx.objectStore(STORE_NAME);
+                    store.clear();
+                    data.forEach((item, idx) => { item.id = idx + 1; store.add(item); });
+                    tx.oncomplete = resolve;
+                    tx.onerror = reject;
+                });
+            } catch (e) {
+                console.warn('فشل حفظ IndexedDB:', e);
+            }
+        }
+
+        // -------------------- دوال تحويل البيانات --------------------
+        function transformRows(rows) {
+            return rows.map(item => {
+                // قراءة end_date ومعالجتها
+                let rawEndDate = String(item['end_date'] || '').trim();
+                let dateOnly = rawEndDate.split(/[ T]/)[0];
+                let endObject = null;
+                if (dateOnly) {
+                    let d = new Date(dateOnly);
+                    if (!isNaN(d.getTime())) endObject = d;
+                }
+
+                // قراءة status
+                let status = String(item['status'] || '').trim();
+                if (status === 'س') status = 'منتهي';
+
+                // قراءة validUntil
+                let validUntil = String(item.validUntil || '').trim();
+                if (!validUntil || validUntil === 'غير متاح') validUntil = status || 'غير متاح';
+
+                // تاريخ التحديث
+                let updateDateStr = item['تاريخ تعديل ملف الفلاير'] || item['Update Date'] || '';
+                let updateDate = null;
+                if (updateDateStr) {
+                    let d = new Date(updateDateStr);
+                    if (!isNaN(d.getTime())) updateDate = d;
+                }
+
+                return {
+                    supermarket: String(item['اسم السوبر ماركت'] || ''),
+                    product: String(item['الاسم بالعربية'] || ''),
+                    primaryName: String(item['اسم المنتج (الأساسي)'] || ''),
+                    unit: String(item['الوحدة'] || ''),
+                    category: String(item['الفئة'] || ''),
+                    brand: String(item['اسم العلامة التجارية'] || ''),
+                    originalPrice: parseFloat(item['السعر الأصلي']) || 0,
+                    currentPrice: parseFloat(item['السعر الحالي']) || 0,
+                    discount: parseFloat(item['الخصم %']) || 0,
+                    pageNo: String(item['اسم ملف الفلاير'] || ''),
+                    solution_key: String(item['solution_key'] || ''),
+                    currency: 'EGP',
+                    endDate: endObject,
+                    validUntil: validUntil,
+                    updateDate: updateDate,
+                    status: status,
+                    // حقول محسوبة ستضاف لاحقاً
+                    _saved: 0,
+                    _discount_pct: 0,
+                    _score: 0
+                };
+            }).filter(item => item.product); // تجاهل الصفوف الفارغة
+        }
+
+        // -------------------- دوال مساعدة --------------------
+        function normalizeDates(arr) {
+            arr.forEach(i => {
+                if (i.updateDate && !(i.updateDate instanceof Date)) {
+                    let d = new Date(i.updateDate);
+                    i.updateDate = isNaN(d) ? null : d;
+                }
+                if (i.endDate && !(i.endDate instanceof Date)) {
+                    let d = new Date(i.endDate);
+                    i.endDate = isNaN(d) ? null : d;
+                }
+            });
+        }
+
+        function computeSavedAndDiscount(arr) {
+            arr.forEach(item => {
+                const orig = Number(item.originalPrice) || 0;
+                const curr = Number(item.currentPrice) || 0;
+                let saved = 0;
+                if (orig > 0 && curr > 0) saved = orig - curr;
+                else if (orig > 0 && item.discount) saved = orig * (item.discount / 100);
+                else if (curr > 0 && item.discount) saved = curr * (item.discount / 100);
+                item._saved = Math.max(0, Number(saved.toFixed(2) || 0));
+                item._discount_pct = (item.discount && !isNaN(item.discount))
+                    ? Number(item.discount)
+                    : (orig > 0 && curr > 0 ? Math.round(((orig - curr) / orig) * 100) : 0);
+            });
+        }
+
+        function computeCombinedScore(arr) {
+            if (!arr.length) return;
+            const savedVals = arr.map(i => i._saved);
+            const pctVals = arr.map(i => i._discount_pct);
+            const maxSaved = Math.max(...savedVals, 0);
+            const minSaved = Math.min(...savedVals, 0);
+            const maxPct = Math.max(...pctVals, 0);
+            const minPct = Math.min(...pctVals, 0);
+            const savedRange = maxSaved - minSaved || 1;
+            const pctRange = maxPct - minPct || 1;
+            arr.forEach(item => {
+                const ns = (item._saved - minSaved) / savedRange;
+                const np = (item._discount_pct - minPct) / pctRange;
+                item._score = ns * WEIGHT_SAVINGS + np * WEIGHT_DISCOUNT;
+            });
+        }
+
+        function findLatestTwoDates(data) {
+            let dates = [];
+            data.forEach(item => {
+                let d = item.updateDate || item.endDate;
+                if (d && d instanceof Date && !isNaN(d)) {
+                    let dateStr = d.toISOString().split('T')[0];
+                    dates.push(dateStr);
+                }
+            });
+            let unique = [...new Set(dates)].sort().reverse();
+            return unique.slice(0, 2);
+        }
+
+        function formatDateShort(d) {
+            if (!d || !(d instanceof Date) || isNaN(d)) return 'غير متاح';
+            return d.toISOString().split('T')[0];
+        }
+
+        // -------------------- تحميل البيانات (المسار الرئيسي) --------------------
+        async function loadData() {
+            showLoading('جارٍ تحميل البيانات من المخزن المحلي...');
+            let data = await loadFromDB();
+
+            // التحقق من صلاحية الكاش (نستخدم localStorage للتوقيت)
+            const cacheTime = localStorage.getItem(`${CACHE_KEY}_time`);
+            const cacheValid = cacheTime && (Date.now() - parseInt(cacheTime) < CACHE_EXPIRY);
+
+            if (data.length > 0 && cacheValid) {
+                console.log(`تم تحميل ${data.length} عنصر من IndexedDB`);
+                allData = data;
+                hideLoading();
+                processDataAfterLoad();
+            } else {
+                // لا توجد بيانات أو الكاش منتهي → تحميل من CSV
+                console.log('تحميل من CSV...');
+                await fetchCSV();
+            }
+        }
+
+        async function fetchCSV() {
+            showLoading('جارٍ تحميل العروض من الخادم...');
+            try {
+                const response = await fetch(DATA_URL);
+                const csvText = await response.text();
+                const parsed = Papa.parse(csvText, { header: true, skipEmptyLines: true, trim: true });
+                allData = transformRows(parsed.data);
+                normalizeDates(allData);
+                computeSavedAndDiscount(allData);
+                computeCombinedScore(allData);
+
+                // حفظ في IndexedDB و localStorage
+                await saveToDB(allData);
+                localStorage.setItem(`${CACHE_KEY}_time`, Date.now());
+                console.log(`تم حفظ ${allData.length} عنصر في IndexedDB`);
+
+                hideLoading();
+                processDataAfterLoad();
+            } catch (err) {
+                console.error('فشل تحميل CSV:', err);
+                document.getElementById('loading').innerHTML = 'حدث خطأ في تحميل البيانات. حاول تحديث الصفحة.';
+            }
+        }
+
+        function processDataAfterLoad() {
+            // حساب آخر تاريخين
+            latestTwoDates = findLatestTwoDates(allData);
+
+            // التحقق من وجود باراميتر all في الرابط
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.has('all')) {
+                showAllOffers = true;
+                activeChipFilter = 'all';
+                // ننشط الشيب المناسب
+                document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+                const chipAll = document.querySelector('.chip[data-filter="all"]');
+                if (chipAll) chipAll.classList.add('active');
+            } else {
+                showAllOffers = false;
+                activeChipFilter = 'active'; // الفلتر الافتراضي هو العروض السارية
+                document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+                const chipActive = document.querySelector('.chip[data-filter="active"]');
+                if (chipActive) chipActive.classList.add('active');
+            }
+
+            // تهيئة القوائم المنسدلة
+            populateFilters();
+
+            // تطبيق الفلاتر
+            applyAllFilters();
+
+            // تعبئة الشريط المتحرك
+            populateTicker();
+
+            // إخفاء التحميل
+            hideLoading();
+        }
+
+        // -------------------- دوال تهيئة واجهة المستخدم --------------------
+        function populateFilters() {
+            const supermarketSet = new Set();
+            const categorySet = new Set();
+            const brandSet = new Set();
+
+            allData.forEach(item => {
+                if (item.supermarket) supermarketSet.add(item.supermarket);
+                if (item.category) categorySet.add(item.category);
+                if (item.brand) brandSet.add(item.brand);
+            });
+
+            const supermarketSelect = document.getElementById('supermarket-filter');
+            supermarketSelect.innerHTML = '<option value="">كل السوبرماركت</option>';
+            Array.from(supermarketSet).sort().forEach(s => {
+                let opt = document.createElement('option');
+                opt.value = s;
+                opt.textContent = s;
+                supermarketSelect.appendChild(opt);
+            });
+
+            const categorySelect = document.getElementById('category-filter');
+            categorySelect.innerHTML = '<option value="">كل الفئات</option>';
+            Array.from(categorySet).sort().forEach(c => {
+                let opt = document.createElement('option');
+                opt.value = c;
+                opt.textContent = c;
+                categorySelect.appendChild(opt);
+            });
+
+            const brandSelect = document.getElementById('brand-filter');
+            brandSelect.innerHTML = '<option value="">كل العلامات</option>';
+            Array.from(brandSet).sort().forEach(b => {
+                let opt = document.createElement('option');
+                opt.value = b;
+                opt.textContent = b;
+                brandSelect.appendChild(opt);
+            });
+        }
+
+        function showLoading(msg) {
+            const el = document.getElementById('loading');
+            if (el) {
+                el.style.display = 'block';
+                el.innerHTML = `<i class="fas fa-spinner fa-spin"></i> ${msg}`;
+            }
+        }
+        function hideLoading() {
+            const el = document.getElementById('loading');
+            if (el) el.style.display = 'none';
+        }
+
+        // -------------------- تطبيق الفلاتر --------------------
+        function applyAllFilters() {
+            const searchVal = document.getElementById('search-input').value.trim().toLowerCase();
+            const supermarket = document.getElementById('supermarket-filter').value;
+            const category = document.getElementById('category-filter').value;
+            const brand = document.getElementById('brand-filter').value;
+            const minDiscount = parseFloat(document.getElementById('min-discount').value) || 0;
+            let minPrice = parseFloat(document.getElementById('min-price').value) || 0;
+            let maxPrice = parseFloat(document.getElementById('max-price').value) || Infinity;
+            if (minPrice > maxPrice) [minPrice, maxPrice] = [maxPrice, minPrice];
+            const sort = document.getElementById('sort-by').value;
+
+            filteredData = allData.filter(item => {
+                // 1. فلتر الحالة (إلا إذا كان showAllOffers مفعل)
+                if (!showAllOffers && activeChipFilter !== 'all') {
+                    if (item.status === 'منتهي' || item.status === 'العرض منتهى') return false;
+                }
+
+                // 2. فلتر البحث
+                if (searchVal) {
+                    const hay = (item.product + ' ' + item.primaryName + ' ' + item.brand + ' ' + item.supermarket).toLowerCase();
+                    if (!hay.includes(searchVal)) return false;
+                }
+
+                // 3. فلتر السوبرماركت
+                if (supermarket && item.supermarket !== supermarket) return false;
+
+                // 4. فلتر الفئة
+                if (category) {
+                    if (!item.category || !item.category.toLowerCase().includes(category.toLowerCase())) return false;
+                }
+
+                // 5. فلتر العلامة التجارية
+                if (brand && item.brand !== brand) return false;
+
+                // 6. فلتر الخصم الأدنى
+                if (minDiscount > 0 && (item._discount_pct || 0) < minDiscount) return false;
+
+                // 7. فلتر السعر
+                const price = item.currentPrice || 0;
+                if (price < minPrice || price > maxPrice) return false;
+
+                // 8. الفلاتر السريعة (chips)
+                switch (activeChipFilter) {
+                    case 'hot':
+                        if ((item._discount_pct || 0) < 30) return false;
+                        break;
+                    case 'ending':
+                        if (!item.endDate) return false;
+                        const now = new Date();
+                        const diff = Math.ceil((item.endDate - now) / (1000*60*60*24));
+                        if (diff < 0 || diff > 7) return false;
+                        break;
+                    case 'discount':
+                        if ((item._discount_pct || 0) < 20) return false;
+                        break;
+                    case 'carrefour':
+                        if (!item.supermarket.includes('كارفور')) return false;
+                        break;
+                    case 'food':
+                        if (!item.category || !/طعام|غذائ|مأكولات/i.test(item.category)) return false;
+                        break;
+                    case 'recent':
+                        if (!latestTwoDates.length) return false;
+                        const d = item.updateDate || item.endDate;
+                        if (!d) return false;
+                        const ds = d instanceof Date ? d.toISOString().split('T')[0] : null;
+                        if (!ds || !latestTwoDates.includes(ds)) return false;
+                        break;
+                    // case 'all' و 'active' يتم التعامل معهم أعلاه (الحالة)
+                }
+
+                return true;
+            });
+
+            // الترتيب
+            sortData(filteredData, sort);
+
+            // إعادة تعيين الصفحة إلى الأولى
+            currentPage = 1;
+            renderContent();
+            updateStats();
+        }
+
+        function sortData(data, sortKey) {
+            if (!data.length) return;
+            switch (sortKey) {
+                case 'best-deals':
+                    data.sort((a,b) => (b._score || 0) - (a._score || 0));
+                    break;
+                case 'discount-desc':
+                    data.sort((a,b) => (b._discount_pct || 0) - (a._discount_pct || 0));
+                    break;
+                case 'saved-desc':
+                    data.sort((a,b) => (b._saved || 0) - (a._saved || 0));
+                    break;
+                case 'price-asc':
+                    data.sort((a,b) => (a.currentPrice || 0) - (b.currentPrice || 0));
+                    break;
+                case 'price-desc':
+                    data.sort((a,b) => (b.currentPrice || 0) - (a.currentPrice || 0));
+                    break;
+                case 'name-asc':
+                    data.sort((a,b) => (a.product || '').localeCompare(b.product || '', 'ar'));
+                    break;
+                case 'name-desc':
+                    data.sort((a,b) => (b.product || '').localeCompare(a.product || '', 'ar'));
+                    break;
+            }
+        }
+
+        // -------------------- عرض البيانات --------------------
+        function renderContent() {
+            if (currentView === 'grid') renderGrid();
+            else renderTable();
+        }
+
+        function renderGrid() {
+            const grid = document.getElementById('products-grid');
+            grid.style.display = 'grid';
+            document.getElementById('data-table').style.display = 'none';
+
+            const start = (currentPage - 1) * ITEMS_PER_PAGE;
+            const pageData = filteredData.slice(start, start + ITEMS_PER_PAGE);
+
+            if (!pageData.length) {
+                grid.innerHTML = '<div style="grid-column:1/-1; text-align:center; padding:40px;">لا توجد عروض مطابقة</div>';
+                updatePagination();
+                return;
+            }
+
+            grid.innerHTML = pageData.map(item => {
+                const isFav = favorites.includes(item.solution_key);
+                const inComp = comparisonItems.some(c => c.product === item.product);
+                let productIcon = 'fa-box';
+                if (item.category) {
+                    if (item.category.includes('غذائي')) productIcon = 'fa-utensils';
+                    else if (item.category.includes('مشروب')) productIcon = 'fa-wine-bottle';
+                }
+                let marketIcon = item.supermarket?.includes('كارفور') ? 'fa-shopping-cart' : 'fa-store';
+                let countdown = '';
+                if (item.endDate) {
+                    let diff = Math.ceil((item.endDate - new Date()) / (1000*60*60*24));
+                    if (diff <= 7 && diff >= 0) countdown = `<div class="countdown"><i class="fas fa-clock"></i> ${diff} يوم</div>`;
+                }
+                return `
+                <div class="product-card" data-product="${item.product}">
+                    ${item._discount_pct > 50 ? '<div class="product-badge"><i class="fas fa-fire"></i> ساخن</div>' : ''}
+                    <div class="favorite-btn ${isFav ? 'active' : ''}" data-id="${item.solution_key}"><i class="fas fa-heart"></i></div>
+                    <div class="compare-btn ${inComp ? 'active' : ''}" data-id="${item.product}"><i class="fas fa-balance-scale"></i></div>
+                    <div class="share-btn" data-product="${item.product}" data-price="${item.currentPrice}"><i class="fas fa-share-alt"></i></div>
+                    <div class="product-image"><i class="fas ${productIcon}"></i></div>
+                    <div class="product-info">
+                        <h3 class="product-title">${item.product}</h3>
+                        ${item.unit ? `<div><i class="fas fa-weight"></i> ${item.unit}</div>` : ''}
+                        <div class="price-container">
+                            <span class="current-price">${item.currentPrice} ${item.currency}</span>
+                            ${item._discount_pct ? `<span class="discount-badge">-${item._discount_pct}%</span>` : ''}
+                        </div>
+                        <div class="product-meta">
+                            <span><i class="fas ${marketIcon}"></i> ${item.supermarket}</span>
+                            ${countdown}
+                        </div>
+                        <div class="action-buttons">
+                            <button class="btn btn-primary buy-now-btn" data-page="${item.pageNo}" data-solution="${item.solution_key}"><i class="fas fa-image"></i> صورة</button>
+                            <button class="btn btn-secondary view-details-btn" data-id="${item.product}"><i class="fas fa-info-circle"></i> تفاصيل</button>
+                        </div>
+                    </div>
+                </div>`;
+            }).join('');
+
+            attachCardEvents();
+            updatePagination();
+        }
+
+        function renderTable() {
+            document.getElementById('products-grid').style.display = 'none';
+            const tableDiv = document.getElementById('data-table');
+            tableDiv.style.display = 'block';
+
+            const tbody = document.getElementById('table-body');
+            const start = (currentPage - 1) * ITEMS_PER_PAGE;
+            const pageData = filteredData.slice(start, start + ITEMS_PER_PAGE);
+
+            if (!pageData.length) {
+                tbody.innerHTML = '<tr><td colspan="10" style="text-align:center;">لا توجد عروض</td></tr>';
+                updatePagination();
+                return;
+            }
+
+            tbody.innerHTML = pageData.map(item => {
+                let rowClass = item._discount_pct > 20 ? 'class="highlight"' : '';
+                let flyerId = item.pageNo?.match(/flyer_(\d+)/)?.[1] || item.solution_key || '';
+                let url = flyerId ? `https://www.yabalashoffers.com/flyer.php?d=${encodeURIComponent(flyerId)}&c=eg` : '#';
+                return `<tr ${rowClass} data-url="${url}" style="cursor:pointer;">
+                    <td>${item.supermarket}</td>
+                    <td><strong>${item.product}</strong></td>
+                    <td>${item.primaryName || ''}</td>
+                    <td>${item.unit || ''}</td>
+                    <td>${item.category || ''}</td>
+                    <td>${item.brand || ''}</td>
+                    <td>${item.currentPrice} ${item.currency}</td>
+                    <td>${item._discount_pct ? item._discount_pct+'%' : ''}</td>
+                    <td>${item.updateDate ? formatDateShort(item.updateDate) : ''}</td>
+                    <td>${item.validUntil || ''}</td>
+                </tr>`;
+            }).join('');
+
+            // إضافة حدث النقر على الصف
+            document.querySelectorAll('#table-body tr').forEach(tr => {
+                tr.addEventListener('click', function(e) {
+                    let url = this.dataset.url;
+                    if (url && url !== '#') window.open(url, '_blank');
+                });
+            });
+
+            updatePagination();
+        }
+
+        function updatePagination() {
+            const pagination = document.getElementById('pagination');
+            const totalPages = Math.ceil(filteredData.length / ITEMS_PER_PAGE);
+            if (totalPages <= 1) {
+                pagination.innerHTML = '';
+                return;
+            }
+            let html = '';
+            for (let i = 1; i <= totalPages; i++) {
+                if (i === currentPage) html += `<button class="active" style="background:var(--primary-blue); color:white;">${i}</button>`;
+                else html += `<button onclick="window.goToPage(${i})">${i}</button>`;
+            }
+            pagination.innerHTML = html;
+        }
+        window.goToPage = (page) => { currentPage = page; renderContent(); };
+
+        function updateStats() {
+            document.getElementById('total-offers').textContent = filteredData.length;
+            let avg = filteredData.reduce((s,i) => s + (i._discount_pct || 0), 0) / (filteredData.length || 1);
+            document.getElementById('avg-discount').textContent = Math.round(avg) + '%';
+            let hot = filteredData.filter(i => i._discount_pct > 30).length;
+            document.getElementById('hot-deals').textContent = hot;
+            let ending = filteredData.filter(i => i.endDate && ((i.endDate - new Date())/(1000*60*60*24) <= 3)).length;
+            document.getElementById('ending-soon').textContent = ending;
+            let markets = new Set(filteredData.map(i => i.supermarket)).size;
+            document.getElementById('total-supermarkets').textContent = markets;
+        }
+
+        // -------------------- الشريط المتحرك --------------------
+        function populateTicker() {
+            const track = document.getElementById('ticker-track');
+            if (!allData.length) return;
+            let top = [...allData].sort((a,b) => (b._score||0) - (a._score||0)).slice(0,12);
+            track.innerHTML = '';
+            top.forEach(item => {
+                let span = document.createElement('div');
+                span.className = 'ticker-item';
+                span.innerHTML = `<span class="badge">${item._discount_pct}%</span> ${item.product} - ${item.supermarket}`;
+                track.appendChild(span);
+            });
+            // تكرار المحتوى للتمرير المستمر
+            top.forEach(item => {
+                let span = document.createElement('div');
+                span.className = 'ticker-item';
+                span.innerHTML = `<span class="badge">${item._discount_pct}%</span> ${item.product} - ${item.supermarket}`;
+                track.appendChild(span);
+            });
+            track.classList.add('animate');
+        }
+
+        // -------------------- أحداث العناصر --------------------
+        function attachCardEvents() {
+            // favourite
+            document.querySelectorAll('.favorite-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    let id = btn.dataset.id;
+                    if (favorites.includes(id)) {
+                        favorites = favorites.filter(f => f !== id);
+                        btn.classList.remove('active');
+                    } else {
+                        favorites.push(id);
+                        btn.classList.add('active');
+                    }
+                    localStorage.setItem('favorites', JSON.stringify(favorites));
+                });
+            });
+
+            // مقارنة
+            document.querySelectorAll('.compare-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    let productId = btn.dataset.id;
+                    let item = allData.find(i => i.product === productId);
+                    if (!item) return;
+                    if (comparisonItems.some(c => c.product === productId)) {
+                        comparisonItems = comparisonItems.filter(c => c.product !== productId);
+                    } else {
+                        if (comparisonItems.length >= 4) {
+                            alert('يمكن مقارنة 4 منتجات كحد أقصى');
+                            return;
+                        }
+                        comparisonItems.push(item);
+                    }
+                    localStorage.setItem('comparison', JSON.stringify(comparisonItems));
+                    updateComparisonPanel();
+                    btn.classList.toggle('active');
+                });
+            });
+
+            // مشاركة
+            document.querySelectorAll('.share-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    let product = btn.dataset.product;
+                    let price = btn.dataset.price;
+                    if (navigator.share) {
+                        navigator.share({ title: product, text: `عرض ${product} بسعر ${price} جنيه`, url: window.location.href });
+                    } else {
+                        navigator.clipboard?.writeText(`${product} بسعر ${price} جنيه - ${window.location.href}`);
+                        alert('تم نسخ الرابط');
+                    }
+                });
+            });
+
+            // زر الشراء (صورة)
+            document.querySelectorAll('.buy-now-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    let page = btn.dataset.page;
+                    let sol = btn.dataset.solution;
+                    let flyerId = page?.match(/flyer_(\d+)/)?.[1] || sol || '';
+                    let url = flyerId ? `https://www.yabalashoffers.com/flyer.php?d=${encodeURIComponent(flyerId)}&c=eg` : '#';
+                    if (url !== '#') window.open(url, '_blank');
+                });
+            });
+
+            // زر التفاصيل
+            document.querySelectorAll('.view-details-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    let prodId = btn.dataset.id;
+                    let item = allData.find(i => i.product === prodId);
+                    if (item) {
+                        alert(`المنتج: ${item.product}\nالسوبرماركت: ${item.supermarket}\nالسعر: ${item.currentPrice}\nالخصم: ${item._discount_pct}%\nساري حتى: ${item.validUntil}`);
+                    }
+                });
+            });
+        }
+
+        function updateComparisonPanel() {
+            const panel = document.getElementById('comparison-panel');
+            const container = document.getElementById('comparison-items');
+            const countSpan = document.getElementById('comparison-count');
+            countSpan.textContent = comparisonItems.length;
+            container.innerHTML = comparisonItems.map(item => `
+                <div class="comparison-item" style="min-width:200px; background:#f8f9fa; border-radius:8px; padding:15px;">
+                    <div><strong>${item.product}</strong></div>
+                    <div>${item.supermarket}</div>
+                    <div style="color:var(--primary-blue); font-weight:700;">${item.currentPrice} ${item.currency}</div>
+                    <div>خصم ${item._discount_pct}%</div>
+                    <button onclick="removeFromComparison('${item.product}')" style="background:#dc3545; color:white; border:none; border-radius:4px; padding:5px 10px; margin-top:10px;">إزالة</button>
+                </div>
+            `).join('');
+            panel.style.display = comparisonItems.length ? 'block' : 'none';
+        }
+        window.removeFromComparison = (productId) => {
+            comparisonItems = comparisonItems.filter(c => c.product !== productId);
+            localStorage.setItem('comparison', JSON.stringify(comparisonItems));
+            updateComparisonPanel();
+            // تحديث حالة الأزرار في البطاقات
+            document.querySelectorAll('.compare-btn').forEach(btn => {
+                if (btn.dataset.id === productId) btn.classList.remove('active');
+            });
+        };
+
+        // أحداث الفلاتر
+        function wireEventListeners() {
+            // أزرار العرض
+            document.getElementById('view-grid-btn').addEventListener('click', () => { currentView='grid'; switchView(); });
+            document.getElementById('view-table-btn').addEventListener('click', () => { currentView='table'; switchView(); });
+
+            function switchView() {
+                document.getElementById('view-grid-btn').classList.toggle('active', currentView==='grid');
+                document.getElementById('view-table-btn').classList.toggle('active', currentView==='table');
+                renderContent();
+            }
+
+            // أزرار الشيب
+            document.querySelectorAll('.chip').forEach(chip => {
+                chip.addEventListener('click', function() {
+                    let filter = this.dataset.filter;
+                    activeChipFilter = filter;
+                    // تحديث حالة showAllOffers
+                    if (filter === 'all') showAllOffers = true;
+                    else showAllOffers = false;
+
+                    document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+                    this.classList.add('active');
+                    applyAllFilters();
+                });
+            });
+
+            // أحداث الإدخال
+            document.getElementById('search-input').addEventListener('input', debounce(applyAllFilters, 300));
+            document.getElementById('supermarket-filter').addEventListener('change', applyAllFilters);
+            document.getElementById('category-filter').addEventListener('change', applyAllFilters);
+            document.getElementById('brand-filter').addEventListener('change', applyAllFilters);
+            document.getElementById('min-discount').addEventListener('input', debounce(applyAllFilters, 300));
+            document.getElementById('sort-by').addEventListener('change', applyAllFilters);
+
+            // تحكمات السعر
+            function adjustInput(id, delta) {
+                let inp = document.getElementById(id);
+                let val = parseFloat(inp.value) || 0;
+                val = Math.max(0, val + delta);
+                inp.value = val;
+                applyAllFilters();
+            }
+            document.getElementById('min-decrease').addEventListener('click', () => adjustInput('min-price', -1));
+            document.getElementById('min-increase').addEventListener('click', () => adjustInput('min-price', 1));
+            document.getElementById('max-decrease').addEventListener('click', () => adjustInput('max-price', -1));
+            document.getElementById('max-increase').addEventListener('click', () => adjustInput('max-price', 1));
+            document.getElementById('min-price').addEventListener('input', debounce(applyAllFilters, 300));
+            document.getElementById('max-price').addEventListener('input', debounce(applyAllFilters, 300));
+
+            // زر إعادة التعيين
+            document.getElementById('reset-btn').addEventListener('click', () => {
+                document.getElementById('search-input').value = '';
+                document.getElementById('supermarket-filter').value = '';
+                document.getElementById('category-filter').value = '';
+                document.getElementById('brand-filter').value = '';
+                document.getElementById('min-price').value = '';
+                document.getElementById('max-price').value = '';
+                document.getElementById('min-discount').value = '';
+                document.getElementById('sort-by').value = 'best-deals';
+                // إعادة تعيين الشيب إلى الحالة الافتراضية (سارية)
+                showAllOffers = false;
+                activeChipFilter = 'active';
+                document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+                document.querySelector('.chip[data-filter="active"]').classList.add('active');
+                applyAllFilters();
+            });
+
+            // أزرار إضافية
+            document.getElementById('share-app').addEventListener('click', () => {
+                if (navigator.share) navigator.share({ title: 'عروض السوبرماركت', url: window.location.href });
+                else alert('انسخ الرابط: ' + window.location.href);
+            });
+
+            document.getElementById('compare-mode-btn').addEventListener('click', () => {
+                document.getElementById('comparison-panel').style.display = 'block';
+            });
+
+            document.getElementById('clear-comparison').addEventListener('click', () => {
+                comparisonItems = [];
+                localStorage.setItem('comparison', '[]');
+                updateComparisonPanel();
+                document.querySelectorAll('.compare-btn').forEach(btn => btn.classList.remove('active'));
+            });
+
+            document.getElementById('close-comparison').addEventListener('click', () => {
+                document.getElementById('comparison-panel').style.display = 'none';
+            });
+
+            // النقر خارج الإكمال التلقائي
+            document.addEventListener('click', (e) => {
+                let list = document.getElementById('autocomplete-list');
+                if (list && !list.contains(e.target) && e.target.id !== 'search-input') list.remove();
+            });
+        }
+
+        function debounce(fn, delay) {
+            return function(...args) {
+                clearTimeout(debounceTimer);
+                debounceTimer = setTimeout(() => fn.apply(this, args), delay);
+            };
+        }
+
+        // بدء التطبيق
+        document.addEventListener('DOMContentLoaded', () => {
+            loadData();
+            wireEventListeners();
+        });
+    })();
+</script>
+</body>
 </html>
