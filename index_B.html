@@ -11,7 +11,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.0/papaparse.min.js" defer></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/lz-string/1.4.4/lz-string.min.js" defer></script>
     <style>
-        /* نفس الأنماط مع تحسينات الألوان والتباين */
+        /* نفس الأنماط مع تحسينات التباين */
         :root{
             --primary-blue: #00539F;
             --accent-orange: #FF6B00;
@@ -30,7 +30,6 @@
             --text: #222;
             --muted: #666;
             --control-height: 46px;
-            --btn-text: #ffffff;
         }
         *{box-sizing:border-box}
         body{
@@ -136,15 +135,13 @@
             display: flex;
             align-items: center;
             gap: 4px;
-            color: var(--text); /* تحسين التباين */
+            color: var(--text);
         }
         .chip.active {
             background: var(--primary-blue);
             color: white !important;
             border-color: var(--primary-blue);
         }
-        .chip[data-filter="all"] { color: var(--primary-blue); }
-        .chip[data-filter="all"].active { background: var(--primary-blue); color: white; }
 
         .view-toggle {
             display: flex;
@@ -272,10 +269,10 @@
             align-items: center;
             justify-content: center;
             gap: 8px;
-            color: white; /* لون النص أبيض لجميع الأزرار */
+            color: white;
         }
         .btn-primary { background: var(--primary-blue); color: white; }
-        .btn-secondary { background: #6c757d; color: white; } /* تعديل اللون لضمان التباين */
+        .btn-secondary { background: #6c757d; color: white; }
         .favorite-btn, .compare-btn, .share-btn {
             position: absolute;
             background: white;
@@ -577,7 +574,7 @@
         // -------------------- الإعدادات العامة --------------------
         const DATA_URL = 'https://raw.githubusercontent.com/eg-market/ai/main/final.csv';
         const CACHE_KEY = 'offersData_v3';
-        const CACHE_EXPIRY = 7 * 24 * 60 * 60 * 1000; // 7 أيام (بدلاً من 24 ساعة)
+        const CACHE_EXPIRY = 7 * 24 * 60 * 60 * 1000; // 7 أيام
         const DB_NAME = 'EG_MARKET_DB_V3';
         const DB_VERSION = 3;
         const STORE_NAME = 'offers';
@@ -597,6 +594,7 @@
         let comparisonItems = JSON.parse(localStorage.getItem('comparison')) || [];
         let debounceTimer;
         let dataLoaded = false;          // لمنع إعادة التحميل إذا كانت البيانات موجودة بالفعل
+        let backgroundUpdateInProgress = false;
 
         // -------------------- دوال IndexedDB --------------------
         function openDB() {
@@ -762,49 +760,60 @@
 
         // -------------------- تحميل البيانات (المسار الرئيسي) --------------------
         async function loadData() {
-            if (dataLoaded && allData.length > 0) {
-                // البيانات موجودة بالفعل في الذاكرة
-                return;
-            }
-
+            // محاولة التحميل من IndexedDB أولاً
             showLoading('جارٍ تحميل البيانات من المخزن المحلي...');
             let data = await loadFromDB();
-
-            const cacheTime = localStorage.getItem(`${CACHE_KEY}_time`);
-            const cacheValid = cacheTime && (Date.now() - parseInt(cacheTime) < CACHE_EXPIRY);
-
-            if (data.length > 0 && cacheValid) {
-                console.log(`تم تحميل ${data.length} عنصر من IndexedDB`);
+            
+            if (data.length > 0) {
+                // لدينا بيانات مخزنة، نستخدمها فوراً
                 allData = data;
                 hideLoading();
                 processDataAfterLoad();
+
+                // التحقق من صلاحية الكاش في الخلفية
+                const cacheTime = localStorage.getItem(`${CACHE_KEY}_time`);
+                const cacheValid = cacheTime && (Date.now() - parseInt(cacheTime) < CACHE_EXPIRY);
+                if (!cacheValid && !backgroundUpdateInProgress) {
+                    backgroundUpdateInProgress = true;
+                    // تحديث في الخلفية بدون إظهار التحميل
+                    fetchCSV(true);
+                }
             } else {
-                // لا توجد بيانات أو الكاش منتهي → تحميل من CSV
-                console.log('تحميل من CSV...');
-                await fetchCSV();
+                // لا توجد بيانات مخزنة، نحتاج لتحميلها من CSV
+                await fetchCSV(false);
             }
         }
 
-        async function fetchCSV() {
-            showLoading('جارٍ تحميل العروض من الخادم...');
+        async function fetchCSV(silent = false) {
+            if (!silent) showLoading('جارٍ تحميل العروض من الخادم...');
             try {
                 const response = await fetch(DATA_URL);
                 const csvText = await response.text();
                 const parsed = Papa.parse(csvText, { header: true, skipEmptyLines: true, trim: true });
-                allData = transformRows(parsed.data);
-                normalizeDates(allData);
-                computeSavedAndDiscount(allData);
-                computeCombinedScore(allData);
+                let newData = transformRows(parsed.data);
+                normalizeDates(newData);
+                computeSavedAndDiscount(newData);
+                computeCombinedScore(newData);
 
-                await saveToDB(allData);
+                // حفظ في IndexedDB
+                await saveToDB(newData);
                 localStorage.setItem(`${CACHE_KEY}_time`, Date.now());
-                console.log(`تم حفظ ${allData.length} عنصر في IndexedDB`);
 
-                hideLoading();
-                processDataAfterLoad();
+                // تحديث allData إذا كانت فارغة أو إذا كان تحديث خلفية
+                if (allData.length === 0 || silent) {
+                    allData = newData;
+                    // إعادة تطبيق الفلاتر بناءً على allData الجديدة
+                    processDataAfterLoad();
+                }
+
+                if (!silent) hideLoading();
+                backgroundUpdateInProgress = false;
+                console.log(`تم تحديث البيانات: ${newData.length} عنصر`);
             } catch (err) {
                 console.error('فشل تحميل CSV:', err);
-                document.getElementById('loading').innerHTML = 'حدث خطأ في تحميل البيانات. حاول تحديث الصفحة.';
+                if (!silent) {
+                    document.getElementById('loading').innerHTML = 'حدث خطأ في تحميل البيانات. حاول تحديث الصفحة.';
+                }
             }
         }
 
@@ -831,7 +840,6 @@
 
             applyAllFilters();
             populateTicker();
-            hideLoading();
             dataLoaded = true;
         }
 
