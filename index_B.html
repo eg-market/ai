@@ -10,11 +10,11 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/lz-string/1.4.4/lz-string.min.js"></script>
     <style>
         :root{
-            --primary-blue: #0066CC; /* أفتح قليلاً */
+            --primary-blue: #00539F; /* اللون الأزرق الأصلي */
             --accent-orange: #FF6B00;
             --success-green: #28A745;
             --warning-yellow: #FFC107;
-            --danger-red: #DC3545; /* أحمر فاقع */
+            --danger-red: #DC3545;
             --info-teal: #17a2b8;
             --purple: #6f42c1;
             --light-bg: #F8F9FA;
@@ -39,9 +39,9 @@
         }
         .container{ max-width:1400px; margin:0 auto; padding:0 16px; }
 
-        /* Hero Banner - أفتح وأكثر جمالاً */
+        /* Hero Banner - الأصلي */
         .hero-banner {
-            background: linear-gradient(rgba(0,102,204,0.7), rgba(0,102,204,0.6)), 
+            background: linear-gradient(rgba(0,83,159,0.85), rgba(0,83,159,0.75)), 
                         url('https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?auto=format&fit=crop&w=1400&q=80');
             background-size: cover;
             background-position: center;
@@ -269,8 +269,8 @@
             gap: 8px;
             color: white;
         }
-        .btn-primary { background: linear-gradient(135deg, #0066CC, #004999); color: white; }
-        .btn-secondary { background: linear-gradient(135deg, #6c757d, #5a6268); color: white; }
+        .btn-primary { background: var(--primary-blue); color: white; }
+        .btn-secondary { background: #6c757d; color: white; }
         .favorite-btn, .compare-btn, .share-btn {
             position: absolute;
             background: white;
@@ -359,9 +359,19 @@
         table { width: 100%; border-collapse: collapse; font-size: 14px; }
         thead th { background: var(--primary-blue); color: white; padding: 16px; text-align: right; }
         tbody td { padding: 14px 16px; border-bottom: 1px solid #f0f0f0; }
-        /* تمييز عمود "اسم المنتج (الأساسي)" */
+        /* تمييز عمود "الاسم الأساسي" بلون رمادي خفيف (خلية فقط) */
         td:nth-child(3) { background-color: #f1f3f4; }
-        .highlight { background: #fff3cd !important; } /* أصفر للخصم العالي */
+        /* خلفية صفراء للصفوف ذات الخصم العالي */
+        .highlight { background-color: #fff3cd !important; }
+        /* نسبة الخصم في مربع أحمر */
+        .discount-cell {
+            background: var(--danger-red);
+            color: white;
+            padding: 3px 8px;
+            border-radius: 4px;
+            display: inline-block;
+            font-weight: 700;
+        }
 
         /* Autocomplete */
         #autocomplete-list {
@@ -560,23 +570,34 @@
 (function() {
     // ==================== الإعدادات العامة ====================
     const DATA_URL = 'https://raw.githubusercontent.com/eg-market/ai/main/final.csv';
-    const CACHE_KEY = 'offersData_v6';
+    const CACHE_KEY = 'offersData_v7';
     const CACHE_EXPIRY = 7 * 24 * 60 * 60 * 1000; // 7 أيام
-    const DB_NAME = 'EG_MARKET_DB_V6';
-    const DB_VERSION = 6;
+    const DB_NAME = 'EG_MARKET_DB_V7';
+    const DB_VERSION = 7;
     const STORE_NAME = 'offers';
     const WEIGHT_DISCOUNT = 0.6;
     const WEIGHT_SAVINGS = 0.4;
     const ITEMS_PER_PAGE = 20;
 
+    // ==================== منع إعادة التحميل في نفس الجلسة ====================
+    if (window.__offersDataLoaded) {
+        console.log('البيانات محملة مسبقاً، تخطي التحميل');
+        // يمكننا استخدام allData من النافذة لكنه ليس متاحاً، لذا سنعتمد على IndexedDB
+        // فقط نوقف أي تحميل إضافي
+        var skipLoading = true;
+    } else {
+        var skipLoading = false;
+        window.__offersDataLoaded = true;
+    }
+
     // ==================== الحالة العامة ====================
-    let allData = [];               // جميع البيانات (من IndexedDB أو التحميل)
+    let allData = [];
     let filteredData = [];
-    let latestTwoDates = [];        // سيتم حسابها من allData
+    let latestTwoDates = [];
     let currentPage = 1;
     let currentView = 'table';
     let activeChipFilter = 'active';
-    let showAllOffers = false;      // إذا true يتم تجاهل فلتر الحالة
+    let showAllOffers = false;
     let favorites = JSON.parse(localStorage.getItem('favorites')) || [];
     let comparisonItems = JSON.parse(localStorage.getItem('comparison')) || [];
     let debounceTimer;
@@ -587,7 +608,7 @@
     let urlSearchTerms = [];
     let urlCategories = [];
     let bestPriceMode = false;
-    let forceRecentTwoDaysFromURL = false;
+    let forceRecentTwoDaysFromURL = false; // لم نعد نستخدمه
 
     // ==================== دوال IndexedDB ====================
     function openDB() {
@@ -785,6 +806,7 @@
             const page = parseInt(params.get('page'), 10);
             if (!isNaN(page) && page > 1) currentPage = page;
 
+            // معالجة one_day و week_percent
             if (params.has('one_day')) {
                 activeChipFilter = 'recent';
                 const v = params.get('one_day');
@@ -804,27 +826,27 @@
                 activeChipFilter = 'all';
             }
 
-            if (params.get('recent') === '1') {
-                forceRecentTwoDaysFromURL = true;
-            }
-
+            // recent parameter من السكريبت الأول (لم نعد نستخدمه)
         } catch (e) {
             console.error('applyUrlParams failed:', e);
         }
     }
 
-    // ==================== تحميل البيانات (استراتيجية سريعة) ====================
+    // ==================== تحميل البيانات (سريع) ====================
     async function loadData() {
-        showLoading('جارٍ تحميل البيانات من المخزن المحلي...');
+        if (skipLoading && dataLoaded) {
+            return;
+        }
 
-        // محاولة التحميل من IndexedDB أولاً
+        showLoading('جارٍ تحميل البيانات من المخزن المحلي...');
         let stored = await loadFromDB();
+        
         if (stored.length > 0) {
             allData = stored;
             hideLoading();
             processDataAfterLoad();
 
-            // التحقق من صلاحية الكاش في الخلفية
+            // تحديث في الخلفية إذا انتهت الصلاحية
             const cacheTime = localStorage.getItem(`${CACHE_KEY}_time`);
             const cacheValid = cacheTime && (Date.now() - parseInt(cacheTime) < CACHE_EXPIRY);
             if (!cacheValid && !backgroundUpdateInProgress) {
@@ -832,12 +854,11 @@
                 fetchFreshDataInBackground();
             }
         } else {
-            // لا توجد بيانات مخزنة، نضطر لتحميلها مباشرة (مع شاشة انتظار)
+            // أول مرة: تحميل كامل مع شاشة انتظار
             await fetchFreshDataWithLoading();
         }
     }
 
-    // تحميل بيانات جديدة من CSV مع شاشة انتظار (لأول مرة)
     function fetchFreshDataWithLoading() {
         return new Promise((resolve, reject) => {
             showLoading('جارٍ تحميل العروض من الخادم...');
@@ -868,10 +889,9 @@
         });
     }
 
-    // تحميل بيانات جديدة في الخلفية (بدون إزعاج المستخدم)
     async function fetchFreshDataInBackground() {
         try {
-            console.log('بدء تحديث البيانات في الخلفية...');
+            console.log('تحديث البيانات في الخلفية...');
             const res = await fetch(DATA_URL);
             const txt = await res.text();
             const parsed = Papa.parse(txt, { header: true, skipEmptyLines: true, trim: true });
@@ -883,18 +903,15 @@
             await saveToDB(newData);
             localStorage.setItem(`${CACHE_KEY}_time`, Date.now());
 
-            // استبدال allData بالبيانات الجديدة
             allData = newData;
             latestTwoDates = findLatestTwoDates(allData);
-
-            // إعادة تطبيق الفلاتر إذا كان المستخدم لا يزال في نفس الوضع
             applyAllFilters();
             populateTicker();
 
             backgroundUpdateInProgress = false;
-            console.log('تم تحديث البيانات في الخلفية');
+            console.log('تم تحديث البيانات');
         } catch (err) {
-            console.error('فشل تحديث البيانات في الخلفية:', err);
+            console.error('فشل التحديث في الخلفية:', err);
             backgroundUpdateInProgress = false;
         }
     }
@@ -1036,7 +1053,7 @@
                     if (!item.supermarket.includes('كارفور')) return false;
                     break;
                 case 'food':
-                    if (!item.category || !/طعام|غذائ|مأكولات/i.test(item.category)) return false;
+                    if (!item.category || !/طعام|غذائ|مأكولات|أطعمة|غذاء/i.test(item.category)) return false;
                     break;
                 case 'recent':
                     if (!latestTwoDates.length) return false;
@@ -1199,7 +1216,7 @@
                 <td>${item.category || ''}</td>
                 <td>${item.brand || ''}</td>
                 <td>${item.currentPrice} ${item.currency}</td>
-                <td><span style="background:var(--danger-red); color:white; padding:3px 8px; border-radius:4px;">${item._discount_pct ? item._discount_pct+'%' : ''}</span></td>
+                <td><span class="discount-cell">${item._discount_pct ? item._discount_pct+'%' : ''}</span></td>
                 <td>${item.updateDate ? formatDateShort(item.updateDate) : ''}</td>
                 <td>${item.validUntil || ''}</td>
             </tr>`;
@@ -1349,8 +1366,10 @@
 
     function populateTicker() {
         const track = document.getElementById('ticker-track');
-        if (!allData.length) return;
-        let top = [...allData].sort((a,b) => (b._score||0) - (a._score||0)).slice(0,12);
+        // نستخدم filteredData إن وجدت وإلا allData مع مراعاة الفلتر
+        let source = filteredData.length ? filteredData : allData;
+        if (!source.length) return;
+        let top = [...source].sort((a,b) => (b._score||0) - (a._score||0)).slice(0,12);
         track.innerHTML = '';
         top.forEach(item => {
             let span = document.createElement('div');
@@ -1358,6 +1377,7 @@
             span.innerHTML = `<span class="badge">${item._discount_pct}%</span> ${item.product} - ${item.supermarket}`;
             track.appendChild(span);
         });
+        // نكرر المحتوى للتمرير المستمر
         top.forEach(item => {
             let span = document.createElement('div');
             span.className = 'ticker-item';
@@ -1494,7 +1514,6 @@
         urlSearchTerms = [];
         urlCategories = [];
         bestPriceMode = false;
-        forceRecentTwoDaysFromURL = false;
 
         applyAllFilters();
     }
@@ -1578,7 +1597,8 @@
             let val = this.value.trim().toLowerCase();
             clearAutocomplete();
             if (!val) return;
-            let suggestions = [...new Set(allData.map(i => i.product).concat(allData.map(i => i.primaryName).filter(Boolean)))]
+            let source = filteredData.length ? filteredData : allData;
+            let suggestions = [...new Set(source.map(i => i.product).concat(source.map(i => i.primaryName).filter(Boolean)))]
                 .filter(s => s && s.toLowerCase().includes(val))
                 .slice(0, 8);
             if (!suggestions.length) return;
