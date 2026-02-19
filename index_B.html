@@ -636,6 +636,7 @@
         });
     }
 
+  
     async function loadFromDB() {
         try {
             const db = await openDB();
@@ -839,27 +840,38 @@
     }
 
     // ==================== تحميل البيانات (سريع) ====================
-    async function loadData() {
-        showLoading('جارٍ تحميل البيانات من المخزن المحلي...');
-        let stored = await loadFromDB();
+async function loadData() {
+    try {
+        // 1. افتح IndexedDB
+        const db = await getDB();
+        const tx = db.transaction('offers', 'readonly');
+        const store = tx.objectStore('offers');
         
-        if (stored.length > 0) {
-            allData = stored;
-            hideLoading();
-            processDataAfterLoad();
-
-            // تحديث في الخلفية إذا انتهت الصلاحية
-            const cacheTime = localStorage.getItem(`${CACHE_KEY}_time`);
-            const cacheValid = cacheTime && (Date.now() - parseInt(cacheTime) < CACHE_EXPIRY);
-            if (!cacheValid && !backgroundUpdateInProgress) {
-                backgroundUpdateInProgress = true;
-                fetchFreshDataInBackground();
+        // 2. احسب عدد السجلات في DB (تحقق من وجود بيانات)
+        const countReq = store.count();
+        countReq.onsuccess = async () => {
+            if (countReq.result > 0) {
+                // إذا وجد بيانات، احملها من DB دون الخادم
+                console.log('✅ تحميل من IndexedDB (توفير وقت)');
+                const allReq = store.getAll();
+                allReq.onsuccess = () => {
+                    allData = allReq.result;
+                    processData();  // استمر في المعالجة (موجودة في الكود)
+                };
+            } else {
+                // إذا فارغ، حمل من الخادم (CSV) وحفظ في DB
+                console.log('⚠️ IndexedDB فارغ، تحميل من CSV');
+                await preloadDataToIndexedDB();  // دالة التحميل من CSV (موجودة)
+                processData();  // استمر
             }
-        } else {
-            // أول مرة: تحميل كامل مع شاشة انتظار
-            await fetchFreshDataWithLoading();
-        }
+        };
+    } catch (error) {
+        // خطأ: fallback إلى التحميل من الخادم
+        console.error('❌ خطأ في IndexedDB:', error);
+        await preloadDataToIndexedDB();
+        processData();
     }
+}
 
     function fetchFreshDataWithLoading() {
         return new Promise((resolve, reject) => {
@@ -1411,83 +1423,7 @@
         }
     }
 
-    function attachCardEvents() {
-        document.querySelectorAll('.favorite-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                e.stopPropagation();
-                let id = btn.dataset.id;
-                if (favorites.includes(id)) {
-                    favorites = favorites.filter(f => f !== id);
-                    btn.classList.remove('active');
-                } else {
-                    favorites.push(id);
-                    btn.classList.add('active');
-                }
-                localStorage.setItem('favorites', JSON.stringify(favorites));
-            });
-        });
-
-        document.querySelectorAll('.compare-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                e.stopPropagation();
-                let productId = btn.dataset.id;
-                let item = allData.find(i => i.product === productId);
-                if (!item) return;
-                if (comparisonItems.some(c => c.product === productId)) {
-                    comparisonItems = comparisonItems.filter(c => c.product !== productId);
-                } else {
-                    if (comparisonItems.length >= 4) {
-                        alert('يمكن مقارنة 4 منتجات كحد أقصى');
-                        return;
-                    }
-                    comparisonItems.push(item);
-                }
-                localStorage.setItem('comparison', JSON.stringify(comparisonItems));
-                updateComparisonPanel();
-                btn.classList.toggle('active');
-            });
-        });
-
-        document.querySelectorAll('.share-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                e.stopPropagation();
-                let product = btn.dataset.product;
-                let price = btn.dataset.price;
-                if (navigator.share) {
-                    navigator.share({ title: product, text: `عرض ${product} بسعر ${price} جنيه`, url: window.location.href });
-                } else {
-                    navigator.clipboard?.writeText(`${product} بسعر ${price} جنيه - ${window.location.href}`);
-                    alert('تم نسخ الرابط');
-                }
-            });
-        });
-
-        document.querySelectorAll('.buy-now-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                e.stopPropagation();
-                let page = btn.dataset.page;
-                let sol = btn.dataset.solution;
-                let flyerId = page?.match(/flyer_(\d+)/)?.[1] || sol || '';
-                let url = flyerId ? `https://www.yabalashoffers.com/flyer.php?d=${encodeURIComponent(flyerId)}&c=eg` : '#';
-                if (url !== '#') {
-                    let pageNumber = page?.match(/page_(\d+)/)?.[1] || '';
-                    openWithOverlay(url, pageNumber);
-                }
-            });
-        });
-
-        document.querySelectorAll('.view-details-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                e.stopPropagation();
-                let prodId = btn.dataset.id;
-                let item = allData.find(i => i.product === prodId);
-                if (item) {
-                    alert(`المنتج: ${item.product}\nالسوبرماركت: ${item.supermarket}\nالسعر: ${item.currentPrice}\nالخصم: ${item._discount_pct}%\nساري حتى: ${item.validUntil}`);
-                }
-            });
-        });
-    }
-
+    
     function updateComparisonPanel() {
         const panel = document.getElementById('comparison-panel');
         const container = document.getElementById('comparison-items');
@@ -1664,6 +1600,84 @@
         wireEventListeners();
     });
 })();
+  
+  function attachCardEvents() {
+        document.querySelectorAll('.favorite-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                let id = btn.dataset.id;
+                if (favorites.includes(id)) {
+                    favorites = favorites.filter(f => f !== id);
+                    btn.classList.remove('active');
+                } else {
+                    favorites.push(id);
+                    btn.classList.add('active');
+                }
+                localStorage.setItem('favorites', JSON.stringify(favorites));
+            });
+        });
+
+        document.querySelectorAll('.compare-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                let productId = btn.dataset.id;
+                let item = allData.find(i => i.product === productId);
+                if (!item) return;
+                if (comparisonItems.some(c => c.product === productId)) {
+                    comparisonItems = comparisonItems.filter(c => c.product !== productId);
+                } else {
+                    if (comparisonItems.length >= 4) {
+                        alert('يمكن مقارنة 4 منتجات كحد أقصى');
+                        return;
+                    }
+                    comparisonItems.push(item);
+                }
+                localStorage.setItem('comparison', JSON.stringify(comparisonItems));
+                updateComparisonPanel();
+                btn.classList.toggle('active');
+            });
+        });
+
+        document.querySelectorAll('.share-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                let product = btn.dataset.product;
+                let price = btn.dataset.price;
+                if (navigator.share) {
+                    navigator.share({ title: product, text: `عرض ${product} بسعر ${price} جنيه`, url: window.location.href });
+                } else {
+                    navigator.clipboard?.writeText(`${product} بسعر ${price} جنيه - ${window.location.href}`);
+                    alert('تم نسخ الرابط');
+                }
+            });
+        });
+
+        document.querySelectorAll('.buy-now-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                let page = btn.dataset.page;
+                let sol = btn.dataset.solution;
+                let flyerId = page?.match(/flyer_(\d+)/)?.[1] || sol || '';
+                let url = flyerId ? `https://www.yabalashoffers.com/flyer.php?d=${encodeURIComponent(flyerId)}&c=eg` : '#';
+                if (url !== '#') {
+                    let pageNumber = page?.match(/page_(\d+)/)?.[1] || '';
+                    openWithOverlay(url, pageNumber);
+                }
+            });
+        });
+
+        document.querySelectorAll('.view-details-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                let prodId = btn.dataset.id;
+                let item = allData.find(i => i.product === prodId);
+                if (item) {
+                    alert(`المنتج: ${item.product}\nالسوبرماركت: ${item.supermarket}\nالسعر: ${item.currentPrice}\nالخصم: ${item._discount_pct}%\nساري حتى: ${item.validUntil}`);
+                }
+            });
+        });
+    }
+
 </script>
 </body>
 </html>
