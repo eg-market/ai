@@ -10,7 +10,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/lz-string/1.4.4/lz-string.min.js"></script>
     <style>
         :root{
-            --primary-blue: #00539F; /* اللون الأزرق الأصلي */
+            --primary-blue: #00539F;
             --accent-orange: #FF6B00;
             --success-green: #28A745;
             --warning-yellow: #FFC107;
@@ -359,16 +359,23 @@
         table { width: 100%; border-collapse: collapse; font-size: 14px; }
         thead th { background: var(--primary-blue); color: white; padding: 16px; text-align: right; }
         tbody td { padding: 14px 16px; border-bottom: 1px solid #f0f0f0; }
-        /* تمييز عمود "الاسم الأساسي" بلون رمادي خفيف (خلية فقط) */
-        td:nth-child(3) { background-color: #f1f3f4; }
+        /* تمييز عمود "الاسم الأساسي" بدائرة رمادية */
+        .primary-name-circle {
+            background-color: #e9ecef;
+            border-radius: 20px;
+            padding: 4px 12px;
+            display: inline-block;
+            font-size: 0.9rem;
+            color: #495057;
+        }
         /* خلفية صفراء للصفوف ذات الخصم العالي */
         .highlight { background-color: #fff3cd !important; }
-        /* نسبة الخصم في مربع أحمر */
+        /* نسبة الخصم في مربع أحمر دائري */
         .discount-cell {
             background: var(--danger-red);
             color: white;
-            padding: 3px 8px;
-            border-radius: 4px;
+            padding: 3px 10px;
+            border-radius: 20px;
             display: inline-block;
             font-weight: 700;
         }
@@ -570,10 +577,10 @@
 (function() {
     // ==================== الإعدادات العامة ====================
     const DATA_URL = 'https://raw.githubusercontent.com/eg-market/ai/main/final.csv';
-    const CACHE_KEY = 'offersData_v7';
+    const CACHE_KEY = 'offersData_v8';
     const CACHE_EXPIRY = 7 * 24 * 60 * 60 * 1000; // 7 أيام
-    const DB_NAME = 'EG_MARKET_DB_V7';
-    const DB_VERSION = 7;
+    const DB_NAME = 'EG_MARKET_DB_V8';
+    const DB_VERSION = 8;
     const STORE_NAME = 'offers';
     const WEIGHT_DISCOUNT = 0.6;
     const WEIGHT_SAVINGS = 0.4;
@@ -582,8 +589,6 @@
     // ==================== منع إعادة التحميل في نفس الجلسة ====================
     if (window.__offersDataLoaded) {
         console.log('البيانات محملة مسبقاً، تخطي التحميل');
-        // يمكننا استخدام allData من النافذة لكنه ليس متاحاً، لذا سنعتمد على IndexedDB
-        // فقط نوقف أي تحميل إضافي
         var skipLoading = true;
     } else {
         var skipLoading = false;
@@ -608,7 +613,6 @@
     let urlSearchTerms = [];
     let urlCategories = [];
     let bestPriceMode = false;
-    let forceRecentTwoDaysFromURL = false; // لم نعد نستخدمه
 
     // ==================== دوال IndexedDB ====================
     function openDB() {
@@ -806,7 +810,6 @@
             const page = parseInt(params.get('page'), 10);
             if (!isNaN(page) && page > 1) currentPage = page;
 
-            // معالجة one_day و week_percent
             if (params.has('one_day')) {
                 activeChipFilter = 'recent';
                 const v = params.get('one_day');
@@ -826,7 +829,6 @@
                 activeChipFilter = 'all';
             }
 
-            // recent parameter من السكريبت الأول (لم نعد نستخدمه)
         } catch (e) {
             console.error('applyUrlParams failed:', e);
         }
@@ -1211,7 +1213,7 @@
             return `<tr ${rowClass} data-url="${url}" data-flyer="${flyerId}" data-page="${item.pageNo}" style="cursor:pointer;">
                 <td>${item.supermarket}</td>
                 <td><strong>${item.product}</strong></td>
-                <td>${item.primaryName || ''}</td>
+                <td><span class="primary-name-circle">${item.primaryName || ''}</span></td>
                 <td>${item.unit || ''}</td>
                 <td>${item.category || ''}</td>
                 <td>${item.brand || ''}</td>
@@ -1366,25 +1368,36 @@
 
     function populateTicker() {
         const track = document.getElementById('ticker-track');
-        // نستخدم filteredData إن وجدت وإلا allData مع مراعاة الفلتر
+        // نستخدم filteredData إن وجدت وإلا allData، ثم نطبق فلتر السعر >= 100
         let source = filteredData.length ? filteredData : allData;
         if (!source.length) return;
-        let top = [...source].sort((a,b) => (b._score||0) - (a._score||0)).slice(0,12);
+        // تصفية بحيث يكون السعر 100 أو أكثر
+        let filtered = source.filter(item => (item.currentPrice || 0) >= 100);
+        if (!filtered.length) {
+            // إذا لم يكن هناك أي عنصر، نستخدم المصدر الأصلي
+            filtered = source;
+        }
+        // ترتيب حسب النقاط وأخذ أول 12
+        let top = [...filtered].sort((a,b) => (b._score||0) - (a._score||0)).slice(0,12);
         track.innerHTML = '';
         top.forEach(item => {
             let span = document.createElement('div');
             span.className = 'ticker-item';
-            span.innerHTML = `<span class="badge">${item._discount_pct}%</span> ${item.product} - ${item.supermarket}`;
+            span.innerHTML = `<span class="badge">${item._discount_pct}%</span> ${item.product} - ${item.supermarket} (${item.currentPrice} ج.م)`;
             track.appendChild(span);
         });
-        // نكرر المحتوى للتمرير المستمر
-        top.forEach(item => {
-            let span = document.createElement('div');
-            span.className = 'ticker-item';
-            span.innerHTML = `<span class="badge">${item._discount_pct}%</span> ${item.product} - ${item.supermarket}`;
-            track.appendChild(span);
-        });
-        track.classList.add('animate');
+        // نكرر المحتوى للتمرير المستمر إذا كان هناك عناصر
+        if (top.length) {
+            top.forEach(item => {
+                let span = document.createElement('div');
+                span.className = 'ticker-item';
+                span.innerHTML = `<span class="badge">${item._discount_pct}%</span> ${item.product} - ${item.supermarket} (${item.currentPrice} ج.م)`;
+                track.appendChild(span);
+            });
+            track.classList.add('animate');
+        } else {
+            track.innerHTML = '<div class="ticker-item">لا توجد عروض حالياً</div>';
+        }
     }
 
     function attachCardEvents() {
