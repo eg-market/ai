@@ -890,7 +890,7 @@ async function loadData() {
     }
 
     // ==================== تحميل البيانات (سريع) ====================
-    async function loadData() {
+/*    async function loadData() {
         showLoading('جارٍ تحميل البيانات من المخزن المحلي...');
         let stored = await loadFromDB();
         
@@ -904,13 +904,13 @@ async function loadData() {
             const cacheValid = cacheTime && (Date.now() - parseInt(cacheTime) < CACHE_EXPIRY);
             if (!cacheValid && !backgroundUpdateInProgress) {
                 backgroundUpdateInProgress = true;
-                fetchFreshDataInBackground();
+//                fetchFreshDataInBackground();
             }
         } else {
             // أول مرة: تحميل كامل مع شاشة انتظار
             await fetchFreshDataWithLoading();
         }
-    }
+    }   */
 
   async function loadDataFromCache() {
     try {
