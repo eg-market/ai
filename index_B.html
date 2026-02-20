@@ -1430,7 +1430,7 @@ function populateFilters() {
         document.getElementById('avg-discount').textContent = Math.round(avg) + '%';
         let hot = filteredData.filter(i => i._discount_pct > 30).length;
         document.getElementById('hot-deals').textContent = hot;
-        let ending = filteredData.filter(i => i.endDate && ((i.endDate - new Date())/(1000*60*60*24) <= 3)).length;
+        let ending = filteredData.filter(i => i.endDate && ((i.endDate - new Date())/(1000*60*60*24) <= 7)).length;
         document.getElementById('ending-soon').textContent = ending;
         let markets = new Set(filteredData.map(i => i.supermarket)).size;
         document.getElementById('total-supermarkets').textContent = markets;
