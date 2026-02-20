@@ -2,7 +2,7 @@
 <html dir="rtl" lang="ar">
   <head>
     <meta http-equiv="content-type" content="text/html; charset=utf-8">
-    <!--    <link rel="preload" href="https://raw.githubusercontent.com/eg-market/ai/f13f04d254ab37ab83abb7ca55aaa067764a02b0/merged_cleansed_output_with_new_supermarket-xl5.csv"
+    <!--    <link rel="preload" href="https://raw.githubusercontent.com/eg-market/ai/main/final.csv"
           as="fetch" type="application/json" crossorigin="anonymous">-->
     <meta name="viewport" content="width=device-width, initial-scale=0.1">
     <link rel="stylesheet" href="https://eg-market.github.io/ai/css1.css" data-precedence="next">
@@ -454,7 +454,7 @@ animation: flashing 1s infinite;
         style="background:linear-gradient(to bottom, #9DB0C4, #FFFFFF)">
         <div class="container">
           <div class="no-scrollbar pt-[10px] gap-md flex justify-start overflow-x-auto gap-xs mb-sm md:mb-md">
-            <div><a href="https://eg-market.github.io/ai"> <button class="focus-visible:ring-ring whitespace-nowrap font-bold focus-visible:outline-none focus-visible:ring-1 
+            <div><a href="https://eg-market.github.io/ai/index_B.html?all"> <button class="focus-visible:ring-ring whitespace-nowrap font-bold focus-visible:outline-none focus-visible:ring-1 
               disabled:pointer-events-none disabled:opacity-[0.12] bg-primary text-white hover:bg-primary-active duration-300 ease-in-out               transition-[height,opacity,margin,flex] p-2xs transition-height relative flex w-[72px] shrink-0 flex-col items-center justify-between               md:border-2 md:w-[168px] md:flex-row md:justify-start h-[86px] pb-3xs md:h-3xl rounded-lg"
 
                   data-tabindex="0">
@@ -463,12 +463,15 @@ animation: flashing 1s infinite;
                   <div class="font-bold pl-2xs overflow-hidden text-ellipsis text-xs leading-4 md:text-lg md:leading-5">عروض
                     قديمة</div>
                 </button> </a> </div>
-            <div><a href="https://eg-market.github.io/ai/index_b.html"> <button class="flashing  focus-visible:ring-ring whitespace-nowrap font-bold focus-visible:outline-none focus-visible:ring-1 
+            <div><a href="https://eg-market.github.io/ai/index_B.html"> <button
+
+                  class="flashing  focus-visible:ring-ring whitespace-nowrap font-bold focus-visible:outline-none focus-visible:ring-1 
                disabled:pointer-events-none disabled:opacity-[0.12] bg-primary text-white duration-300 ease-in-out transition-[height,opacity,margin,flex]               p-2xs transition-height relative flex w-[72px] shrink-0 flex-col items-center justify-center md:border-2 md:w-[168px] md:flex-row                md:justify-center h-[86px] pb-3xs md:h-3xl rounded-lg"
 
-                  data-tabindex="1" style="font-size: 1.5rem;"> <!-- Adjust this value for size -->
-                  عروض اليوم </button> </a> </div>
-            <div><a href="https://eg-market.github.io/ai?category=%D8%A3%D8%AC%D9%87%D8%B2%D8%A9+%D8%AA%D9%84%D9%8A%D9%81%D8%B2%D9%8A%D9%88%D9%86+%D9%88%D8%A7%D9%84%D9%83%D8%AA%D8%B1%D9%88%D9%86%D9%8A%D8%A7%D8%AA">
+                  data-tabindex="1" style="font-size: 1.5rem;">
+                  <!-- Adjust this value for size --> عروض اليوم </button> </a>
+            </div>
+            <div><a href="https://eg-market.github.io/ai/index_B.html?category=%D8%A3%D8%AC%D9%87%D8%B2%D8%A9+%D8%AA%D9%84%D9%8A%D9%81%D8%B2%D9%8A%D9%88%D9%86+%D9%88%D8%A7%D9%84%D9%83%D8%AA%D8%B1%D9%88%D9%86%D9%8A%D8%A7%D8%AA">
                 <button class="focus-visible:ring-ring whitespace-nowrap font-bold focus-visible:outline-none focus-visible:ring-1 
                disabled:pointer-events-none disabled:opacity-[0.12] bg-primary text-white duration-300 ease-in-out transition-[height,opacity,margin,flex]               p-2xs transition-height relative flex w-[72px] shrink-0 flex-col items-center justify-center md:border-2 md:w-[168px] md:flex-row                md:justify-center h-[86px] pb-3xs md:h-3xl rounded-lg">
                   <div class="shrink-0 overflow-hidden size-[64px] md:size-3xl"></div>
@@ -1152,58 +1155,6 @@ class="whitespace-pre-wrap">items          </span></div>
     <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.0/papaparse.min.js"></script>
     <script>
-// دالة لفتح قاعدة البيانات - يجب أن تتطابق تماماً مع الملف الثاني
-
-// دالة فتح قاعدة البيانات (نستخدم النسخة 3 لضمان تحديث أي إعدادات قديمة)
-function getDB() {
-    return new Promise((resolve, reject) => {
-        const request = indexedDB.open('MarketDataDB', 4); // نسخة 4
-        request.onupgradeneeded = (e) => {
-            const db = e.target.result;
-            if (!db.objectStoreNames.contains('offers')) db.createObjectStore('offers');
-        };
-        request.onsuccess = (e) => resolve(e.target.result);
-        request.onerror = (e) => reject(e.target.error);
-    });
-}
-
-async function preloadDataToIndexedDB() {
-    // ✅ الرابط المحدث الذي يشير إلى الملف الجديد في الفرع الرئيسي
-// بدلاً من الرابط الثابت، أضف تلاعباً بالوقت لمنع الكاش
-const DATA_URL = "https://raw.githubusercontent.com/eg-market/ai/main/final.csv" // ?t= + Date.now();
-  
-    try {
-        console.log("⏳ جاري تحميل البيانات الجديدة (final.csv)...");
-        const response = await fetch(DATA_URL);
-        
-        if (!response.ok) throw new Error("لم يتم العثور على الملف على GitHub (404)");
-        
-        const csvText = await response.text();
-        const parsed = Papa.parse(csvText, { header: true, skipEmptyLines: true });
-
-        if (parsed.data && parsed.data.length > 0) {
-            const db = await getDB();
-            const tx = db.transaction('offers', 'readwrite');
-            const store = tx.objectStore('offers');
-            
-            // حفظ البيانات والوقت للمزامنة مع الملف الثاني
-            store.put(parsed.data, 'raw_csv_data');
-            store.put(Date.now(), 'last_update');
-            
-            tx.oncomplete = () => {
-                console.log("✅ نجاح: تم تجهيز " + parsed.data.length + " عرض من الملف الجديد.");
-            };
-        }
-    } catch (error) {
-        console.error("❌ فشل التحميل المسبق:", error.message);
-    }
-}
-
-// ابدأ التحميل فوراً
-preloadDataToIndexedDB();
-      
-      
-      
 // دالة موحدة لفتح قاعدة البيانات
 function openDB() {
     return new Promise((resolve, reject) => {
@@ -1214,37 +1165,28 @@ function openDB() {
     });
 }
 
-(async function preloadData() {
-    try {
-        const DATA_URL = "https://raw.githubusercontent.com/eg-market/ai/f13f04d254ab37ab83abb7ca55aaa067764a02b0/merged_cleansed_output_with_new_supermarket-xl5.csv";
-        
-        console.log("⏳ جاري التحميل المسبق في الخلفية...");
-        const res = await fetch(DATA_URL);
-        const csvText = await res.text();
-        const parsed = Papa.parse(csvText, { header: true, skipEmptyLines: true });
-
-        if (parsed.data && parsed.data.length > 0) {
-            const db = await openDB();
-            const tx = db.transaction('offers', 'readwrite');
-            // حفظ البيانات الخام والوقت
-            tx.objectStore('offers').put(parsed.data, 'raw_csv_data');
-            tx.objectStore('offers').put(Date.now(), 'last_update');
-            
-            console.log("✅ تم حفظ " + parsed.data.length + " صف في IndexedDB بنجاح!");
-        }
-    } catch (err) {
-        console.warn("فشل التحميل المسبق:", err);
-    }
-})();
-</script> <script>
+      
+     
 /* ==================== SPLASH SCREEN FUNCTIONS ==================== */
 let progressInterval;
 let currentProgress = 0;
 
 // إظهار شاشة التحميل
 function showSplashScreen() {
-  document.getElementById('splash-screen').classList.remove('hidden');
+  const splash = document.getElementById('splash-screen');
+  if (!splash) return;
+  splash.classList.remove('hidden');
   startProgressAnimation();
+}
+
+      // تحديث مؤشر التقدم
+function updateProgress(percent) {
+  const progressFill = document.getElementById('progress-fill');
+  const progressText = document.getElementById('progress-text');
+  if (progressFill && progressText) {
+    progressFill.style.width = percent + '%';
+    progressText.textContent = Math.round(percent) + '%';
+  }
 }
 
 // إخفاء شاشة التحميل
@@ -1265,17 +1207,6 @@ function startProgressAnimation() {
       updateProgress(Math.min(currentProgress, 85));
     }
   }, 300);
-}
-
-// تحديث مؤشر التقدم
-function updateProgress(percent) {
-  const progressFill = document.getElementById('progress-fill');
-  const progressText = document.getElementById('progress-text');
-  
-  if (progressFill && progressText) {
-    progressFill.style.width = percent + '%';
-    progressText.textContent = Math.round(percent) + '%';
-  }
 }
 
 // تحديث الإحصائيات على شاشة التحميل
@@ -1305,18 +1236,159 @@ function showRandomTip() {
     tipEl.textContent = randomTip;
   }
 }
-     </script>
-    <!--      
-      <script>const DB_NAME = 'EG_MARKET_DB';const DB_VERSION = 1;const STORE_NAME = 'offers';function openDB() {  return new Promise((resolve, reject) => {    const req = indexedDB.open(DB_NAME, DB_VERSION);
-    req.onupgradeneeded = e => {      const db = e.target.result;      if (!db.objectStoreNames.contains(STORE_NAME)) {        db.createObjectStore(STORE_NAME, { keyPath: 'id', autoIncrement: true });      }    };
-    req.onsuccess = () => resolve(req.result);    req.onerror = () => reject(req.error);  });}async function saveToDB(data) {  const db = await openDB();
-  return new Promise((resolve, reject) => {    const tx = db.transaction(STORE_NAME, 'readwrite');    const store = tx.objectStore(STORE_NAME);    store.clear();    data.forEach(item => store.add(item));
-    tx.oncomplete = () => {      console.log('✔ IndexedDB saved successfully');      resolve();    };    tx.onerror = () => reject(tx.error);  });}
-</script>             <script>(async () => {  try {    const res = await fetch(      "https://raw.githubusercontent.com/eg-market/ai/f13f04d254ab37ab83abb7ca55aaa067764a02b0/merged_cleansed_output_with_new_supermarket-xl5.csv"    );
-    if (!res.ok) throw new Error('HTTP ' + res.status);    const csvText = await res.text();    const parsed = Papa.parse(csvText, {      header: true,      skipEmptyLines: true,
-      dynamicTyping: true,      trim: true    });    await saveToDB(parsed.data);    // ✅ البيانات أصبحت جاهزة فعلًا    // window.location.href = 'index_B.html';
-  } catch (err) {    console.error('فشل تحميل CSV:', err);  }})();</script>-->
-    <script>
+      
+function parseEndDate(period) {
+    if (!period) return null;
+    const s = String(period).trim();
+    if (!s || s === 'غير متاح') return null;
+    const parts = s.split(/to|إلى|حتى|–|—|-|~/i).map(p => p?.trim()).filter(Boolean);
+    let candidate = parts.length ? parts[parts.length - 1] : s;
+    candidate = candidate.replace(/^(من|إلى|حتى)\s*/i, '').trim();
+    let d = new Date(candidate);
+    if (isNaN(d.getTime())) {
+        const match = candidate.match(/(\d{1,2})[\/\.-](\d{1,2})[\/\.-](\d{2,4})/);
+        if (match) {
+            let day = match[1].padStart(2,'0');
+            let month = match[2].padStart(2,'0');
+            let year = match[3].length === 2 ? '20'+match[3] : match[3];
+            d = new Date(`${year}-${month}-${day}`);
+        }
+    }
+    return (d instanceof Date && !isNaN(d.getTime())) ? d : null;
+}    
+      
+// فتح قاعدة البيانات (الإصدار 5) مع إنشاء مخزن offers بمفتاح داخلي 'id'
+function getDB() {
+    return new Promise((resolve, reject) => {
+        const request = indexedDB.open('MarketDataDB', 5);
+        request.onupgradeneeded = (e) => {
+            const db = e.target.result;
+            if (db.objectStoreNames.contains('offers')) {
+                db.deleteObjectStore('offers');
+            }
+            // إنشاء المخزن مع keyPath: 'id'
+            db.createObjectStore('offers', { keyPath: 'id' });
+        };
+        request.onsuccess = (e) => resolve(e.target.result);
+        request.onerror = (e) => reject(e.target.error);
+    });
+}
+
+async function preloadDataToIndexedDB() {
+    const DATA_URL = "https://raw.githubusercontent.com/eg-market/ai/main/final.csv";
+  
+    try {
+        console.log("⏳ جاري تحميل البيانات...");
+        showSplashScreen();
+
+        const response = await fetch(DATA_URL);
+        if (!response.ok) throw new Error("لم يتم العثور على الملف");
+        const csvText = await response.text();
+
+        let allRows = [];
+        let uniqueDates = new Set();
+        let firstTwoDates = [];
+
+        Papa.parse(csvText, {
+            header: true,
+            skipEmptyLines: true,
+            trim: true,
+            dynamicTyping: true,
+            step: function(row) {
+                const item = row.data;
+                const updateDateStr = item['تاريخ تعديل ملف الفلاير'] || item['Update Date'] || '';
+                if (!updateDateStr) return;
+
+                const updateDate = new Date(updateDateStr);
+                if (isNaN(updateDate.getTime())) return;
+
+                const dateStr = updateDate.toISOString().split('T')[0];
+                uniqueDates.add(dateStr);
+
+                const transformed = {
+                    supermarket: String(item['اسم السوبر ماركت'] || ''),
+                    product: String(item['الاسم بالعربية'] || ''),
+                    primaryName: String(item['اسم المنتج (الأساسي)'] || ''),
+                    unit: String(item['الوحدة'] || ''),
+                    category: String(item['الفئة'] || ''),
+                    brand: String(item['اسم العلامة التجارية'] || ''),
+                    originalPrice: parseFloat(item['السعر الأصلي']) || 0,
+                    currentPrice: parseFloat(item['السعر الحالي']) || 0,
+                    discount: parseFloat(item['الخصم %']) || 0,
+                    pageNo: String(item['اسم ملف الفلاير'] || ''),
+                    solution_key: String(item['solution_key'] || ''),
+                    updateDate: updateDate,
+                    endDate: parseEndDate(item['end_date']),
+                    validUntil: String(item['end_date'] || '').split(/[ T]/)[0] || 'غير متاح',
+                    status: String(item['status'] || '').trim()
+                };
+
+                if (firstTwoDates.length === 2) {
+                    const dStr = updateDate.toISOString().split('T')[0];
+                    transformed.isRecent = firstTwoDates.includes(dStr);
+                } else {
+                    transformed.isRecent = false;
+                }
+
+                allRows.push(transformed);
+
+                if (firstTwoDates.length === 0 && uniqueDates.size >= 2) {
+                    const sorted = Array.from(uniqueDates).sort().reverse();
+                    firstTwoDates = sorted.slice(0, 2);
+                    console.log(`✅ تم التعرف على أحدث تاريخين: ${firstTwoDates.join(', ')}`);
+                }
+            },
+            complete: async function() {
+                console.log(`✅ اكتمل التحميل، إجمالي الصفوف: ${allRows.length}`);
+
+                if (firstTwoDates.length === 2) {
+                    allRows.forEach(row => {
+                        if (row.updateDate) {
+                            const dStr = row.updateDate.toISOString().split('T')[0];
+                            row.isRecent = firstTwoDates.includes(dStr);
+                        } else {
+                            row.isRecent = false;
+                        }
+                    });
+                } else {
+                    allRows.forEach(row => row.isRecent = true);
+                }
+
+                const db = await getDB();
+                const tx = db.transaction('offers', 'readwrite');
+                const store = tx.objectStore('offers');
+                store.clear();
+                allRows.forEach((row, index) => {
+                    row.id = index + 1;
+                    store.add(row);
+                });
+
+                // تخزين آخر تحديث ككائن بمفتاح 'last_update'
+                store.put({ id: 'last_update', timestamp: Date.now() });
+
+                tx.oncomplete = () => {
+                    console.log("✅ تم حفظ البيانات في IndexedDB");
+  //                  window.location.href = 'index_B.html?recent=1';
+                };
+            },
+            error: function(err) {
+                console.error("❌ خطأ في تحليل CSV:", err);
+            }
+        });
+
+    } catch (error) {
+        console.error("❌ فشل التحميل:", error.message);
+    }
+}
+
+// إزالة الدالة القديمة preloadData التي كانت تسبب التعارض
+// (تم حذف الكود الزائد من الأسفل)
+
+
+
+// ابدأ التحميل فوراً
+preloadDataToIndexedDB();
+   
       
     // 1. Redirect Search to your AI application
     document.addEventListener('submit', function(e) {
