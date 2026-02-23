@@ -665,7 +665,24 @@ let urlMarket = null; // أضف هذا السطر في الأعلى
 const queryCache = JSON.parse(sessionStorage.getItem('queryCache')) || {};
   
     // ==================== دوال IndexedDB ====================
-async function loadData() {
+    function openDB() {
+        return new Promise((resolve, reject) => {
+            const req = indexedDB.open(DB_NAME, DB_VERSION);
+            req.onupgradeneeded = (e) => {
+                const db = e.target.result;
+                if (!db.objectStoreNames.contains(STORE_NAME)) {
+                    const store = db.createObjectStore(STORE_NAME, { keyPath: 'id', autoIncrement: true });
+                    store.createIndex('product', 'product', { unique: false });
+                    store.createIndex('supermarket', 'supermarket', { unique: false });
+                    store.createIndex('category', 'category', { unique: false });
+                }
+            };
+            req.onsuccess = () => resolve(req.result);
+            req.onerror = () => reject(req.error);
+        });
+    }
+  
+  async function loadData() {
     let stored = await loadFromDB(); // جلب البيانات من IndexedDB
     
     if (stored && stored.length > 0) {
