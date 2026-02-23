@@ -659,8 +659,6 @@
     let urlCategories = [];
     let bestPriceMode = false;
 
-let urlMarket = null; // أضف هذا السطر في الأعلى
-  
   // تعريف مخزن البيانات في نطاق واسع ليتم الوصول إليه من كل الدوال
 const queryCache = JSON.parse(sessionStorage.getItem('queryCache')) || {};
   
@@ -681,30 +679,6 @@ const queryCache = JSON.parse(sessionStorage.getItem('queryCache')) || {};
             req.onerror = () => reject(req.error);
         });
     }
-  
-  async function loadData() {
-    let stored = await loadFromDB(); // جلب البيانات من IndexedDB
-    
-    if (stored && stored.length > 0) {
-        console.log("✅ تم العثور على بيانات في المخزن المحلي.");
-        allData = stored;
-        hideLoading();
-        processDataAfterLoad(); // عرض البيانات فوراً
-
-        // التحقق من صلاحية البيانات (التحديث الصامت في الخلفية)
-        const cacheTime = localStorage.getItem(`${CACHE_KEY}_time`);
-        const cacheValid = cacheTime && (Date.now() - parseInt(cacheTime) < CACHE_EXPIRY);
-        
-        if (!cacheValid && !backgroundUpdateInProgress) {
-            backgroundUpdateInProgress = true;
-          //  fetchFreshDataInBackground(); // تحديث دون إزعاج المستخدم
-        }
-    } else {
-        console.log("❌ المخزن فارغ، جاري التحميل من الخادم...");
-        // أول مرة على الإطلاق: تحميل كامل مع شاشة انتظار
-        await fetchFreshDataWithLoading();
-    }
-}
 
     async function loadFromDB() {
         try {
@@ -851,7 +825,7 @@ const queryCache = JSON.parse(sessionStorage.getItem('queryCache')) || {};
     }
 
     // ==================== تطبيق باراميترات الرابط ====================
-function applyUrlParams() {
+    function applyUrlParams() {
         try {
             const params = new URLSearchParams(window.location.search);
             
@@ -867,15 +841,13 @@ function applyUrlParams() {
                 ? decodeURIComponent(catParam).split(',').map(c => c.trim().toLowerCase()).filter(Boolean)
                 : [];
 
-            // --- إصلاح كود الماركت هنا ---
-            const marketParam = params.get('market');
-            if (marketParam) {
-                urlMarket = decodeURIComponent(marketParam); // حفظ القيمة لاستخدامها لاحقاً
+            const market = params.get('market');
+            if (market) {
                 const sel = document.getElementById('supermarket-filter');
-                if (sel && sel.options.length > 1) { 
-                    sel.value = urlMarket;
+                if (sel) {
+                    sel.value = decodeURIComponent(market);
                 }
-            } // <--- هذا هو القوس الذي كان ناقصاً وتسبب في الخطأ
+            }
 
             const discount = params.get('discount');
             if (discount) {
@@ -887,14 +859,14 @@ function applyUrlParams() {
             if (!isNaN(page) && page > 1) currentPage = page;
 
             if (params.has('one_day')) {
-//                activeChipFilter = 'recent';
+                activeChipFilter = 'recent';
                 const v = params.get('one_day');
                 const el = document.getElementById('min-discount');
                 if (el && v) el.value = v;
             }
 
             if (params.has('week_percent')) {
-   //             activeChipFilter = 'recent';
+                activeChipFilter = 'recent';
                 const v = params.get('week_percent');
                 const el = document.getElementById('min-discount');
                 if (el && v) el.value = v;
@@ -909,7 +881,29 @@ function applyUrlParams() {
             console.error('applyUrlParams failed:', e);
         }
     }
-      
+
+    // ==================== تحميل البيانات (سريع) ====================
+    async function loadData() {
+        showLoading('جارٍ تحميل البيانات من المخزن المحلي...');
+        let stored = await loadFromDB();
+        
+        if (stored.length > 0) {
+            allData = stored;
+            hideLoading();
+            processDataAfterLoad();
+
+            // تحديث في الخلفية إذا انتهت الصلاحية
+            const cacheTime = localStorage.getItem(`${CACHE_KEY}_time`);
+            const cacheValid = cacheTime && (Date.now() - parseInt(cacheTime) < CACHE_EXPIRY);
+            if (!cacheValid && !backgroundUpdateInProgress) {
+                backgroundUpdateInProgress = true;
+                fetchFreshDataInBackground();
+            }
+        } else {
+            // أول مرة: تحميل كامل مع شاشة انتظار
+            await fetchFreshDataWithLoading();
+        }
+    }
 
   async function loadDataFromCache() {
     try {
@@ -1019,7 +1013,7 @@ function applyUrlParams() {
     }
 
     // ==================== دوال تهيئة واجهة المستخدم ====================
-function populateFilters() {
+    function populateFilters() {
         const source = filteredData.length ? filteredData : allData;
         const supermarketSet = new Set();
         const categorySet = new Set();
@@ -1032,17 +1026,13 @@ function populateFilters() {
         });
 
         const supermarketSelect = document.getElementById('supermarket-filter');
-        
-        // --- التعديل هنا: نأخذ القيمة من المتغير العام (إذا كان موجوداً) أو من القائمة ---
-        const currentSupermarket = (typeof urlMarket !== 'undefined' && urlMarket) ? urlMarket : supermarketSelect.value;
-        
+        const currentSupermarket = supermarketSelect.value;
         supermarketSelect.innerHTML = '<option value="">كل السوبرماركت</option>';
         Array.from(supermarketSet).sort().forEach(s => {
             let opt = document.createElement('option');
             opt.value = s;
             opt.textContent = s;
-            // سيتم وضع علامة "selected" تلقائياً إذا تطابق الاسم مع الرابط
-            if (s === currentSupermarket) opt.selected = true; 
+            if (s === currentSupermarket) opt.selected = true;
             supermarketSelect.appendChild(opt);
         });
 
@@ -1067,11 +1057,6 @@ function populateFilters() {
             if (b === currentBrand) opt.selected = true;
             brandSelect.appendChild(opt);
         });
-        
-        // تفريغ المتغير بعد استخدامه أول مرة حتى لا يتعارض مع الفلترة اليدوية لاحقاً
-        if (typeof urlMarket !== 'undefined') {
-            urlMarket = null; 
-        }
     }
 
     function showLoading(msg) {
@@ -1440,14 +1425,13 @@ function populateFilters() {
     }
     window.goToPage = (page) => { currentPage = page; renderContent(); };
 
-                
     function updateStats() {
         document.getElementById('total-offers').textContent = filteredData.length;
         let avg = filteredData.reduce((s,i) => s + (i._discount_pct || 0), 0) / (filteredData.length || 1);
         document.getElementById('avg-discount').textContent = Math.round(avg) + '%';
         let hot = filteredData.filter(i => i._discount_pct > 30).length;
         document.getElementById('hot-deals').textContent = hot;
-        let ending = filteredData.filter(i => i.endDate && ((i.endDate - new Date())/(1000*60*60*24) <= 7)).length;
+        let ending = filteredData.filter(i => i.endDate && ((i.endDate - new Date())/(1000*60*60*24) <= 3)).length;
         document.getElementById('ending-soon').textContent = ending;
         let markets = new Set(filteredData.map(i => i.supermarket)).size;
         document.getElementById('total-supermarkets').textContent = markets;
@@ -1745,35 +1729,23 @@ function populateFilters() {
         };
     }
 
-
     // بدء التطبيق
- // بدء التطبيق
-document.addEventListener('DOMContentLoaded', async () => {
-    // 1. استدعاء دالة التحميل الذكية (تفحص المخزن أولاً ثم الخادم)
-    await loadData();
-    
-    // 2. ربط الأحداث (الأزرار، البحث، إلخ)
-    wireEventListeners();
-    
-    console.log("🚀 التطبيق جاهز");
-});
-
-/* document.addEventListener('DOMContentLoaded', () => {
+    document.addEventListener('DOMContentLoaded', () => {
 // بدلاً من استدعاء fetchFreshDataWithLoading مباشرة:
 async function startApp() {
     const loadedFromCache = await loadDataFromCache();
+    
     if (!loadedFromCache) {
         // إذا لم نجد شيئاً في الذاكرة، نضطر لإظهار شاشة التحميل والذهاب للخادم
         await fetchFreshDataWithLoading();
-    }}
+    }
+}
 
 // تشغيل التطبيق
 startApp();
       loadData();
         wireEventListeners();
-    });  
-*/
-
+    });
 })();
 </script>
   </body>
