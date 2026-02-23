@@ -1157,7 +1157,18 @@ class="whitespace-pre-wrap">items          </span></div>
     <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.0/papaparse.min.js"></script>
     <script>
+// دالة موحدة لفتح قاعدة البيانات
+function openDB() {
+    return new Promise((resolve, reject) => {
+        const request = indexedDB.open('EG_MARKET_DB_V9', 9);
+        request.onupgradeneeded = (e) => e.target.result.createObjectStore('offers');
+        request.onsuccess = (e) => resolve(e.target.result);
+        request.onerror = (e) => reject(e.target.error);
+    });
+}
 
+      
+     
 /* ==================== SPLASH SCREEN FUNCTIONS ==================== */
 let progressInterval;
 let currentProgress = 0;
@@ -1228,6 +1239,7 @@ function showRandomTip() {
   }
 }
       
+
       
 // فتح قاعدة البيانات (الإصدار 5) مع إنشاء مخزن offers بمفتاح داخلي 'id'
 function getDB() {
@@ -1261,19 +1273,23 @@ let allRows = []; // Array to store the transformed data rows.
 
 // Split the CSV text into lines
 const lines = csvText.split('\n');
-const headers = lines[0].split(',').map(header => header.trim());
+// Extract the header row
+const headers = lines[0].split(',').map(header => header.trim()); // Adjust delimiter if necessary
 
+// Process each line starting from the second line
 for (let i = 1; i < lines.length; i++) {
 const line = lines[i].trim();
 if (!line) continue; // Skip empty lines
 
-const values = line.split(',').map(value => value.trim());
+const values = line.split(',').map(value => value.trim()); // Adjust delimiter if necessary
+// Create an object using the headers
 const transformed = {};
+
 headers.forEach((header, index) => {
 transformed[header] = values[index] || ''; // Handle cases where value may be missing
 });
 
-// Convert date string to Date object
+// Convert date string to Date object if needed
 const updateDateStr = transformed['تاريخ تعديل ملف الفلاير'] || transformed['Update Date'] || '';
 if (updateDateStr) {
 const updateDate = new Date(updateDateStr);
@@ -1287,49 +1303,26 @@ allRows.push(transformed); // Add the transformed row to the array.
 
 console.log(`✅ اكتمل التحميل، إجمالي الصفوف: ${allRows.length}`);
 
-const db = await openDB();
-const batchSize = 100; // Set batch size, e.g., 100 records at a time
-
-// Process in batches
-for (let i = 0; i < allRows.length; i += batchSize) {
+const db = await getDB();
 const tx = db.transaction('offers', 'readwrite');
 const store = tx.objectStore('offers');
-const batch = allRows.slice(i, i + batchSize);
+store.clear(); // Clear existing data.
 
-batch.forEach((row) => {
-row.id = i + allRows.indexOf(row) + 1; // Ensure unique IDs
-store.put(row); // Use put to avoid duplication errors
+allRows.forEach((row, index) => {
+row.id = index + 1; // Add an 'id' property to each row
+store.add(row); // Add the row to the IndexedDB store
 });
-
-await new Promise((resolve) => {
-tx.oncomplete = resolve; // Wait for completion of transaction
-});
-}
 
 // Store last update timestamp
-await db.transaction('offers', 'readwrite').objectStore('offers').put({ id: 'last_update', timestamp: Date.now() });
+store.put({ id: 'last_update', timestamp: Date.now() });
 
+tx.oncomplete = () => {
 console.log("✅ تم حفظ البيانات في IndexedDB");
+};
 
 } catch (error) {
 console.error("❌ فشل التحميل:", error.message);
 }
-}
-
-// Function to open the database
-function openDB() {
-return new Promise((resolve, reject) => {
-const request = indexedDB.open('EG_MARKET_DB_V9', 9);
-request.onupgradeneeded = (e) => {
-const db = e.target.result;
-// Check if the object store already exists before creating it
-if (!db.objectStoreNames.contains('offers')) {
-db.createObjectStore('offers', { keyPath: 'id' });
-}
-};
-request.onsuccess = (e) => resolve(e.target.result);
-request.onerror = (e) => reject(e.target.error);
-});
 }
       
       
