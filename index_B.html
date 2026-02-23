@@ -5,7 +5,8 @@
     <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
     <title>عروض السوبرماركت - أفضل العروض اليومية</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;800&amp;display=swap"
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;800&amp;display=swap"
+
       rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.0/papaparse.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/lz-string/1.4.4/lz-string.min.js"></script>
@@ -519,24 +520,32 @@
         </div>
       </div>
       <div class="filter-row">
-        <div class="filter-chips" id="filter-chips"> <button class="chip" data-filter="all"><i
-              class="fas fa-archive"></i> العروض القديمة</button> <button class="chip active"
+        <div class="filter-chips" id="filter-chips"> <button class="chip" data-filter="all"><i
+
+              class="fas fa-archive"></i> العروض القديمة</button> <button class="chip active"
+
             data-filter="active"><i class="fas fa-check-circle"></i> العروض
             السارية</button> <button class="chip" data-filter="hot"><i class="fas fa-bolt"></i>
             ساخنة</button> <button class="chip" data-filter="ending"><i class="fas fa-clock"></i>
-            تنتهي قريباً</button> <button class="chip" data-filter="discount"><i
-              class="fas fa-percentage"></i> خصومات كبيرة</button> <button class="chip"
+            تنتهي قريباً</button> <button class="chip" data-filter="discount"><i
+
+              class="fas fa-percentage"></i> خصومات كبيرة</button> <button class="chip"
+
             data-filter="carrefour"><i class="fas fa-shopping-cart"></i> كارفور</button>
           <button class="chip" data-filter="food"><i class="fas fa-utensils"></i>
-            منتجات غذائية</button> <button class="chip" data-filter="recent"><i
+            منتجات غذائية</button> <button class="chip" data-filter="recent"><i
+
               class="fas fa-calendar-day"></i> آخر يومين</button> </div>
-        <div class="view-toggle"> <button class="view-btn" id="view-grid-btn"><i
-              class="fas fa-th-large"></i> شبكي</button> <button class="view-btn active"
+        <div class="view-toggle"> <button class="view-btn" id="view-grid-btn"><i
+
+              class="fas fa-th-large"></i> شبكي</button> <button class="view-btn active"
+
             id="view-table-btn"><i class="fas fa-table"></i> جدول</button> </div>
       </div>
       <div class="products-grid" id="products-grid"></div>
       <div class="controls">
-        <div class="row"> <input id="search-input" placeholder="ابحث عن منتج..."
+        <div class="row"> <input id="search-input" placeholder="ابحث عن منتج..."
+
             type="text">
           <select id="supermarket-filter">
             <option value="">كل السوبرماركت</option>
@@ -549,10 +558,12 @@
           </select>
         </div>
         <div class="row">
-          <div class="price-controls"> <button id="min-decrease">−</button> <input
+          <div class="price-controls"> <button id="min-decrease">−</button> <input
+
               id="min-price" placeholder="السعر من" step="0.5" min="0" type="number">
             <button id="min-increase">+</button> </div>
-          <div class="price-controls"> <button id="max-decrease">−</button> <input
+          <div class="price-controls"> <button id="max-decrease">−</button> <input
+
               id="max-price" placeholder="السعر إلى" step="0.5" min="0" type="number">
             <button id="max-increase">+</button> </div>
           <select id="sort-by">
@@ -598,9 +609,12 @@
       <div class="comparison-header" style="display:flex; justify-content:space-between; align-items:center;">
         <h3 style="margin:0;"><i class="fas fa-balance-scale"></i> مقارنة
           المنتجات (<span id="comparison-count">0</span>/4)</h3>
-        <div> <button id="clear-comparison" style="background:#dc3545; color:white; border:none; padding:8px 16px; border-radius:6px;"><i
-              class="fas fa-trash"></i> مسح</button> <button id="close-comparison"
-            style="background:#6c757d; color:white; border:none; padding:8px 16px; border-radius:6px;"><i
+        <div> <button id="clear-comparison" style="background:#dc3545; color:white; border:none; padding:8px 16px; border-radius:6px;"><i
+
+              class="fas fa-trash"></i> مسح</button> <button id="close-comparison"
+
+            style="background:#6c757d; color:white; border:none; padding:8px 16px; border-radius:6px;"><i
+
               class="fas fa-times"></i> إغلاق</button> </div>
       </div>
       <div class="comparison-items" id="comparison-items" style="display:flex; gap:15px; overflow-x:auto; padding:10px 0;"></div>
@@ -608,13 +622,13 @@
     <script>
 (function() {
     // ==================== منع إعادة التحميل في نفس الجلسة ====================
-    if (window.__offersLoaded) {
+/*    if (window.__offersLoaded) {
         console.log('البيانات محملة مسبقاً، تخطي التحميل');
         return; // نخرج فوراً، لكننا سنحتاج لتهيئة الأحداث؟ سيتم تهيئتها لاحقاً.
         // لكن الواجهة قد لا تعمل. بدلاً من ذلك، نستخدم dataLoaded ونعتمد على IndexedDB.
     }
     window.__offersLoaded = true;
-
+*/
     // ==================== الإعدادات العامة ====================
     const DATA_URL = 'https://raw.githubusercontent.com/eg-market/ai/main/final.csv';
     const CACHE_KEY = 'offersData_v9';
@@ -645,6 +659,11 @@
     let urlCategories = [];
     let bestPriceMode = false;
 
+let urlMarket = null; // أضف هذا السطر في الأعلى
+  
+  // تعريف مخزن البيانات في نطاق واسع ليتم الوصول إليه من كل الدوال
+const queryCache = JSON.parse(sessionStorage.getItem('queryCache')) || {};
+  
     // ==================== دوال IndexedDB ====================
     function openDB() {
         return new Promise((resolve, reject) => {
@@ -662,6 +681,30 @@
             req.onerror = () => reject(req.error);
         });
     }
+  
+  async function loadData() {
+    let stored = await loadFromDB(); // جلب البيانات من IndexedDB
+    
+    if (stored && stored.length > 0) {
+        console.log("✅ تم العثور على بيانات في المخزن المحلي.");
+        allData = stored;
+        hideLoading();
+        processDataAfterLoad(); // عرض البيانات فوراً
+
+        // التحقق من صلاحية البيانات (التحديث الصامت في الخلفية)
+        const cacheTime = localStorage.getItem(`${CACHE_KEY}_time`);
+        const cacheValid = cacheTime && (Date.now() - parseInt(cacheTime) < CACHE_EXPIRY);
+        
+        if (!cacheValid && !backgroundUpdateInProgress) {
+            backgroundUpdateInProgress = true;
+          //  fetchFreshDataInBackground(); // تحديث دون إزعاج المستخدم
+        }
+    } else {
+        console.log("❌ المخزن فارغ، جاري التحميل من الخادم...");
+        // أول مرة على الإطلاق: تحميل كامل مع شاشة انتظار
+        await fetchFreshDataWithLoading();
+    }
+}
 
     async function loadFromDB() {
         try {
@@ -808,7 +851,7 @@
     }
 
     // ==================== تطبيق باراميترات الرابط ====================
-    function applyUrlParams() {
+function applyUrlParams() {
         try {
             const params = new URLSearchParams(window.location.search);
             
@@ -824,13 +867,15 @@
                 ? decodeURIComponent(catParam).split(',').map(c => c.trim().toLowerCase()).filter(Boolean)
                 : [];
 
-            const market = params.get('market');
-            if (market) {
+            // --- إصلاح كود الماركت هنا ---
+            const marketParam = params.get('market');
+            if (marketParam) {
+                urlMarket = decodeURIComponent(marketParam); // حفظ القيمة لاستخدامها لاحقاً
                 const sel = document.getElementById('supermarket-filter');
-                if (sel) {
-                    sel.value = decodeURIComponent(market);
+                if (sel && sel.options.length > 1) { 
+                    sel.value = urlMarket;
                 }
-            }
+            } // <--- هذا هو القوس الذي كان ناقصاً وتسبب في الخطأ
 
             const discount = params.get('discount');
             if (discount) {
@@ -842,14 +887,14 @@
             if (!isNaN(page) && page > 1) currentPage = page;
 
             if (params.has('one_day')) {
-                activeChipFilter = 'recent';
+//                activeChipFilter = 'recent';
                 const v = params.get('one_day');
                 const el = document.getElementById('min-discount');
                 if (el && v) el.value = v;
             }
 
             if (params.has('week_percent')) {
-                activeChipFilter = 'recent';
+   //             activeChipFilter = 'recent';
                 const v = params.get('week_percent');
                 const el = document.getElementById('min-discount');
                 if (el && v) el.value = v;
@@ -864,30 +909,35 @@
             console.error('applyUrlParams failed:', e);
         }
     }
+      
 
-    // ==================== تحميل البيانات (سريع) ====================
-    async function loadData() {
-        showLoading('جارٍ تحميل البيانات من المخزن المحلي...');
-        let stored = await loadFromDB();
+  async function loadDataFromCache() {
+    try {
+        // محاولة جلب البيانات من IndexedDB (يفترض وجود دالة getFromDB لديك)
+        const cachedData = await loadFromDB(); 
+        const lastCacheTime = localStorage.getItem(`${CACHE_KEY}_time`);
         
-        if (stored.length > 0) {
-            allData = stored;
-            hideLoading();
-            processDataAfterLoad();
+        // التحقق من وجود بيانات وأنها لم تنتهِ صلاحيتها (مثلاً أقل من ساعة)
+        const isFresh = lastCacheTime && (Date.now() - lastCacheTime < 3600000); 
 
-            // تحديث في الخلفية إذا انتهت الصلاحية
-            const cacheTime = localStorage.getItem(`${CACHE_KEY}_time`);
-            const cacheValid = cacheTime && (Date.now() - parseInt(cacheTime) < CACHE_EXPIRY);
-            if (!cacheValid && !backgroundUpdateInProgress) {
-                backgroundUpdateInProgress = true;
+        if (cachedData && cachedData.length > 0) {
+            console.log("تم العثور على بيانات في المخزن، يتم العرض الآن...");
+            allData = cachedData;
+            
+            // تنفيذ العمليات الضرورية دون انتظار الخادم
+            processDataAfterLoad(); 
+            
+            // إذا كانت البيانات قديمة نوعاً ما، نحدثها في الخلفية بهدوء
+            if (!isFresh) {
                 fetchFreshDataInBackground();
             }
-        } else {
-            // أول مرة: تحميل كامل مع شاشة انتظار
-            await fetchFreshDataWithLoading();
+            return true; // نجح التحميل من الذاكرة
         }
+    } catch (err) {
+        console.warn("المخزن فارغ أو حدث خطأ، سيتم الاتصال بالخادم:", err);
     }
-
+    return false; // فشل التحميل من الذاكرة، يجب الاتصال بالخادم
+}
     function fetchFreshDataWithLoading() {
         return new Promise((resolve, reject) => {
             showLoading('جارٍ تحميل العروض من الخادم...');
@@ -969,7 +1019,7 @@
     }
 
     // ==================== دوال تهيئة واجهة المستخدم ====================
-    function populateFilters() {
+function populateFilters() {
         const source = filteredData.length ? filteredData : allData;
         const supermarketSet = new Set();
         const categorySet = new Set();
@@ -982,13 +1032,17 @@
         });
 
         const supermarketSelect = document.getElementById('supermarket-filter');
-        const currentSupermarket = supermarketSelect.value;
+        
+        // --- التعديل هنا: نأخذ القيمة من المتغير العام (إذا كان موجوداً) أو من القائمة ---
+        const currentSupermarket = (typeof urlMarket !== 'undefined' && urlMarket) ? urlMarket : supermarketSelect.value;
+        
         supermarketSelect.innerHTML = '<option value="">كل السوبرماركت</option>';
         Array.from(supermarketSet).sort().forEach(s => {
             let opt = document.createElement('option');
             opt.value = s;
             opt.textContent = s;
-            if (s === currentSupermarket) opt.selected = true;
+            // سيتم وضع علامة "selected" تلقائياً إذا تطابق الاسم مع الرابط
+            if (s === currentSupermarket) opt.selected = true; 
             supermarketSelect.appendChild(opt);
         });
 
@@ -1013,6 +1067,11 @@
             if (b === currentBrand) opt.selected = true;
             brandSelect.appendChild(opt);
         });
+        
+        // تفريغ المتغير بعد استخدامه أول مرة حتى لا يتعارض مع الفلترة اليدوية لاحقاً
+        if (typeof urlMarket !== 'undefined') {
+            urlMarket = null; 
+        }
     }
 
     function showLoading(msg) {
@@ -1381,13 +1440,14 @@
     }
     window.goToPage = (page) => { currentPage = page; renderContent(); };
 
+                
     function updateStats() {
         document.getElementById('total-offers').textContent = filteredData.length;
         let avg = filteredData.reduce((s,i) => s + (i._discount_pct || 0), 0) / (filteredData.length || 1);
         document.getElementById('avg-discount').textContent = Math.round(avg) + '%';
         let hot = filteredData.filter(i => i._discount_pct > 30).length;
         document.getElementById('hot-deals').textContent = hot;
-        let ending = filteredData.filter(i => i.endDate && ((i.endDate - new Date())/(1000*60*60*24) <= 3)).length;
+        let ending = filteredData.filter(i => i.endDate && ((i.endDate - new Date())/(1000*60*60*24) <= 7)).length;
         document.getElementById('ending-soon').textContent = ending;
         let markets = new Set(filteredData.map(i => i.supermarket)).size;
         document.getElementById('total-supermarkets').textContent = markets;
@@ -1685,11 +1745,35 @@
         };
     }
 
+
     // بدء التطبيق
-    document.addEventListener('DOMContentLoaded', () => {
-        loadData();
+ // بدء التطبيق
+document.addEventListener('DOMContentLoaded', async () => {
+    // 1. استدعاء دالة التحميل الذكية (تفحص المخزن أولاً ثم الخادم)
+    await loadData();
+    
+    // 2. ربط الأحداث (الأزرار، البحث، إلخ)
+    wireEventListeners();
+    
+    console.log("🚀 التطبيق جاهز");
+});
+
+/* document.addEventListener('DOMContentLoaded', () => {
+// بدلاً من استدعاء fetchFreshDataWithLoading مباشرة:
+async function startApp() {
+    const loadedFromCache = await loadDataFromCache();
+    if (!loadedFromCache) {
+        // إذا لم نجد شيئاً في الذاكرة، نضطر لإظهار شاشة التحميل والذهاب للخادم
+        await fetchFreshDataWithLoading();
+    }}
+
+// تشغيل التطبيق
+startApp();
+      loadData();
         wireEventListeners();
-    });
+    });  
+*/
+
 })();
 </script>
   </body>
