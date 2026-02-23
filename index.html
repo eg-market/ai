@@ -1157,7 +1157,8 @@ class="whitespace-pre-wrap">items          </span></div>
     <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.0/papaparse.min.js"></script>
     <script>
-// دالة موحدة لفتح قاعدة البيانات
+
+      // دالة موحدة لفتح قاعدة البيانات
 function openDB() {
     return new Promise((resolve, reject) => {
         const request = indexedDB.open('EG_MARKET_DB_V9', 9);
@@ -1165,9 +1166,7 @@ function openDB() {
         request.onsuccess = (e) => resolve(e.target.result);
         request.onerror = (e) => reject(e.target.error);
     });
-}
-
-      
+}   
      
 /* ==================== SPLASH SCREEN FUNCTIONS ==================== */
 let progressInterval;
@@ -1239,7 +1238,6 @@ function showRandomTip() {
   }
 }
       
-
       
 // فتح قاعدة البيانات (الإصدار 5) مع إنشاء مخزن offers بمفتاح داخلي 'id'
 function getDB() {
@@ -1271,53 +1269,47 @@ const csvText = await response.text();
 
 let allRows = []; // Array to store the transformed data rows.
 
-Papa.parse(csvText, {
-header: true,
-skipEmptyLines: true,
-trim: true,
-dynamicTyping: true,
-step: function(row) {
-const item = row.data;
-const updateDateStr = item['تاريخ تعديل ملف الفلاير'] || item['Update Date'] || '';
+// Split the CSV text into lines
+const lines = csvText.split('\n');
+// Extract the header row
+const headers = lines[0].split(',').map(header => header.trim()); // Adjust delimiter if necessary
 
-if (!updateDateStr) return; // If no update date, skip this row.
+// Process each line starting from the second line
+for (let i = 1; i < lines.length; i++) {
+const line = lines[i].trim();
+if (!line) continue; // Skip empty lines
 
-const updateDate = new Date(updateDateStr); // Convert the update date to a Date object.
-if (isNaN(updateDate.getTime())) return; // Skip if invalid date.
+const values = line.split(',').map(value => value.trim()); // Adjust delimiter if necessary
+// Create an object using the headers
+const transformed = {};
 
-const dateStr = updateDate.toISOString().split('T')[0]; // Convert to YYYY-MM-DD format.
+headers.forEach((header, index) => {
+transformed[header] = values[index] || ''; // Handle cases where value may be missing
+});
 
-const transformed = {
-supermarket: String(item['اسم السوبر ماركت'] || ''),
-product: String(item['الاسم بالعربية'] || ''),
-primaryName: String(item['اسم المنتج (الأساسي)'] || ''),
-unit: String(item['الوحدة'] || ''),
-category: String(item['الفئة'] || ''),
-brand: String(item['اسم العلامة التجارية'] || ''),
-originalPrice: parseFloat(item['السعر الأصلي']) || 0,
-currentPrice: parseFloat(item['السعر الحالي']) || 0,
-discount: parseFloat(item['الخصم %']) || 0,
-pageNo: String(item['اسم ملف الفلاير'] || ''),
-solution_key: String(item['solution_key'] || ''),
-updateDate: updateDate,
-endDate: item['end_date'],
-validUntil: String(item['end_date'] || '').split(/[ T]/)[0] || 'غير متاح',
-status: String(item['status'] || '').trim(),
-// You can skip isRecent since you're loading all data
-};
+// Convert date string to Date object if needed
+const updateDateStr = transformed['تاريخ تعديل ملف الفلاير'] || transformed['Update Date'] || '';
+if (updateDateStr) {
+const updateDate = new Date(updateDateStr);
+if (!isNaN(updateDate.getTime())) {
+transformed.updateDate = updateDate; // Store as Date object
+}
+}
 
 allRows.push(transformed); // Add the transformed row to the array.
-},
-complete: async function() {
+}
+
 console.log(`✅ اكتمل التحميل، إجمالي الصفوف: ${allRows.length}`);
 
-const db = await getDB();
-const tx = db.transaction('offers', 'readwrite');
+const db = await openDB(); // Open the database
+const tx = db.transaction('offers', 'readwrite'); // Start a transaction for the object store
 const store = tx.objectStore('offers');
 store.clear(); // Clear existing data.
+
+// Bulk add the transformed rows
 allRows.forEach((row, index) => {
-row.id = index + 1; // Add an 'id' property.
-store.add(row); // Add the row to the IndexedDB store.
+row.id = index + 1; // Add an 'id' property to each row
+store.add(row); // Add the row to the IndexedDB store in the transaction
 });
 
 // Store last update timestamp
@@ -1326,22 +1318,29 @@ store.put({ id: 'last_update', timestamp: Date.now() });
 tx.oncomplete = () => {
 console.log("✅ تم حفظ البيانات في IndexedDB");
 };
-},
-error: function(err) {
-console.error("❌ خطأ في تحليل CSV:", err);
-}
-});
 
 } catch (error) {
 console.error("❌ فشل التحميل:", error.message);
 }
 }
 
-// إزالة الدالة القديمة preloadData التي كانت تسبب التعارض
-// (تم حذف الكود الزائد من الأسفل)
-
-
-
+// Function to open the database
+function openDB() {
+return new Promise((resolve, reject) => {
+const request = indexedDB.open('EG_MARKET_DB_V9', 9);
+request.onupgradeneeded = (e) => {
+const db = e.target.result;
+// Check if the object store already exists before creating it
+if (!db.objectStoreNames.contains('offers')) {
+db.createObjectStore('offers', { keyPath: 'id' });
+}
+};
+request.onsuccess = (e) => resolve(e.target.result);
+request.onerror = (e) => reject(e.target.error);
+});
+}
+      
+      
 // ابدأ التحميل فوراً
 preloadDataToIndexedDB();
    
