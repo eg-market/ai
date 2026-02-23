@@ -645,9 +645,6 @@
     let urlCategories = [];
     let bestPriceMode = false;
 
-  // تعريف مخزن البيانات في نطاق واسع ليتم الوصول إليه من كل الدوال
-const queryCache = JSON.parse(sessionStorage.getItem('queryCache')) || {};
-  
     // ==================== دوال IndexedDB ====================
     function openDB() {
         return new Promise((resolve, reject) => {
@@ -891,33 +888,6 @@ const queryCache = JSON.parse(sessionStorage.getItem('queryCache')) || {};
         }
     }
 
-  async function loadDataFromCache() {
-    try {
-        // محاولة جلب البيانات من IndexedDB (يفترض وجود دالة getFromDB لديك)
-        const cachedData = await getFromDB(); 
-        const lastCacheTime = localStorage.getItem(`${CACHE_KEY}_time`);
-        
-        // التحقق من وجود بيانات وأنها لم تنتهِ صلاحيتها (مثلاً أقل من ساعة)
-        const isFresh = lastCacheTime && (Date.now() - lastCacheTime < 3600000); 
-
-        if (cachedData && cachedData.length > 0) {
-            console.log("تم العثور على بيانات في المخزن، يتم العرض الآن...");
-            allData = cachedData;
-            
-            // تنفيذ العمليات الضرورية دون انتظار الخادم
-            processDataAfterLoad(); 
-            
-            // إذا كانت البيانات قديمة نوعاً ما، نحدثها في الخلفية بهدوء
-            if (!isFresh) {
-                fetchFreshDataInBackground();
-            }
-            return true; // نجح التحميل من الذاكرة
-        }
-    } catch (err) {
-        console.warn("المخزن فارغ أو حدث خطأ، سيتم الاتصال بالخادم:", err);
-    }
-    return false; // فشل التحميل من الذاكرة، يجب الاتصال بالخادم
-}
     function fetchFreshDataWithLoading() {
         return new Promise((resolve, reject) => {
             showLoading('جارٍ تحميل العروض من الخادم...');
@@ -1717,21 +1687,10 @@ const queryCache = JSON.parse(sessionStorage.getItem('queryCache')) || {};
 
     // بدء التطبيق
     document.addEventListener('DOMContentLoaded', () => {
-// بدلاً من استدعاء fetchFreshDataWithLoading مباشرة:
-async function startApp() {
-    const loadedFromCache = await loadDataFromCache();
-    
-    if (!loadedFromCache) {
-        // إذا لم نجد شيئاً في الذاكرة، نضطر لإظهار شاشة التحميل والذهاب للخادم
-        await fetchFreshDataWithLoading();
-    }
-}
-
-// تشغيل التطبيق
-startApp();
-      loadData();
+        loadData();
         wireEventListeners();
     });
 })();
-</script> </body>
+</script>
+  </body>
 </html>
