@@ -1263,9 +1263,6 @@ let allRows = []; // Array to store the transformed data rows.
 const lines = csvText.split('\n');
 const headers = lines[0].split(',').map(header => header.trim());
 
-// Identify the index of the relevant "state" column
-const stateIndex = headers.indexOf('state'); // Adjust 'state' to the actual column name.
-
 for (let i = 1; i < lines.length; i++) {
 const line = lines[i].trim();
 if (!line) continue; // Skip empty lines
@@ -1275,12 +1272,6 @@ const transformed = {};
 headers.forEach((header, index) => {
 transformed[header] = values[index] || ''; // Handle cases where value may be missing
 });
-
-// Check for the "العرض منتهي" state
-if (transformed['state'] === "العرض منتهي") { // Make sure 'state' matches the correct header
-console.log("✅ Encountered 'العرض منتهي' state. Stopping data processing.");
-break; // Stop processing further rows
-}
 
 // Convert date string to Date object
 const updateDateStr = transformed['تاريخ تعديل ملف الفلاير'] || transformed['Update Date'] || '';
