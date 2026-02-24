@@ -125,31 +125,6 @@ html, body {
     box-sizing: border-box;
 }
 
-/* ضبط filter-chips ليملأ العرض ويلتف */
-.filter-chips {
-    flex-wrap: wrap !important;
-    width: 100% !important;
-    margin: 0;
-    padding: 0;
-}
-
-.filter-chips .chip {
-    flex: 0 1 auto; /* يسمح بالتصغير مع الاحتفاظ بالمحتوى */
-    margin: 2px;
-    white-space: nowrap;
-}
-
-/* ضبط view-toggle ليكون تحت الفلاتر */
-.filter-row {
-    width: 100%;
-    margin: 10px 0;
-}
-
-.view-toggle {
-    margin-top: 5px;
-    width: 100%;
-    justify-content: center;
-}
 
 /* تحسين شبكة المنتجات */
 .products-grid {
@@ -554,11 +529,18 @@ table {
             cursor: not-allowed;
         }
 
-        @media (max-width: 900px) {
-            .filter-row { flex-direction: column; align-items: stretch; }
-            .filter-chips { overflow-x: auto; flex-wrap: nowrap; }
-            .stats-dashboard { grid-template-columns: repeat(2,1fr); }
-        }
+ @media (max-width: 900px) {
+    .filter-row { flex-direction: column; align-items: stretch; }
+    /* إلغاء التمرير الأفقي والسماح بالالتفاف */
+    .filter-chips { 
+        overflow-x: hidden; 
+        flex-wrap: wrap !important; 
+        justify-content: flex-start;
+        width: 100%;
+    }
+    .stats-dashboard { grid-template-columns: repeat(2,1fr); }
+}
+      
         @media (max-width: 600px) {
             .products-grid { grid-template-columns: 1fr; }
 
@@ -608,8 +590,34 @@ table {
         width: 100%;
         justify-content: center;
     }
+  }
+          
+         
+@media (min-width: 901px) {
+    /* جعل الفلاتر السريعة وأزرار العرض في سطر واحد */
+    .filter-row {
+        flex-wrap: nowrap;
+        align-items: center;
+    }
+    .filter-chips {
+        flex: 1;
+    }
+    .view-toggle {
+        flex-shrink: 0;
+        margin-right: 15px;
+    }
 
-        }
+    /* تكبير حقلي السعر من وإلى */
+    #min-price, #max-price {
+        width: 180px;
+    }
+
+    /* تحسين مظهر عناصر التحكم */
+    .price-controls {
+        min-width: 250px;
+    }
+}
+      
     </style>
   </head>
   <body>
@@ -628,9 +636,9 @@ table {
           </div>
         </div>
       </div>
-      <div class="user-guide-banner" id="user-guide"> <i class="fas fa-info-circle"></i>
-        <span>انقر على أي صف في الجدول لفتح صورة الفلاير مع تعليمات التصفح.</span>
-      </div>
+      <div class="user-guide-banner" id="user-guide"> &nbsp; <span>على الموبايل
+          حرك جدول الاصناف السفلي الى اليمين لمشاهدة بقيته--- وانقر على أي صف في
+          الجدول لفتح صورة الفلاير مع تعليمات التصفح.</span> </div>
       <div class="stats-dashboard">
         <div class="stat-card">
           <div class="stat-icon">💰</div>
@@ -707,10 +715,10 @@ table {
           </select>
         </div>
         <div class="row">
-          <div class="price-controls"> <button id="min-decrease">−</button> <input
+          <div class="price-controls"> <button id="min-decrease">−</button>
+            <input id="min-price" placeholder="السعر من" step="0.5"
 
-              id="min-price" placeholder="السعر من" step="0.5" min="0" type="number">
-            <button id="min-increase">+</button> </div>
+              min="0" type="number"> <button id="min-increase">+</button> </div>
           <div class="price-controls"> <button id="max-decrease">−</button> <input
 
               id="max-price" placeholder="السعر إلى" step="0.5" min="0" type="number">
