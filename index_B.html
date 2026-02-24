@@ -561,6 +561,54 @@ table {
         }
         @media (max-width: 600px) {
             .products-grid { grid-template-columns: 1fr; }
+
+    /* ضبط الصف العلوي */
+    .filter-row {
+        flex-direction: column;
+        align-items: stretch;
+        width: 100%;
+        margin: 10px 0;
+    }
+
+    /* الحاوية الرئيسية للأزرار - هذا هو الكود المحسن */
+    .filter-chips {
+        display: flex;
+        flex-wrap: wrap !important;
+        justify-content: flex-start;
+        gap: 4px;
+        width: 100% !important;
+        max-width: 100%;
+        overflow-x: hidden;
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    /* تنسيق الأزرار نفسها */
+    .filter-chips .chip {
+        flex: 0 1 auto;
+        min-width: fit-content;
+        margin: 2px;
+        padding: 6px 8px;
+        font-size: 0.8rem;
+        white-space: nowrap;
+    }
+
+    /* تقليل حجم الأزرار الطويلة أكثر إذا لزم الأمر */
+    .chip[data-filter="discount"],
+    .chip[data-filter="hyperone"],  /* تأكد من اسم الفلتر */
+    .chip[data-filter="food"],
+    .chip[data-filter="recent"] {
+        padding: 6px 6px;
+    }
+
+    /* ضبط زر تبديل العرض */
+    .view-toggle {
+        margin-top: 5px;
+        width: 100%;
+        justify-content: center;
+    }
+
         }
     </style>
   </head>
