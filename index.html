@@ -177,6 +177,108 @@
         <style>
         /* CSS Reset */
 body {
+  
+
+          /* إصلاح مشكلة الشاشة البيضاء على الجوال */
+html, body {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: hidden;
+    margin: 0;
+    padding: 0;
+}
+
+.container {
+    width: 100%;
+    max-width: 100%;
+    padding: 0 12px; /* تقليل الحشوة على الجوال */
+    box-sizing: border-box;
+}
+
+/* ضبط filter-chips ليملأ العرض ويلتف */
+.filter-chips {
+    flex-wrap: wrap !important;
+    width: 100% !important;
+    margin: 0;
+    padding: 0;
+}
+
+.filter-chips .chip {
+    flex: 0 1 auto; /* يسمح بالتصغير مع الاحتفاظ بالمحتوى */
+    margin: 2px;
+    white-space: nowrap;
+}
+
+/* ضبط view-toggle ليكون تحت الفلاتر */
+.filter-row {
+    width: 100%;
+    margin: 10px 0;
+}
+
+.view-toggle {
+    margin-top: 5px;
+    width: 100%;
+    justify-content: center;
+}
+
+/* تحسين شبكة المنتجات */
+.products-grid {
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 12px;
+    padding: 0;
+    width: 100%;
+}
+
+/* تحسين الجدول */
+#data-table {
+    overflow-x: auto;
+    width: 100%;
+}
+
+table {
+    min-width: 600px; /* يسمح بالتمرير الأفقي للجدول */
+}
+
+/* تحسين البطاقات الإحصائية */
+.stats-dashboard {
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    gap: 8px;
+}
+
+.stat-card {
+    padding: 8px;
+    min-height: auto;
+}
+
+/* ضبط تحكمات السعر */
+.price-controls {
+    width: 100%;
+    max-width: 300px;
+    margin: 0 auto;
+}
+
+.price-controls input {
+    width: 60px;
+    min-width: 0;
+}
+
+/* تحسين شريط التمرير */
+.ticker-wrap {
+    width: 100%;
+    overflow: hidden;
+}
+
+.ticker-viewport {
+    width: 100%;
+}
+
+/* إخفاء أي محتوى زائد */
+.hero-banner {
+    width: 100%;
+    overflow: hidden;
+}
+  
+  
   /* ==================== SPLASH SCREEN ==================== */
 #splash-screen {
   position: fixed;
@@ -349,7 +451,7 @@ html[dir="rtl"] .splash-tips {
 }
 
 /* Responsive */
-@media (max-width: 768px) {
+@media (max-width: 600px) {
   .splash-content {
     padding: 20px;
     width: 95%;
@@ -380,9 +482,42 @@ html[dir="rtl"] .splash-tips {
   .splash-stat i {
     font-size: 1.5rem;
   }
+  
+  
+    .filter-row {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .filter-chips {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: flex-start; /* محاذاة لليمين */
+        gap: 6px;
+        width: 100%;
+        overflow-x: hidden; /* منع التمرير الأفقي */
+    }
+
+    .chip {
+        flex: 0 1 auto; /* يسمح للأزرار بالتمدد حسب المحتوى */
+        min-width: fit-content; /* ألا يقل عن حجم المحتوى */
+        padding: 6px 10px; /* تقليل الحشو */
+        font-size: 0.8rem; /* خط أصغر قليلاً */
+        white-space: nowrap; /* منع كسر الكلمات داخل الزر */
+    }
+
+    /* إذا كان عدد الأزرار كبيراً جداً، نسمح بتقليل إضافي */
+    .chip[data-filter="discount"],
+    .chip[data-filter="hyper1"],
+    .chip[data-filter="food"],
+    .chip[data-filter="recent"] {
+        padding: 6px 8px; /* تقليل أكثر لهذه الأزرار */
+    }
+
+    /* إخفاء زر هايبر1 إذا كان غير مستخدم (يمكنك تعديله) */
+    /* .chip[data-filter="hyperone"] { display: none; } */
 }
-  
-  
+         
   
 direction: rtl; /* تأكد من أن الجسم بأكمله له اتجاه من اليمين */
 }
@@ -435,148 +570,10 @@ box-sizing: border-box;
 animation: flashing 1s infinite;
 }
 
-          
-          /* إصلاح مشكلة الشاشة البيضاء على الجوال */
-html, body {
-    width: 100%;
-    max-width: 100%;
-    overflow-x: hidden;
-    margin: 0;
-    padding: 0;
-}
-
-.container {
-    width: 100%;
-    max-width: 100%;
-    padding: 0 12px; /* تقليل الحشوة على الجوال */
-    box-sizing: border-box;
-}
-
-/* ضبط filter-chips ليملأ العرض ويلتف */
-.filter-chips {
-    flex-wrap: wrap !important;
-    width: 100% !important;
-    margin: 0;
-    padding: 0;
-}
-
-.filter-chips .chip {
-    flex: 0 1 auto; /* يسمح بالتصغير مع الاحتفاظ بالمحتوى */
-    margin: 2px;
-    white-space: nowrap;
-}
-
-/* ضبط view-toggle ليكون تحت الفلاتر */
-.filter-row {
-    width: 100%;
-    margin: 10px 0;
-}
-
-.view-toggle {
-    margin-top: 5px;
-    width: 100%;
-    justify-content: center;
-}
-
-/* تحسين شبكة المنتجات */
-.products-grid {
-    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-    gap: 12px;
-    padding: 0;
-    width: 100%;
-}
-
-/* تحسين الجدول */
-#data-table {
-    overflow-x: auto;
-    width: 100%;
-}
-
-table {
-    min-width: 600px; /* يسمح بالتمرير الأفقي للجدول */
-}
-
-/* تحسين البطاقات الإحصائية */
-.stats-dashboard {
-    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
-    gap: 8px;
-}
-
-.stat-card {
-    padding: 8px;
-    min-height: auto;
-}
-
-/* ضبط تحكمات السعر */
-.price-controls {
-    width: 100%;
-    max-width: 300px;
-    margin: 0 auto;
-}
-
-.price-controls input {
-    width: 60px;
-    min-width: 0;
-}
-
-/* تحسين شريط التمرير */
-.ticker-wrap {
-    width: 100%;
-    overflow: hidden;
-}
-
-.ticker-viewport {
-    width: 100%;
-}
-
-/* إخفاء أي محتوى زائد */
-.hero-banner {
-    width: 100%;
-    overflow: hidden;
-}
+       
           
 /* تحسين شريط الفلاتر السريعة للجوال */
-@media (max-width: 600px) {
-    .filter-row {
-        flex-direction: column;
-        align-items: stretch;
-    }
 
-    .filter-chips {
-        display: flex;
-        flex-wrap: wrap;
-        justify-content: flex-start; /* محاذاة لليمين */
-        gap: 6px;
-        width: 100%;
-        overflow-x: hidden; /* منع التمرير الأفقي */
-    }
-
-    .chip {
-        flex: 0 1 auto; /* يسمح للأزرار بالتمدد حسب المحتوى */
-        min-width: fit-content; /* ألا يقل عن حجم المحتوى */
-        padding: 6px 10px; /* تقليل الحشو */
-        font-size: 0.8rem; /* خط أصغر قليلاً */
-        white-space: nowrap; /* منع كسر الكلمات داخل الزر */
-    }
-
-    /* إذا كان عدد الأزرار كبيراً جداً، نسمح بتقليل إضافي */
-    .chip[data-filter="discount"],
-    .chip[data-filter="hyper1"],
-    .chip[data-filter="food"],
-    .chip[data-filter="recent"] {
-        padding: 6px 8px; /* تقليل أكثر لهذه الأزرار */
-    }
-
-    /* إخفاء زر هايبر1 إذا كان غير مستخدم (يمكنك تعديله) */
-    /* .chip[data-filter="hyperone"] { display: none; } */
-}
-          
-.filter-chips {
-    display: flex;
-    flex-wrap: wrap !important; /* إجبار الالتفاف */
-    width: 100% !important;
-    max-width: 100%;
-    box-sizing: border-box;
 }          
           
           
