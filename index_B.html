@@ -5,8 +5,7 @@
     <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
     <title>عروض السوبرماركت - أفضل العروض اليومية</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;800&amp;display=swap"
-
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;800&amp;display=swap"
       rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.0/papaparse.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/lz-string/1.4.4/lz-string.min.js"></script>
@@ -520,32 +519,24 @@
         </div>
       </div>
       <div class="filter-row">
-        <div class="filter-chips" id="filter-chips"> <button class="chip" data-filter="all"><i
-
-              class="fas fa-archive"></i> العروض القديمة</button> <button class="chip active"
-
+        <div class="filter-chips" id="filter-chips"> <button class="chip" data-filter="all"><i
+              class="fas fa-archive"></i> العروض القديمة</button> <button class="chip active"
             data-filter="active"><i class="fas fa-check-circle"></i> العروض
-            السارية</button> <button class="chip" data-filter="hot"><i class="fas fa-bolt"></i>
+            السارية</button> <button class="chip" data-filter="hot"><i class="fas fa-bolt"></i>عروض&nbsp;
             ساخنة</button> <button class="chip" data-filter="ending"><i class="fas fa-clock"></i>
-            تنتهي قريباً</button> <button class="chip" data-filter="discount"><i
-
-              class="fas fa-percentage"></i> خصومات كبيرة</button> <button class="chip"
-
-            data-filter="carrefour"><i class="fas fa-shopping-cart"></i> كارفور</button>
+            تنتهي قريباً</button> <button class="chip" data-filter="discount"><i
+              class="fas fa-percentage"></i> خصومات كبيرة</button> <button class="chip"
+            data-filter="carrefour"><i class="fas fa-shopping-cart"></i> هايبر1</button>
           <button class="chip" data-filter="food"><i class="fas fa-utensils"></i>
-            منتجات غذائية</button> <button class="chip" data-filter="recent"><i
-
+            منتجات غذائية</button> <button class="chip" data-filter="recent"><i
               class="fas fa-calendar-day"></i> آخر يومين</button> </div>
-        <div class="view-toggle"> <button class="view-btn" id="view-grid-btn"><i
-
-              class="fas fa-th-large"></i> شبكي</button> <button class="view-btn active"
-
+        <div class="view-toggle"> <button class="view-btn" id="view-grid-btn"><i
+              class="fas fa-th-large"></i> شبكي</button> <button class="view-btn active"
             id="view-table-btn"><i class="fas fa-table"></i> جدول</button> </div>
       </div>
       <div class="products-grid" id="products-grid"></div>
       <div class="controls">
-        <div class="row"> <input id="search-input" placeholder="ابحث عن منتج..."
-
+        <div class="row"> <input id="search-input" placeholder="ابحث عن منتج..."
             type="text">
           <select id="supermarket-filter">
             <option value="">كل السوبرماركت</option>
@@ -558,12 +549,10 @@
           </select>
         </div>
         <div class="row">
-          <div class="price-controls"> <button id="min-decrease">−</button> <input
-
+          <div class="price-controls"> <button id="min-decrease">−</button> <input
               id="min-price" placeholder="السعر من" step="0.5" min="0" type="number">
             <button id="min-increase">+</button> </div>
-          <div class="price-controls"> <button id="max-decrease">−</button> <input
-
+          <div class="price-controls"> <button id="max-decrease">−</button> <input
               id="max-price" placeholder="السعر إلى" step="0.5" min="0" type="number">
             <button id="max-increase">+</button> </div>
           <select id="sort-by">
@@ -609,12 +598,9 @@
       <div class="comparison-header" style="display:flex; justify-content:space-between; align-items:center;">
         <h3 style="margin:0;"><i class="fas fa-balance-scale"></i> مقارنة
           المنتجات (<span id="comparison-count">0</span>/4)</h3>
-        <div> <button id="clear-comparison" style="background:#dc3545; color:white; border:none; padding:8px 16px; border-radius:6px;"><i
-
-              class="fas fa-trash"></i> مسح</button> <button id="close-comparison"
-
-            style="background:#6c757d; color:white; border:none; padding:8px 16px; border-radius:6px;"><i
-
+        <div> <button id="clear-comparison" style="background:#dc3545; color:white; border:none; padding:8px 16px; border-radius:6px;"><i
+              class="fas fa-trash"></i> مسح</button> <button id="close-comparison"
+            style="background:#6c757d; color:white; border:none; padding:8px 16px; border-radius:6px;"><i
               class="fas fa-times"></i> إغلاق</button> </div>
       </div>
       <div class="comparison-items" id="comparison-items" style="display:flex; gap:15px; overflow-x:auto; padding:10px 0;"></div>
@@ -742,12 +728,24 @@ const queryCache = JSON.parse(sessionStorage.getItem('queryCache')) || {};
     function transformRows(rows) {
         return rows.map(item => {
             let rawEndDate = String(item['end_date'] || '').trim();
-            let dateOnly = rawEndDate.split(/[ T]/)[0];
+
+// Convert and create the Date object
+let isoDate = convertArabicDateToISO(rawEndDate);
+//if (isoDate) {
+let d = new Date(isoDate);
+// console.log(d); // Date object
+///} else {
+ //console.log("Could not convert date.");
+//}
+          
+          
+//          let dateOnly = rawEndDate.split(/[ T]/)[0];
             let endObject = null;
-            if (dateOnly) {
+/*            if (dateOnly) {
                 let d = new Date(dateOnly);
+*/                
                 if (!isNaN(d.getTime())) endObject = d;
-            }
+//            }
 
             let status = String(item['status'] || '').trim();
             if (status === 'س') status = 'منتهي';
@@ -785,6 +783,58 @@ const queryCache = JSON.parse(sessionStorage.getItem('queryCache')) || {};
             };
         }).filter(item => item.product);
     }
+
+// Function to convert Arabic date string to ISO format
+function convertArabicDateToISO(arabicDate) {
+// Create a mapping of Arabic month names to their English equivalents
+const months = {
+"يناير": "01",
+"فبراير": "02",
+"مارس": "03",
+"أبريل": "04",
+"مايو": "05",
+"يونيو": "06",
+"يوليو": "07",
+"أغسطس": "08",
+"سبتمبر": "09",
+"أكتوبر": "10",
+"نوفمبر": "11",
+"ديسمبر": "12"
+};
+
+// Split the date components
+const parts = arabicDate.split(" ");
+
+// Check if we have exactly 3 parts
+if (parts.length !== 3) {
+// console.error("Invalid date format: ", arabicDate);
+return null; // or throw an error
+}
+
+let [day, monthName, year] = parts;
+
+// If day or year is still undefined, log an error
+if (!day || !year) {
+//console.error("Day or year is undefined for date: ", arabicDate);
+return null; // or throw an error
+}
+
+// Convert Arabic day and year to numbers
+day = day.replace(/[٠-٩]/g, (d) => d.charCodeAt(0) - 1632); // Convert Arabic-Indic digits to Western digits
+year = year.replace(/[٠-٩]/g, (y) => y.charCodeAt(0) - 1632); // Convert Arabic-Indic digits to Western digits
+
+// Get the corresponding month number
+const month = months[monthName];
+if (!month) {
+// console.error("Invalid month name: ", monthName);
+return null; // or throw an error
+}
+
+// Return in ISO format
+return `${year}-${month}-${day}`;
+}
+
+
 
     // ==================== دوال مساعدة ====================
     function normalizeDates(arr) {
@@ -1128,17 +1178,24 @@ function populateFilters() {
                 case 'hot':
                     if ((item._discount_pct || 0) < 30) return false;
                     break;
-                case 'ending':
+/*                case 'ending':
                     if (!item.endDate) return false;
                     const now = new Date();
                     const diff = Math.ceil((item.endDate - now) / (1000*60*60*24));
-                    if (diff < 0 || diff > 7) return false;
+                    if (diff < 0 || diff > 1) return false;
                     break;
+*/
+                case 'ending':
+    if (!item.endDate) return false;
+    const diff = (item.endDate - new Date()) / (1000 * 60 * 60 * 24);
+    if (diff <= 0 || diff > 1) return false;   // فقط المستقبلية وخلال يوم
+    break;
+                
                 case 'discount':
                     if ((item._discount_pct || 0) < 20) return false;
                     break;
                 case 'carrefour':
-                    if (!item.supermarket.includes('كارفور')) return false;
+                    if (!item.supermarket.includes('هايبر1')) return false;
                     break;
                 case 'food':
                     if (!item.category || !/طعام|غذائ|مأكولات|أطعمة|غذاء/i.test(item.category)) return false;
@@ -1241,11 +1298,11 @@ function populateFilters() {
                 if (item.category.includes('غذائي')) productIcon = 'fa-utensils';
                 else if (item.category.includes('مشروب')) productIcon = 'fa-wine-bottle';
             }
-            let marketIcon = item.supermarket?.includes('كارفور') ? 'fa-shopping-cart' : 'fa-store';
+            let marketIcon = item.supermarket?.includes('هايبر1') ? 'fa-shopping-cart' : 'fa-store';
             let countdown = '';
             if (item.endDate) {
                 let diff = Math.ceil((item.endDate - new Date()) / (1000*60*60*24));
-                if (diff <= 7 && diff >= 0) countdown = `<div class="countdown"><i class="fas fa-clock"></i> ${diff} يوم</div>`;
+                if (diff <= 1 && diff >= 0) countdown = `<div class="countdown"><i class="fas fa-clock"></i> ${diff} يوم</div>`;
             }
             return `
             <div class="product-card" data-product="${item.product}">
@@ -1309,7 +1366,6 @@ function populateFilters() {
                 <td>${item.validUntil || ''}</td>
             </tr>`;
         }).join('');
-
         document.querySelectorAll('#table-body tr').forEach(tr => {
             tr.addEventListener('click', function(e) {
                 let url = this.dataset.url;
@@ -1321,7 +1377,6 @@ function populateFilters() {
                 }
             });
         });
-
         updatePagination();
     }
 
@@ -1441,17 +1496,24 @@ function populateFilters() {
     window.goToPage = (page) => { currentPage = page; renderContent(); };
 
                 
-    function updateStats() {
-        document.getElementById('total-offers').textContent = filteredData.length;
-        let avg = filteredData.reduce((s,i) => s + (i._discount_pct || 0), 0) / (filteredData.length || 1);
-        document.getElementById('avg-discount').textContent = Math.round(avg) + '%';
-        let hot = filteredData.filter(i => i._discount_pct > 30).length;
-        document.getElementById('hot-deals').textContent = hot;
-        let ending = filteredData.filter(i => i.endDate && ((i.endDate - new Date())/(1000*60*60*24) <= 7)).length;
-        document.getElementById('ending-soon').textContent = ending;
-        let markets = new Set(filteredData.map(i => i.supermarket)).size;
-        document.getElementById('total-supermarkets').textContent = markets;
-    }
+function updateStats() {
+    document.getElementById('total-offers').textContent = filteredData.length;
+    let avg = filteredData.reduce((s,i) => s + (i._discount_pct || 0), 0) / (filteredData.length || 1);
+    document.getElementById('avg-discount').textContent = Math.round(avg) + '%';
+    let hot = filteredData.filter(i => i._discount_pct > 30).length;
+    document.getElementById('hot-deals').textContent = hot;
+            
+    // حساب العروض التي ستنتهي خلال 24 ساعة القادمة (فقط المستقبلية)
+    let ending = filteredData.filter(i => {
+        if (!i.endDate) return false;
+        let diffDays = (i.endDate - new Date()) / (1000 * 60 * 60 * 24);
+        return diffDays > 0 && diffDays <= 1;   // >0 يعني مستقبلية، <=1 يعني خلال يوم
+    }).length;
+            
+    document.getElementById('ending-soon').textContent = ending;
+    let markets = new Set(filteredData.map(i => i.supermarket)).size;
+    document.getElementById('total-supermarkets').textContent = markets;
+}
 
     function populateTicker() {
         const track = document.getElementById('ticker-track');
@@ -1639,18 +1701,25 @@ function populateFilters() {
             renderContent();
         }
 
-        document.querySelectorAll('.chip').forEach(chip => {
-            chip.addEventListener('click', function() {
-                let filter = this.dataset.filter;
-                activeChipFilter = filter;
-                showAllOffers = (filter === 'all');
+document.querySelectorAll('.chip').forEach(chip => {
+    chip.addEventListener('click', function() {
+        let filter = this.dataset.filter;
+        activeChipFilter = filter;
+        showAllOffers = (filter === 'all');
 
-                document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
-                this.classList.add('active');
-                applyAllFilters();
-            });
-        });
+        document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+        this.classList.add('active');
 
+        // تغيير الترتيب حسب الزر المختار
+        if (filter === 'hot') {
+            document.getElementById('sort-by').value = 'discount-desc';
+        } else if (filter === 'discount') {
+            document.getElementById('sort-by').value = 'saved-desc';
+        } // يمكنك إضافة المزيد من الأزرار لاحقاً
+
+        applyAllFilters();
+    });
+});
         document.getElementById('search-input').addEventListener('input', debounce(applyAllFilters, 300));
         document.getElementById('supermarket-filter').addEventListener('change', applyAllFilters);
         document.getElementById('category-filter').addEventListener('change', applyAllFilters);
@@ -1775,6 +1844,5 @@ startApp();
 */
 
 })();
-</script>
-  </body>
+</script> </body>
 </html>
