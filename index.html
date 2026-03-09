@@ -1,19 +1,16 @@
 <!DOCTYPE html>
 <html dir="rtl" lang="ar">
   <head>
-    
-<!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-WRRCTWHDVF"></script>
-<script>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+    <!-- Google tag (gtag.js) -->
+    <script async="" src="https://www.googletagmanager.com/gtag/js?id=G-WRRCTWHDVF"></script>
+    <script>
   window.dataLayer = window.dataLayer || [];
   function gtag(){dataLayer.push(arguments);}
   gtag('js', new Date());
 
   gtag('config', 'G-WRRCTWHDVF');
-</script>
-    
-    <meta http-equiv="content-type" content="text/html; charset=utf-8">
-    <!--    <link rel="preload" href="https://raw.githubusercontent.com/eg-market/ai/main/final.csv"
+</script> <!--    <link rel="preload" href="https://raw.githubusercontent.com/eg-market/ai/main/final.csv"
           as="fetch" type="application/json" crossorigin="anonymous">-->
     <meta name="viewport" content="width=device-width, initial-scale=0.1">
     <link rel="stylesheet" href="https://eg-market.github.io/ai/css1.css" data-precedence="next">
@@ -188,6 +185,63 @@
         <style>
         /* CSS Reset */
 body {
+  
+          /* إضافة جديدة - تنسيق الأزرار على الموبايل - 3 أزرار في كل سطر */
+        /* إضافة جديدة - تنسيق الأزرار على الموبايل - 3 أزرار في كل سطر */
+        @media (max-width: 768px) {
+            .flex.gap-xs {
+                gap: 0.5rem !important;
+            }
+            
+            /* استهداف السطر الذي يحتوي على الأزرار الـ 18 باستخدام id */
+            #mobile-buttons-row {
+                display: grid !important;
+                grid-template-columns: repeat(3, 1fr) !important;
+                gap: 10px !important;
+                width: 100% !important;
+                padding: 0 8px !important;
+                box-sizing: border-box !important;
+            }
+            
+            /* تنسيق كل حاوية زر */
+            #mobile-buttons-row > div {
+                width: 100% !important;
+                margin: 0 !important;
+                min-width: 0 !important;
+            }
+            
+            /* تنسيق روابط الأزرار */
+            #mobile-buttons-row a {
+                display: block !important;
+                width: 100% !important;
+            }
+            
+            /* تنسيق الـ div الخاص بالعرض */
+            #mobile-buttons-row .w-\[135px\] {
+                width: 100% !important;
+            }
+            
+            /* جعل الصور متجاوبة */
+            #mobile-buttons-row .size-\[135px\] {
+                width: 100% !important;
+                height: auto !important;
+                aspect-ratio: 1 / 1 !important;
+            }
+            
+            #mobile-buttons-row img {
+                width: 100% !important;
+                height: 100% !important;
+                object-fit: contain !important;
+            }
+            
+            /* تعديل حجم النص للموبايل */
+            #mobile-buttons-row .text-xs {
+                font-size: 12px !important;
+                line-height: 1.4 !important;
+                word-break: break-word !important;
+            }
+        }
+  
   /* ==================== SPLASH SCREEN ==================== */
 #splash-screen {
   position: fixed;
@@ -646,6 +700,14 @@ class="whitespace-pre-wrap">items          </span></div>
                 </a> </div>
             </div>
           </div>
+          
+           <!-- الأزرار الأولى (تبقى كما هي) -->
+           
+            <div class="flex gap-xs" id="mobile-buttons-row">
+              <!-- الأزرار الثانية (الـ 18 زر) -->
+            </div>
+          
+          
           <div class="flex flex-col gap-md">
             <div class="flex gap-xs flex-wrap justify-center">
               <div class="flex gap-xs">
@@ -785,8 +847,12 @@ class="whitespace-pre-wrap">items          </span></div>
                     </div>
                   </a></div>
               </div>
-              <div class="flex gap-xs">
-                <div><a class="flex cursor-pointer flex-col justify-center rounded-[10px] px-xs"
+              
+              <div class="flex gap-xs" id="mobile-buttons-row">
+                <!-- هنا الأزرار من 10-18 - نفس المحتوى تماماً، لا تغير أي شيء -->
+              
+              <div>                            
+              <a class="flex cursor-pointer flex-col justify-center rounded-[10px] px-xs"
 
                     href="https://eg-market.github.io/ai/index_B.html?category=%D8%A3%D8%AC%D9%87%D8%B2%D8%A9+%D8%B3%D9%85%D8%B9%D9%8A%D8%A9+%D9%88%D9%83%D9%85%D8%A8%D9%8A%D9%88%D8%AA%D8%B1">
                     <div class="w-[135px]">
@@ -922,6 +988,7 @@ class="whitespace-pre-wrap">items          </span></div>
               </div>
             </div>
           </div>
+        </div>
           <!--      <div class="max-w-full overflow-hidden">
               <div class="mb-xs ml-xs rounded-full bg-gray-200 animate-pulse h-md w-64"                data-testid="product-carousel-skeleton"></div>              <div class="flex">                <div class="mx-xs flex animate-pulse flex-col" data-testid="product-card-skeleton">                  <div class="mb-md flex items-center justify-center rounded bg-gray-300 size-[160px]"><svg                      class="text-gray-200 stroke-2" height="40" stroke="currentColor"                      viewBox="0 0 20 18" width="40" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><title></title><path                        d="M18 0H2a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2Zm-5.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3Zm4.376 10.481A1 1 0 0 1 16 15H4a1 1 0 0 1-.895-1.447l3.5-7A1 1 0 0 1 7.468 6a.965.965 0 0 1 .9.5l2.775 4.757 1.546-1.887a1 1 0 0 1 1.618.1l2.541 4a1 1 0 0 1 .028 1.011Z"                        stroke="none"></path></svg></div>                  <div class="">                    <div class="h-2.5 w-36 rounded-full bg-gray-200 mb-md"></div>                    <div class="h-2.5 rounded-full bg-gray-200 mb-md w-24"></div>                    <div class="rounded-sm h-2.5 w-24 bg-gray-200 hidden"></div>                  </div>                </div>                <div class="mx-xs flex animate-pulse flex-col" data-testid="product-card-skeleton">                  <div class="mb-md flex items-center justify-center rounded bg-gray-300 size-[160px]"><svg                      class="text-gray-200 stroke-2" height="40" stroke="currentColor"                      viewBox="0 0 20 18" width="40" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><title></title><path                        d="M18 0H2a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2Zm-5.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3Zm4.376 10.481A1 1 0 0 1 16 15H4a1 1 0 0 1-.895-1.447l3.5-7A1 1 0 0 1 7.468 6a.965.965 0 0 1 .9.5l2.775 4.757 1.546-1.887a1 1 0 0 1 1.618.1l2.541 4a1 1 0 0 1 .028 1.011Z"                        stroke="none"></path></svg></div>                  <div class="">                    <div class="h-2.5 w-36 rounded-full bg-gray-200 mb-md"></div>                    <div class="h-2.5 rounded-full bg-gray-200 mb-md w-24"></div>                    <div class="rounded-sm h-2.5 w-24 bg-gray-200 hidden"></div>                  </div>                </div>                <div class="mx-xs flex animate-pulse flex-col" data-testid="product-card-skeleton">                  <div class="mb-md flex items-center justify-center rounded bg-gray-300 size-[160px]"><svg                      class="text-gray-200 stroke-2" height="40" stroke="currentColor"                      viewBox="0 0 20 18" width="40" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><title></title><path                        d="M18 0H2a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2Zm-5.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3Zm4.376 10.481A1 1 0 0 1 16 15H4a1 1 0 0 1-.895-1.447l3.5-7A1 1 0 0 1 7.468 6a.965.965 0 0 1 .9.5l2.775 4.757 1.546-1.887a1 1 0 0 1 1.618.1l2.541 4a1 1 0 0 1 .028 1.011Z"                        stroke="none"></path></svg></div>                  <div class="">                    <div class="h-2.5 w-36 rounded-full bg-gray-200 mb-md"></div>                    <div class="h-2.5 rounded-full bg-gray-200 mb-md w-24"></div>                    <div class="rounded-sm h-2.5 w-24 bg-gray-200 hidden"></div>                  </div>                </div>                <div class="mx-xs flex animate-pulse flex-col" data-testid="product-card-skeleton">                  <div class="mb-md flex items-center justify-center rounded bg-gray-300 size-[160px]"><svg                      class="text-gray-200 stroke-2" height="40" stroke="currentColor"                      viewBox="0 0 20 18" width="40" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><title></title><path                        d="M18 0H2a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2Zm-5.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3Zm4.376 10.481A1 1 0 0 1 16 15H4a1 1 0 0 1-.895-1.447l3.5-7A1 1 0 0 1 7.468 6a.965.965 0 0 1 .9.5l2.775 4.757 1.546-1.887a1 1 0 0 1 1.618.1l2.541 4a1 1 0 0 1 .028 1.011Z"                        stroke="none"></path></svg></div>                  <div class="">                    <div class="h-2.5 w-36 rounded-full bg-gray-200 mb-md"></div>                    <div class="h-2.5 rounded-full bg-gray-200 mb-md w-24"></div>                    <div class="rounded-sm h-2.5 w-24 bg-gray-200 hidden"></div>                  </div>                </div>                <div class="mx-xs flex animate-pulse flex-col" data-testid="product-card-skeleton">                  <div class="mb-md flex items-center justify-center rounded bg-gray-300 size-[160px]"><svg                      class="text-gray-200 stroke-2" height="40" stroke="currentColor"                      viewBox="0 0 20 18" width="40" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><title></title><path                        d="M18 0H2a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2Zm-5.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3Zm4.376 10.481A1 1 0 0 1 16 15H4a1 1 0 0 1-.895-1.447l3.5-7A1 1 0 0 1 7.468 6a.965.965 0 0 1 .9.5l2.775 4.757 1.546-1.887a1 1 0 0 1 1.618.1l2.541 4a1 1 0 0 1 .028 1.011Z"                        stroke="none"></path></svg></div>                  <div class="">                    <div class="h-2.5 w-36 rounded-full bg-gray-200 mb-md"></div>                    <div class="h-2.5 rounded-full bg-gray-200 mb-md w-24"></div>                    <div class="rounded-sm h-2.5 w-24 bg-gray-200 hidden"></div>                  </div>                </div>                <div class="mx-xs flex animate-pulse flex-col" data-testid="product-card-skeleton">                  <div class="mb-md flex items-center justify-center rounded bg-gray-300 size-[160px]"><svg                      class="text-gray-200 stroke-2" height="40" stroke="currentColor"                      viewBox="0 0 20 18" width="40" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><title></title><path                        d="M18 0H2a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2Zm-5.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3Zm4.376 10.481A1 1 0 0 1 16 15H4a1 1 0 0 1-.895-1.447l3.5-7A1 1 0 0 1 7.468 6a.965.965 0 0 1 .9.5l2.775 4.757 1.546-1.887a1 1 0 0 1 1.618.1l2.541 4a1 1 0 0 1 .028 1.011Z"                        stroke="none"></path></svg></div>                  <div class="">                    <div class="h-2.5 w-36 rounded-full bg-gray-200 mb-md"></div>                    <div class="h-2.5 rounded-full bg-gray-200 mb-md w-24"></div>                    <div class="rounded-sm h-2.5 w-24 bg-gray-200 hidden"></div>                  </div>                </div>                <div class="mx-xs flex animate-pulse flex-col" data-testid="product-card-skeleton">                  <div class="mb-md flex items-center justify-center rounded bg-gray-300 size-[160px]"><svg                      class="text-gray-200 stroke-2" height="40" stroke="currentColor"                      viewBox="0 0 20 18" width="40" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><title></title><path                        d="M18 0H2a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2Zm-5.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3Zm4.376 10.481A1 1 0 0 1 16 15H4a1 1 0 0 1-.895-1.447l3.5-7A1 1 0 0 1 7.468 6a.965.965 0 0 1 .9.5l2.775 4.757 1.546-1.887a1 1 0 0 1 1.618.1l2.541 4a1 1 0 0 1 .028 1.011Z"                        stroke="none"></path></svg></div>                  <div class="">                    <div class="h-2.5 w-36 rounded-full bg-gray-200 mb-md"></div>                    <div class="h-2.5 rounded-full bg-gray-200 mb-md w-24"></div>                    <div class="rounded-sm h-2.5 w-24 bg-gray-200 hidden"></div>                  </div>                </div>              </div>            </div>     -->
           <!--      <div class="max-w-full overflow-hidden">
@@ -1380,5 +1447,6 @@ return false; // Allow the default handling (e.g., displaying the error in the c
 
 */
       </script>
+    
   </body>
 </html>
