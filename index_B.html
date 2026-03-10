@@ -1607,12 +1607,7 @@ function populateFilters() {
                     </head>
                     <body>
                         <div class="iframe-wrapper">
-                             <iframe src="${url}" scrolling="yes" 
-onload="
-this.contentWindow.scrollTo(0,600);
-document.getElementById('guide-overlay').style.display='flex';
-">
-</iframe>
+                            <iframe src="${url}" scrolling="yes" onload="document.getElementById('guide-overlay').style.display='flex';"></iframe>
                             <div class="overlay" id="guide-overlay" style="display: none;">
                                 اسحب الشاشة للأسفل حتى الصورة رقم ${flyerFileName || ''} واضغط عليها للتكبير
                             </div>
