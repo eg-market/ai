@@ -13,8 +13,7 @@
 </script> <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
     <title>عروض السوبرماركت - أفضل العروض اليومية</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;800&amp;display=swap"
-
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;800&amp;display=swap"
       rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.0/papaparse.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/lz-string/1.4.4/lz-string.min.js"></script>
@@ -685,32 +684,24 @@ table {
         </div>
       </div>
       <div class="filter-row">
-        <div class="filter-chips" id="filter-chips"> <button class="chip" data-filter="all"><i
-
-              class="fas fa-archive"></i> العروض القديمة</button> <button class="chip active"
-
+        <div class="filter-chips" id="filter-chips"> <button class="chip" data-filter="all"><i
+              class="fas fa-archive"></i> العروض القديمة</button> <button class="chip active"
             data-filter="active"><i class="fas fa-check-circle"></i> العروض
             السارية</button> <button class="chip" data-filter="hot"><i class="fas fa-bolt"></i>عروض&nbsp;
             ساخنة</button> <button class="chip" data-filter="ending"><i class="fas fa-clock"></i>
-            تنتهي قريباً</button> <button class="chip" data-filter="discount"><i
-
-              class="fas fa-percentage"></i> خصومات كبيرة</button> <button class="chip"
-
+            تنتهي قريباً</button> <button class="chip" data-filter="discount"><i
+              class="fas fa-percentage"></i> خصومات كبيرة</button> <button class="chip"
             data-filter="carrefour"><i class="fas fa-shopping-cart"></i> هايبر1</button>
           <button class="chip" data-filter="food"><i class="fas fa-utensils"></i>
-            منتجات غذائية</button> <button class="chip" data-filter="recent"><i
-
+            منتجات غذائية</button> <button class="chip" data-filter="recent"><i
               class="fas fa-calendar-day"></i> آخر يومين</button> </div>
-        <div class="view-toggle"> <button class="view-btn" id="view-grid-btn"><i
-
-              class="fas fa-th-large"></i> شبكي</button> <button class="view-btn active"
-
+        <div class="view-toggle"> <button class="view-btn" id="view-grid-btn"><i
+              class="fas fa-th-large"></i> شبكي</button> <button class="view-btn active"
             id="view-table-btn"><i class="fas fa-table"></i> جدول</button> </div>
       </div>
       <div class="products-grid" id="products-grid"></div>
       <div class="controls">
-        <div class="row"> <input id="search-input" placeholder="ابحث عن منتج..."
-
+        <div class="row"> <input id="search-input" placeholder="ابحث عن منتج..."
             type="text">
           <select id="supermarket-filter">
             <option value="">كل السوبرماركت</option>
@@ -723,14 +714,12 @@ table {
           </select>
         </div>
         <div class="row">
-          <div class="price-controls"> <button id="min-decrease">−</button> <input
-
-              id="min-price" placeholder="السعر من" step="0.5" min="0" type="number">
-            <button id="min-increase">+</button> </div>
-          <div class="price-controls"> <button id="max-decrease">−</button> <input
-
-              id="max-price" placeholder="السعر إلى" step="0.5" min="0" type="number">
-            <button id="max-increase">+</button> </div>
+          <div class="price-controls"> <button id="min-decrease">−</button> <input
+              id="min-price" placeholder="السعر من" step="0.5" min="0" style="width: 300px;&gt; &lt;button id="
+              min-increase"="" type="number">+ </div>
+          <div class="price-controls"> <button id="max-decrease">−</button> <input
+              id="max-price" placeholder="السعر إلى" step="0.5" min="0" style="width: 300px;&gt; &lt;button id="
+              max-increase"="" type="number">+ </div>
           <select id="sort-by">
             <option value="best-deals">أفضل العروض (مركب)</option>
             <option value="discount-desc">الخصم % - تنازلي</option>
@@ -774,12 +763,9 @@ table {
       <div class="comparison-header" style="display:flex; justify-content:space-between; align-items:center;">
         <h3 style="margin:0;"><i class="fas fa-balance-scale"></i> مقارنة
           المنتجات (<span id="comparison-count">0</span>/4)</h3>
-        <div> <button id="clear-comparison" style="background:#dc3545; color:white; border:none; padding:8px 16px; border-radius:6px;"><i
-
-              class="fas fa-trash"></i> مسح</button> <button id="close-comparison"
-
-            style="background:#6c757d; color:white; border:none; padding:8px 16px; border-radius:6px;"><i
-
+        <div> <button id="clear-comparison" style="background:#dc3545; color:white; border:none; padding:8px 16px; border-radius:6px;"><i
+              class="fas fa-trash"></i> مسح</button> <button id="close-comparison"
+            style="background:#6c757d; color:white; border:none; padding:8px 16px; border-radius:6px;"><i
               class="fas fa-times"></i> إغلاق</button> </div>
       </div>
       <div class="comparison-items" id="comparison-items" style="display:flex; gap:15px; overflow-x:auto; padding:10px 0;"></div>
@@ -797,7 +783,10 @@ table {
     // ==================== الإعدادات العامة ====================
     const DATA_URL = 'https://raw.githubusercontent.com/eg-market/ai/main/final.csv';
     const CACHE_KEY = 'offersData_v9';
-    const CACHE_EXPIRY = 7 * 24 * 60 * 60 * 1000; // 7 أيام
+  
+//    const CACHE_EXPIRY = 7 * 24 * 60 * 60 * 1000; // 7 أيام
+    const CACHE_EXPIRY = 2 * 60 * 60 * 1000; // ساعتين فقط (بدلاً من 7 أيام)  
+  
     const DB_NAME = 'EG_MARKET_DB_V9';
     const DB_VERSION = 9;
     const STORE_NAME = 'offers';
@@ -807,6 +796,8 @@ table {
 
     // ==================== الحالة العامة ====================
     let allData = [];
+    let originalAllData = [];
+  
     let filteredData = [];
     let latestTwoDates = [];
     let currentPage = 1;
@@ -1224,6 +1215,50 @@ function applyUrlParams() {
         }
     }
 
+function transformJsonRows(jsonData) {
+    return jsonData.map(item => {
+        let rawEndDate = String(item['end_date'] || '').trim();
+        let isoDate = convertArabicDateToISO(rawEndDate);
+        let d = isoDate ? new Date(isoDate) : null;
+
+        let status = String(item['status'] || '').trim();
+        if (status === 'س') status = 'منتهي';
+
+        let validUntil = String(item.validUntil || '').trim();
+        if (!validUntil || validUntil === 'غير متاح') validUntil = status || 'غير متاح';
+
+        let updateDateStr = item['تاريخ تعديل ملف الفلاير'] || item['Update Date'] || '';
+        let updateDate = null;
+        if (updateDateStr) {
+            let d2 = new Date(updateDateStr);
+            if (!isNaN(d2.getTime())) updateDate = d2;
+        }
+
+        return {
+            supermarket: String(item['اسم السوبر ماركت'] || ''),
+            product: String(item['الاسم بالعربية'] || ''),
+            primaryName: String(item['اسم المنتج (الأساسي)'] || ''),
+            unit: String(item['الوحدة'] || ''),
+            category: String(item['الفئة'] || ''),
+            brand: String(item['اسم العلامة التجارية'] || ''),
+            originalPrice: parseFloat(item['السعر الأصلي']) || 0,
+            currentPrice: parseFloat(item['السعر الحالي']) || 0,
+            discount: parseFloat(item['الخصم %']) || 0,
+            pageNo: String(item['اسم ملف الفلاير'] || ''),
+            solution_key: String(item['solution_key'] || ''),
+            currency: 'EGP',
+            endDate: d,
+            validUntil: validUntil,
+            updateDate: updateDate,
+            status: status,
+            _saved: 0,
+            _discount_pct: 0,
+            _score: 0
+        };
+    }).filter(item => item.product);
+}
+  
+  
     function processDataAfterLoad() {
         latestTwoDates = findLatestTwoDates(allData);
 
@@ -1239,7 +1274,8 @@ function applyUrlParams() {
         } else {
             document.querySelector('.chip[data-filter="active"]').classList.add('active');
         }
-
+      
+originalAllData = [...allData];
         populateFilters();
 
         applyAllFilters();
@@ -1883,23 +1919,52 @@ function updateStats() {
 document.querySelectorAll('.chip').forEach(chip => {
     chip.addEventListener('click', function() {
         let filter = this.dataset.filter;
-        activeChipFilter = filter;
-        showAllOffers = (filter === 'all');
-
-        document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
-        this.classList.add('active');
-
-        // تغيير الترتيب حسب الزر المختار
-        if (filter === 'hot') {
-            document.getElementById('sort-by').value = 'discount-desc';
-        } else if (filter === 'discount') {
-            document.getElementById('sort-by').value = 'saved-desc';
-        } // يمكنك إضافة المزيد من الأزرار لاحقاً
-
-        applyAllFilters();
+        
+        if (filter === 'all') {
+            // تحميل البيانات من JSON
+            showLoading('جارٍ تحميل العروض القديمة...');
+            fetch('https://eg-market.github.io/ai/final.jsonl')
+                .then(response => response.json())
+                .then(jsonData => {
+                    let oldData = transformJsonRows(jsonData);
+                    // تطبيع وتجهيز البيانات الجديدة
+                    normalizeDates(oldData);
+                    computeSavedAndDiscount(oldData);
+                    computeCombinedScore(oldData);
+                    allData = oldData; // استبدال البيانات الحالية بالقديمة
+                    activeChipFilter = 'all';
+                    showAllOffers = true;
+                    document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+                    this.classList.add('active');
+                    applyAllFilters();
+                    hideLoading();
+                })
+                .catch(err => {
+                    console.error('خطأ في تحميل العروض القديمة:', err);
+                    hideLoading();
+                    alert('فشل تحميل العروض القديمة');
+                });
+        } else {
+            // إذا كان أي فلتر آخر، نستعيد البيانات الأصلية من CSV
+            if (originalAllData.length > 0) {
+                allData = [...originalAllData];
+            }
+            activeChipFilter = filter;
+            showAllOffers = (filter === 'all'); // لكن هنا filter ليس all
+            document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+            this.classList.add('active');
+            
+            // تغيير الترتيب حسب الزر المختار
+            if (filter === 'hot') {
+                document.getElementById('sort-by').value = 'discount-desc';
+            } else if (filter === 'discount') {
+                document.getElementById('sort-by').value = 'saved-desc';
+             }
+                applyAllFilters();
+            }
+        });
     });
-});
-        document.getElementById('search-input').addEventListener('input', debounce(applyAllFilters, 300));
+document.getElementById('search-input').addEventListener('input', debounce(applyAllFilters, 300));
         document.getElementById('supermarket-filter').addEventListener('change', applyAllFilters);
         document.getElementById('category-filter').addEventListener('change', applyAllFilters);
         document.getElementById('brand-filter').addEventListener('change', applyAllFilters);
@@ -2023,6 +2088,5 @@ startApp();
 */
 
 })();
-</script>
-  </body>
+</script> </body>
 </html>
