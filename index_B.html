@@ -8,7 +8,6 @@
   window.dataLayer = window.dataLayer || [];
   function gtag(){dataLayer.push(arguments);}
   gtag('js', new Date());
-
   gtag('config', 'G-WRRCTWHDVF');
 </script> <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
     <title>عروض السوبرماركت - أفضل العروض اليومية</title>
@@ -19,6 +18,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.0/papaparse.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/lz-string/1.4.4/lz-string.min.js"></script>
     <style>
+        /* الأنماط كما هي دون تغيير */
         :root{
             --primary-blue: #00539F;
             --accent-orange: #FF6B00;
@@ -723,16 +723,18 @@ table {
           </select>
         </div>
         <div class="row">
-          <div class="price-controls"> <button id="min-decrease">−</button> <input
-
-              id="min-price" placeholder="السعر من" step="0.5" min="0" style="width: 300px;&gt; &lt;button id="
-
-              min-increase"="" type="number">+ </div>
-          <div class="price-controls"> <button id="max-decrease">−</button> <input
-
-              id="max-price" placeholder="السعر إلى" step="0.5" min="0" style="width: 300px;&gt; &lt;button id="
-
-              max-increase"="" type="number">+ </div>
+          <!-- بداية القسم المصحح لتحكمات السعر -->
+          <div class="price-controls">
+            <button id="min-decrease">−</button>
+            <input id="min-price" placeholder="السعر من" step="0.5" min="0" style="width: 80px;" type="number">
+            <button id="min-increase">+</button>
+          </div>
+          <div class="price-controls">
+            <button id="max-decrease">−</button>
+            <input id="max-price" placeholder="السعر إلى" step="0.5" min="0" style="width: 80px;" type="number">
+            <button id="max-increase">+</button>
+          </div>
+          <!-- نهاية القسم المصحح -->
           <select id="sort-by">
             <option value="best-deals">أفضل العروض (مركب)</option>
             <option value="discount-desc">الخصم % - تنازلي</option>
