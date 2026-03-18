@@ -17,6 +17,7 @@
       rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.0/papaparse.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/lz-string/1.4.4/lz-string.min.js"></script>
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.2/package/dist/xlsx.full.min.js"></script>
     <style>
         /* الأنماط كما هي دون تغيير */
         :root{
@@ -1949,17 +1950,35 @@ document.querySelectorAll('.chip').forEach(chip => {
         let filter = this.dataset.filter;
         
         if (filter === 'all') {
-            // تحميل البيانات من JSON
+            // تحميل البيانات من ملف Excel
             showLoading('جارٍ تحميل العروض القديمة...');
-            fetch('https://eg-market.github.io/ai/final.json')
-                .then(response => response.json())
-                .then(jsonData => {
-                    let oldData = transformJsonRows(jsonData);
-                    // تطبيع وتجهيز البيانات الجديدة
+            fetch('https://eg-market.github.io/ai/final.xlsx') // استخدم الرابط الصحيح لملف Excel
+                .then(response => {
+                    if (!response.ok) throw new Error('فشل تحميل الملف');
+                    return response.arrayBuffer();
+                })
+                .then(arrayBuffer => {
+                    const workbook = XLSX.read(arrayBuffer, { type: 'array' });
+                    const firstSheetName = workbook.SheetNames[0];
+                    const worksheet = workbook.Sheets[firstSheetName];
+                    const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 }); // نقرأ كصفوف أولاً ثم نحولها إلى كائنات
+                    
+                    // تحويل الصفوف إلى كائنات مع المفاتيح المناسبة
+                    // نفترض أن الصف الأول هو العناوين
+                    const headers = jsonData[0];
+                    const rows = jsonData.slice(1).map(row => {
+                        let obj = {};
+                        headers.forEach((header, index) => {
+                            obj[header] = row[index];
+                        });
+                        return obj;
+                    });
+                    
+                    let oldData = transformJsonRows(rows);
                     normalizeDates(oldData);
                     computeSavedAndDiscount(oldData);
                     computeCombinedScore(oldData);
-                    allData = oldData; // استبدال البيانات الحالية بالقديمة
+                    allData = oldData;
                     activeChipFilter = 'all';
                     showAllOffers = true;
                     document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
@@ -1970,28 +1989,27 @@ document.querySelectorAll('.chip').forEach(chip => {
                 .catch(err => {
                     console.error('خطأ في تحميل العروض القديمة:', err);
                     hideLoading();
-                    alert('فشل تحميل العروض القديمة');
+                    alert('فشل تحميل العروض القديمة. تأكد من وجود الملف.');
                 });
         } else {
-            // إذا كان أي فلتر آخر، نستعيد البيانات الأصلية من CSV
+            // باقي الفلاتر...
             if (originalAllData.length > 0) {
                 allData = [...originalAllData];
             }
             activeChipFilter = filter;
-            showAllOffers = (filter === 'all'); // لكن هنا filter ليس all
+            showAllOffers = false;
             document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
             this.classList.add('active');
             
-            // تغيير الترتيب حسب الزر المختار
             if (filter === 'hot') {
                 document.getElementById('sort-by').value = 'discount-desc';
             } else if (filter === 'discount') {
                 document.getElementById('sort-by').value = 'saved-desc';
-             }
-                applyAllFilters();
             }
-        });
+            applyAllFilters();
+        }
     });
+});
 document.getElementById('search-input').addEventListener('input', debounce(applyAllFilters, 300));
         document.getElementById('supermarket-filter').addEventListener('change', applyAllFilters);
         document.getElementById('category-filter').addEventListener('change', applyAllFilters);
