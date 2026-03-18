@@ -1949,7 +1949,7 @@ document.querySelectorAll('.chip').forEach(chip => {
         if (filter === 'all') {
             // تحميل البيانات من JSON
             showLoading('جارٍ تحميل العروض القديمة...');
-            fetch('https://eg-market.github.io/ai/final.jsonl')
+            fetch('https://eg-market.github.io/ai/final.json')
                 .then(response => response.json())
                 .then(jsonData => {
                     let oldData = transformJsonRows(jsonData);
