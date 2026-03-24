@@ -1266,6 +1266,8 @@ const csvText = await response.text();
 
 let allRows = []; // Array to store the transformed data rows.
 
+    /* ====================  بداية جزء1 لتحميل البيانات ==================== 
+     
 Papa.parse(csvText, {
 header: true,
 skipEmptyLines: true,
@@ -1331,8 +1333,9 @@ console.error("❌ خطأ في تحليل CSV:", err);
 console.error("❌ فشل التحميل:", error.message);
 }
 }
+     ==================== نهاية جزء1 لتحميل البيانات ==================== */
 
-// Function to open the database
+      // Function to open the database
 function openDB() {
 return new Promise((resolve, reject) => {
 const request = indexedDB.open('EG_MARKET_DB_V9', 9);
@@ -1348,7 +1351,8 @@ request.onerror = (e) => reject(e.target.error);
 });
 }
       
-      
+
+/*   ==================== بداية جزء2 لتحميل البيانات ==================== 
 // ابدأ التحميل فوراً
 preloadDataToIndexedDB();
    
@@ -1377,15 +1381,18 @@ console.error(`Error occurred: ${message} at ${source}:${lineno}:${colno}`);
 // Optionally, display a user-friendly message
 return false; // Allow the default handling (e.g., displaying the error in the console)
 };
+  
+ ==================== نهاية جزء2 لتحميل البيانات ==================== */
+ 
       </script>
       
-      
-       
- <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+<!-- Firebase SDK (compat version) -->
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
 
 <script>
+  // تهيئة Firebase
   const firebaseConfig = {
     apiKey: "AIzaSyD24A6woZBvQuMZssqiNPyaVZe3nKPXvUU",
     authDomain: "eg-market-342tb.firebaseapp.com",
@@ -1398,89 +1405,59 @@ return false; // Allow the default handling (e.g., displaying the error in the c
   const auth = firebase.auth();
   const db = firebase.firestore();
 </script>
-      
-      
-      
-<!-- نضيف هذا الكود قبل إغلاق </body> -->
-    <!-- Modal للمستخدم -->
-    <div id="user-modal" class="modal" style="display:none;">
-      <div class="modal-content"> <span class="close-btn">×</span>
-        <div class="modal-header"> <button id="tab-login" class="tab-button active">تسجيل
-            الدخول</button> <button id="tab-signup" class="tab-button">إنشاء
-            حساب</button> </div>
-        <div id="login-form" class="tab-content active">
-          <h2>تسجيل الدخول</h2>
-          <form id="login"> <input id="login-email" placeholder="البريد الإلكتروني"
 
-              required="" type="email"> <input id="login-password" placeholder="كلمة المرور"
-
-              required="" type="password"> <button type="submit">دخول</button>
-          </form>
-          <div id="login-message"></div>
-        </div>
-        <div id="signup-form" class="tab-content">
-          <h2>إنشاء حساب جديد</h2>
-          <form id="signup"> <input id="signup-email" placeholder="البريد الإلكتروني"
-
-              required="" type="email"> <input id="signup-password" placeholder="كلمة المرور"
-
-              required="" type="password"> <input id="signup-whatsapp" placeholder="رقم واتساب (اختياري)"
-
-              type="tel"> <button type="submit">إنشاء حساب</button> </form>
-          <div id="signup-message"></div>
-        </div>
-      </div>
+<!-- Modal ونظام المستخدمين (بدون تحقق) -->
+<div id="user-modal" class="modal" style="display:none;">
+  <div class="modal-content"> <span class="close-btn">×</span>
+    <div class="modal-header"> <button id="tab-login" class="tab-button active">تسجيل الدخول</button> <button id="tab-signup" class="tab-button">إنشاء حساب</button> </div>
+    <div id="login-form" class="tab-content active">
+      <h2>تسجيل الدخول</h2>
+      <form id="login"> <input id="login-email" placeholder="البريد الإلكتروني" required type="email"> <input id="login-password" placeholder="كلمة المرور" required type="password"> <button type="submit">دخول</button> </form>
+      <div id="login-message"></div>
     </div>
-    <!-- رسالة ترحيب بعد تسجيل الدخول (مخفية افتراضياً) -->
-    <div id="user-greeting" style="display:none;"></div>
-          
-      
-    <!-- ==================== نظام تسجيل الدخول وإدارة المستخدمين ==================== -->
-    <style>
-  /* زر تسجيل الدخول */
-  /* زر تسجيل الدخول باللون الأحمر */
-  .login-btn {
-  background-color: #dc2626;  /* أحمر */
-  color: white;
-  border: none;
-  border-radius: 30px;
-  padding: 8px 20px;
-  font-size: 16px;
-  font-weight: bold;
-  cursor: pointer;
-  transition: 0.3s;
-  margin-right: 15px;
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-      color: #333333; /* أبيض */
-}
-  .login-btn:hover {
-  background-color: #b91c1c;  /* أحمر داكن عند المرور */
-}
+    <div id="signup-form" class="tab-content">
+      <h2>إنشاء حساب جديد</h2>
+      <form id="signup"> <input id="signup-email" placeholder="البريد الإلكتروني" required type="email"> <input id="signup-password" placeholder="كلمة المرور" required type="password"> <input id="signup-whatsapp" placeholder="رقم واتساب (اختياري)" type="tel"> <button type="submit">إنشاء حساب</button> </form>
+      <div id="signup-message"></div>
+    </div>
+  </div>
+</div>
 
-/* إذا أردت تغيير لون رسالة الترحيب أيضاً */
-  .user-greeting {
-  background-color: #dc2626;
-  color: white;
-  border-radius: 30px;
-  padding: 8px 20px;
-  font-size: 16px;
-  font-weight: bold;
-  margin-right: 15px;
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-      color: #333333; /* أبيض */
-}
-  .user-greeting:hover {
-  background-color: #b91c1c;
-}
-  .user-greeting span {
-    margin: 0;
+<style>
+  /* زر تسجيل الدخول */
+  .login-btn {
+    background-color: #dc2626;
+    color: white;
+    border: none;
+    border-radius: 30px;
+    padding: 8px 20px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.3s;
+    margin-right: 15px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
   }
-  
-  /* Modal */
+  .login-btn:hover {
+    background-color: #b91c1c;
+  }
+  .user-greeting {
+    background-color: #dc2626;
+    color: white;
+    border-radius: 30px;
+    padding: 8px 20px;
+    font-size: 16px;
+    font-weight: bold;
+    margin-right: 15px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .user-greeting:hover {
+    background-color: #b91c1c;
+  }
   .modal {
     display: none;
     position: fixed;
@@ -1508,14 +1485,8 @@ return false; // Allow the default handling (e.g., displaying the error in the c
     font-weight: bold;
     cursor: pointer;
   }
-  .close-btn:hover {
-    color: black;
-  }
-  .modal-header {
-    display: flex;
-    justify-content: center;
-    margin-bottom: 20px;
-  }
+  .close-btn:hover { color: black; }
+  .modal-header { display: flex; justify-content: center; margin-bottom: 20px; }
   .tab-button {
     background: none;
     border: none;
@@ -1529,12 +1500,8 @@ return false; // Allow the default handling (e.g., displaying the error in the c
     color: #0b5fa5;
     font-weight: bold;
   }
-  .tab-content {
-    display: none;
-  }
-  .tab-content.active {
-    display: block;
-  }
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
   #login-form input, #signup-form input {
     width: 100%;
     padding: 10px;
@@ -1562,12 +1529,9 @@ return false; // Allow the default handling (e.g., displaying the error in the c
     text-align: center;
   }
 </style>
-      
-          
+
 <script>
-// ==================== نظام Firebase للمستخدمين ====================
 (function() {
-  // عناصر الـ Modal
   const modal = document.getElementById('user-modal');
   const closeBtn = document.querySelector('.close-btn');
   const tabLoginBtn = document.getElementById('tab-login');
@@ -1577,14 +1541,12 @@ return false; // Allow the default handling (e.g., displaying the error in the c
   const loginMsg = document.getElementById('login-message');
   const signupMsg = document.getElementById('signup-message');
 
-  // عناصر الإدخال
   const loginEmail = document.getElementById('login-email');
   const loginPassword = document.getElementById('login-password');
   const signupEmail = document.getElementById('signup-email');
   const signupPassword = document.getElementById('signup-password');
   const signupWhatsapp = document.getElementById('signup-whatsapp');
 
-  // إضافة زر تسجيل الدخول في الصفحة
   function addLoginButton() {
     const searchDiv = document.querySelector('.z-20.duration-300.ease-in-out.md\\:mr-xl.md\\:grow-3.relative');
     if (!searchDiv) return;
@@ -1600,7 +1562,6 @@ return false; // Allow the default handling (e.g., displaying the error in the c
     return btn;
   }
 
-  // عرض رسالة الترحيب
   function showUserGreeting(user) {
     const container = document.querySelector('.duration-300.ease-in-out.hidden.md\\:flex.gap-lg.items-center.md\\:mr-lg.md\\:flex-1');
     if (container) {
@@ -1613,25 +1574,23 @@ return false; // Allow the default handling (e.g., displaying the error in the c
     }
   }
 
-  // التحقق من حالة المستخدم
   function checkLoggedInUser() {
     auth.onAuthStateChanged((user) => {
       if (user) {
         showUserGreeting(user);
+        if (modal.style.display === 'block') modal.style.display = 'none';
       } else {
-        addLoginButton(); // إظهار زر تسجيل الدخول
+        addLoginButton();
       }
     });
   }
 
-  // تسجيل الخروج
   function logout() {
     auth.signOut().then(() => {
       location.reload();
     });
   }
 
-  // معالجة تسجيل الدخول
   function handleLogin(e) {
     e.preventDefault();
     const email = loginEmail.value.trim();
@@ -1644,7 +1603,9 @@ return false; // Allow the default handling (e.g., displaying the error in the c
       .then((userCredential) => {
         loginMsg.style.color = 'green';
         loginMsg.textContent = 'تم تسجيل الدخول بنجاح!';
-        modal.style.display = 'none';
+        setTimeout(() => {
+          modal.style.display = 'none';
+        }, 1000);
         showUserGreeting(userCredential.user);
       })
       .catch((error) => {
@@ -1652,38 +1613,74 @@ return false; // Allow the default handling (e.g., displaying the error in the c
       });
   }
 
-  // معالجة إنشاء حساب جديد
-  function handleSignup(e) {
-    e.preventDefault();
-    const email = signupEmail.value.trim();
-    const password = signupPassword.value.trim();
-    const whatsapp = signupWhatsapp.value.trim();
-    if (!email || !password) {
-      signupMsg.textContent = 'البريد الإلكتروني وكلمة المرور مطلوبان.';
-      return;
-    }
-    auth.createUserWithEmailAndPassword(email, password)
-      .then((userCredential) => {
-        const user = userCredential.user;
-        // تخزين رقم واتساب في Firestore
-        return db.collection('users').doc(user.uid).set({
-          email: user.email,
-          whatsapp: whatsapp || '',
-          createdAt: firebase.firestore.FieldValue.serverTimestamp()
-        });
-      })
-      .then(() => {
-        signupMsg.style.color = 'green';
-        signupMsg.textContent = 'تم إنشاء الحساب بنجاح!';
-        modal.style.display = 'none';
-        showUserGreeting(auth.currentUser);
-      })
-      .catch((error) => {
-        signupMsg.textContent = error.message;
-      });
+  async function checkEmailExists(email) {
+  try {
+    const response = await fetch(`https://www.validator.pizza/email/${encodeURIComponent(email)}`);
+    const data = await response.json();
+    // الـ API يعيد { status: 200, message: "valid" } إذا كان البريد صالحًا
+    return data.status === 200 && data.message === 'valid';
+  } catch (error) {
+    console.error('Email validation error:', error);
+    // إذا فشل الـ API، قد نقرر السماح للتسجيل أو منعه.
+    // هنا نمنع التسجيل لتفادي البريد غير الصحيح
+    return false;
+  }
+}
+  
+async function handleSignup(e) {
+  e.preventDefault();
+  const email = signupEmail.value.trim();
+  const password = signupPassword.value.trim();
+  const whatsapp = signupWhatsapp.value.trim();
+
+  if (!email || !password) {
+    signupMsg.textContent = 'البريد الإلكتروني وكلمة المرور مطلوبان.';
+    return;
   }
 
-  // إضافة زر تسجيل الخروج
+  // التحقق من صيغة البريد (سريع)
+  const emailRegex = /^[^\s@]+@([^\s@]+\.)+[^\s@]+$/;
+  if (!emailRegex.test(email)) {
+    signupMsg.textContent = 'صيغة البريد الإلكتروني غير صحيحة.';
+    return;
+  }
+
+  // إظهار رسالة "جار التحقق"
+  signupMsg.style.color = 'blue';
+  signupMsg.textContent = 'جاري التحقق من البريد الإلكتروني...';
+  const isValid = await checkEmailExists(email);
+  if (!isValid) {
+    signupMsg.style.color = 'red';
+    signupMsg.textContent = 'البريد الإلكتروني غير موجود أو غير صالح. يرجى إدخال بريد حقيقي.';
+    return;
+  }
+
+  // استمرار إنشاء الحساب في Firebase
+  signupMsg.style.color = 'blue';
+  signupMsg.textContent = 'جاري إنشاء الحساب...';
+  auth.createUserWithEmailAndPassword(email, password)
+    .then((userCredential) => {
+      const user = userCredential.user;
+      return db.collection('users').doc(user.uid).set({
+        email: user.email,
+        whatsapp: whatsapp || '',
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+      });
+    })
+    .then(() => {
+      signupMsg.style.color = 'green';
+      signupMsg.textContent = 'تم إنشاء الحساب بنجاح!';
+      setTimeout(() => {
+        modal.style.display = 'none';
+        showUserGreeting(auth.currentUser);
+      }, 1500);
+    })
+    .catch((error) => {
+      signupMsg.style.color = 'red';
+      signupMsg.textContent = error.message;
+    });
+}
+
   function addLogoutButton() {
     const container = document.querySelector('.user-greeting');
     if (container) {
@@ -1701,13 +1698,12 @@ return false; // Allow the default handling (e.g., displaying the error in the c
     }
   }
 
-  // تهيئة الأحداث
   function init() {
     if (!modal) return;
     closeBtn.addEventListener('click', () => modal.style.display = 'none');
     window.addEventListener('click', (e) => { if (e.target === modal) modal.style.display = 'none'; });
-    tabLoginBtn.addEventListener('click', () => { switchTab('login'); });
-    tabSignupBtn.addEventListener('click', () => { switchTab('signup'); });
+    tabLoginBtn.addEventListener('click', () => switchTab('login'));
+    tabSignupBtn.addEventListener('click', () => switchTab('signup'));
     loginForm.addEventListener('submit', handleLogin);
     signupForm.addEventListener('submit', handleSignup);
     checkLoggedInUser();
@@ -1735,8 +1731,7 @@ return false; // Allow the default handling (e.g., displaying the error in the c
     init();
   }
 })();
-</script>
-      
+</script>      
 
       
   </body>
