@@ -9,17 +9,15 @@
   function gtag(){dataLayer.push(arguments);}
   gtag('js', new Date());
   gtag('config', 'G-WRRCTWHDVF');
-</script> <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+</script> 
+    <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
     <title>عروض السوبرماركت - أفضل العروض اليومية</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;800&amp;display=swap"
-
-      rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;800&amp;display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.0/papaparse.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/lz-string/1.4.4/lz-string.min.js"></script>
     <script src="https://cdn.sheetjs.com/xlsx-0.20.2/package/dist/xlsx.full.min.js"></script>
     <style>
-        /* الأنماط كما هي دون تغيير */
         :root{
             --primary-blue: #00539F;
             --accent-orange: #FF6B00;
@@ -50,7 +48,6 @@
         }
         .container{ max-width:1400px; margin:0 auto; padding:0 16px; }
 
-        /* Hero Banner - الأصلي */
         .hero-banner {
             background: linear-gradient(rgba(0,83,159,0.85), rgba(0,83,159,0.75)), 
                         url('https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?auto=format&fit=crop&w=1400&q=80');
@@ -117,81 +114,71 @@
         .stat-value{ font-size:1.2rem; font-weight:700; color: var(--primary-blue); line-height:1.2; }
         .stat-label{ font-size:0.75rem; color: var(--muted); font-weight:600; }
 
-      
-/* إصلاح مشكلة الشاشة البيضاء على الجوال */
-html, body {
-    width: 100%;
-    max-width: 100%;
-    overflow-x: hidden;
-    margin: 0;
-    padding: 0;
-}
+        html, body {
+            width: 100%;
+            max-width: 100%;
+            overflow-x: hidden;
+            margin: 0;
+            padding: 0;
+        }
 
-.container {
-    width: 100%;
-    max-width: 100%;
-    padding: 0 12px; /* تقليل الحشوة على الجوال */
-    box-sizing: border-box;
-}
+        .container {
+            width: 100%;
+            max-width: 100%;
+            padding: 0 12px;
+            box-sizing: border-box;
+        }
 
+        .products-grid {
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: 12px;
+            padding: 0;
+            width: 100%;
+        }
 
-/* تحسين شبكة المنتجات */
-.products-grid {
-    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-    gap: 12px;
-    padding: 0;
-    width: 100%;
-}
+        #data-table {
+            overflow-x: auto;
+            width: 100%;
+        }
 
-/* تحسين الجدول */
-#data-table {
-    overflow-x: auto;
-    width: 100%;
-}
+        table {
+            min-width: 600px;
+        }
 
-table {
-    min-width: 600px; /* يسمح بالتمرير الأفقي للجدول */
-}
+        .stats-dashboard {
+            grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+            gap: 8px;
+        }
 
-/* تحسين البطاقات الإحصائية */
-.stats-dashboard {
-    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
-    gap: 8px;
-}
+        .stat-card {
+            padding: 8px;
+            min-height: auto;
+        }
 
-.stat-card {
-    padding: 8px;
-    min-height: auto;
-}
+        .price-controls {
+            width: 100%;
+            max-width: 300px;
+            margin: 0 auto;
+        }
 
-/* ضبط تحكمات السعر */
-.price-controls {
-    width: 100%;
-    max-width: 300px;
-    margin: 0 auto;
-}
+        .price-controls input {
+            width: 60px;
+            min-width: 0;
+        }
 
-.price-controls input {
-    width: 60px;
-    min-width: 0;
-}
+        .ticker-wrap {
+            width: 100%;
+            overflow: hidden;
+        }
 
-/* تحسين شريط التمرير */
-.ticker-wrap {
-    width: 100%;
-    overflow: hidden;
-}
+        .ticker-viewport {
+            width: 100%;
+        }
 
-.ticker-viewport {
-    width: 100%;
-}
-
-/* إخفاء أي محتوى زائد */
-.hero-banner {
-    width: 100%;
-    overflow: hidden;
-}
-      
+        .hero-banner {
+            width: 100%;
+            overflow: hidden;
+        }
       
         /* Filter Row */
         .filter-row {
@@ -417,6 +404,7 @@ table {
             border: none;
         }
         #reset-btn { background: #6c757d; color: white; }
+        #force-refresh-btn { background: #ff6b00; color: white; } /* زر التحديث اليدوي */
         .price-controls {
             display: flex;
             gap: 8px;
@@ -448,9 +436,8 @@ table {
         tbody td { 
             padding: 14px 16px; 
             border-bottom: 1px solid #f0f0f0; 
-            font-weight: 600; /* جعل جميع بيانات الجدول عريضة */
+            font-weight: 600;
         }
-        /* تمييز عمود "الاسم الأساسي" بدائرة رمادية */
         .primary-name-circle {
             background-color: #e9ecef;
             border-radius: 20px;
@@ -460,9 +447,7 @@ table {
             color: #495057;
             font-weight: 600;
         }
-        /* خلفية صفراء للصفوف ذات الخصم العالي */
         .highlight { background-color: #fff3cd !important; }
-        /* نسبة الخصم في مربع أحمر دائري */
         .discount-cell {
             background: var(--danger-red);
             color: white;
@@ -490,7 +475,7 @@ table {
         }
         #autocomplete-list div:hover { background: #f8f9fa; }
 
-        /* User Guide Banner - مع تأثير نبض */
+        /* User Guide Banner */
         .user-guide-banner {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
@@ -538,95 +523,77 @@ table {
             cursor: not-allowed;
         }
 
- @media (max-width: 900px) {
-    .filter-row { flex-direction: column; align-items: stretch; }
-    /* إلغاء التمرير الأفقي والسماح بالالتفاف */
-    .filter-chips { 
-        overflow-x: hidden; 
-        flex-wrap: wrap !important; 
-        justify-content: flex-start;
-        width: 100%;
-    }
-    .stats-dashboard { grid-template-columns: repeat(2,1fr); }
-}
+        @media (max-width: 900px) {
+            .filter-row { flex-direction: column; align-items: stretch; }
+            .filter-chips { 
+                overflow-x: hidden; 
+                flex-wrap: wrap !important; 
+                justify-content: flex-start;
+                width: 100%;
+            }
+            .stats-dashboard { grid-template-columns: repeat(2,1fr); }
+        }
       
         @media (max-width: 600px) {
             .products-grid { grid-template-columns: 1fr; }
-
-    /* ضبط الصف العلوي */
-    .filter-row {
-        flex-direction: column;
-        align-items: stretch;
-        width: 100%;
-        margin: 10px 0;
-    }
-
-    /* الحاوية الرئيسية للأزرار - هذا هو الكود المحسن */
-    .filter-chips {
-        display: flex;
-        flex-wrap: wrap !important;
-        justify-content: flex-start;
-        gap: 4px;
-        width: 100% !important;
-        max-width: 100%;
-        overflow-x: hidden;
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-    }
-
-    /* تنسيق الأزرار نفسها */
-    .filter-chips .chip {
-        flex: 0 1 auto;
-        min-width: fit-content;
-        margin: 2px;
-        padding: 6px 8px;
-        font-size: 0.8rem;
-        white-space: nowrap;
-    }
-
-    /* تقليل حجم الأزرار الطويلة أكثر إذا لزم الأمر */
-    .chip[data-filter="discount"],
-    .chip[data-filter="hyperone"],  /* تأكد من اسم الفلتر */
-    .chip[data-filter="food"],
-    .chip[data-filter="recent"] {
-        padding: 6px 6px;
-    }
-
-    /* ضبط زر تبديل العرض */
-    .view-toggle {
-        margin-top: 5px;
-        width: 100%;
-        justify-content: center;
-    }
-  }
-          
+            .filter-row {
+                flex-direction: column;
+                align-items: stretch;
+                width: 100%;
+                margin: 10px 0;
+            }
+            .filter-chips {
+                display: flex;
+                flex-wrap: wrap !important;
+                justify-content: flex-start;
+                gap: 4px;
+                width: 100% !important;
+                max-width: 100%;
+                overflow-x: hidden;
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+            }
+            .filter-chips .chip {
+                flex: 0 1 auto;
+                min-width: fit-content;
+                margin: 2px;
+                padding: 6px 8px;
+                font-size: 0.8rem;
+                white-space: nowrap;
+            }
+            .chip[data-filter="discount"],
+            .chip[data-filter="hyperone"],
+            .chip[data-filter="food"],
+            .chip[data-filter="recent"] {
+                padding: 6px 6px;
+            }
+            .view-toggle {
+                margin-top: 5px;
+                width: 100%;
+                justify-content: center;
+            }
+        }
          
-@media (min-width: 901px) {
-    /* جعل الفلاتر السريعة وأزرار العرض في سطر واحد */
-    .filter-row {
-        flex-wrap: nowrap;
-        align-items: center;
-    }
-    .filter-chips {
-        flex: 1;
-    }
-    .view-toggle {
-        flex-shrink: 0;
-        margin-right: 15px;
-    }
-
-    /* تكبير حقلي السعر من وإلى */
-    #min-price, #max-price {
-        width: 180px;
-    }
-
-    /* تحسين مظهر عناصر التحكم */
-    .price-controls {
-        min-width: 250px;
-    }
-}
-      
+        @media (min-width: 901px) {
+            .filter-row {
+                flex-wrap: nowrap;
+                align-items: center;
+            }
+            .filter-chips {
+                flex: 1;
+            }
+            .view-toggle {
+                flex-shrink: 0;
+                margin-right: 15px;
+            }
+            #min-price, #max-price {
+                width: 180px;
+            }
+            .price-controls {
+                min-width: 250px;
+            }
+        }
     </style>
   </head>
   <body>
@@ -645,97 +612,49 @@ table {
           </div>
         </div>
       </div>
-      <div class="user-guide-banner" id="user-guide"> على الموبايل حرك جدول
-        الاصناف السفلي الى اليمين لمشاهدة بقيته--و<span>لتحديث البيانات افتح
-          الصفحة علي المتصفح الخفي __ وانقر على أي صف في الجدول للصورة</span> </div>
+      <div class="user-guide-banner" id="user-guide"> على الموبايل حرك جدول الأصناف السفلي إلى اليمين لمشاهدة بقيته -- <span>لتحديث البيانات افتح الصفحة على المتصفح الخفي وانقر على أي صف في الجدول للصورة</span> </div>
       <div class="stats-dashboard">
-        <div class="stat-card">
-          <div class="stat-icon">💰</div>
-          <div>
-            <div id="total-offers" class="stat-value">0</div>
-            <div class="stat-label">إجمالي العروض</div>
-          </div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-icon">📉</div>
-          <div>
-            <div id="avg-discount" class="stat-value">0%</div>
-            <div class="stat-label">متوسط الخصم</div>
-          </div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-icon">🔥</div>
-          <div>
-            <div id="hot-deals" class="stat-value">0</div>
-            <div class="stat-label">عروض ساخنة</div>
-          </div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-icon">⏰</div>
-          <div>
-            <div id="ending-soon" class="stat-value">0</div>
-            <div class="stat-label">تنتهي قريباً</div>
-          </div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-icon">🛒</div>
-          <div>
-            <div id="total-supermarkets" class="stat-value">0</div>
-            <div class="stat-label">عدد السوبرماركات</div>
-          </div>
-        </div>
+        <div class="stat-card"><div class="stat-icon">💰</div><div><div id="total-offers" class="stat-value">0</div><div class="stat-label">إجمالي العروض</div></div></div>
+        <div class="stat-card"><div class="stat-icon">📉</div><div><div id="avg-discount" class="stat-value">0%</div><div class="stat-label">متوسط الخصم</div></div></div>
+        <div class="stat-card"><div class="stat-icon">🔥</div><div><div id="hot-deals" class="stat-value">0</div><div class="stat-label">عروض ساخنة</div></div></div>
+        <div class="stat-card"><div class="stat-icon">⏰</div><div><div id="ending-soon" class="stat-value">0</div><div class="stat-label">تنتهي قريباً</div></div></div>
+        <div class="stat-card"><div class="stat-icon">🛒</div><div><div id="total-supermarkets" class="stat-value">0</div><div class="stat-label">عدد السوبرماركات</div></div></div>
       </div>
       <div class="filter-row">
-        <div class="filter-chips" id="filter-chips"> <button class="chip" data-filter="all"><i
-
-              class="fas fa-archive"></i> العروض القديمة</button> <button class="chip active"
-
-            data-filter="active"><i class="fas fa-check-circle"></i> العروض
-            السارية</button> <button class="chip" data-filter="hot"><i class="fas fa-bolt"></i>عروض&nbsp;
-            ساخنة</button> <button class="chip" data-filter="ending"><i class="fas fa-clock"></i>
-            تنتهي قريباً</button> <button class="chip" data-filter="discount"><i
-
-              class="fas fa-percentage"></i> خصومات كبيرة</button> <button class="chip"
-
-            data-filter="carrefour"><i class="fas fa-shopping-cart"></i> هايبر1</button>
-          <button class="chip" data-filter="food"><i class="fas fa-utensils"></i>
-            منتجات غذائية</button> <button class="chip" data-filter="recent"><i
-
-              class="fas fa-calendar-day"></i> آخر يومين</button> </div>
-        <div class="view-toggle"> <button class="view-btn" id="view-grid-btn"><i
-
-              class="fas fa-th-large"></i> شبكي</button> <button class="view-btn active"
-
-            id="view-table-btn"><i class="fas fa-table"></i> جدول</button> </div>
+        <div class="filter-chips" id="filter-chips"> 
+          <button class="chip" data-filter="all"><i class="fas fa-archive"></i> العروض القديمة</button> 
+          <button class="chip active" data-filter="active"><i class="fas fa-check-circle"></i> العروض السارية</button> 
+          <button class="chip" data-filter="hot"><i class="fas fa-bolt"></i>عروض ساخنة</button> 
+          <button class="chip" data-filter="ending"><i class="fas fa-clock"></i> تنتهي قريباً</button> 
+          <button class="chip" data-filter="discount"><i class="fas fa-percentage"></i> خصومات كبيرة</button>
+          <button class="chip" data-filter="carrefour"><i class="fas fa-shopping-cart"></i> هايبر1</button>
+          <button class="chip" data-filter="food"><i class="fas fa-utensils"></i> منتجات غذائية</button> 
+          <button class="chip" data-filter="recent"><i class="fas fa-calendar-day"></i> آخر يومين</button> 
+        </div>
+        <div class="view-toggle"> 
+          <button class="view-btn" id="view-grid-btn"><i class="fas fa-th-large"></i> شبكي</button> 
+          <button class="view-btn active" id="view-table-btn"><i class="fas fa-table"></i> جدول</button> 
+        </div>
       </div>
       <div class="products-grid" id="products-grid"></div>
       <div class="controls">
-        <div class="row"> <input id="search-input" placeholder="ابحث عن منتج..."
-
-            type="text">
-          <select id="supermarket-filter">
-            <option value="">كل السوبرماركت</option>
-          </select>
-          <select id="category-filter">
-            <option value="">كل الفئات</option>
-          </select>
-          <select id="brand-filter">
-            <option value="">كل العلامات</option>
-          </select>
+        <div class="row"> 
+          <input id="search-input" placeholder="ابحث عن منتج..." type="text">
+          <select id="supermarket-filter"><option value="">كل السوبرماركت</option></select>
+          <select id="category-filter"><option value="">كل الفئات</option></select>
+          <select id="brand-filter"><option value="">كل العلامات</option></select>
         </div>
         <div class="row">
-          <!-- بداية القسم المصحح لتحكمات السعر -->
-          <div class="price-controls">
-            <button id="min-decrease">−</button>
-            <input id="min-price" placeholder="السعر من" step="0.5" min="0" style="width: 80px;" type="number">
-            <button id="min-increase">+</button>
+          <div class="price-controls"> 
+            <button id="min-decrease">−</button> 
+            <input id="min-price" placeholder="السعر من" step="0.5" min="0" style="width: 80px;" type="number"> 
+            <button id="min-increase">+</button> 
           </div>
-          <div class="price-controls">
-            <button id="max-decrease">−</button>
-            <input id="max-price" placeholder="السعر إلى" step="0.5" min="0" style="width: 80px;" type="number">
-            <button id="max-increase">+</button>
+          <div class="price-controls"> 
+            <button id="max-decrease">−</button> 
+            <input id="max-price" placeholder="السعر إلى" step="0.5" min="0" style="width: 80px;" type="number"> 
+            <button id="max-increase">+</button> 
           </div>
-          <!-- نهاية القسم المصحح -->
           <select id="sort-by">
             <option value="best-deals">أفضل العروض (مركب)</option>
             <option value="discount-desc">الخصم % - تنازلي</option>
@@ -746,66 +665,41 @@ table {
             <option value="name-desc">الاسم (ي-أ)</option>
           </select>
           <input id="min-discount" placeholder="الحد الأدنى للخصم %" type="number">
-          <button id="reset-btn"><i class="fas fa-undo"></i> إعادة تعيين</button>
-          <button id="share-app"><i class="fas fa-share-alt"></i> مشاركة</button>
-          <button id="compare-mode-btn"><i class="fas fa-balance-scale"></i>
-            مقارنة</button> </div>
+          <button id="reset-btn"> إعادة تعيين</button> 
+          <button id="force-refresh-btn" style="background:#ff6b00;"><i class="fas fa-sync-alt"></i> تحديث الآن</button> <!-- زر التحديث اليدوي -->
+          <button id="share-app"> مشاركة</button> 
+          <button id="compare-mode-btn"> مقارنة</button> 
+        </div>
       </div>
-      <div id="loading" style="text-align:center; padding:40px;">جارٍ تحميل
-        البيانات...</div>
+      <div id="loading" style="text-align:center; padding:40px;">جارٍ تحميل البيانات...</div>
       <div id="data-table" style="display:block;">
         <table>
           <thead>
             <tr>
-              <th>السوبر ماركت</th>
-              <th>المنتج</th>
-              <th>الاسم الأساسي</th>
-              <th>الوحدة</th>
-              <th>الفئة</th>
-              <th>العلامة التجارية</th>
-              <th>السعر الحالي</th>
-              <th>الخصم</th>
-              <th>تاريخ التحديث</th>
-              <th>ساري حتى</th>
+              <th>السوبر ماركت</th><th>المنتج</th><th>الاسم الأساسي</th><th>الوحدة</th><th>الفئة</th><th>العلامة التجارية</th><th>السعر الحالي</th><th>الخصم</th><th>تاريخ التحديث</th><th>ساري حتى</th>
             </tr>
           </thead>
-          <tbody id="table-body">
-          </tbody>
+          <tbody id="table-body"></tbody>
         </table>
         <div class="pagination" id="pagination"></div>
       </div>
     </div>
     <div class="comparison-panel" id="comparison-panel" style="display:none; position:fixed; bottom:0; left:0; right:0; background:white; box-shadow:0 -4px 20px rgba(0,0,0,0.15); padding:20px; border-top:3px solid var(--primary-blue); z-index:1001;">
       <div class="comparison-header" style="display:flex; justify-content:space-between; align-items:center;">
-        <h3 style="margin:0;"><i class="fas fa-balance-scale"></i> مقارنة
-          المنتجات (<span id="comparison-count">0</span>/4)</h3>
-        <div> <button id="clear-comparison" style="background:#dc3545; color:white; border:none; padding:8px 16px; border-radius:6px;"><i
-
-              class="fas fa-trash"></i> مسح</button> <button id="close-comparison"
-
-            style="background:#6c757d; color:white; border:none; padding:8px 16px; border-radius:6px;"><i
-
-              class="fas fa-times"></i> إغلاق</button> </div>
+        <h3 style="margin:0;"><i class="fas fa-balance-scale"></i> مقارنة المنتجات (<span id="comparison-count">0</span>/4)</h3>
+        <div> 
+          <button id="clear-comparison" style="background:#dc3545; color:white; border:none; padding:8px 16px; border-radius:6px;"><i class="fas fa-trash"></i> مسح</button> 
+          <button id="close-comparison" style="background:#6c757d; color:white; border:none; padding:8px 16px; border-radius:6px;"><i class="fas fa-times"></i> إغلاق</button> 
+        </div>
       </div>
       <div class="comparison-items" id="comparison-items" style="display:flex; gap:15px; overflow-x:auto; padding:10px 0;"></div>
     </div>
     <script>
 (function() {
-    // ==================== منع إعادة التحميل في نفس الجلسة ====================
-/*    if (window.__offersLoaded) {
-        console.log('البيانات محملة مسبقاً، تخطي التحميل');
-        return; // نخرج فوراً، لكننا سنحتاج لتهيئة الأحداث؟ سيتم تهيئتها لاحقاً.
-        // لكن الواجهة قد لا تعمل. بدلاً من ذلك، نستخدم dataLoaded ونعتمد على IndexedDB.
-    }
-    window.__offersLoaded = true;
-*/
     // ==================== الإعدادات العامة ====================
     const DATA_URL = 'https://raw.githubusercontent.com/eg-market/ai/main/final.csv';
     const CACHE_KEY = 'offersData_v9';
-  
-//    const CACHE_EXPIRY = 7 * 24 * 60 * 60 * 1000; // 7 أيام
-    const CACHE_EXPIRY = 2 * 60 * 60 * 1000; // ساعتين فقط (بدلاً من 7 أيام)  
-  
+    const CACHE_EXPIRY = 2 * 60 * 60 * 1000; // ساعتين
     const DB_NAME = 'EG_MARKET_DB_V9';
     const DB_VERSION = 9;
     const STORE_NAME = 'offers';
@@ -816,7 +710,6 @@ table {
     // ==================== الحالة العامة ====================
     let allData = [];
     let originalAllData = [];
-  
     let filteredData = [];
     let latestTwoDates = [];
     let currentPage = 1;
@@ -828,17 +721,11 @@ table {
     let debounceTimer;
     let dataLoaded = false;
     let backgroundUpdateInProgress = false;
-
-    // متغيرات URL parameters
     let urlSearchTerms = [];
     let urlCategories = [];
     let bestPriceMode = false;
+    let urlMarket = null;
 
-let urlMarket = null; // أضف هذا السطر في الأعلى
-  
-  // تعريف مخزن البيانات في نطاق واسع ليتم الوصول إليه من كل الدوال
-const queryCache = JSON.parse(sessionStorage.getItem('queryCache')) || {};
-  
     // ==================== دوال IndexedDB ====================
     function openDB() {
         return new Promise((resolve, reject) => {
@@ -856,30 +743,6 @@ const queryCache = JSON.parse(sessionStorage.getItem('queryCache')) || {};
             req.onerror = () => reject(req.error);
         });
     }
-  
-  async function loadData() {
-    let stored = await loadFromDB(); // جلب البيانات من IndexedDB
-    
-    if (stored && stored.length > 0) {
-        console.log("✅ تم العثور على بيانات في المخزن المحلي.");
-        allData = stored;
-        hideLoading();
-        processDataAfterLoad(); // عرض البيانات فوراً
-
-        // التحقق من صلاحية البيانات (التحديث الصامت في الخلفية)
-        const cacheTime = localStorage.getItem(`${CACHE_KEY}_time`);
-        const cacheValid = cacheTime && (Date.now() - parseInt(cacheTime) < CACHE_EXPIRY);
-        
-        if (!cacheValid && !backgroundUpdateInProgress) {
-            backgroundUpdateInProgress = true;
-          //  fetchFreshDataInBackground(); // تحديث دون إزعاج المستخدم
-        }
-    } else {
-        console.log("❌ المخزن فارغ، جاري التحميل من الخادم...");
-        // أول مرة على الإطلاق: تحميل كامل مع شاشة انتظار
-        await fetchFreshDataWithLoading();
-    }
-}
 
     async function loadFromDB() {
         try {
@@ -917,38 +780,18 @@ const queryCache = JSON.parse(sessionStorage.getItem('queryCache')) || {};
     function transformRows(rows) {
         return rows.map(item => {
             let rawEndDate = String(item['end_date'] || '').trim();
-
-// Convert and create the Date object
-let isoDate = convertArabicDateToISO(rawEndDate);
-//if (isoDate) {
-let d = new Date(isoDate);
-// console.log(d); // Date object
-///} else {
- //console.log("Could not convert date.");
-//}
-          
-          
-//          let dateOnly = rawEndDate.split(/[ T]/)[0];
-            let endObject = null;
-/*            if (dateOnly) {
-                let d = new Date(dateOnly);
-*/                
-                if (!isNaN(d.getTime())) endObject = d;
-//            }
-
+            let isoDate = convertArabicDateToISO(rawEndDate);
+            let d = isoDate ? new Date(isoDate) : null;
             let status = String(item['status'] || '').trim();
             if (status === 'س') status = 'منتهي';
-
             let validUntil = String(item.validUntil || '').trim();
             if (!validUntil || validUntil === 'غير متاح') validUntil = status || 'غير متاح';
-
             let updateDateStr = item['تاريخ تعديل ملف الفلاير'] || item['Update Date'] || '';
             let updateDate = null;
             if (updateDateStr) {
-                let d = new Date(updateDateStr);
-                if (!isNaN(d.getTime())) updateDate = d;
+                let d2 = new Date(updateDateStr);
+                if (!isNaN(d2.getTime())) updateDate = d2;
             }
-
             return {
                 supermarket: String(item['اسم السوبر ماركت'] || ''),
                 product: String(item['الاسم بالعربية'] || ''),
@@ -962,7 +805,7 @@ let d = new Date(isoDate);
                 pageNo: String(item['اسم ملف الفلاير'] || ''),
                 solution_key: String(item['solution_key'] || ''),
                 currency: 'EGP',
-                endDate: endObject,
+                endDate: d,
                 validUntil: validUntil,
                 updateDate: updateDate,
                 status: status,
@@ -973,59 +816,23 @@ let d = new Date(isoDate);
         }).filter(item => item.product);
     }
 
-// Function to convert Arabic date string to ISO format
-function convertArabicDateToISO(arabicDate) {
-// Create a mapping of Arabic month names to their English equivalents
-const months = {
-"يناير": "01",
-"فبراير": "02",
-"مارس": "03",
-"أبريل": "04",
-"مايو": "05",
-"يونيو": "06",
-"يوليو": "07",
-"أغسطس": "08",
-"سبتمبر": "09",
-"أكتوبر": "10",
-"نوفمبر": "11",
-"ديسمبر": "12"
-};
+    function convertArabicDateToISO(arabicDate) {
+        const months = {
+            "يناير": "01", "فبراير": "02", "مارس": "03", "أبريل": "04",
+            "مايو": "05", "يونيو": "06", "يوليو": "07", "أغسطس": "08",
+            "سبتمبر": "09", "أكتوبر": "10", "نوفمبر": "11", "ديسمبر": "12"
+        };
+        const parts = arabicDate.split(" ");
+        if (parts.length !== 3) return null;
+        let [day, monthName, year] = parts;
+        if (!day || !year) return null;
+        day = day.replace(/[٠-٩]/g, (d) => d.charCodeAt(0) - 1632);
+        year = year.replace(/[٠-٩]/g, (y) => y.charCodeAt(0) - 1632);
+        const month = months[monthName];
+        if (!month) return null;
+        return `${year}-${month}-${day}`;
+    }
 
-// Split the date components
-const parts = arabicDate.split(" ");
-
-// Check if we have exactly 3 parts
-if (parts.length !== 3) {
-// console.error("Invalid date format: ", arabicDate);
-return null; // or throw an error
-}
-
-let [day, monthName, year] = parts;
-
-// If day or year is still undefined, log an error
-if (!day || !year) {
-//console.error("Day or year is undefined for date: ", arabicDate);
-return null; // or throw an error
-}
-
-// Convert Arabic day and year to numbers
-day = day.replace(/[٠-٩]/g, (d) => d.charCodeAt(0) - 1632); // Convert Arabic-Indic digits to Western digits
-year = year.replace(/[٠-٩]/g, (y) => y.charCodeAt(0) - 1632); // Convert Arabic-Indic digits to Western digits
-
-// Get the corresponding month number
-const month = months[monthName];
-if (!month) {
-// console.error("Invalid month name: ", monthName);
-return null; // or throw an error
-}
-
-// Return in ISO format
-return `${year}-${month}-${day}`;
-}
-
-
-
-    // ==================== دوال مساعدة ====================
     function normalizeDates(arr) {
         arr.forEach(i => {
             if (i.updateDate && !(i.updateDate instanceof Date)) {
@@ -1090,201 +897,103 @@ return `${year}-${month}-${day}`;
     }
 
     // ==================== تطبيق باراميترات الرابط ====================
-function applyUrlParams() {
+    function applyUrlParams() {
         try {
             const params = new URLSearchParams(window.location.search);
-            
             bestPriceMode = params.get('best_price') === '1';
-
             const rawQ = params.get('q');
-            urlSearchTerms = rawQ
-                ? decodeURIComponent(rawQ).toLowerCase().split(/\s+/).map(t => t.trim()).filter(Boolean)
-                : [];
-
+            urlSearchTerms = rawQ ? decodeURIComponent(rawQ).toLowerCase().split(/\s+/).map(t => t.trim()).filter(Boolean) : [];
             const catParam = params.get('category');
-            urlCategories = catParam
-                ? decodeURIComponent(catParam).split(',').map(c => c.trim().toLowerCase()).filter(Boolean)
-                : [];
-
-            // --- إصلاح كود الماركت هنا ---
+            urlCategories = catParam ? decodeURIComponent(catParam).split(',').map(c => c.trim().toLowerCase()).filter(Boolean) : [];
             const marketParam = params.get('market');
             if (marketParam) {
-                urlMarket = decodeURIComponent(marketParam); // حفظ القيمة لاستخدامها لاحقاً
+                urlMarket = decodeURIComponent(marketParam);
                 const sel = document.getElementById('supermarket-filter');
-                if (sel && sel.options.length > 1) { 
-                    sel.value = urlMarket;
-                }
-            } // <--- هذا هو القوس الذي كان ناقصاً وتسبب في الخطأ
-
+                if (sel && sel.options.length > 1) sel.value = urlMarket;
+            }
             const discount = params.get('discount');
             if (discount) {
                 const el = document.getElementById('min-discount');
                 if (el) el.value = discount;
             }
-
             const page = parseInt(params.get('page'), 10);
             if (!isNaN(page) && page > 1) currentPage = page;
-
-            if (params.has('one_day')) {
-//                activeChipFilter = 'recent';
-                const v = params.get('one_day');
-                const el = document.getElementById('min-discount');
-                if (el && v) el.value = v;
-            }
-
-            if (params.has('week_percent')) {
-   //             activeChipFilter = 'recent';
-                const v = params.get('week_percent');
-                const el = document.getElementById('min-discount');
-                if (el && v) el.value = v;
-            }
-
             if (params.has('all')) {
                 showAllOffers = true;
                 activeChipFilter = 'all';
             }
-
         } catch (e) {
             console.error('applyUrlParams failed:', e);
         }
     }
-      
 
-  async function loadDataFromCache() {
-    try {
-        // محاولة جلب البيانات من IndexedDB (يفترض وجود دالة getFromDB لديك)
-        const cachedData = await loadFromDB(); 
-        const lastCacheTime = localStorage.getItem(`${CACHE_KEY}_time`);
-        
-        // التحقق من وجود بيانات وأنها لم تنتهِ صلاحيتها (مثلاً أقل من ساعة)
-        const isFresh = lastCacheTime && (Date.now() - lastCacheTime < 3600000); 
-
-        if (cachedData && cachedData.length > 0) {
-            console.log("تم العثور على بيانات في المخزن، يتم العرض الآن...");
-            allData = cachedData;
-            
-            // تنفيذ العمليات الضرورية دون انتظار الخادم
-            processDataAfterLoad(); 
-            
-            // إذا كانت البيانات قديمة نوعاً ما، نحدثها في الخلفية بهدوء
-            if (!isFresh) {
-                fetchFreshDataInBackground();
-            }
-            return true; // نجح التحميل من الذاكرة
-        }
-    } catch (err) {
-        console.warn("المخزن فارغ أو حدث خطأ، سيتم الاتصال بالخادم:", err);
-    }
-    return false; // فشل التحميل من الذاكرة، يجب الاتصال بالخادم
-}
-    function fetchFreshDataWithLoading() {
-        return new Promise((resolve, reject) => {
-            showLoading('جارٍ تحميل العروض من الخادم...');
-            Papa.parse(DATA_URL, {
-                download: true,
-                header: true,
-                skipEmptyLines: true,
-                trim: true,
-                complete: (results) => {
-                    allData = transformRows(results.data);
-                    normalizeDates(allData);
-                    computeSavedAndDiscount(allData);
-                    computeCombinedScore(allData);
-
-                    saveToDB(allData).then(() => {
-                        localStorage.setItem(`${CACHE_KEY}_time`, Date.now());
-                    });
-
-                    hideLoading();
-                    processDataAfterLoad();
-                    resolve();
-                },
-                error: (err) => {
-                    console.error('CSV parse error:', err);
-                    reject(err);
-                }
-            });
-        });
-    }
-
-    async function fetchFreshDataInBackground() {
+    // ==================== دوال جلب البيانات (مع تحديث تلقائي) ====================
+    // جلب البيانات من الخادم وتحديث المخزن والواجهة
+    async function fetchFreshDataAndUpdate(showLoadingIndicator = false) {
+        if (showLoadingIndicator) showLoading('جارٍ تحميل أحدث العروض...');
         try {
-            console.log('تحديث البيانات في الخلفية...');
-            const res = await fetch(DATA_URL);
-            const txt = await res.text();
-            const parsed = Papa.parse(txt, { header: true, skipEmptyLines: true, trim: true });
+            const response = await fetch(DATA_URL + '?t=' + Date.now()); // منع الكاش
+            const text = await response.text();
+            const parsed = Papa.parse(text, { header: true, skipEmptyLines: true, trim: true });
             let newData = transformRows(parsed.data);
             normalizeDates(newData);
             computeSavedAndDiscount(newData);
             computeCombinedScore(newData);
-
+            
             await saveToDB(newData);
             localStorage.setItem(`${CACHE_KEY}_time`, Date.now());
-
+            
+            // تحديث البيانات الحالية وإعادة العرض
             allData = newData;
+            originalAllData = [...allData];
             latestTwoDates = findLatestTwoDates(allData);
             applyAllFilters();
             populateTicker();
-
-            backgroundUpdateInProgress = false;
-            console.log('تم تحديث البيانات');
+            console.log('تم تحديث البيانات بنجاح');
         } catch (err) {
-            console.error('فشل التحديث في الخلفية:', err);
-            backgroundUpdateInProgress = false;
+            console.error('فشل تحديث البيانات:', err);
+            if (showLoadingIndicator) alert('حدث خطأ أثناء التحديث، تأكد من اتصال الإنترنت');
+        } finally {
+            if (showLoadingIndicator) hideLoading();
         }
     }
 
-function transformJsonRows(jsonData) {
-    return jsonData.map(item => {
-        let rawEndDate = String(item['end_date'] || '').trim();
-        let isoDate = convertArabicDateToISO(rawEndDate);
-        let d = isoDate ? new Date(isoDate) : null;
-
-        let status = String(item['status'] || '').trim();
-        if (status === 'س') status = 'منتهي';
-
-        let validUntil = String(item.validUntil || '').trim();
-        if (!validUntil || validUntil === 'غير متاح') validUntil = status || 'غير متاح';
-
-        let updateDateStr = item['تاريخ تعديل ملف الفلاير'] || item['Update Date'] || '';
-        let updateDate = null;
-        if (updateDateStr) {
-            let d2 = new Date(updateDateStr);
-            if (!isNaN(d2.getTime())) updateDate = d2;
+    // تحميل البيانات مع استراتيجية: عرض المخزن أولاً ثم تحديث الخلفية دائمًا
+    async function loadData() {
+        let stored = await loadFromDB();
+        if (stored && stored.length > 0) {
+            console.log("✅ تم العثور على بيانات في المخزن المحلي.");
+            allData = stored;
+            originalAllData = [...allData];
+            hideLoading();
+            processDataAfterLoad(); // عرض البيانات فورًا
+            
+            // **التغيير الأساسي**: نقوم بتحديث البيانات في الخلفية دائمًا (بغض النظر عن الصلاحية)
+            if (!backgroundUpdateInProgress) {
+                backgroundUpdateInProgress = true;
+                // تحديث في الخلفية بدون إزعاج المستخدم
+                fetchFreshDataAndUpdate(false).finally(() => {
+                    backgroundUpdateInProgress = false;
+                });
+            }
+        } else {
+            console.log("❌ المخزن فارغ، جاري التحميل من الخادم...");
+            await fetchFreshDataAndUpdate(true);
         }
+    }
 
-        return {
-            supermarket: String(item['اسم السوبر ماركت'] || ''),
-            product: String(item['الاسم بالعربية'] || ''),
-            primaryName: String(item['اسم المنتج (الأساسي)'] || ''),
-            unit: String(item['الوحدة'] || ''),
-            category: String(item['الفئة'] || ''),
-            brand: String(item['اسم العلامة التجارية'] || ''),
-            originalPrice: parseFloat(item['السعر الأصلي']) || 0,
-            currentPrice: parseFloat(item['السعر الحالي']) || 0,
-            discount: parseFloat(item['الخصم %']) || 0,
-            pageNo: String(item['اسم ملف الفلاير'] || ''),
-            solution_key: String(item['solution_key'] || ''),
-            currency: 'EGP',
-            endDate: d,
-            validUntil: validUntil,
-            updateDate: updateDate,
-            status: status,
-            _saved: 0,
-            _discount_pct: 0,
-            _score: 0
-        };
-    }).filter(item => item.product);
-}
-  
-  
+    // تحديث يدوي بالقوة (مع إظهار مؤشر التحميل)
+    async function forceRefresh() {
+        if (backgroundUpdateInProgress) {
+            alert('جاري تحديث البيانات بالفعل، انتظر قليلاً');
+            return;
+        }
+        await fetchFreshDataAndUpdate(true);
+    }
+
     function processDataAfterLoad() {
         latestTwoDates = findLatestTwoDates(allData);
-
-        // تطبيق باراميترات الرابط
         applyUrlParams();
-
-        // تحديث الشيب النشط
         document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
         if (activeChipFilter === 'all') {
             document.querySelector('.chip[data-filter="all"]').classList.add('active');
@@ -1293,43 +1002,34 @@ function transformJsonRows(jsonData) {
         } else {
             document.querySelector('.chip[data-filter="active"]').classList.add('active');
         }
-      
-originalAllData = [...allData];
+        originalAllData = [...allData];
         populateFilters();
-
         applyAllFilters();
         populateTicker();
         dataLoaded = true;
     }
 
     // ==================== دوال تهيئة واجهة المستخدم ====================
-function populateFilters() {
+    function populateFilters() {
         const source = filteredData.length ? filteredData : allData;
         const supermarketSet = new Set();
         const categorySet = new Set();
         const brandSet = new Set();
-
         source.forEach(item => {
             if (item.supermarket) supermarketSet.add(item.supermarket);
             if (item.category) categorySet.add(item.category);
             if (item.brand) brandSet.add(item.brand);
         });
-
         const supermarketSelect = document.getElementById('supermarket-filter');
-        
-        // --- التعديل هنا: نأخذ القيمة من المتغير العام (إذا كان موجوداً) أو من القائمة ---
         const currentSupermarket = (typeof urlMarket !== 'undefined' && urlMarket) ? urlMarket : supermarketSelect.value;
-        
         supermarketSelect.innerHTML = '<option value="">كل السوبرماركت</option>';
         Array.from(supermarketSet).sort().forEach(s => {
             let opt = document.createElement('option');
             opt.value = s;
             opt.textContent = s;
-            // سيتم وضع علامة "selected" تلقائياً إذا تطابق الاسم مع الرابط
-            if (s === currentSupermarket) opt.selected = true; 
+            if (s === currentSupermarket) opt.selected = true;
             supermarketSelect.appendChild(opt);
         });
-
         const categorySelect = document.getElementById('category-filter');
         const currentCategory = categorySelect.value;
         categorySelect.innerHTML = '<option value="">كل الفئات</option>';
@@ -1340,7 +1040,6 @@ function populateFilters() {
             if (c === currentCategory) opt.selected = true;
             categorySelect.appendChild(opt);
         });
-
         const brandSelect = document.getElementById('brand-filter');
         const currentBrand = brandSelect.value;
         brandSelect.innerHTML = '<option value="">كل العلامات</option>';
@@ -1351,11 +1050,7 @@ function populateFilters() {
             if (b === currentBrand) opt.selected = true;
             brandSelect.appendChild(opt);
         });
-        
-        // تفريغ المتغير بعد استخدامه أول مرة حتى لا يتعارض مع الفلترة اليدوية لاحقاً
-        if (typeof urlMarket !== 'undefined') {
-            urlMarket = null; 
-        }
+        if (typeof urlMarket !== 'undefined') urlMarket = null;
     }
 
     function showLoading(msg) {
@@ -1381,59 +1076,35 @@ function populateFilters() {
         let maxPrice = parseFloat(document.getElementById('max-price').value) || Infinity;
         if (minPrice > maxPrice) [minPrice, maxPrice] = [maxPrice, minPrice];
         const sort = document.getElementById('sort-by').value;
-
         const effectiveSearchTerms = urlSearchTerms.length ? urlSearchTerms : (searchVal ? searchVal.split(/\s+/) : []);
-
         filteredData = allData.filter(item => {
-            // فلتر الحالة: يُطبق فقط إذا لم يكن showAllOffers وليس الفلتر recent
             if (!showAllOffers && activeChipFilter !== 'all' && activeChipFilter !== 'recent') {
                 if (item.status === 'منتهي' || item.status === 'العرض منتهى') return false;
             }
-
             if (effectiveSearchTerms.length) {
                 const hay = (item.product + ' ' + item.primaryName + ' ' + item.brand + ' ' + item.supermarket).toLowerCase();
                 if (!effectiveSearchTerms.every(t => hay.includes(t))) return false;
             }
-
             if (urlCategories.length) {
                 const itemCat = String(item.category || '').toLowerCase();
                 if (!urlCategories.some(c => itemCat.includes(c))) return false;
             }
-
             if (supermarket && item.supermarket !== supermarket) return false;
             if (category && (!item.category || !item.category.toLowerCase().includes(category.toLowerCase()))) return false;
             if (brand && item.brand !== brand) return false;
             if (minDiscount > 0 && (item._discount_pct || 0) < minDiscount) return false;
-
             const price = item.currentPrice || 0;
             if (price < minPrice || price > maxPrice) return false;
-
             switch (activeChipFilter) {
-                case 'hot':
-                    if ((item._discount_pct || 0) < 30) return false;
-                    break;
-/*                case 'ending':
-                    if (!item.endDate) return false;
-                    const now = new Date();
-                    const diff = Math.ceil((item.endDate - now) / (1000*60*60*24));
-                    if (diff < 0 || diff > 1) return false;
-                    break;
-*/
+                case 'hot': if ((item._discount_pct || 0) < 30) return false; break;
                 case 'ending':
-    if (!item.endDate) return false;
-    const diff = (item.endDate - new Date()) / (1000 * 60 * 60 * 24);
-    if (diff <= 0 || diff > 1) return false;   // فقط المستقبلية وخلال يوم
-    break;
-                
-                case 'discount':
-                    if ((item._discount_pct || 0) < 20) return false;
+                    if (!item.endDate) return false;
+                    const diff = (item.endDate - new Date()) / (1000 * 60 * 60 * 24);
+                    if (diff <= 0 || diff > 1) return false;
                     break;
-                case 'carrefour':
-                    if (!item.supermarket.includes('هايبر1')) return false;
-                    break;
-                case 'food':
-                    if (!item.category || !/طعام|غذائ|مأكولات|أطعمة|غذاء/i.test(item.category)) return false;
-                    break;
+                case 'discount': if ((item._discount_pct || 0) < 20) return false; break;
+                case 'carrefour': if (!item.supermarket.includes('هايبر1')) return false; break;
+                case 'food': if (!item.category || !/طعام|غذائ|مأكولات|أطعمة|غذاء/i.test(item.category)) return false; break;
                 case 'recent':
                     if (!latestTwoDates.length) return false;
                     const d = item.updateDate || item.endDate;
@@ -1444,15 +1115,9 @@ function populateFilters() {
             }
             return true;
         });
-
-        if (bestPriceMode) {
-            filteredData = reduceBestPricePerCategory(filteredData);
-        }
-
+        if (bestPriceMode) filteredData = reduceBestPricePerCategory(filteredData);
         sortData(filteredData, sort);
-
         populateFilters();
-
         currentPage = 1;
         renderContent();
         updateStats();
@@ -1480,27 +1145,13 @@ function populateFilters() {
     function sortData(data, sortKey) {
         if (!data.length) return;
         switch (sortKey) {
-            case 'best-deals':
-                data.sort((a,b) => (b._score || 0) - (a._score || 0));
-                break;
-            case 'discount-desc':
-                data.sort((a,b) => (b._discount_pct || 0) - (a._discount_pct || 0));
-                break;
-            case 'saved-desc':
-                data.sort((a,b) => (b._saved || 0) - (a._saved || 0));
-                break;
-            case 'price-asc':
-                data.sort((a,b) => (a.currentPrice || 0) - (b.currentPrice || 0));
-                break;
-            case 'price-desc':
-                data.sort((a,b) => (b.currentPrice || 0) - (a.currentPrice || 0));
-                break;
-            case 'name-asc':
-                data.sort((a,b) => (a.product || '').localeCompare(b.product || '', 'ar'));
-                break;
-            case 'name-desc':
-                data.sort((a,b) => (b.product || '').localeCompare(a.product || '', 'ar'));
-                break;
+            case 'best-deals': data.sort((a,b) => (b._score || 0) - (a._score || 0)); break;
+            case 'discount-desc': data.sort((a,b) => (b._discount_pct || 0) - (a._discount_pct || 0)); break;
+            case 'saved-desc': data.sort((a,b) => (b._saved || 0) - (a._saved || 0)); break;
+            case 'price-asc': data.sort((a,b) => (a.currentPrice || 0) - (b.currentPrice || 0)); break;
+            case 'price-desc': data.sort((a,b) => (b.currentPrice || 0) - (a.currentPrice || 0)); break;
+            case 'name-asc': data.sort((a,b) => (a.product || '').localeCompare(b.product || '', 'ar')); break;
+            case 'name-desc': data.sort((a,b) => (b.product || '').localeCompare(a.product || '', 'ar')); break;
         }
     }
 
@@ -1514,16 +1165,13 @@ function populateFilters() {
         const grid = document.getElementById('products-grid');
         grid.style.display = 'grid';
         document.getElementById('data-table').style.display = 'none';
-
         const start = (currentPage - 1) * ITEMS_PER_PAGE;
         const pageData = filteredData.slice(start, start + ITEMS_PER_PAGE);
-
         if (!pageData.length) {
             grid.innerHTML = '<div style="grid-column:1/-1; text-align:center; padding:40px;">لا توجد عروض مطابقة</div>';
             updatePagination();
             return;
         }
-
         grid.innerHTML = pageData.map(item => {
             const isFav = favorites.includes(item.solution_key);
             const inComp = comparisonItems.some(c => c.product === item.product);
@@ -1563,7 +1211,6 @@ function populateFilters() {
                 </div>
             </div>`;
         }).join('');
-
         attachCardEvents();
         updatePagination();
     }
@@ -1572,17 +1219,14 @@ function populateFilters() {
         document.getElementById('products-grid').style.display = 'none';
         const tableDiv = document.getElementById('data-table');
         tableDiv.style.display = 'block';
-
         const tbody = document.getElementById('table-body');
         const start = (currentPage - 1) * ITEMS_PER_PAGE;
         const pageData = filteredData.slice(start, start + ITEMS_PER_PAGE);
-
         if (!pageData.length) {
             tbody.innerHTML = '<tr><td colspan="10" style="text-align:center;">لا توجد عروض</td></tr>';
             updatePagination();
             return;
         }
-
         tbody.innerHTML = pageData.map(item => {
             let rowClass = item._discount_pct > 20 ? 'class="highlight"' : '';
             let flyerId = item.pageNo?.match(/flyer_(\d+)/)?.[1] || item.solution_key || '';
@@ -1606,9 +1250,7 @@ function populateFilters() {
                 let flyerId = this.dataset.flyer;
                 let pageNo = this.dataset.page;
                 let pageNumber = pageNo?.match(/page_(\d+)/)?.[1] || '';
-                if (url && url !== '#') {
-                    openWithOverlay(url, pageNumber);
-                }
+                if (url && url !== '#') openWithOverlay(url, pageNumber);
             });
         });
         updatePagination();
@@ -1621,55 +1263,15 @@ function populateFilters() {
                 newWin.document.write(`
                     <!DOCTYPE html>
                     <html>
-<!DOCTYPE html>
-<html>
-<head>
-<style>
-body { margin: 0; padding: 0; overflow: hidden; background: #f0f0f0; font-family: 'Cairo', sans-serif; }
-.overlay {
-position: fixed;
-bottom: 5px;
-left: 50%;
-transform: translateX(-50%);
-width: auto;
-max-width: 90vw;
-padding: 15px 30px;
-background: #1e3c72;
-color: white;
-font-size: 1.8rem;
-border-radius: 50px;
-box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-display: flex;
-align-items: center;
-justify-content: center;
-gap: 15px;
-z-index: 10000;
-text-align: center;
-direction: rtl;
-}
-.iframe-wrapper {
-width: 100vw;
-height: 100vh;
-display: flex;
-flex-direction: column;
-}
-iframe {
-width: 100vw;
-height: 150vh;
-border: none;
-clip-path: inset(38% 0 16.2% 0);
-margin-top: -37vh;
-}
-
-/* Add this media query to reduce the overlay message size on mobile */
-@media only screen and (max-width: 768px) {
-.overlay {
-font-size: 1rem; /* Reduces the font size by approximately 70% */
-padding: 10px 20px; /* Optional: adjust padding for better mobile appearance */
-}
-}
-</style>
-</head>
+                    <head>
+                        <style>
+                            body { margin: 0; padding: 0; overflow: hidden; background: #f0f0f0; font-family: 'Cairo', sans-serif; }
+                            .overlay { position: fixed; bottom: 5px; left: 50%; transform: translateX(-50%); width: auto; max-width: 90vw; padding: 15px 30px; background: #1e3c72; color: white; font-size: 1.8rem; border-radius: 50px; box-shadow: 0 5px 15px rgba(0,0,0,0.3); display: flex; align-items: center; justify-content: center; gap: 15px; z-index: 10000; text-align: center; direction: rtl; }
+                            .iframe-wrapper { width: 100vw; height: 100vh; display: flex; flex-direction: column; }
+                            iframe { width: 100vw; height: 150vh; border: none; clip-path: inset(38% 0 16.2% 0); margin-top: -37vh; }
+                            @media only screen and (max-width: 768px) { .overlay { font-size: 1rem; padding: 10px 20px; } }
+                        </style>
+                    </head>
                     <body>
                         <div class="iframe-wrapper">
                             <iframe src="${url}" scrolling="yes" onload="document.getElementById('guide-overlay').style.display='flex';"></iframe>
@@ -1693,96 +1295,63 @@ padding: 10px 20px; /* Optional: adjust padding for better mobile appearance */
     function updatePagination() {
         const pagination = document.getElementById('pagination');
         const totalPages = Math.ceil(filteredData.length / ITEMS_PER_PAGE);
-        if (totalPages <= 1) {
-            pagination.innerHTML = '';
-            return;
-        }
-
+        if (totalPages <= 1) { pagination.innerHTML = ''; return; }
         let html = '';
         const maxVisible = 5;
-
         if (currentPage > 1) {
             html += `<button onclick="window.goToPage(1)"><i class="fas fa-angle-double-right"></i></button>`;
             html += `<button onclick="window.goToPage(${currentPage-1})"><i class="fas fa-angle-right"></i></button>`;
         }
-
         let startPage = Math.max(1, currentPage - Math.floor(maxVisible / 2));
         let endPage = Math.min(totalPages, startPage + maxVisible - 1);
-        if (endPage - startPage + 1 < maxVisible) {
-            startPage = Math.max(1, endPage - maxVisible + 1);
-        }
-
+        if (endPage - startPage + 1 < maxVisible) startPage = Math.max(1, endPage - maxVisible + 1);
         if (startPage > 1) {
             html += `<button onclick="window.goToPage(1)">1</button>`;
             if (startPage > 2) html += `<span>...</span>`;
         }
-
         for (let i = startPage; i <= endPage; i++) {
-            if (i === currentPage) {
-                html += `<button class="active" disabled>${i}</button>`;
-            } else {
-                html += `<button onclick="window.goToPage(${i})">${i}</button>`;
-            }
+            if (i === currentPage) html += `<button class="active" disabled>${i}</button>`;
+            else html += `<button onclick="window.goToPage(${i})">${i}</button>`;
         }
-
         if (endPage < totalPages) {
             if (endPage < totalPages - 1) html += `<span>...</span>`;
             html += `<button onclick="window.goToPage(${totalPages})">${totalPages}</button>`;
         }
-
         if (currentPage < totalPages) {
             html += `<button onclick="window.goToPage(${currentPage+1})"><i class="fas fa-angle-left"></i></button>`;
             html += `<button onclick="window.goToPage(${totalPages})"><i class="fas fa-angle-double-left"></i></button>`;
         }
-
         pagination.innerHTML = html;
     }
     window.goToPage = (page) => { currentPage = page; renderContent(); };
 
-                
-function updateStats() {
-    document.getElementById('total-offers').textContent = filteredData.length;
-    let avg = filteredData.reduce((s,i) => s + (i._discount_pct || 0), 0) / (filteredData.length || 1);
-    document.getElementById('avg-discount').textContent = Math.round(avg) + '%';
-    let hot = filteredData.filter(i => i._discount_pct > 30).length;
-    document.getElementById('hot-deals').textContent = hot;
-            
-    // حساب العروض التي ستنتهي خلال 24 ساعة القادمة (فقط المستقبلية)
-    let ending = filteredData.filter(i => {
-        if (!i.endDate) return false;
-        let diffDays = (i.endDate - new Date()) / (1000 * 60 * 60 * 24);
-        return diffDays > 0 && diffDays <= 1;   // >0 يعني مستقبلية، <=1 يعني خلال يوم
-    }).length;
-            
-    document.getElementById('ending-soon').textContent = ending;
-    let markets = new Set(filteredData.map(i => i.supermarket)).size;
-    document.getElementById('total-supermarkets').textContent = markets;
-}
+    function updateStats() {
+        document.getElementById('total-offers').textContent = filteredData.length;
+        let avg = filteredData.reduce((s,i) => s + (i._discount_pct || 0), 0) / (filteredData.length || 1);
+        document.getElementById('avg-discount').textContent = Math.round(avg) + '%';
+        let hot = filteredData.filter(i => i._discount_pct > 30).length;
+        document.getElementById('hot-deals').textContent = hot;
+        let ending = filteredData.filter(i => {
+            if (!i.endDate) return false;
+            let diffDays = (i.endDate - new Date()) / (1000 * 60 * 60 * 24);
+            return diffDays > 0 && diffDays <= 1;
+        }).length;
+        document.getElementById('ending-soon').textContent = ending;
+        let markets = new Set(filteredData.map(i => i.supermarket)).size;
+        document.getElementById('total-supermarkets').textContent = markets;
+    }
 
     function populateTicker() {
         const track = document.getElementById('ticker-track');
-        // نستخدم filteredData إن وجدت وإلا allData
         let source = filteredData.length ? filteredData : allData;
         if (!source.length) return;
-        
-        // تصفية بحيث يكون السعر 200 أو أكثر
         let filtered = source.filter(item => (item.currentPrice || 0) >= 200);
-        if (!filtered.length) {
-            // إذا لم يكن هناك أي عنصر، نستخدم المصدر الأصلي
-            filtered = source;
-        }
-        
-        // ترتيب: أولاً المنتجات التي سعرها 1000 أو أكثر (تنازلياً)، ثم الباقي حسب النقاط
+        if (!filtered.length) filtered = source;
         let expensive = filtered.filter(item => (item.currentPrice || 0) >= 1000);
         let others = filtered.filter(item => (item.currentPrice || 0) < 1000);
-        
-        // ترتيب expensive حسب السعر تنازلياً
         expensive.sort((a,b) => (b.currentPrice || 0) - (a.currentPrice || 0));
-        // ترتيب others حسب النقاط
         others.sort((a,b) => (b._score||0) - (a._score||0));
-        
         let top = [...expensive, ...others].slice(0,12);
-        
         track.innerHTML = '';
         top.forEach(item => {
             let span = document.createElement('div');
@@ -1790,7 +1359,6 @@ function updateStats() {
             span.innerHTML = `<span class="badge">${item._discount_pct}%</span> ${item.product} - ${item.supermarket} (${item.currentPrice} ج.م)`;
             track.appendChild(span);
         });
-        // نكرر المحتوى للتمرير المستمر إذا كان هناك عناصر
         if (top.length) {
             top.forEach(item => {
                 let span = document.createElement('div');
@@ -1819,7 +1387,6 @@ function updateStats() {
                 localStorage.setItem('favorites', JSON.stringify(favorites));
             });
         });
-
         document.querySelectorAll('.compare-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 e.stopPropagation();
@@ -1840,7 +1407,6 @@ function updateStats() {
                 btn.classList.toggle('active');
             });
         });
-
         document.querySelectorAll('.share-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 e.stopPropagation();
@@ -1854,7 +1420,6 @@ function updateStats() {
                 }
             });
         });
-
         document.querySelectorAll('.buy-now-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 e.stopPropagation();
@@ -1868,7 +1433,6 @@ function updateStats() {
                 }
             });
         });
-
         document.querySelectorAll('.view-details-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 e.stopPropagation();
@@ -1922,166 +1486,106 @@ function updateStats() {
         document.getElementById('max-price').value = '';
         document.getElementById('min-discount').value = '';
         document.getElementById('sort-by').value = 'best-deals';
-
         showAllOffers = false;
         activeChipFilter = 'active';
         document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
         document.querySelector('.chip[data-filter="active"]').classList.add('active');
-
         urlSearchTerms = [];
         urlCategories = [];
         bestPriceMode = false;
-
         applyAllFilters();
     }
 
     function wireEventListeners() {
         document.getElementById('view-grid-btn').addEventListener('click', () => { currentView='grid'; switchView(); });
         document.getElementById('view-table-btn').addEventListener('click', () => { currentView='table'; switchView(); });
-
         function switchView() {
             document.getElementById('view-grid-btn').classList.toggle('active', currentView==='grid');
             document.getElementById('view-table-btn').classList.toggle('active', currentView==='table');
             renderContent();
         }
-
-document.querySelectorAll('.chip').forEach(chip => {
-    chip.addEventListener('click', function() {
-        let filter = this.dataset.filter;
-        
-        if (filter === 'all') {
-            // تحميل البيانات من ملف Excel
-            showLoading('جارٍ تحميل العروض القديمة...');
-            fetch('https://eg-market.github.io/ai/final.xlsx') // استخدم الرابط الصحيح لملف Excel
-                .then(response => {
-                    if (!response.ok) throw new Error('فشل تحميل الملف');
-                    return response.arrayBuffer();
-                })
-                .then(arrayBuffer => {
-                    const workbook = XLSX.read(arrayBuffer, { type: 'array' });
-                    const firstSheetName = workbook.SheetNames[0];
-                    const worksheet = workbook.Sheets[firstSheetName];
-                    const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 }); // نقرأ كصفوف أولاً ثم نحولها إلى كائنات
-                    
-                    // تحويل الصفوف إلى كائنات مع المفاتيح المناسبة
-                    // نفترض أن الصف الأول هو العناوين
-                    const headers = jsonData[0];
-                    const rows = jsonData.slice(1).map(row => {
-                        let obj = {};
-                        headers.forEach((header, index) => {
-                            obj[header] = row[index];
+        document.querySelectorAll('.chip').forEach(chip => {
+            chip.addEventListener('click', function() {
+                let filter = this.dataset.filter;
+                if (filter === 'all') {
+                    showLoading('جارٍ تحميل العروض القديمة...');
+                    fetch('https://eg-market.github.io/ai/final.xlsx')
+                        .then(response => response.arrayBuffer())
+                        .then(arrayBuffer => {
+                            const workbook = XLSX.read(arrayBuffer, { type: 'array' });
+                            const firstSheetName = workbook.SheetNames[0];
+                            const worksheet = workbook.Sheets[firstSheetName];
+                            const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+                            const headers = jsonData[0];
+                            const rows = jsonData.slice(1).map(row => {
+                                let obj = {};
+                                headers.forEach((header, index) => { obj[header] = row[index]; });
+                                return obj;
+                            });
+                            let oldData = transformRows(rows);
+                            normalizeDates(oldData);
+                            computeSavedAndDiscount(oldData);
+                            computeCombinedScore(oldData);
+                            allData = oldData;
+                            activeChipFilter = 'all';
+                            showAllOffers = true;
+                            document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+                            this.classList.add('active');
+                            applyAllFilters();
+                            hideLoading();
+                        })
+                        .catch(err => {
+                            console.error('خطأ في تحميل العروض القديمة:', err);
+                            hideLoading();
+                            alert('فشل تحميل العروض القديمة. تأكد من وجود الملف.');
                         });
-                        return obj;
-                    });
-                    
-                    let oldData = transformJsonRows(rows);
-                    normalizeDates(oldData);
-                    computeSavedAndDiscount(oldData);
-                    computeCombinedScore(oldData);
-                    allData = oldData;
-                    activeChipFilter = 'all';
-                    showAllOffers = true;
+                } else {
+                    if (originalAllData.length > 0) allData = [...originalAllData];
+                    activeChipFilter = filter;
+                    showAllOffers = false;
                     document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
                     this.classList.add('active');
+                    if (filter === 'hot') document.getElementById('sort-by').value = 'discount-desc';
+                    else if (filter === 'discount') document.getElementById('sort-by').value = 'saved-desc';
                     applyAllFilters();
-                    hideLoading();
-                })
-                .catch(err => {
-                    console.error('خطأ في تحميل العروض القديمة:', err);
-                    hideLoading();
-                    alert('فشل تحميل العروض القديمة. تأكد من وجود الملف.');
-                });
-        } else {
-            // باقي الفلاتر...
-            if (originalAllData.length > 0) {
-                allData = [...originalAllData];
-            }
-            activeChipFilter = filter;
-            showAllOffers = false;
-            document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
-            this.classList.add('active');
-            
-            if (filter === 'hot') {
-                document.getElementById('sort-by').value = 'discount-desc';
-            } else if (filter === 'discount') {
-                document.getElementById('sort-by').value = 'saved-desc';
-            }
-            applyAllFilters();
-        }
-    });
-});
-document.getElementById('search-input').addEventListener('input', debounce(applyAllFilters, 300));
+                }
+            });
+        });
+        document.getElementById('search-input').addEventListener('input', debounce(applyAllFilters, 300));
         document.getElementById('supermarket-filter').addEventListener('change', applyAllFilters);
         document.getElementById('category-filter').addEventListener('change', applyAllFilters);
         document.getElementById('brand-filter').addEventListener('change', applyAllFilters);
         document.getElementById('min-discount').addEventListener('input', debounce(applyAllFilters, 300));
         document.getElementById('sort-by').addEventListener('change', applyAllFilters);
-
-        document.getElementById('min-decrease').addEventListener('click', () => {
-            adjustNumberInput(document.getElementById('min-price'), -1);
-            applyAllFilters();
-        });
-        document.getElementById('min-increase').addEventListener('click', () => {
-            adjustNumberInput(document.getElementById('min-price'), 1);
-            applyAllFilters();
-        });
-        document.getElementById('max-decrease').addEventListener('click', () => {
-            adjustNumberInput(document.getElementById('max-price'), -1);
-            applyAllFilters();
-        });
-        document.getElementById('max-increase').addEventListener('click', () => {
-            adjustNumberInput(document.getElementById('max-price'), 1);
-            applyAllFilters();
-        });
+        document.getElementById('min-decrease').addEventListener('click', () => { adjustNumberInput(document.getElementById('min-price'), -1); applyAllFilters(); });
+        document.getElementById('min-increase').addEventListener('click', () => { adjustNumberInput(document.getElementById('min-price'), 1); applyAllFilters(); });
+        document.getElementById('max-decrease').addEventListener('click', () => { adjustNumberInput(document.getElementById('max-price'), -1); applyAllFilters(); });
+        document.getElementById('max-increase').addEventListener('click', () => { adjustNumberInput(document.getElementById('max-price'), 1); applyAllFilters(); });
         document.getElementById('min-price').addEventListener('input', debounce(applyAllFilters, 300));
         document.getElementById('max-price').addEventListener('input', debounce(applyAllFilters, 300));
-
         document.getElementById('reset-btn').addEventListener('click', refreshApplication);
-
+        document.getElementById('force-refresh-btn').addEventListener('click', forceRefresh); // زر التحديث اليدوي
         document.getElementById('share-app').addEventListener('click', () => {
             if (navigator.share) navigator.share({ title: 'عروض السوبرماركت', url: window.location.href });
             else alert('انسخ الرابط: ' + window.location.href);
         });
-
-        document.getElementById('compare-mode-btn').addEventListener('click', () => {
-            document.getElementById('comparison-panel').style.display = 'block';
-        });
-
-        document.getElementById('clear-comparison').addEventListener('click', () => {
-            comparisonItems = [];
-            localStorage.setItem('comparison', '[]');
-            updateComparisonPanel();
-            document.querySelectorAll('.compare-btn').forEach(btn => btn.classList.remove('active'));
-        });
-
-        document.getElementById('close-comparison').addEventListener('click', () => {
-            document.getElementById('comparison-panel').style.display = 'none';
-        });
-
-        document.addEventListener('click', (e) => {
-            let list = document.getElementById('autocomplete-list');
-            if (list && !list.contains(e.target) && e.target.id !== 'search-input') list.remove();
-        });
-
+        document.getElementById('compare-mode-btn').addEventListener('click', () => { document.getElementById('comparison-panel').style.display = 'block'; });
+        document.getElementById('clear-comparison').addEventListener('click', () => { comparisonItems = []; localStorage.setItem('comparison', '[]'); updateComparisonPanel(); document.querySelectorAll('.compare-btn').forEach(btn => btn.classList.remove('active')); });
+        document.getElementById('close-comparison').addEventListener('click', () => { document.getElementById('comparison-panel').style.display = 'none'; });
+        document.addEventListener('click', (e) => { let list = document.getElementById('autocomplete-list'); if (list && !list.contains(e.target) && e.target.id !== 'search-input') list.remove(); });
         document.getElementById('search-input').addEventListener('input', function() {
             let val = this.value.trim().toLowerCase();
             clearAutocomplete();
             if (!val) return;
             let source = filteredData.length ? filteredData : allData;
-            let suggestions = [...new Set(source.map(i => i.product).concat(source.map(i => i.primaryName).filter(Boolean)))]
-                .filter(s => s && s.toLowerCase().includes(val))
-                .slice(0, 8);
+            let suggestions = [...new Set(source.map(i => i.product).concat(source.map(i => i.primaryName).filter(Boolean)))].filter(s => s && s.toLowerCase().includes(val)).slice(0, 8);
             if (!suggestions.length) return;
             let list = document.createElement('div');
             list.id = 'autocomplete-list';
             suggestions.forEach(s => {
                 let div = document.createElement('div');
                 div.textContent = s;
-                div.addEventListener('click', () => {
-                    document.getElementById('search-input').value = s;
-                    clearAutocomplete();
-                    applyAllFilters();
-                });
+                div.addEventListener('click', () => { document.getElementById('search-input').value = s; clearAutocomplete(); applyAllFilters(); });
                 list.appendChild(div);
             });
             document.body.appendChild(list);
@@ -2092,48 +1596,16 @@ document.getElementById('search-input').addEventListener('input', debounce(apply
         });
     }
 
-    function clearAutocomplete() {
-        let list = document.getElementById('autocomplete-list');
-        if (list) list.remove();
-    }
-
-    function debounce(fn, delay) {
-        return function(...args) {
-            clearTimeout(debounceTimer);
-            debounceTimer = setTimeout(() => fn.apply(this, args), delay);
-        };
-    }
-
+    function clearAutocomplete() { let list = document.getElementById('autocomplete-list'); if (list) list.remove(); }
+    function debounce(fn, delay) { return function(...args) { clearTimeout(debounceTimer); debounceTimer = setTimeout(() => fn.apply(this, args), delay); }; }
 
     // بدء التطبيق
- // بدء التطبيق
-document.addEventListener('DOMContentLoaded', async () => {
-    // 1. استدعاء دالة التحميل الذكية (تفحص المخزن أولاً ثم الخادم)
-    await loadData();
-    
-    // 2. ربط الأحداث (الأزرار، البحث، إلخ)
-    wireEventListeners();
-    
-    console.log("🚀 التطبيق جاهز");
-});
-
-/* document.addEventListener('DOMContentLoaded', () => {
-// بدلاً من استدعاء fetchFreshDataWithLoading مباشرة:
-async function startApp() {
-    const loadedFromCache = await loadDataFromCache();
-    if (!loadedFromCache) {
-        // إذا لم نجد شيئاً في الذاكرة، نضطر لإظهار شاشة التحميل والذهاب للخادم
-        await fetchFreshDataWithLoading();
-    }}
-
-// تشغيل التطبيق
-startApp();
-      loadData();
+    document.addEventListener('DOMContentLoaded', async () => {
+        await loadData();
         wireEventListeners();
-    });  
-*/
-
+        console.log("🚀 التطبيق جاهز مع تحديث تلقائي في الخلفية");
+    });
 })();
-</script>
+    </script>
   </body>
 </html>
