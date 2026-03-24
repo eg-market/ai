@@ -477,8 +477,8 @@ animation: flashing 1s infinite;
 
                   data-tabindex="1" style="font-size: 2 rem;">
                   <!-- Adjust this value for size -->
-                  -------------------------------------------
-                  (--اضغط هنا اذا كنت مستخدم جديد )------------------عروض
+                  ------------------------------------------- (--اضغط هنا اذا
+                  كنت مستخدم جديد )------------------عروض
                   اليوم---------------------------- </button> </a> </div>
             <div><a href="https://eg-market.github.io/ai/index_B.html?category=%D8%A3%D8%AC%D9%87%D8%B2%D8%A9+%D8%AA%D9%84%D9%8A%D9%81%D8%B2%D9%8A%D9%88%D9%86+%D9%88%D8%A7%D9%84%D9%83%D8%AA%D8%B1%D9%88%D9%86%D9%8A%D8%A7%D8%AA">
                 <button class="focus-visible:ring-ring whitespace-nowrap font-bold focus-visible:outline-none focus-visible:ring-1 
@@ -1378,7 +1378,30 @@ console.error(`Error occurred: ${message} at ${source}:${lineno}:${colno}`);
 return false; // Allow the default handling (e.g., displaying the error in the console)
 };
       </script>
-    <!-- نضيف هذا الكود قبل إغلاق </body> -->
+      
+      
+       
+ <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+
+<script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyD24A6woZBvQuMZssqiNPyaVZe3nKPXvUU",
+    authDomain: "eg-market-342tb.firebaseapp.com",
+    projectId: "eg-market-342tb",
+    storageBucket: "eg-market-342tb.firebasestorage.app",
+    messagingSenderId: "514313773274",
+    appId: "1:514313773274:web:0d4e04eeda17c2ff62c5e3"
+  };
+  firebase.initializeApp(firebaseConfig);
+  const auth = firebase.auth();
+  const db = firebase.firestore();
+</script>
+      
+      
+      
+<!-- نضيف هذا الكود قبل إغلاق </body> -->
     <!-- Modal للمستخدم -->
     <div id="user-modal" class="modal" style="display:none;">
       <div class="modal-content"> <span class="close-btn">×</span>
@@ -1410,6 +1433,8 @@ return false; // Allow the default handling (e.g., displaying the error in the c
     </div>
     <!-- رسالة ترحيب بعد تسجيل الدخول (مخفية افتراضياً) -->
     <div id="user-greeting" style="display:none;"></div>
+          
+      
     <!-- ==================== نظام تسجيل الدخول وإدارة المستخدمين ==================== -->
     <style>
   /* زر تسجيل الدخول */
@@ -1537,216 +1562,173 @@ return false; // Allow the default handling (e.g., displaying the error in the c
     text-align: center;
   }
 </style>
-    <div id="user-modal" class="modal">
-      <div class="modal-content"> <span class="close-btn">×</span>
-        <div class="modal-header"> <button id="tab-login" class="tab-button active">تسجيل
-            الدخول</button> <button id="tab-signup" class="tab-button">إنشاء
-            حساب</button> </div>
-        <div id="login-form" class="tab-content active">
-          <h2>تسجيل الدخول</h2>
-          <form id="login"> <input id="login-email" placeholder="البريد الإلكتروني"
-
-              required="" type="email"> <input id="login-password" placeholder="كلمة المرور"
-
-              required="" type="password"> <button type="submit">دخول</button>
-          </form>
-          <div id="login-message"></div>
-        </div>
-        <div id="signup-form" class="tab-content">
-          <h2>إنشاء حساب جديد</h2>
-          <form id="signup"> <input id="signup-email" placeholder="البريد الإلكتروني"
-
-              required="" type="email"> <input id="signup-password" placeholder="كلمة المرور"
-
-              required="" type="password"> <input id="signup-whatsapp" placeholder="رقم واتساب (اختياري)"
-
-              type="tel"> <button type="submit">إنشاء حساب</button> </form>
-          <div id="signup-message"></div>
-        </div>
-      </div>
-    </div>
-    <script>
+      
+          
+<script>
+// ==================== نظام Firebase للمستخدمين ====================
 (function() {
-  // مفاتيح localStorage
-  const USERS_KEY = 'eg_market_users';
-  const CURRENT_USER_KEY = 'eg_market_current_user';
+  // عناصر الـ Modal
+  const modal = document.getElementById('user-modal');
+  const closeBtn = document.querySelector('.close-btn');
+  const tabLoginBtn = document.getElementById('tab-login');
+  const tabSignupBtn = document.getElementById('tab-signup');
+  const loginForm = document.getElementById('login');
+  const signupForm = document.getElementById('signup');
+  const loginMsg = document.getElementById('login-message');
+  const signupMsg = document.getElementById('signup-message');
 
-  // العناصر
-  let modal;
-  let loginBtnContainer;
-  let loginBtn;
-  let userGreeting;
+  // عناصر الإدخال
+  const loginEmail = document.getElementById('login-email');
+  const loginPassword = document.getElementById('login-password');
+  const signupEmail = document.getElementById('signup-email');
+  const signupPassword = document.getElementById('signup-password');
+  const signupWhatsapp = document.getElementById('signup-whatsapp');
 
-  // إضافة زر تسجيل الدخول في المكان المناسب
+  // إضافة زر تسجيل الدخول في الصفحة
   function addLoginButton() {
-    // ابحث عن شريط البحث (نريد إضافة الزر بجانبه)
     const searchDiv = document.querySelector('.z-20.duration-300.ease-in-out.md\\:mr-xl.md\\:grow-3.relative');
     if (!searchDiv) return;
-
-    // إنشاء عنصر الحاوية للزر
     const buttonContainer = document.createElement('div');
     buttonContainer.className = 'duration-300 ease-in-out hidden md:flex gap-lg items-center md:mr-lg md:flex-1';
     buttonContainer.style.margin = '0 15px';
-    
-    // الزر
     const btn = document.createElement('button');
     btn.className = 'login-btn';
     btn.innerHTML = '<img src="https://eg-market.github.io/ai/user.png" alt="User" style="width:20px; height:20px;"> تسجيل الدخول / حساب جديد';
-    btn.addEventListener('click', openModal);
+    btn.addEventListener('click', () => modal.style.display = 'block');
     buttonContainer.appendChild(btn);
-    
-    // إضافة بعد شريط البحث
-    const parent = searchDiv.parentNode;
-    parent.appendChild(buttonContainer);
-    
-    loginBtn = btn;
-    loginBtnContainer = buttonContainer;
+    searchDiv.parentNode.appendChild(buttonContainer);
+    return btn;
   }
 
-  // عرض الرسالة الترحيبية بعد تسجيل الدخول
-  function showUserGreeting(userName) {
-    if (!loginBtnContainer) return;
-    loginBtnContainer.innerHTML = `
-      <div class="user-greeting">
-        <img src="https://eg-market.github.io/ai/user.png" alt="User" style="width:20px; height:20px;">
-        <span>مرحباً، ${userName}</span>
-      </div>
-    `;
-    // يمكن إضافة زر تسجيل الخروج لاحقاً
+  // عرض رسالة الترحيب
+  function showUserGreeting(user) {
+    const container = document.querySelector('.duration-300.ease-in-out.hidden.md\\:flex.gap-lg.items-center.md\\:mr-lg.md\\:flex-1');
+    if (container) {
+      container.innerHTML = `
+        <div class="user-greeting">
+          <img src="https://eg-market.github.io/ai/user.png" alt="User" style="width:20px; height:20px;">
+          <span>مرحباً، ${user.email.split('@')[0]}</span>
+        </div>
+      `;
+    }
   }
 
-  function openModal() {
-    modal.style.display = 'block';
-    // إعادة تعيين الرسائل
-    document.getElementById('login-message').textContent = '';
-    document.getElementById('signup-message').textContent = '';
-  }
-
-  function closeModal() {
-    modal.style.display = 'none';
-  }
-
-  function switchTab(tab) {
-    const tabs = ['login', 'signup'];
-    tabs.forEach(t => {
-      const btn = document.getElementById(`tab-${t}`);
-      const form = document.getElementById(`${t}-form`);
-      if (t === tab) {
-        btn.classList.add('active');
-        form.classList.add('active');
+  // التحقق من حالة المستخدم
+  function checkLoggedInUser() {
+    auth.onAuthStateChanged((user) => {
+      if (user) {
+        showUserGreeting(user);
       } else {
-        btn.classList.remove('active');
-        form.classList.remove('active');
+        addLoginButton(); // إظهار زر تسجيل الدخول
       }
     });
   }
 
-  function getUsers() {
-    const users = localStorage.getItem(USERS_KEY);
-    return users ? JSON.parse(users) : {};
+  // تسجيل الخروج
+  function logout() {
+    auth.signOut().then(() => {
+      location.reload();
+    });
   }
 
-  function saveUsers(users) {
-    localStorage.setItem(USERS_KEY, JSON.stringify(users));
-  }
-
+  // معالجة تسجيل الدخول
   function handleLogin(e) {
     e.preventDefault();
-    const email = document.getElementById('login-email').value.trim();
-    const password = document.getElementById('login-password').value.trim();
-    const msg = document.getElementById('login-message');
-
+    const email = loginEmail.value.trim();
+    const password = loginPassword.value.trim();
     if (!email || !password) {
-      msg.textContent = 'يرجى إدخال البريد الإلكتروني وكلمة المرور.';
+      loginMsg.textContent = 'يرجى إدخال البريد الإلكتروني وكلمة المرور.';
       return;
     }
-
-    const users = getUsers();
-    const user = users[email];
-    if (!user || user.password !== password) {
-      msg.textContent = 'البريد الإلكتروني أو كلمة المرور غير صحيحة.';
-      return;
-    }
-
-    // تسجيل الدخول ناجح
-    localStorage.setItem(CURRENT_USER_KEY, JSON.stringify({ email, name: email.split('@')[0] }));
-    msg.style.color = 'green';
-    msg.textContent = 'تم تسجيل الدخول بنجاح!';
-    setTimeout(() => {
-      closeModal();
-      updateUIAfterLogin(email);
-    }, 1000);
+    auth.signInWithEmailAndPassword(email, password)
+      .then((userCredential) => {
+        loginMsg.style.color = 'green';
+        loginMsg.textContent = 'تم تسجيل الدخول بنجاح!';
+        modal.style.display = 'none';
+        showUserGreeting(userCredential.user);
+      })
+      .catch((error) => {
+        loginMsg.textContent = error.message;
+      });
   }
 
+  // معالجة إنشاء حساب جديد
   function handleSignup(e) {
     e.preventDefault();
-    const email = document.getElementById('signup-email').value.trim();
-    const password = document.getElementById('signup-password').value.trim();
-    const whatsapp = document.getElementById('signup-whatsapp').value.trim();
-    const msg = document.getElementById('signup-message');
-
+    const email = signupEmail.value.trim();
+    const password = signupPassword.value.trim();
+    const whatsapp = signupWhatsapp.value.trim();
     if (!email || !password) {
-      msg.textContent = 'البريد الإلكتروني وكلمة المرور مطلوبان.';
+      signupMsg.textContent = 'البريد الإلكتروني وكلمة المرور مطلوبان.';
       return;
     }
+    auth.createUserWithEmailAndPassword(email, password)
+      .then((userCredential) => {
+        const user = userCredential.user;
+        // تخزين رقم واتساب في Firestore
+        return db.collection('users').doc(user.uid).set({
+          email: user.email,
+          whatsapp: whatsapp || '',
+          createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+      })
+      .then(() => {
+        signupMsg.style.color = 'green';
+        signupMsg.textContent = 'تم إنشاء الحساب بنجاح!';
+        modal.style.display = 'none';
+        showUserGreeting(auth.currentUser);
+      })
+      .catch((error) => {
+        signupMsg.textContent = error.message;
+      });
+  }
 
-    const users = getUsers();
-    if (users[email]) {
-      msg.textContent = 'هذا البريد الإلكتروني مسجل بالفعل.';
-      return;
+  // إضافة زر تسجيل الخروج
+  function addLogoutButton() {
+    const container = document.querySelector('.user-greeting');
+    if (container) {
+      const logoutBtn = document.createElement('button');
+      logoutBtn.textContent = 'تسجيل الخروج';
+      logoutBtn.style.marginRight = '10px';
+      logoutBtn.style.backgroundColor = '#dc2626';
+      logoutBtn.style.color = 'white';
+      logoutBtn.style.border = 'none';
+      logoutBtn.style.borderRadius = '20px';
+      logoutBtn.style.padding = '4px 12px';
+      logoutBtn.style.cursor = 'pointer';
+      logoutBtn.addEventListener('click', logout);
+      container.appendChild(logoutBtn);
     }
-
-    // حفظ المستخدم الجديد
-    users[email] = { email, password, whatsapp, createdAt: new Date().toISOString() };
-    saveUsers(users);
-
-    // تسجيل الدخول مباشرة بعد التسجيل
-    localStorage.setItem(CURRENT_USER_KEY, JSON.stringify({ email, name: email.split('@')[0] }));
-    msg.style.color = 'green';
-    msg.textContent = 'تم إنشاء الحساب بنجاح! جاري تسجيل الدخول...';
-    setTimeout(() => {
-      closeModal();
-      updateUIAfterLogin(email);
-    }, 1000);
   }
 
-  function checkLoggedInUser() {
-    const userData = localStorage.getItem(CURRENT_USER_KEY);
-    if (userData) {
-      const user = JSON.parse(userData);
-      updateUIAfterLogin(user.email);
-    }
-  }
-
-  function updateUIAfterLogin(email) {
-    const userName = email.split('@')[0];
-    showUserGreeting(userName);
-  }
-
-  // تهيئة النظام
+  // تهيئة الأحداث
   function init() {
-    modal = document.getElementById('user-modal');
     if (!modal) return;
-
-    // إضافة الزر
-    addLoginButton();
-
-    // إضافة مستمعات الأحداث
-    document.querySelector('.close-btn').addEventListener('click', closeModal);
-    window.addEventListener('click', (e) => {
-      if (e.target === modal) closeModal();
-    });
-
-    document.getElementById('tab-login').addEventListener('click', () => switchTab('login'));
-    document.getElementById('tab-signup').addEventListener('click', () => switchTab('signup'));
-
-    document.getElementById('login').addEventListener('submit', handleLogin);
-    document.getElementById('signup').addEventListener('submit', handleSignup);
-
+    closeBtn.addEventListener('click', () => modal.style.display = 'none');
+    window.addEventListener('click', (e) => { if (e.target === modal) modal.style.display = 'none'; });
+    tabLoginBtn.addEventListener('click', () => { switchTab('login'); });
+    tabSignupBtn.addEventListener('click', () => { switchTab('signup'); });
+    loginForm.addEventListener('submit', handleLogin);
+    signupForm.addEventListener('submit', handleSignup);
     checkLoggedInUser();
   }
 
-  // الانتظار حتى تحميل الصفحة
+  function switchTab(tab) {
+    const loginTab = document.getElementById('login-form');
+    const signupTab = document.getElementById('signup-form');
+    if (tab === 'login') {
+      tabLoginBtn.classList.add('active');
+      tabSignupBtn.classList.remove('active');
+      loginTab.classList.add('active');
+      signupTab.classList.remove('active');
+    } else {
+      tabSignupBtn.classList.add('active');
+      tabLoginBtn.classList.remove('active');
+      signupTab.classList.add('active');
+      loginTab.classList.remove('active');
+    }
+  }
+
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', init);
   } else {
@@ -1754,5 +1736,8 @@ return false; // Allow the default handling (e.g., displaying the error in the c
   }
 })();
 </script>
+      
+
+      
   </body>
 </html>
