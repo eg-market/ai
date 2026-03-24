@@ -473,14 +473,13 @@ animation: flashing 1s infinite;
             <div><a href="https://eg-market.github.io/ai/index_B.html"> <button
 
                   class="flashing  focus-visible:ring-ring whitespace-nowrap font-bold focus-visible:outline-none focus-visible:ring-1 
-               disabled:pointer-events-none disabled:opacity-[0.12] bg-primary text-white duration-300 ease-in-out              transition-[height,opacity,margin,flex] p-3xs transition-height relative flex w-[92px] shrink-0 flex-col
-              items-center justify-center md:border-2 md:w-[268px] md:flex-row                md:justify-center h-[86px] pb-3xs md:h-3xl rounded-lg"
+               disabled:pointer-events-none disabled:opacity-[0.12] bg-primary text-white duration-300 ease-in-out              transition-[height,opacity,margin,flex] p-3xs transition-height relative flex w-[92px] shrink-0 flex-col              items-center justify-center md:border-2 md:w-[268px] md:flex-row                md:justify-center h-[86px] pb-3xs md:h-3xl rounded-lg"
 
                   data-tabindex="1" style="font-size: 2 rem;">
-                  <!-- Adjust this value for size --> ---
-                  (-------------------------------اضغط هنا اذا كنت مستخدم جديد
-                  )------------------عروض اليوم---------------------------- </button>
-              </a> </div>
+                  <!-- Adjust this value for size -->
+                  -------------------------------------------
+                  (--اضغط هنا اذا كنت مستخدم جديد )------------------عروض
+                  اليوم---------------------------- </button> </a> </div>
             <div><a href="https://eg-market.github.io/ai/index_B.html?category=%D8%A3%D8%AC%D9%87%D8%B2%D8%A9+%D8%AA%D9%84%D9%8A%D9%81%D8%B2%D9%8A%D9%88%D9%86+%D9%88%D8%A7%D9%84%D9%83%D8%AA%D8%B1%D9%88%D9%86%D9%8A%D8%A7%D8%AA">
                 <button class="focus-visible:ring-ring whitespace-nowrap font-bold focus-visible:outline-none focus-visible:ring-1 
                disabled:pointer-events-none disabled:opacity-[0.12] bg-primary text-white duration-300 ease-in-out transition-[height,opacity,margin,flex]               p-2xs transition-height relative flex w-[72px] shrink-0 flex-col items-center justify-center md:border-2 md:w-[168px] md:flex-row                md:justify-center h-[86px] pb-3xs md:h-3xl rounded-lg">
@@ -1379,5 +1378,381 @@ console.error(`Error occurred: ${message} at ${source}:${lineno}:${colno}`);
 return false; // Allow the default handling (e.g., displaying the error in the console)
 };
       </script>
+    <!-- نضيف هذا الكود قبل إغلاق </body> -->
+    <!-- Modal للمستخدم -->
+    <div id="user-modal" class="modal" style="display:none;">
+      <div class="modal-content"> <span class="close-btn">×</span>
+        <div class="modal-header"> <button id="tab-login" class="tab-button active">تسجيل
+            الدخول</button> <button id="tab-signup" class="tab-button">إنشاء
+            حساب</button> </div>
+        <div id="login-form" class="tab-content active">
+          <h2>تسجيل الدخول</h2>
+          <form id="login"> <input id="login-email" placeholder="البريد الإلكتروني"
+
+              required="" type="email"> <input id="login-password" placeholder="كلمة المرور"
+
+              required="" type="password"> <button type="submit">دخول</button>
+          </form>
+          <div id="login-message"></div>
+        </div>
+        <div id="signup-form" class="tab-content">
+          <h2>إنشاء حساب جديد</h2>
+          <form id="signup"> <input id="signup-email" placeholder="البريد الإلكتروني"
+
+              required="" type="email"> <input id="signup-password" placeholder="كلمة المرور"
+
+              required="" type="password"> <input id="signup-whatsapp" placeholder="رقم واتساب (اختياري)"
+
+              type="tel"> <button type="submit">إنشاء حساب</button> </form>
+          <div id="signup-message"></div>
+        </div>
+      </div>
+    </div>
+    <!-- رسالة ترحيب بعد تسجيل الدخول (مخفية افتراضياً) -->
+    <div id="user-greeting" style="display:none;"></div>
+    <!-- ==================== نظام تسجيل الدخول وإدارة المستخدمين ==================== -->
+    <style>
+  /* زر تسجيل الدخول */
+  /* زر تسجيل الدخول باللون الأحمر */
+  .login-btn {
+  background-color: #dc2626;  /* أحمر */
+  color: white;
+  border: none;
+  border-radius: 30px;
+  padding: 8px 20px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.3s;
+  margin-right: 15px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+      color: #333333; /* أبيض */
+}
+  .login-btn:hover {
+  background-color: #b91c1c;  /* أحمر داكن عند المرور */
+}
+
+/* إذا أردت تغيير لون رسالة الترحيب أيضاً */
+  .user-greeting {
+  background-color: #dc2626;
+  color: white;
+  border-radius: 30px;
+  padding: 8px 20px;
+  font-size: 16px;
+  font-weight: bold;
+  margin-right: 15px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+      color: #333333; /* أبيض */
+}
+  .user-greeting:hover {
+  background-color: #b91c1c;
+}
+  .user-greeting span {
+    margin: 0;
+  }
+  
+  /* Modal */
+  .modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.5);
+    direction: rtl;
+  }
+  .modal-content {
+    background-color: #fff;
+    margin: 10% auto;
+    padding: 20px;
+    border-radius: 8px;
+    width: 90%;
+    max-width: 400px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+  }
+  .close-btn {
+    color: #aaa;
+    float: left;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+  }
+  .close-btn:hover {
+    color: black;
+  }
+  .modal-header {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
+  }
+  .tab-button {
+    background: none;
+    border: none;
+    padding: 10px 20px;
+    cursor: pointer;
+    font-size: 16px;
+    border-bottom: 2px solid transparent;
+  }
+  .tab-button.active {
+    border-bottom-color: #0b5fa5;
+    color: #0b5fa5;
+    font-weight: bold;
+  }
+  .tab-content {
+    display: none;
+  }
+  .tab-content.active {
+    display: block;
+  }
+  #login-form input, #signup-form input {
+    width: 100%;
+    padding: 10px;
+    margin: 8px 0;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+  }
+  #login-form button, #signup-form button {
+    width: 100%;
+    padding: 12px;
+    background-color: #0b5fa5;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+  }
+  #login-form button:hover, #signup-form button:hover {
+    background-color: #083e73;
+  }
+  #login-message, #signup-message {
+    margin-top: 10px;
+    color: red;
+    text-align: center;
+  }
+</style>
+    <div id="user-modal" class="modal">
+      <div class="modal-content"> <span class="close-btn">×</span>
+        <div class="modal-header"> <button id="tab-login" class="tab-button active">تسجيل
+            الدخول</button> <button id="tab-signup" class="tab-button">إنشاء
+            حساب</button> </div>
+        <div id="login-form" class="tab-content active">
+          <h2>تسجيل الدخول</h2>
+          <form id="login"> <input id="login-email" placeholder="البريد الإلكتروني"
+
+              required="" type="email"> <input id="login-password" placeholder="كلمة المرور"
+
+              required="" type="password"> <button type="submit">دخول</button>
+          </form>
+          <div id="login-message"></div>
+        </div>
+        <div id="signup-form" class="tab-content">
+          <h2>إنشاء حساب جديد</h2>
+          <form id="signup"> <input id="signup-email" placeholder="البريد الإلكتروني"
+
+              required="" type="email"> <input id="signup-password" placeholder="كلمة المرور"
+
+              required="" type="password"> <input id="signup-whatsapp" placeholder="رقم واتساب (اختياري)"
+
+              type="tel"> <button type="submit">إنشاء حساب</button> </form>
+          <div id="signup-message"></div>
+        </div>
+      </div>
+    </div>
+    <script>
+(function() {
+  // مفاتيح localStorage
+  const USERS_KEY = 'eg_market_users';
+  const CURRENT_USER_KEY = 'eg_market_current_user';
+
+  // العناصر
+  let modal;
+  let loginBtnContainer;
+  let loginBtn;
+  let userGreeting;
+
+  // إضافة زر تسجيل الدخول في المكان المناسب
+  function addLoginButton() {
+    // ابحث عن شريط البحث (نريد إضافة الزر بجانبه)
+    const searchDiv = document.querySelector('.z-20.duration-300.ease-in-out.md\\:mr-xl.md\\:grow-3.relative');
+    if (!searchDiv) return;
+
+    // إنشاء عنصر الحاوية للزر
+    const buttonContainer = document.createElement('div');
+    buttonContainer.className = 'duration-300 ease-in-out hidden md:flex gap-lg items-center md:mr-lg md:flex-1';
+    buttonContainer.style.margin = '0 15px';
+    
+    // الزر
+    const btn = document.createElement('button');
+    btn.className = 'login-btn';
+    btn.innerHTML = '<img src="https://eg-market.github.io/ai/user.png" alt="User" style="width:20px; height:20px;"> تسجيل الدخول / حساب جديد';
+    btn.addEventListener('click', openModal);
+    buttonContainer.appendChild(btn);
+    
+    // إضافة بعد شريط البحث
+    const parent = searchDiv.parentNode;
+    parent.appendChild(buttonContainer);
+    
+    loginBtn = btn;
+    loginBtnContainer = buttonContainer;
+  }
+
+  // عرض الرسالة الترحيبية بعد تسجيل الدخول
+  function showUserGreeting(userName) {
+    if (!loginBtnContainer) return;
+    loginBtnContainer.innerHTML = `
+      <div class="user-greeting">
+        <img src="https://eg-market.github.io/ai/user.png" alt="User" style="width:20px; height:20px;">
+        <span>مرحباً، ${userName}</span>
+      </div>
+    `;
+    // يمكن إضافة زر تسجيل الخروج لاحقاً
+  }
+
+  function openModal() {
+    modal.style.display = 'block';
+    // إعادة تعيين الرسائل
+    document.getElementById('login-message').textContent = '';
+    document.getElementById('signup-message').textContent = '';
+  }
+
+  function closeModal() {
+    modal.style.display = 'none';
+  }
+
+  function switchTab(tab) {
+    const tabs = ['login', 'signup'];
+    tabs.forEach(t => {
+      const btn = document.getElementById(`tab-${t}`);
+      const form = document.getElementById(`${t}-form`);
+      if (t === tab) {
+        btn.classList.add('active');
+        form.classList.add('active');
+      } else {
+        btn.classList.remove('active');
+        form.classList.remove('active');
+      }
+    });
+  }
+
+  function getUsers() {
+    const users = localStorage.getItem(USERS_KEY);
+    return users ? JSON.parse(users) : {};
+  }
+
+  function saveUsers(users) {
+    localStorage.setItem(USERS_KEY, JSON.stringify(users));
+  }
+
+  function handleLogin(e) {
+    e.preventDefault();
+    const email = document.getElementById('login-email').value.trim();
+    const password = document.getElementById('login-password').value.trim();
+    const msg = document.getElementById('login-message');
+
+    if (!email || !password) {
+      msg.textContent = 'يرجى إدخال البريد الإلكتروني وكلمة المرور.';
+      return;
+    }
+
+    const users = getUsers();
+    const user = users[email];
+    if (!user || user.password !== password) {
+      msg.textContent = 'البريد الإلكتروني أو كلمة المرور غير صحيحة.';
+      return;
+    }
+
+    // تسجيل الدخول ناجح
+    localStorage.setItem(CURRENT_USER_KEY, JSON.stringify({ email, name: email.split('@')[0] }));
+    msg.style.color = 'green';
+    msg.textContent = 'تم تسجيل الدخول بنجاح!';
+    setTimeout(() => {
+      closeModal();
+      updateUIAfterLogin(email);
+    }, 1000);
+  }
+
+  function handleSignup(e) {
+    e.preventDefault();
+    const email = document.getElementById('signup-email').value.trim();
+    const password = document.getElementById('signup-password').value.trim();
+    const whatsapp = document.getElementById('signup-whatsapp').value.trim();
+    const msg = document.getElementById('signup-message');
+
+    if (!email || !password) {
+      msg.textContent = 'البريد الإلكتروني وكلمة المرور مطلوبان.';
+      return;
+    }
+
+    const users = getUsers();
+    if (users[email]) {
+      msg.textContent = 'هذا البريد الإلكتروني مسجل بالفعل.';
+      return;
+    }
+
+    // حفظ المستخدم الجديد
+    users[email] = { email, password, whatsapp, createdAt: new Date().toISOString() };
+    saveUsers(users);
+
+    // تسجيل الدخول مباشرة بعد التسجيل
+    localStorage.setItem(CURRENT_USER_KEY, JSON.stringify({ email, name: email.split('@')[0] }));
+    msg.style.color = 'green';
+    msg.textContent = 'تم إنشاء الحساب بنجاح! جاري تسجيل الدخول...';
+    setTimeout(() => {
+      closeModal();
+      updateUIAfterLogin(email);
+    }, 1000);
+  }
+
+  function checkLoggedInUser() {
+    const userData = localStorage.getItem(CURRENT_USER_KEY);
+    if (userData) {
+      const user = JSON.parse(userData);
+      updateUIAfterLogin(user.email);
+    }
+  }
+
+  function updateUIAfterLogin(email) {
+    const userName = email.split('@')[0];
+    showUserGreeting(userName);
+  }
+
+  // تهيئة النظام
+  function init() {
+    modal = document.getElementById('user-modal');
+    if (!modal) return;
+
+    // إضافة الزر
+    addLoginButton();
+
+    // إضافة مستمعات الأحداث
+    document.querySelector('.close-btn').addEventListener('click', closeModal);
+    window.addEventListener('click', (e) => {
+      if (e.target === modal) closeModal();
+    });
+
+    document.getElementById('tab-login').addEventListener('click', () => switchTab('login'));
+    document.getElementById('tab-signup').addEventListener('click', () => switchTab('signup'));
+
+    document.getElementById('login').addEventListener('submit', handleLogin);
+    document.getElementById('signup').addEventListener('submit', handleSignup);
+
+    checkLoggedInUser();
+  }
+
+  // الانتظار حتى تحميل الصفحة
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
+})();
+</script>
   </body>
 </html>
