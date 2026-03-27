@@ -194,48 +194,96 @@
 
     /* ========== MOBILE ONLY LAYOUT RESTRUCTURING (without breaking JS) ========== */
 @media (max-width: 768px) {
- #supermarket-filter {
-    order: 10; /* يخرج من الصف الأول */
-   /*     min-width: 140px;*/
-  }
-#supermarket-filter {
-    flex: 0 0 140px;
-  }
-  
 
-   .controls .row:nth-child(2) { 
+  /* =========================
+     1) إصلاح ما تم كسره
+  ========================= */
+
+  .hero-banner,
+  .user-guide-banner {
+    display: none !important;
+  }
+
+  .stats-dashboard {
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    overflow-x: auto !important;
+    gap: 12px;
+    padding-bottom: 4px;
+  }
+
+  .stats-dashboard .stat-card {
+    flex: 0 0 auto;
+    min-width: 130px;
+  }
+
+  .filter-row {
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    overflow-x: auto !important;
+    gap: 8px;
+    padding-bottom: 4px;
+  }
+
+  .filter-chips {
+    flex-wrap: nowrap !important;
+  }
+
+  .filter-chips .chip {
+    flex: 0 0 auto;
+    white-space: nowrap;
+  }
+
+  /* =========================
+     2) الصف الأول (كما هو)
+  ========================= */
+
+  .controls .row:first-child {
     display: flex;
     flex-wrap: nowrap;
     overflow-x: auto;
     gap: 8px;
   }
-/*  .controls .row:first-child > * {
+
+  .controls .row:first-child > * {
     flex: 0 0 auto;
-  }*/
-  
-  
-   .price-controls:first-of-type {
-    order: 2;
+  }
+
+  /* إخراج السوبرماركت من الصف الأول */
+  #supermarket-filter {
+    order: 10;
+  }
+
+  /* =========================
+     3) الصف الثاني
+     (السوبرماركت + السعر من + السعر إلى)
+  ========================= */
+
+  .controls .row:last-child {
     display: flex;
-    align-items: center;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    gap: 8px;
+  }
+
+  .controls .row:last-child > * {
+    flex: 0 0 auto;
+  }
+
+  #supermarket-filter {
+    order: 1;
+    min-width: 140px;
+  }
+
+  .price-controls:first-of-type {
+    order: 2;
   }
 
   .price-controls:last-of-type {
     order: 3;
-    display: flex;
-    align-items: center;
   }
 
-  
-  
-  /* تكبير input وتقليل أزرار + - */
-.price-controls {
-    flex: 0 0 auto;
-    display: flex;
-    align-items: center;
-  }
-
-  /* تكبير حقول السعر */
+  /* تكبير السعر */
   .price-controls input {
     width: 110px;
     font-size: 13px;
@@ -248,56 +296,62 @@
     font-size: 14px;
   }
 
+  /* =========================
+     4) الصف الثالث
+     (أفضل العروض + الحد الأدنى للخصم)
+  ========================= */
 
-  /* جعل الصف Scroll أفقي */
-  .controls .row:last-child {
-    display: flex;
-    flex-wrap: nowrap;
-    overflow-x: auto;
-    gap: 8px;
-  }
-
-  .controls .row:last-child > * {
-    flex: 0 0 auto;
-  }
-
-  /* الصف الثالث: (أفضل العروض + الحد الأدنى للخصم) */
   #sort-by {
-    order: 20;
+    order: 4;
     min-width: 160px;
   }
 
   #min-discount {
-    order: 21;
+    order: 5;
     min-width: 140px;
   }
 
+  /* =========================
+     5) الصف الرابع (الأزرار فقط)
+  ========================= */
 
-  /* الصف الرابع: الأزرار */
   #reset-btn {
     order: 6;
+    min-width: 120px;
   }
 
   #force-refresh-btn {
     order: 7;
+    min-width: 120px;
   }
 
   #share-app {
     order: 8;
+    min-width: 120px;
   }
 
   #compare-mode-btn {
     order: 9;
-  }
-
-  /* تجميع الأزرار في سطر Scroll */
- #reset-btn,
-  #force-refresh-btn,
-  #share-app,
-  #compare-mode-btn {
-    order: 30;
     min-width: 120px;
   }
+
+  /* =========================
+     تحسين السكرول (اختياري)
+  ========================= */
+
+  .controls .row::-webkit-scrollbar,
+  .filter-row::-webkit-scrollbar,
+  .stats-dashboard::-webkit-scrollbar {
+    height: 4px;
+  }
+
+  .controls .row::-webkit-scrollbar-thumb,
+  .filter-row::-webkit-scrollbar-thumb,
+  .stats-dashboard::-webkit-scrollbar-thumb {
+    background: #ccc;
+    border-radius: 4px;
+  }
+
 }
 
     @media (min-width: 769px) {
