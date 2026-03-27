@@ -235,54 +235,48 @@
       .filter-chips .chip { flex: 0 0 auto; white-space: nowrap; }
       .view-toggle { flex: 0 0 auto; }
 
-      /* إعادة بناء صفوف عناصر التحكم */
+      /* إعادة بناء عناصر التحكم باستخدام Grid */
       .controls {
         padding: 16px;
       }
-      .controls .row {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 8px;
-        margin-bottom: 0;
-      }
-      /* الصف الأول: البحث + الفئة + العلامة التجارية */
+      /* الصف الأول: البحث + الفئة + العلامة التجارية (تظل في مكانها مع تمرير) */
       .controls .row:first-child {
         display: flex;
         flex-wrap: nowrap;
         overflow-x: auto;
-        margin-bottom: 12px;
         gap: 8px;
+        margin-bottom: 12px;
       }
-      /* إخفاء فلتر السوبرماركت من الصف الأول (سينتقل للصف الثاني) */
+      /* إخفاء فلتر السوبرماركت من الصف الأول */
       .controls .row:first-child select#supermarket-filter {
         display: none;
       }
-      /* الصف الثاني (المحتوى الأصلي للصف الثاني) نقسمه إلى أربعة أقسام باستخدام grid */
+      /* الصف الثاني (المحتوى الأصلي) نقوم بتحويله إلى Grid مقسم إلى 4 صفوف */
       .controls .row:last-child {
         display: grid;
         grid-template-rows: auto auto auto auto;
         gap: 12px;
+        margin-bottom: 0;
       }
-      /* 1. فلتر السوبرماركت */
+      /* الصف 1: السوبرماركت + حقل السعر من + حقل السعر إلى (معًا في سطر واحد) */
       .controls .row:last-child select#supermarket-filter {
         grid-row: 1;
         width: 100%;
+        margin: 0;
       }
-      /* 2. حقل السعر من + السعر إلى (معًا في سطر واحد قابل للتمرير) */
       .controls .row:last-child .price-controls {
-        grid-row: 2;
+        grid-row: 1;
         display: flex;
-        flex-wrap: nowrap;
-        overflow-x: auto;
         gap: 12px;
+        overflow-x: auto;
         width: 100%;
         background: transparent;
         padding: 0;
       }
+      /* ضبط حجم حقول السعر وأزرار +/- */
       .controls .row:last-child .price-controls .price-controls {
         flex: 0 0 auto;
       }
-      /* تكبير حقول السعر وتصغير أزرار +/- */
       .controls .row:last-child .price-controls input {
         width: 130px;
         padding: 0 12px;
@@ -292,140 +286,64 @@
         height: 32px;
         font-size: 14px;
       }
-      /* 3. أفضل العروض + الحد الأدنى للخصم (معًا في سطر واحد قابل للتمرير) */
-      .controls .row:last-child select#sort-by,
-      .controls .row:last-child input#min-discount {
-        grid-row: 3;
-        display: inline-flex;
-        width: auto;
-        flex: 0 0 auto;
-      }
-      /* نجعلهما في سطر واحد عن طريق جعل الأب (الـ grid) يعاملهما كخانة واحدة ثم نستخدم flex */
-      .controls .row:last-child {
-        grid-template-columns: 1fr;
-      }
-      /* نضع select و input في حاوية مرنة */
+      /* الصف 2: أفضل العروض + الحد الأدنى للخصم */
       .controls .row:last-child select#sort-by {
-        width: 100%;
-        margin-bottom: 8px;
+        grid-row: 2;
+        width: calc(50% - 6px);
+        margin: 0 3px 0 0;
       }
       .controls .row:last-child input#min-discount {
-        width: 100%;
+        grid-row: 2;
+        width: calc(50% - 6px);
+        margin: 0 0 0 3px;
       }
-      /* لنجعلهما في صف واحد قابل للتمرير، نضعهما داخل div وهمي؟ لا يمكن. لذا سنضعهما في صف واحد عن طريق جعل الأب grid ونضع كل عنصر في عمود خاص به لصف واحد */
-      /* بدلاً من ذلك، نستخدم flex داخل الصف الثالث */
-      .controls .row:last-child {
-        display: flex;
-        flex-direction: column;
-        gap: 12px;
-      }
-      .controls .row:last-child select#supermarket-filter {
-        order: 1;
-      }
-      .controls .row:last-child .price-controls {
-        order: 2;
-        display: flex;
-        overflow-x: auto;
-        gap: 12px;
-      }
-      .controls .row:last-child select#sort-by,
-      .controls .row:last-child input#min-discount {
-        order: 3;
-        width: auto;
-        flex: 0 0 auto;
-      }
-      /* نجعل sort و min في سطر واحد عن طريق وضعهما في حاوية مرنة */
-      .sort-min-wrapper {
-        display: flex;
-        gap: 8px;
-        overflow-x: auto;
-        order: 3;
-      }
-      /* لكن لا يمكن إضافة عنصر HTML جديد. لذلك نستخدم الترتيب مباشرة ونضبط عرضهما على auto، مع جعل الأب يسمح بالتمرير */
-      .controls .row:last-child {
-        display: flex;
-        flex-wrap: wrap;
-        align-items: flex-start;
-      }
-      .controls .row:last-child select#supermarket-filter {
-        width: 100%;
-        margin-bottom: 8px;
-      }
-      .controls .row:last-child .price-controls {
-        width: 100%;
-        display: flex;
-        overflow-x: auto;
-        margin-bottom: 8px;
-      }
-      .controls .row:last-child select#sort-by,
-      .controls .row:last-child input#min-discount {
-        flex: 1 1 auto;
-        min-width: 120px;
-        margin-bottom: 8px;
-      }
-      /* نضبطهما ليظهروا في صف واحد */
-      .controls .row:last-child {
-        display: flex;
-        flex-wrap: wrap;
-      }
-      .controls .row:last-child select#sort-by {
-        order: 3;
-        width: calc(50% - 4px);
-        margin-left: 4px;
-      }
-      .controls .row:last-child input#min-discount {
-        order: 4;
-        width: calc(50% - 4px);
-        margin-right: 4px;
-      }
-      /* 4. الأزرار الأربعة */
+      /* الصف 3: الأزرار الأربعة */
       .controls .row:last-child button {
-        order: 5;
+        grid-row: 3;
         flex: 0 0 auto;
         margin: 0 2px;
         white-space: nowrap;
       }
-      /* نجعل الأزرار في صف واحد قابل للتمرير */
-      .controls .row:last-child {
-        display: flex;
-        flex-wrap: wrap;
-      }
-      .controls .row:last-child button {
-        flex: 0 0 auto;
-        margin-bottom: 0;
-      }
-      /* نضيف مسافة بين الأزرار */
-      .controls .row:last-child button:not(:last-child) {
-        margin-left: 8px;
-      }
-      /* نضمن أن كل مجموعة تظهر في صف منفصل */
+      /* نضع الأزرار في صف واحد مع تمرير */
       .controls .row:last-child {
         display: flex;
         flex-direction: column;
         gap: 12px;
       }
+      /* إعادة الترتيب يدويًا */
+      .controls .row:last-child {
+        display: flex;
+        flex-direction: column;
+      }
       .controls .row:last-child select#supermarket-filter {
-        width: 100%;
         order: 1;
+        width: 100%;
       }
       .controls .row:last-child .price-controls {
         order: 2;
-        width: 100%;
         display: flex;
         overflow-x: auto;
         gap: 12px;
+        width: 100%;
       }
-      .controls .row:last-child .price-controls .price-controls {
-        flex: 0 0 auto;
-      }
-      .controls .row:last-child select#sort-by,
-      .controls .row:last-child input#min-discount {
+      .controls .row:last-child select#sort-by {
         order: 3;
-        width: calc(50% - 6px);
-        display: inline-block;
-        margin: 0;
+        width: 100%;
+        margin-bottom: 0;
       }
-      /* نجعلهما في سطر واحد مع تمرير */
+      .controls .row:last-child input#min-discount {
+        order: 4;
+        width: 100%;
+        margin-top: 0;
+      }
+      .controls .row:last-child button {
+        order: 5;
+        flex: 0 0 auto;
+        display: inline-flex;
+        width: auto;
+        margin: 0 2px;
+      }
+      /* نضع sort و min discount في سطر واحد باستخدام flex container إضافي */
       .sort-min-group {
         display: flex;
         gap: 12px;
@@ -433,20 +351,12 @@
         order: 3;
         width: 100%;
       }
-      /* لا يمكننا إضافة div جديد، لذلك نستخدم خاصية display: flex على الأب ونضبط العناصر لتكون في سطر واحد */
+      /* لا يمكن إضافة عنصر HTML، لذا نستخدم CSS لعملية دمج */
       .controls .row:last-child {
         display: flex;
         flex-direction: column;
       }
-      .controls .row:last-child select#sort-by {
-        width: auto;
-        flex: 0 0 auto;
-      }
-      .controls .row:last-child input#min-discount {
-        width: auto;
-        flex: 0 0 auto;
-      }
-      /* نجعلهما في سطر واحد عن طريق جعل الأب يستخدم flex-wrap: wrap مع عرض 100% لكل منهما؟ لا. سنستخدم grid مع عمودين */
+      /* نجعل sort و min في نفس الصف باستخدام grid داخل العنصر الأب */
       .controls .row:last-child {
         display: grid;
         grid-template-columns: 1fr 1fr;
@@ -470,25 +380,34 @@
       .controls .row:last-child button {
         grid-column: span 1;
       }
-      /* الأزرار الأربعة في صف واحد باستخدام grid */
-      .controls .row:last-child button:nth-of-type(1) { grid-column: 1; }
-      .controls .row:last-child button:nth-of-type(2) { grid-column: 2; }
-      .controls .row:last-child button:nth-of-type(3) { grid-column: 3; }
-      .controls .row:last-child button:nth-of-type(4) { grid-column: 4; }
-      /* نحتاج 4 أعمدة للأزرار */
+      /* الأزرار الأربعة في صف واحد */
       .controls .row:last-child {
-        grid-template-columns: repeat(4, minmax(100px, auto));
+        grid-template-columns: repeat(4, minmax(85px, auto));
       }
-      /* ضبط عرض الأزرار */
       .controls .row:last-child button {
         width: auto;
         white-space: nowrap;
       }
-      /* إذا ضاقت الشاشة، نجعل الأزرار قابلة للتمرير */
+      /* عند ضيق الشاشة جدًا نجعل الأزرار قابلة للتمرير */
       @media (max-width: 480px) {
         .controls .row:last-child {
-          grid-template-columns: repeat(4, minmax(85px, auto));
           overflow-x: auto;
+          display: flex;
+          flex-wrap: nowrap;
+          gap: 8px;
+        }
+        .controls .row:last-child > * {
+          flex: 0 0 auto;
+        }
+        .controls .row:last-child select#supermarket-filter {
+          width: auto;
+        }
+        .controls .row:last-child .price-controls {
+          width: auto;
+        }
+        .controls .row:last-child select#sort-by,
+        .controls .row:last-child input#min-discount {
+          width: auto;
         }
       }
     }
@@ -580,7 +499,7 @@
   <div id="loading" style="text-align:center; padding:40px;">جارٍ تحميل البيانات...</div>
   <div id="data-table" style="display:block;">
       <table>
-      <thead>  <tr><th>السوبر ماركت</th><th>المنتج</th><th>الاسم الأساسي</th><th>الوحدة</th><th>الفئة</th><th>العلامة التجارية</th><th>السعر الحالي</th><th>الخصم</th><th>تاريخ التحديث</th><th>ساري حتى</th></tr> </thead>
+      <thead>   <tr><th>السوبر ماركت</th><th>المنتج</th><th>الاسم الأساسي</th><th>الوحدة</th><th>الفئة</th><th>العلامة التجارية</th><th>السعر الحالي</th><th>الخصم</th><th>تاريخ التحديث</th><th>ساري حتى</th></tr> </thead>
       <tbody id="table-body"></tbody>
       </table>
     <div class="pagination" id="pagination"></div>
