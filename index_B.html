@@ -206,12 +206,12 @@
     .pagination button { height:36px; min-width:36px; padding:0 8px; background:white; color:var(--primary-blue); border:1px solid #dee2e6; border-radius:6px; }
     .pagination button.active { background:var(--primary-blue); color:white; border-color:var(--primary-blue); }
 
-    /* ========== MOBILE ONLY LAYOUT RESTRUCTURING (without breaking JS) ========== */
+    /* ========== MOBILE ONLY: إعادة ترتيب الفلاتر في 4 صفوف قابلة للتمرير ========== */
     @media (max-width: 768px) {
-      /* Hide large banners */
+      /* إخفاء البانر الكبير والإرشادي */
       .hero-banner, .user-guide-banner { display: none !important; }
 
-      /* Stats dashboard: horizontal scroll */
+      /* إحصائيات قابلة للتمرير أفقيًا */
       .stats-dashboard {
         display: flex !important;
         flex-wrap: nowrap !important;
@@ -223,7 +223,7 @@
       }
       .stats-dashboard .stat-card { flex: 0 0 auto; min-width: 130px; }
 
-      /* Filter chips + view toggle: horizontal scroll */
+      /* أزرار الفلاتر (العروض السارية، ساخنة، ...) قابلة للتمرير */
       .filter-row {
         flex-wrap: nowrap !important;
         overflow-x: auto !important;
@@ -235,90 +235,276 @@
       .filter-chips .chip { flex: 0 0 auto; white-space: nowrap; }
       .view-toggle { flex: 0 0 auto; }
 
-      /* Transform the two control rows into four scrollable rows using order and flex */
+      /* إعادة بناء صفوف عناصر التحكم */
+      .controls {
+        padding: 16px;
+      }
       .controls .row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-bottom: 0;
+      }
+      /* الصف الأول: البحث + الفئة + العلامة التجارية */
+      .controls .row:first-child {
         display: flex;
         flex-wrap: nowrap;
         overflow-x: auto;
-        -webkit-overflow-scrolling: touch;
-        gap: 8px;
         margin-bottom: 12px;
-        padding-bottom: 4px;
+        gap: 8px;
       }
-      /* Force children to stay inline */
-      .controls .row > * {
+      /* إخفاء فلتر السوبرماركت من الصف الأول (سينتقل للصف الثاني) */
+      .controls .row:first-child select#supermarket-filter {
+        display: none;
+      }
+      /* الصف الثاني (المحتوى الأصلي للصف الثاني) نقسمه إلى أربعة أقسام باستخدام grid */
+      .controls .row:last-child {
+        display: grid;
+        grid-template-rows: auto auto auto auto;
+        gap: 12px;
+      }
+      /* 1. فلتر السوبرماركت */
+      .controls .row:last-child select#supermarket-filter {
+        grid-row: 1;
+        width: 100%;
+      }
+      /* 2. حقل السعر من + السعر إلى (معًا في سطر واحد قابل للتمرير) */
+      .controls .row:last-child .price-controls {
+        grid-row: 2;
+        display: flex;
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        gap: 12px;
+        width: 100%;
+        background: transparent;
+        padding: 0;
+      }
+      .controls .row:last-child .price-controls .price-controls {
         flex: 0 0 auto;
       }
-      /* Reorder elements between the two rows to achieve 4 groups */
-      /* First row: search, category, brand */
-      .controls .row:first-child {
-        order: 1;
+      /* تكبير حقول السعر وتصغير أزرار +/- */
+      .controls .row:last-child .price-controls input {
+        width: 130px;
+        padding: 0 12px;
       }
-      /* Second row: split into three groups by reordering its children */
-      .controls .row:last-child {
-        order: 2;
-        display: flex;
-        flex-wrap: wrap; /* we will create separate rows with flex order */
+      .controls .row:last-child .price-controls button {
+        width: 32px;
+        height: 32px;
+        font-size: 14px;
       }
-      /* Hide original row structure and rebuild with order inside a single container */
-      /* We'll use a more robust approach: rearrange the DOM via CSS by making the controls container a flex column with multiple children */
-      /* Simpler: keep the original two rows but let them wrap, and we force each group to its own row using width and order? 
-         Better: We'll let the second row wrap naturally but ensure each group appears on its own line by giving them flex-basis: 100% on mobile. */
-      .controls .row:last-child {
-        flex-wrap: wrap;
-      }
-      /* Make each logical group occupy full width */
-      .controls .row:last-child .price-controls:first-of-type,
-      .controls .row:last-child .price-controls:last-of-type,
+      /* 3. أفضل العروض + الحد الأدنى للخصم (معًا في سطر واحد قابل للتمرير) */
       .controls .row:last-child select#sort-by,
-      .controls .row:last-child input#min-discount,
-      .controls .row:last-child button {
-        flex: 1 1 auto;
-        min-width: auto;
+      .controls .row:last-child input#min-discount {
+        grid-row: 3;
+        display: inline-flex;
+        width: auto;
+        flex: 0 0 auto;
       }
-      /* Force new line for the buttons group */
-      .controls .row:last-child button:first-of-type {
-        margin-top: 8px;
+      /* نجعلهما في سطر واحد عن طريق جعل الأب (الـ grid) يعاملهما كخانة واحدة ثم نستخدم flex */
+      .controls .row:last-child {
+        grid-template-columns: 1fr;
       }
-      /* Actually, simpler: use a container for each group and hide original? No, we must keep original elements. */
-      /* Instead, use CSS to reorder by setting order on children and making them full width on mobile. */
+      /* نضع select و input في حاوية مرنة */
+      .controls .row:last-child select#sort-by {
+        width: 100%;
+        margin-bottom: 8px;
+      }
+      .controls .row:last-child input#min-discount {
+        width: 100%;
+      }
+      /* لنجعلهما في صف واحد قابل للتمرير، نضعهما داخل div وهمي؟ لا يمكن. لذا سنضعهما في صف واحد عن طريق جعل الأب grid ونضع كل عنصر في عمود خاص به لصف واحد */
+      /* بدلاً من ذلك، نستخدم flex داخل الصف الثالث */
       .controls .row:last-child {
         display: flex;
         flex-direction: column;
         gap: 12px;
       }
-      .controls .row:last-child > * {
+      .controls .row:last-child select#supermarket-filter {
+        order: 1;
+      }
+      .controls .row:last-child .price-controls {
+        order: 2;
+        display: flex;
+        overflow-x: auto;
+        gap: 12px;
+      }
+      .controls .row:last-child select#sort-by,
+      .controls .row:last-child input#min-discount {
+        order: 3;
+        width: auto;
+        flex: 0 0 auto;
+      }
+      /* نجعل sort و min في سطر واحد عن طريق وضعهما في حاوية مرنة */
+      .sort-min-wrapper {
+        display: flex;
+        gap: 8px;
+        overflow-x: auto;
+        order: 3;
+      }
+      /* لكن لا يمكن إضافة عنصر HTML جديد. لذلك نستخدم الترتيب مباشرة ونضبط عرضهما على auto، مع جعل الأب يسمح بالتمرير */
+      .controls .row:last-child {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: flex-start;
+      }
+      .controls .row:last-child select#supermarket-filter {
+        width: 100%;
+        margin-bottom: 8px;
+      }
+      .controls .row:last-child .price-controls {
+        width: 100%;
+        display: flex;
+        overflow-x: auto;
+        margin-bottom: 8px;
+      }
+      .controls .row:last-child select#sort-by,
+      .controls .row:last-child input#min-discount {
+        flex: 1 1 auto;
+        min-width: 120px;
+        margin-bottom: 8px;
+      }
+      /* نضبطهما ليظهروا في صف واحد */
+      .controls .row:last-child {
+        display: flex;
+        flex-wrap: wrap;
+      }
+      .controls .row:last-child select#sort-by {
+        order: 3;
+        width: calc(50% - 4px);
+        margin-left: 4px;
+      }
+      .controls .row:last-child input#min-discount {
+        order: 4;
+        width: calc(50% - 4px);
+        margin-right: 4px;
+      }
+      /* 4. الأزرار الأربعة */
+      .controls .row:last-child button {
+        order: 5;
+        flex: 0 0 auto;
+        margin: 0 2px;
+        white-space: nowrap;
+      }
+      /* نجعل الأزرار في صف واحد قابل للتمرير */
+      .controls .row:last-child {
+        display: flex;
+        flex-wrap: wrap;
+      }
+      .controls .row:last-child button {
+        flex: 0 0 auto;
+        margin-bottom: 0;
+      }
+      /* نضيف مسافة بين الأزرار */
+      .controls .row:last-child button:not(:last-child) {
+        margin-left: 8px;
+      }
+      /* نضمن أن كل مجموعة تظهر في صف منفصل */
+      .controls .row:last-child {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+      .controls .row:last-child select#supermarket-filter {
+        width: 100%;
+        order: 1;
+      }
+      .controls .row:last-child .price-controls {
+        order: 2;
+        width: 100%;
+        display: flex;
+        overflow-x: auto;
+        gap: 12px;
+      }
+      .controls .row:last-child .price-controls .price-controls {
+        flex: 0 0 auto;
+      }
+      .controls .row:last-child select#sort-by,
+      .controls .row:last-child input#min-discount {
+        order: 3;
+        width: calc(50% - 6px);
+        display: inline-block;
+        margin: 0;
+      }
+      /* نجعلهما في سطر واحد مع تمرير */
+      .sort-min-group {
+        display: flex;
+        gap: 12px;
+        overflow-x: auto;
+        order: 3;
         width: 100%;
       }
-      /* But we need them in specific rows: group1 = price controls (two), group2 = sort+minDiscount, group3 = buttons */
-      /* We'll wrap the price controls in a div? No, we must not change HTML. So we use order and make each element a block row. */
+      /* لا يمكننا إضافة div جديد، لذلك نستخدم خاصية display: flex على الأب ونضبط العناصر لتكون في سطر واحد */
       .controls .row:last-child {
         display: flex;
         flex-direction: column;
       }
-      .controls .row:last-child > * {
-        width: 100%;
-        margin-bottom: 8px;
+      .controls .row:last-child select#sort-by {
+        width: auto;
+        flex: 0 0 auto;
       }
-      .controls .row:last-child > :last-child {
-        margin-bottom: 0;
+      .controls .row:last-child input#min-discount {
+        width: auto;
+        flex: 0 0 auto;
       }
-      /* Now the two price controls will appear one after another, then sort+minDiscount, then buttons. That's acceptable. */
-      /* To make price controls side by side, we can wrap them with a div in HTML? But we cannot change HTML. */
-      /* We'll use CSS Grid to place them inline if possible. But simplest: they'll be stacked. That's okay for mobile. */
+      /* نجعلهما في سطر واحد عن طريق جعل الأب يستخدم flex-wrap: wrap مع عرض 100% لكل منهما؟ لا. سنستخدم grid مع عمودين */
+      .controls .row:last-child {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+      }
+      .controls .row:last-child select#supermarket-filter {
+        grid-column: 1 / -1;
+      }
+      .controls .row:last-child .price-controls {
+        grid-column: 1 / -1;
+        display: flex;
+        overflow-x: auto;
+        gap: 12px;
+      }
+      .controls .row:last-child select#sort-by {
+        grid-column: 1;
+      }
+      .controls .row:last-child input#min-discount {
+        grid-column: 2;
+      }
+      .controls .row:last-child button {
+        grid-column: span 1;
+      }
+      /* الأزرار الأربعة في صف واحد باستخدام grid */
+      .controls .row:last-child button:nth-of-type(1) { grid-column: 1; }
+      .controls .row:last-child button:nth-of-type(2) { grid-column: 2; }
+      .controls .row:last-child button:nth-of-type(3) { grid-column: 3; }
+      .controls .row:last-child button:nth-of-type(4) { grid-column: 4; }
+      /* نحتاج 4 أعمدة للأزرار */
+      .controls .row:last-child {
+        grid-template-columns: repeat(4, minmax(100px, auto));
+      }
+      /* ضبط عرض الأزرار */
+      .controls .row:last-child button {
+        width: auto;
+        white-space: nowrap;
+      }
+      /* إذا ضاقت الشاشة، نجعل الأزرار قابلة للتمرير */
+      @media (max-width: 480px) {
+        .controls .row:last-child {
+          grid-template-columns: repeat(4, minmax(85px, auto));
+          overflow-x: auto;
+        }
+      }
     }
 
     @media (min-width: 769px) {
-      /* Ensure desktop rows behave normally */
+      /* سطح المكتب: يعود للشكل الأصلي */
       .controls .row {
         flex-wrap: wrap;
       }
       .controls .row:last-child {
-        flex-direction: row;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
       }
       .controls .row:last-child > * {
-        width: auto;
-        margin-bottom: 0;
+        flex: 1 0 auto;
       }
     }
   </style>
@@ -393,10 +579,10 @@
 
   <div id="loading" style="text-align:center; padding:40px;">جارٍ تحميل البيانات...</div>
   <div id="data-table" style="display:block;">
-     <table>
-      <thead> <tr><th>السوبر ماركت</th><th>المنتج</th><th>الاسم الأساسي</th><th>الوحدة</th><th>الفئة</th><th>العلامة التجارية</th><th>السعر الحالي</th><th>الخصم</th><th>تاريخ التحديث</th><th>ساري حتى</th></tr> </thead>
+      <table>
+      <thead>  <tr><th>السوبر ماركت</th><th>المنتج</th><th>الاسم الأساسي</th><th>الوحدة</th><th>الفئة</th><th>العلامة التجارية</th><th>السعر الحالي</th><th>الخصم</th><th>تاريخ التحديث</th><th>ساري حتى</th></tr> </thead>
       <tbody id="table-body"></tbody>
-     </table>
+      </table>
     <div class="pagination" id="pagination"></div>
   </div>
 </div>
