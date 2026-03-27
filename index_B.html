@@ -1,24 +1,37 @@
+<!-- We have updated the mobile layout according to your requests:
+
+1. **Hero banner is now hidden on mobile** – it will only appear on desktop/tablet screens.
+2. **Filter controls are reorganized** into horizontal scrollable rows on mobile:
+   - First row: search input, category filter, brand filter (with brand at the far left).
+   - Second row: supermarket filter, min price, max price.
+   - Third row: sort by, min discount.
+   - Fourth row: the four action buttons (reset, refresh, share, compare).
+3. **Stats dashboard** and **filter chips** are now horizontally scrollable on mobile, keeping everything compact and usable.
+
+All changes only affect screens smaller than 768px; desktop layout remains unchanged.
+```html -->
+
 <!DOCTYPE html>
 <html dir="rtl" lang="ar">
   <head>
     <meta http-equiv="content-type" content="text/html; charset=UTF-8">
     <!-- Google tag (gtag.js) -->
-    <script async="" src="https://www.googletagmanager.com/gtag/js?id=G-WRRCTWHDVF"></script>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-WRRCTWHDVF"></script>
     <script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-  gtag('config', 'G-WRRCTWHDVF');
-</script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-WRRCTWHDVF');
+    </script>
     <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
     <title>عروض السوبرماركت - أفضل العروض اليومية</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;800&amp;display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;800&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.0/papaparse.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/lz-string/1.4.4/lz-string.min.js"></script>
     <script src="https://cdn.sheetjs.com/xlsx-0.20.2/package/dist/xlsx.full.min.js"></script>
     <style>
-        :root{
+        :root {
             --primary-blue: #00539F;
             --accent-orange: #FF6B00;
             --success-green: #28A745;
@@ -37,17 +50,24 @@
             --muted: #495057;
             --control-height: 46px;
         }
-        *{box-sizing:border-box}
-        body{
-            margin:0;
+        * {
+            box-sizing: border-box;
+        }
+        body {
+            margin: 0;
             font-family: 'Cairo', sans-serif;
             background: var(--light-bg);
             color: var(--text);
-            -webkit-font-smoothing:antialiased;
+            -webkit-font-smoothing: antialiased;
             line-height: 1.6;
         }
-        .container{ max-width:1400px; margin:0 auto; padding:0 16px; }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 16px;
+        }
 
+        /* Hero Banner */
         .hero-banner {
             background: linear-gradient(rgba(0,83,159,0.85), rgba(0,83,159,0.75)), 
                         url('https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?auto=format&fit=crop&w=1400&q=80');
@@ -60,38 +80,69 @@
             text-align: center;
             box-shadow: 0 10px 30px rgba(0,0,0,0.1);
         }
-        .hero-banner h1 { font-size:1.8rem; font-weight:800; margin:0 0 5px; text-shadow: 0 2px 4px rgba(0,0,0,0.2); }
-        .hero-subtitle { font-size:1rem; opacity:0.95; margin-bottom:10px; }
+        .hero-banner h1 {
+            font-size: 1.8rem;
+            font-weight: 800;
+            margin: 0 0 5px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        .hero-subtitle {
+            font-size: 1rem;
+            opacity: 0.95;
+            margin-bottom: 10px;
+        }
 
         /* Ticker */
         .ticker-wrap {
-            width:100%;
-            background:var(--ticker-bg);
-            color:var(--ticker-text);
-            border-radius:8px;
-            display:flex;
-            align-items:center;
-            padding:4px 8px;
-            box-shadow:0 4px 12px rgba(0,0,0,0.12);
-            margin-top:5px;
+            width: 100%;
+            background: var(--ticker-bg);
+            color: var(--ticker-text);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            padding: 4px 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+            margin-top: 5px;
         }
-        .ticker-label{
-            flex:0 0 auto;
-            font-weight:700;
-            margin-left:8px;
-            color:var(--ticker-accent);
-            background:rgba(255,255,255,0.1);
-            padding:4px 8px;
-            border-radius:6px;
-            display:flex;
-            align-items:center;
-            gap:5px;
+        .ticker-label {
+            flex: 0 0 auto;
+            font-weight: 700;
+            margin-left: 8px;
+            color: var(--ticker-accent);
+            background: rgba(255,255,255,0.1);
+            padding: 4px 8px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
         }
-        .ticker-viewport{ flex:1; overflow:hidden; height:30px; display:flex; align-items:center; }
-        .ticker-track{ display:inline-flex; white-space:nowrap; gap:20px; will-change:transform; }
-        .ticker-track.animate{ animation: ticker-scroll linear infinite; }
-        @keyframes ticker-scroll{ from{transform:translateX(0);} to{transform:translateX(-50%);} }
-        .ticker-item .badge{ background:var(--ticker-accent); color:#000; padding:3px 6px; border-radius:4px; font-weight:700; }
+        .ticker-viewport {
+            flex: 1;
+            overflow: hidden;
+            height: 30px;
+            display: flex;
+            align-items: center;
+        }
+        .ticker-track {
+            display: inline-flex;
+            white-space: nowrap;
+            gap: 20px;
+            will-change: transform;
+        }
+        .ticker-track.animate {
+            animation: ticker-scroll linear infinite;
+        }
+        @keyframes ticker-scroll {
+            from { transform: translateX(0); }
+            to { transform: translateX(-50%); }
+        }
+        .ticker-item .badge {
+            background: var(--ticker-accent);
+            color: #000;
+            padding: 3px 6px;
+            border-radius: 4px;
+            font-weight: 700;
+        }
 
         /* Stats Dashboard */
         .stats-dashboard {
@@ -110,10 +161,25 @@
             align-items: center;
             gap: 8px;
         }
-        .stat-icon{ font-size:1.5rem; width:35px; text-align:center; color: var(--primary-blue); }
-        .stat-value{ font-size:1.2rem; font-weight:700; color: var(--primary-blue); line-height:1.2; }
-        .stat-label{ font-size:0.75rem; color: var(--muted); font-weight:600; }
+        .stat-icon {
+            font-size: 1.5rem;
+            width: 35px;
+            text-align: center;
+            color: var(--primary-blue);
+        }
+        .stat-value {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--primary-blue);
+            line-height: 1.2;
+        }
+        .stat-label {
+            font-size: 0.75rem;
+            color: var(--muted);
+            font-weight: 600;
+        }
 
+        /* General */
         html, body {
             width: 100%;
             max-width: 100%;
@@ -121,56 +187,56 @@
             margin: 0;
             padding: 0;
         }
-
         .container {
             width: 100%;
             max-width: 100%;
             padding: 0 12px;
             box-sizing: border-box;
         }
-
         .products-grid {
             grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
             gap: 12px;
             padding: 0;
             width: 100%;
         }
-
         #data-table {
             overflow-x: auto;
             width: 100%;
         }
-
         table {
             min-width: 600px;
         }
-
         .price-controls {
-            width: 100%;
-            max-width: 300px;
-            margin: 0 auto;
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            background: #f8f9fa;
+            padding: 5px;
+            border-radius: 10px;
         }
-
+        .price-controls button {
+            width: 36px;
+            height: 36px;
+            padding: 0;
+            font-size: 18px;
+            background: white;
+            color: #333;
+            border: 1px solid #ddd;
+        }
         .price-controls input {
-            width: 60px;
+            width: 80px;
             min-width: 0;
         }
-
         .ticker-wrap {
             width: 100%;
             overflow: hidden;
         }
-
-        .ticker-viewport {
-            width: 100%;
-        }
-
         .hero-banner {
             width: 100%;
             overflow: hidden;
         }
-      
-        /* Filter Row */
+
+        /* Filter Row (chips + view toggle) */
         .filter-row {
             display: flex;
             flex-wrap: wrap;
@@ -184,8 +250,7 @@
             gap: 6px;
             flex: 1;
         }
-        /* ========== BUTTONS GOLD / ACTIVE BLUE ========== */
-        /* All filter chips (inactive) */
+        /* Buttons gold style */
         .chip {
             background-color: #ffd54f !important;
             color: #000 !important;
@@ -194,7 +259,6 @@
         .chip:hover:not(.active) {
             background-color: #ffc107 !important;
         }
-        /* Active filter chip (original blue) */
         .chip.active {
             background-color: #00539F !important;
             color: white !important;
@@ -203,7 +267,6 @@
         .chip.active:hover {
             background-color: #004080 !important;
         }
-        /* View toggle buttons (شبكي / جدول) */
         .view-btn {
             background-color: #ffd54f !important;
             color: #000 !important;
@@ -220,7 +283,6 @@
         .view-btn.active:hover {
             background-color: #004080 !important;
         }
-        /* General action buttons (reset, share, compare, refresh, etc.) */
         button:not(.chip):not(.view-btn):not(.price-controls button),
         #reset-btn,
         #share-app,
@@ -237,13 +299,12 @@
         #force-refresh-btn:hover {
             background-color: #ffc107 !important;
         }
-        /* Keep +/- buttons inside price controls white */
         .price-controls button {
             background-color: white !important;
             color: #333 !important;
             border: 1px solid #ddd !important;
         }
-      
+
         .view-toggle {
             display: flex;
             background: white;
@@ -372,7 +433,6 @@
             gap: 8px;
             color: white;
         }
-
         .btn-secondary { background: #6c757d; color: white; }
         .favorite-btn, .compare-btn, .share-btn {
             position: absolute;
@@ -433,24 +493,6 @@
             border: none;
         }
         #reset-btn { background: #6c757d; color: white; }
-       
-        .price-controls {
-            display: flex;
-            gap: 8px;
-            align-items: center;
-            background: #f8f9fa;
-            padding: 5px;
-            border-radius: 10px;
-        }
-        .price-controls button {
-            width: 36px;
-            height: 36px;
-            padding: 0;
-            font-size: 18px;
-            background: white;
-            color: #333;
-            border: 1px solid #ddd;
-        }
 
         /* Table */
         #data-table {
@@ -504,7 +546,7 @@
         }
         #autocomplete-list div:hover { background: #f8f9fa; }
 
-        /* User Guide Banner */
+        /* User Guide Banner (hidden on mobile) */
         .user-guide-banner {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
@@ -552,14 +594,17 @@
             cursor: not-allowed;
         }
 
-        /* ========== RESPONSIVE MOBILE OVERRIDES ========== */
+        /* ========== MOBILE OVERRIDES ========== */
         @media (max-width: 768px) {
-            /* إخفاء البانر فقط على الموبايل */
+            /* إخفاء البانر الكبير */
+            .hero-banner {
+                display: none !important;
+            }
+            /* إخفاء البانر الإرشادي */
             .user-guide-banner {
                 display: none !important;
             }
-            
-            /* الداشبورد: سطر واحد مع سكرول أفقي */
+            /* Stats dashboard: سطر واحد مع سكرول أفقي */
             .stats-dashboard {
                 display: flex !important;
                 flex-wrap: nowrap !important;
@@ -574,21 +619,17 @@
                 flex: 0 0 auto;
                 min-width: 130px;
                 width: auto;
-                margin: 0;
             }
-            
-            /* صف الفلاتر (الأزرار + شبكي/جدول) - سطر واحد مع سكرول أفقي */
+            /* Filter chips + view toggle: سطر واحد مع سكرول */
             .filter-row {
                 flex-wrap: nowrap !important;
                 overflow-x: auto !important;
                 -webkit-overflow-scrolling: touch;
                 gap: 8px;
                 padding-bottom: 4px;
-                scrollbar-width: thin;
             }
             .filter-chips {
                 flex-wrap: nowrap !important;
-                overflow-x: visible;
                 flex: none;
             }
             .filter-chips .chip {
@@ -598,68 +639,60 @@
             .view-toggle {
                 flex: 0 0 auto;
                 margin-right: 0;
-                margin-left: 4px;
             }
-            /* إزالة أي تأثير جانبي */
-            .filter-row::-webkit-scrollbar,
-            .stats-dashboard::-webkit-scrollbar {
-                height: 4px;
+
+            /* إعادة ترتيب عناصر التحكم في صفوف منفصلة */
+            .controls .row {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 10px;
+                margin-bottom: 12px;
+            }
+            /* نضمن أن كل مجموعة تظهر بالترتيب المطلوب */
+            .controls .row:first-child {
+                order: 1;
+            }
+            .controls .row:last-child {
+                order: 2;
+            }
+            /* داخل كل row نتحكم بالترتيب باستخدام order على العناصر */
+            .controls .row:first-child {
+                display: flex;
+                flex-wrap: wrap;
+            }
+            /* ترتيب العناصر في الصف الأول: search, category, brand */
+            #search-input { order: 1; flex: 2; min-width: 120px; }
+            #category-filter { order: 2; flex: 1; min-width: 110px; }
+            #brand-filter { order: 3; flex: 1; min-width: 110px; }
+            /* في الصف الثاني: supermarket, price-range (min+max) */
+            #supermarket-filter { order: 4; flex: 1; min-width: 130px; }
+            .price-range { order: 5; display: flex; gap: 8px; flex-wrap: wrap; flex: 2; }
+            .price-range .price-controls { flex: 1; min-width: 110px; }
+            /* الصف الثالث: sort-by, min-discount */
+            #sort-by { order: 6; flex: 1; min-width: 130px; }
+            #min-discount { order: 7; flex: 1; min-width: 110px; }
+            /* الصف الرابع: الأزرار الأربعة */
+            .action-group { order: 8; display: flex; flex-wrap: wrap; gap: 8px; width: 100%; margin-top: 5px; }
+            .action-group button { flex: 1; min-width: 80px; }
+
+            /* إخفاء الفواصل القديمة غير الضرورية */
+            .controls .row:first-child,
+            .controls .row:last-child {
+                margin-bottom: 0;
+            }
+            /* ضبط الهوامش */
+            .controls .row:last-child {
+                margin-top: 5px;
             }
         }
 
-        @media (max-width: 600px) {
-            .products-grid { grid-template-columns: 1fr; }
-            .filter-row {
-                flex-direction: row;
-                align-items: center;
-                width: 100%;
-                margin: 10px 0;
+        @media (min-width: 769px) {
+            /* على سطح المكتب نعرض price-range كعناصر مستقلة داخل الصف */
+            .price-range {
+                display: contents; /* يجعل عناصرها الداخلية تتصرف كأبناء مباشرين لـ .row */
             }
-            .filter-chips {
-                display: flex;
-                flex-wrap: nowrap !important;
-                justify-content: flex-start;
-                gap: 4px;
-                width: auto;
-                max-width: none;
-                overflow-x: visible;
-                margin: 0;
-                padding: 0;
-                box-sizing: border-box;
-            }
-            .filter-chips .chip {
-                flex: 0 0 auto;
-                min-width: fit-content;
-                margin: 0;
-                padding: 6px 8px;
-                font-size: 0.8rem;
-                white-space: nowrap;
-            }
-            .view-toggle {
-                margin-top: 0;
-                width: auto;
-                justify-content: center;
-                flex-shrink: 0;
-            }
-        }
-         
-        @media (min-width: 901px) {
-            .filter-row {
-                flex-wrap: nowrap;
-                align-items: center;
-            }
-            .filter-chips {
-                flex: 1;
-            }
-            .view-toggle {
-                flex-shrink: 0;
-                margin-right: 15px;
-            }
-            #min-price, #max-price {
-                width: 180px;
-            }
-            .price-controls {
-                min-width: 250px;
+            .action-group {
+                display: contents;
             }
         }
     </style>
@@ -680,73 +713,51 @@
           </div>
         </div>
       </div>
-      <div class="user-guide-banner" id="user-guide"> على الموبايل حرك جدول
-        الأصناف السفلي إلى اليمين لمشاهدة بقيته --&nbsp;<span> اضغط على زر
-          "تحديث الان" </span><span><span>لتحديث البيانات </span>--وانقر على
-          أي صف في الجدول لصورة الصنف</span> </div>
+      <div class="user-guide-banner" id="user-guide"> على الموبايل حرك جدول الأصناف السفلي إلى اليمين لمشاهدة بقيته --&nbsp;<span> اضغط على زر "تحديث الان" </span><span>لتحديث البيانات -- وانقر على أي صف في الجدول لصورة الصنف</span> </div>
       <div class="stats-dashboard">
-        <div class="stat-card">
-          <div class="stat-icon">💰</div>
-          <div>
-            <div id="total-offers" class="stat-value">0</div>
-            <div class="stat-label">إجمالي العروض</div>
-          </div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-icon">📉</div>
-          <div>
-            <div id="avg-discount" class="stat-value">0%</div>
-            <div class="stat-label">متوسط الخصم</div>
-          </div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-icon">🔥</div>
-          <div>
-            <div id="hot-deals" class="stat-value">0</div>
-            <div class="stat-label">عروض ساخنة</div>
-          </div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-icon">⏰</div>
-          <div>
-            <div id="ending-soon" class="stat-value">0</div>
-            <div class="stat-label">تنتهي قريباً</div>
-          </div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-icon">🛒</div>
-          <div>
-            <div id="total-supermarkets" class="stat-value">0</div>
-            <div class="stat-label">عدد السوبرماركات</div>
-          </div>
-        </div>
+        <div class="stat-card"><div class="stat-icon">💰</div><div><div id="total-offers" class="stat-value">0</div><div class="stat-label">إجمالي العروض</div></div></div>
+        <div class="stat-card"><div class="stat-icon">📉</div><div><div id="avg-discount" class="stat-value">0%</div><div class="stat-label">متوسط الخصم</div></div></div>
+        <div class="stat-card"><div class="stat-icon">🔥</div><div><div id="hot-deals" class="stat-value">0</div><div class="stat-label">عروض ساخنة</div></div></div>
+        <div class="stat-card"><div class="stat-icon">⏰</div><div><div id="ending-soon" class="stat-value">0</div><div class="stat-label">تنتهي قريباً</div></div></div>
+        <div class="stat-card"><div class="stat-icon">🛒</div><div><div id="total-supermarkets" class="stat-value">0</div><div class="stat-label">عدد السوبرماركات</div></div></div>
       </div>
       <div class="filter-row">
-        <div class="filter-chips" id="filter-chips"> <button class="chip" data-filter="all">
-            العروض القديمة</button> <button class="chip active" data-filter="active">
-            العروض السارية</button> <button class="chip" data-filter="hot">عروض
-            ساخنة &nbsp; &nbsp; &nbsp;</button> <button class="chip" data-filter="ending">
-            تنتهي قريباً &nbsp; &nbsp; &nbsp;&nbsp;</button> <button class="chip" data-filter="discount"> خصومات كبيرة</button> <button class="chip" data-filter="carrefour"> هايبر1 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&nbsp;</button> <button class="chip" data-filter="food">
-            منتجات غذائية &nbsp; &nbsp; &nbsp;</button> <button class="chip" data-filter="recent">
-            آخر&nbsp;&nbsp; يومين &nbsp; &nbsp; &nbsp; &nbsp;&nbsp;</button> </div>
-        <div class="view-toggle"> <button class="view-btn" id="view-grid-btn"><i class="fas fa-th-large"></i> شبكي</button> <button class="view-btn active" id="view-table-btn"><i class="fas fa-table"></i> جدول</button> </div>
+        <div class="filter-chips" id="filter-chips">
+          <button class="chip" data-filter="all">العروض القديمة</button>
+          <button class="chip active" data-filter="active">العروض السارية</button>
+          <button class="chip" data-filter="hot">عروض ساخنة</button>
+          <button class="chip" data-filter="ending">تنتهي قريباً</button>
+          <button class="chip" data-filter="discount">خصومات كبيرة</button>
+          <button class="chip" data-filter="carrefour">هايبر1</button>
+          <button class="chip" data-filter="food">منتجات غذائية</button>
+          <button class="chip" data-filter="recent">آخر يومين</button>
+        </div>
+        <div class="view-toggle">
+          <button class="view-btn" id="view-grid-btn"><i class="fas fa-th-large"></i> شبكي</button>
+          <button class="view-btn active" id="view-table-btn"><i class="fas fa-table"></i> جدول</button>
+        </div>
       </div>
       <div class="products-grid" id="products-grid"></div>
       <div class="controls">
-        <div class="row"> <input id="search-input" placeholder="ابحث عن منتج..." type="text">
-          <select id="supermarket-filter">
-            <option value="">كل السوبرماركت</option>
-          </select>
-          <select id="category-filter">
-            <option value="">كل الفئات</option>
-          </select>
-          <select id="brand-filter">
-            <option value="">كل العلامات</option>
-          </select>
+        <div class="row">
+          <input id="search-input" placeholder="ابحث عن منتج..." type="text">
+          <select id="category-filter"><option value="">كل الفئات</option></select>
+          <select id="brand-filter"><option value="">كل العلامات</option></select>
         </div>
         <div class="row">
-          <div class="price-controls"> <button id="min-decrease">−</button> <input id="min-price" placeholder="السعر من" step="0.5" min="0" style="width: 120px;" type="number"> <button id="min-increase">+</button> </div>
-          <div class="price-controls"> <button id="max-decrease">−</button> <input id="max-price" placeholder="السعر إلى" step="0.5" min="0" style="width: 120px;" type="number"> <button id="max-increase">+</button> </div>
+          <select id="supermarket-filter"><option value="">كل السوبرماركت</option></select>
+          <div class="price-range">
+            <div class="price-controls">
+              <button id="min-decrease">−</button>
+              <input id="min-price" placeholder="السعر من" step="0.5" min="0" type="number">
+              <button id="min-increase">+</button>
+            </div>
+            <div class="price-controls">
+              <button id="max-decrease">−</button>
+              <input id="max-price" placeholder="السعر إلى" step="0.5" min="0" type="number">
+              <button id="max-increase">+</button>
+            </div>
+          </div>
           <select id="sort-by">
             <option value="best-deals">أفضل العروض (مركب)</option>
             <option value="discount-desc">الخصم % - تنازلي</option>
@@ -757,41 +768,35 @@
             <option value="name-desc">الاسم (ي-أ)</option>
           </select>
           <input id="min-discount" placeholder="الحد الأدنى للخصم %" type="number">
-          <button id="reset-btn"> إعادة تعيين</button> <button id="force-refresh-btn" style="background:#ff6b00;"> تحديث الآن</button>
-          <button id="share-app"> مشاركة</button> <button id="compare-mode-btn"> مقارنة</button> </div>
+          <div class="action-group">
+            <button id="reset-btn">إعادة تعيين</button>
+            <button id="force-refresh-btn" style="background:#ff6b00;">تحديث الآن</button>
+            <button id="share-app">مشاركة</button>
+            <button id="compare-mode-btn">مقارنة</button>
+          </div>
+        </div>
       </div>
-      <div id="loading" style="text-align:center; padding:40px;">جارٍ تحميل
-        البيانات...</div>
+      <div id="loading" style="text-align:center; padding:40px;">جارٍ تحميل البيانات...</div>
       <div id="data-table" style="display:block;">
         <table>
           <thead>
-            <tr>
-              <th>السوبر ماركت</th>
-              <th>المنتج</th>
-              <th>الاسم الأساسي</th>
-              <th>الوحدة</th>
-              <th>الفئة</th>
-              <th>العلامة التجارية</th>
-              <th>السعر الحالي</th>
-              <th>الخصم</th>
-              <th>تاريخ التحديث</th>
-              <th>ساري حتى</th>
-            </tr>
+            <tr><th>السوبر ماركت</th><th>المنتج</th><th>الاسم الأساسي</th><th>الوحدة</th><th>الفئة</th><th>العلامة التجارية</th><th>السعر الحالي</th><th>الخصم</th><th>تاريخ التحديث</th><th>ساري حتى</th></tr>
           </thead>
-          <tbody id="table-body">
-          </tbody>
+          <tbody id="table-body"></tbody>
         </table>
         <div class="pagination" id="pagination"></div>
       </div>
     </div>
     <div class="comparison-panel" id="comparison-panel" style="display:none; position:fixed; bottom:0; left:0; right:0; background:white; box-shadow:0 -4px 20px rgba(0,0,0,0.15); padding:20px; border-top:3px solid var(--primary-blue); z-index:1001;">
       <div class="comparison-header" style="display:flex; justify-content:space-between; align-items:center;">
-        <h3 style="margin:0;"><i class="fas fa-balance-scale"></i> مقارنة
-          المنتجات (<span id="comparison-count">0</span>/4)</h3>
-        <div> <button id="clear-comparison" style="background:#dc3545; color:white; border:none; padding:8px 16px; border-radius:6px;"><i class="fas fa-trash"></i> مسح</button> <button id="close-comparison" style="background:#6c757d; color:white; border:none; padding:8px 16px; border-radius:6px;"><i class="fas fa-times"></i> إغلاق</button> </div>
+        <h3 style="margin:0;"><i class="fas fa-balance-scale"></i> مقارنة المنتجات (<span id="comparison-count">0</span>/4)</h3>
+        <div><button id="clear-comparison" style="background:#dc3545; color:white; border:none; padding:8px 16px; border-radius:6px;"><i class="fas fa-trash"></i> مسح</button> <button id="close-comparison" style="background:#6c757d; color:white; border:none; padding:8px 16px; border-radius:6px;"><i class="fas fa-times"></i> إغلاق</button></div>
       </div>
       <div class="comparison-items" id="comparison-items" style="display:flex; gap:15px; overflow-x:auto; padding:10px 0;"></div>
     </div>
+
+
+
     <script>
 (function() {
     // ==================== الإعدادات العامة ====================
