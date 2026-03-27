@@ -49,18 +49,9 @@
     }
 
     /* Hero Banner */
-    .hero-banner {
-      background: linear-gradient(rgba(0,83,159,0.85), rgba(0,83,159,0.75)), 
-                  url('https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?auto=format&fit=crop&w=1400&q=80');
-      background-size: cover;
-      background-position: center;
-      color: white;
-      padding: 15px 20px;
-      border-radius: 0 0 var(--border-radius) var(--border-radius);
-      margin-bottom: 15px;
-      text-align: center;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-    }
+     .hero-banner {
+    display: none !important;
+  }
     .hero-banner h1 { font-size:1.8rem; font-weight:800; margin:0 0 5px; text-shadow:0 2px 4px rgba(0,0,0,0.2); }
     .hero-subtitle { font-size:1rem; opacity:0.95; margin-bottom:10px; }
 
@@ -77,12 +68,10 @@
     .ticker-item .badge { background:var(--ticker-accent); color:#000; padding:3px 6px; border-radius:4px; font-weight:700; }
 
     /* Stats Dashboard */
-    .stats-dashboard {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-      gap: 12px;
-      margin: 15px 0;
-    }
+    .stats-dashboard .stat-card {
+    flex: 0 0 auto;
+    min-width: 130px;
+  }
     .stat-card {
       background: white;
       border-radius: 10px;
@@ -105,19 +94,14 @@
     .price-controls { display:flex; gap:8px; align-items:center; background:#f8f9fa; padding:5px; border-radius:10px; }
     .price-controls button { width:36px; height:36px; padding:0; font-size:18px; background:white; color:#333; border:1px solid #ddd; }
     .price-controls input { width:80px; min-width:0; }
-    .filter-row {
-      display: flex;
-      flex-wrap: wrap;
-      align-items: center;
-      gap: 10px;
-      margin: 10px 0;
-    }
-    .filter-chips {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
-      flex: 1;
-    }
+      .filter-row {
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    overflow-x: auto !important;
+  }
+   .filter-chips {
+    flex-wrap: nowrap !important;
+  }
     /* Buttons gold style */
     .chip { background-color:#ffd54f !important; color:#000 !important; border:1px solid #ffd54f !important; }
     .chip:hover:not(.active) { background-color:#ffc107 !important; }
