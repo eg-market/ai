@@ -9,11 +9,11 @@
   function gtag(){dataLayer.push(arguments);}
   gtag('js', new Date());
   gtag('config', 'G-WRRCTWHDVF');
-</script> <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+</script>
+    <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
     <title>عروض السوبرماركت - أفضل العروض اليومية</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;800&amp;display=swap"
-      rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;800&amp;display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.0/papaparse.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/lz-string/1.4.4/lz-string.min.js"></script>
     <script src="https://cdn.sheetjs.com/xlsx-0.20.2/package/dist/xlsx.full.min.js"></script>
@@ -145,16 +145,6 @@
             min-width: 600px;
         }
 
-        .stats-dashboard {
-            grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
-            gap: 8px;
-        }
-
-        .stat-card {
-            padding: 8px;
-            min-height: auto;
-        }
-
         .price-controls {
             width: 100%;
             max-width: 300px;
@@ -194,74 +184,66 @@
             gap: 6px;
             flex: 1;
         }
-       /* جعل جميع أزرار الفلاتر (شيبس) باللون الذهبي */
-/* ========== BUTTONS GOLD / ACTIVE BLUE ========== */
-
-/* All filter chips (inactive) */
-.chip {
-    background-color: #ffd54f !important;
-    color: #000 !important;
-    border: 1px solid #ffd54f !important;
-}
-.chip:hover:not(.active) {
-    background-color: #ffc107 !important;
-}
-
-/* Active filter chip (original blue) */
-.chip.active {
-    background-color: #00539F !important;
-    color: white !important;
-    border-color: #00539F !important;
-}
-.chip.active:hover {
-    background-color: #004080 !important;
-}
-
-/* View toggle buttons (شبكي / جدول) */
-.view-btn {
-    background-color: #ffd54f !important;
-    color: #000 !important;
-    border: 1px solid #ffd54f !important;
-}
-.view-btn.active {
-    background-color: #00539F !important;
-    color: white !important;
-    border-color: #00539F !important;
-}
-.view-btn:hover:not(.active) {
-    background-color: #ffc107 !important;
-}
-.view-btn.active:hover {
-    background-color: #004080 !important;
-}
-
-/* General action buttons (reset, share, compare, refresh, etc.) */
-button:not(.chip):not(.view-btn):not(.price-controls button),
-#reset-btn,
-#share-app,
-#compare-mode-btn,
-#force-refresh-btn {
-    background-color: #ffd54f !important;
-    color: #000 !important;
-    border: none !important;
-}
-button:not(.chip):not(.view-btn):not(.price-controls button):hover,
-#reset-btn:hover,
-#share-app:hover,
-#compare-mode-btn:hover,
-#force-refresh-btn:hover {
-    background-color: #ffc107 !important;
-}
-
-/* Keep +/- buttons inside price controls white */
-.price-controls button {
-    background-color: white !important;
-    color: #333 !important;
-    border: 1px solid #ddd !important;
-}
+        /* ========== BUTTONS GOLD / ACTIVE BLUE ========== */
+        /* All filter chips (inactive) */
+        .chip {
+            background-color: #ffd54f !important;
+            color: #000 !important;
+            border: 1px solid #ffd54f !important;
+        }
+        .chip:hover:not(.active) {
+            background-color: #ffc107 !important;
+        }
+        /* Active filter chip (original blue) */
+        .chip.active {
+            background-color: #00539F !important;
+            color: white !important;
+            border-color: #00539F !important;
+        }
+        .chip.active:hover {
+            background-color: #004080 !important;
+        }
+        /* View toggle buttons (شبكي / جدول) */
+        .view-btn {
+            background-color: #ffd54f !important;
+            color: #000 !important;
+            border: 1px solid #ffd54f !important;
+        }
+        .view-btn.active {
+            background-color: #00539F !important;
+            color: white !important;
+            border-color: #00539F !important;
+        }
+        .view-btn:hover:not(.active) {
+            background-color: #ffc107 !important;
+        }
+        .view-btn.active:hover {
+            background-color: #004080 !important;
+        }
+        /* General action buttons (reset, share, compare, refresh, etc.) */
+        button:not(.chip):not(.view-btn):not(.price-controls button),
+        #reset-btn,
+        #share-app,
+        #compare-mode-btn,
+        #force-refresh-btn {
+            background-color: #ffd54f !important;
+            color: #000 !important;
+            border: none !important;
+        }
+        button:not(.chip):not(.view-btn):not(.price-controls button):hover,
+        #reset-btn:hover,
+        #share-app:hover,
+        #compare-mode-btn:hover,
+        #force-refresh-btn:hover {
+            background-color: #ffc107 !important;
+        }
+        /* Keep +/- buttons inside price controls white */
+        .price-controls button {
+            background-color: white !important;
+            color: #333 !important;
+            border: 1px solid #ddd !important;
+        }
       
-      
-
         .view-toggle {
             display: flex;
             background: white;
@@ -391,18 +373,7 @@ button:not(.chip):not(.view-btn):not(.price-controls button):hover,
             color: white;
         }
 
-      
-      
-
-/* استثناء: أزرار +/- داخل price-controls تبقى بيضاء */
-.price-controls button {
-    background-color: white !important;
-    color: #333 !important;
-    border: 1px solid #ddd !important;
-}
-      
-      
-      .btn-secondary { background: #6c757d; color: white; }
+        .btn-secondary { background: #6c757d; color: white; }
         .favorite-btn, .compare-btn, .share-btn {
             position: absolute;
             background: white;
@@ -581,55 +552,94 @@ button:not(.chip):not(.view-btn):not(.price-controls button):hover,
             cursor: not-allowed;
         }
 
-        @media (max-width: 900px) {
-            .filter-row { flex-direction: column; align-items: stretch; }
-            .filter-chips { 
-                overflow-x: hidden; 
-                flex-wrap: wrap !important; 
-                justify-content: flex-start;
-                width: 100%;
+        /* ========== RESPONSIVE MOBILE OVERRIDES ========== */
+        @media (max-width: 768px) {
+            /* إخفاء البانر فقط على الموبايل */
+            .user-guide-banner {
+                display: none !important;
             }
-            .stats-dashboard { grid-template-columns: repeat(2,1fr); }
+            
+            /* الداشبورد: سطر واحد مع سكرول أفقي */
+            .stats-dashboard {
+                display: flex !important;
+                flex-wrap: nowrap !important;
+                overflow-x: auto !important;
+                -webkit-overflow-scrolling: touch;
+                gap: 12px;
+                margin: 15px 0;
+                padding-bottom: 4px;
+                scrollbar-width: thin;
+            }
+            .stats-dashboard .stat-card {
+                flex: 0 0 auto;
+                min-width: 130px;
+                width: auto;
+                margin: 0;
+            }
+            
+            /* صف الفلاتر (الأزرار + شبكي/جدول) - سطر واحد مع سكرول أفقي */
+            .filter-row {
+                flex-wrap: nowrap !important;
+                overflow-x: auto !important;
+                -webkit-overflow-scrolling: touch;
+                gap: 8px;
+                padding-bottom: 4px;
+                scrollbar-width: thin;
+            }
+            .filter-chips {
+                flex-wrap: nowrap !important;
+                overflow-x: visible;
+                flex: none;
+            }
+            .filter-chips .chip {
+                flex: 0 0 auto;
+                white-space: nowrap;
+            }
+            .view-toggle {
+                flex: 0 0 auto;
+                margin-right: 0;
+                margin-left: 4px;
+            }
+            /* إزالة أي تأثير جانبي */
+            .filter-row::-webkit-scrollbar,
+            .stats-dashboard::-webkit-scrollbar {
+                height: 4px;
+            }
         }
-      
+
         @media (max-width: 600px) {
             .products-grid { grid-template-columns: 1fr; }
             .filter-row {
-                flex-direction: column;
-                align-items: stretch;
+                flex-direction: row;
+                align-items: center;
                 width: 100%;
                 margin: 10px 0;
             }
             .filter-chips {
                 display: flex;
-                flex-wrap: wrap !important;
+                flex-wrap: nowrap !important;
                 justify-content: flex-start;
                 gap: 4px;
-                width: 100% !important;
-                max-width: 100%;
-                overflow-x: hidden;
+                width: auto;
+                max-width: none;
+                overflow-x: visible;
                 margin: 0;
                 padding: 0;
                 box-sizing: border-box;
             }
             .filter-chips .chip {
-                flex: 0 1 auto;
+                flex: 0 0 auto;
                 min-width: fit-content;
-                margin: 2px;
+                margin: 0;
                 padding: 6px 8px;
                 font-size: 0.8rem;
                 white-space: nowrap;
             }
-            .chip[data-filter="discount"],
-            .chip[data-filter="hyperone"],
-            .chip[data-filter="food"],
-            .chip[data-filter="recent"] {
-                padding: 6px 6px;
-            }
             .view-toggle {
-                margin-top: 5px;
-                width: 100%;
+                margin-top: 0;
+                width: auto;
                 justify-content: center;
+                flex-shrink: 0;
             }
         }
          
@@ -716,20 +726,14 @@ button:not(.chip):not(.view-btn):not(.price-controls button):hover,
             العروض القديمة</button> <button class="chip active" data-filter="active">
             العروض السارية</button> <button class="chip" data-filter="hot">عروض
             ساخنة &nbsp; &nbsp; &nbsp;</button> <button class="chip" data-filter="ending">
-            تنتهي قريباً &nbsp; &nbsp; &nbsp;&nbsp;</button> <button class="chip"
-            data-filter="discount"> خصومات كبيرة</button> <button class="chip"
-            data-filter="carrefour"> هايبر1 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
-            &nbsp;&nbsp;</button> <button class="chip" data-filter="food">
+            تنتهي قريباً &nbsp; &nbsp; &nbsp;&nbsp;</button> <button class="chip" data-filter="discount"> خصومات كبيرة</button> <button class="chip" data-filter="carrefour"> هايبر1 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&nbsp;</button> <button class="chip" data-filter="food">
             منتجات غذائية &nbsp; &nbsp; &nbsp;</button> <button class="chip" data-filter="recent">
             آخر&nbsp;&nbsp; يومين &nbsp; &nbsp; &nbsp; &nbsp;&nbsp;</button> </div>
-        <div class="view-toggle"> <button class="view-btn" id="view-grid-btn"><i
-              class="fas fa-th-large"></i> شبكي</button> <button class="view-btn active"
-            id="view-table-btn"><i class="fas fa-table"></i> جدول</button> </div>
+        <div class="view-toggle"> <button class="view-btn" id="view-grid-btn"><i class="fas fa-th-large"></i> شبكي</button> <button class="view-btn active" id="view-table-btn"><i class="fas fa-table"></i> جدول</button> </div>
       </div>
       <div class="products-grid" id="products-grid"></div>
       <div class="controls">
-        <div class="row"> <input id="search-input" placeholder="ابحث عن منتج..."
-            type="text">
+        <div class="row"> <input id="search-input" placeholder="ابحث عن منتج..." type="text">
           <select id="supermarket-filter">
             <option value="">كل السوبرماركت</option>
           </select>
@@ -741,12 +745,8 @@ button:not(.chip):not(.view-btn):not(.price-controls button):hover,
           </select>
         </div>
         <div class="row">
-          <div class="price-controls"> <button id="min-decrease">−</button> <input
-              id="min-price" placeholder="السعر من" step="0.5" min="0" style="width: 120px;"
-              type="number"> <button id="min-increase">+</button> </div>
-          <div class="price-controls"> <button id="max-decrease">−</button> <input
-              id="max-price" placeholder="السعر إلى" step="0.5" min="0" style="width: 120px;"
-              type="number"> <button id="max-increase">+</button> </div>
+          <div class="price-controls"> <button id="min-decrease">−</button> <input id="min-price" placeholder="السعر من" step="0.5" min="0" style="width: 120px;" type="number"> <button id="min-increase">+</button> </div>
+          <div class="price-controls"> <button id="max-decrease">−</button> <input id="max-price" placeholder="السعر إلى" step="0.5" min="0" style="width: 120px;" type="number"> <button id="max-increase">+</button> </div>
           <select id="sort-by">
             <option value="best-deals">أفضل العروض (مركب)</option>
             <option value="discount-desc">الخصم % - تنازلي</option>
@@ -757,10 +757,8 @@ button:not(.chip):not(.view-btn):not(.price-controls button):hover,
             <option value="name-desc">الاسم (ي-أ)</option>
           </select>
           <input id="min-discount" placeholder="الحد الأدنى للخصم %" type="number">
-          <button id="reset-btn"> إعادة تعيين</button> <button id="force-refresh-btn"
-            style="background:#ff6b00;"> تحديث الآن</button>
-          <!-- زر التحديث اليدوي --> <button id="share-app"> مشاركة</button> <button
-            id="compare-mode-btn"> مقارنة</button> </div>
+          <button id="reset-btn"> إعادة تعيين</button> <button id="force-refresh-btn" style="background:#ff6b00;"> تحديث الآن</button>
+          <button id="share-app"> مشاركة</button> <button id="compare-mode-btn"> مقارنة</button> </div>
       </div>
       <div id="loading" style="text-align:center; padding:40px;">جارٍ تحميل
         البيانات...</div>
@@ -790,10 +788,7 @@ button:not(.chip):not(.view-btn):not(.price-controls button):hover,
       <div class="comparison-header" style="display:flex; justify-content:space-between; align-items:center;">
         <h3 style="margin:0;"><i class="fas fa-balance-scale"></i> مقارنة
           المنتجات (<span id="comparison-count">0</span>/4)</h3>
-        <div> <button id="clear-comparison" style="background:#dc3545; color:white; border:none; padding:8px 16px; border-radius:6px;"><i
-              class="fas fa-trash"></i> مسح</button> <button id="close-comparison"
-            style="background:#6c757d; color:white; border:none; padding:8px 16px; border-radius:6px;"><i
-              class="fas fa-times"></i> إغلاق</button> </div>
+        <div> <button id="clear-comparison" style="background:#dc3545; color:white; border:none; padding:8px 16px; border-radius:6px;"><i class="fas fa-trash"></i> مسح</button> <button id="close-comparison" style="background:#6c757d; color:white; border:none; padding:8px 16px; border-radius:6px;"><i class="fas fa-times"></i> إغلاق</button> </div>
       </div>
       <div class="comparison-items" id="comparison-items" style="display:flex; gap:15px; overflow-x:auto; padding:10px 0;"></div>
     </div>
@@ -1031,11 +1026,10 @@ button:not(.chip):not(.view-btn):not(.price-controls button):hover,
     }
 
     // ==================== دوال جلب البيانات (مع تحديث تلقائي) ====================
-    // جلب البيانات من الخادم وتحديث المخزن والواجهة
     async function fetchFreshDataAndUpdate(showLoadingIndicator = false) {
         if (showLoadingIndicator) showLoading('جارٍ تحميل أحدث العروض...');
         try {
-            const response = await fetch(DATA_URL + '?t=' + Date.now()); // منع الكاش
+            const response = await fetch(DATA_URL + '?t=' + Date.now());
             const text = await response.text();
             const parsed = Papa.parse(text, { header: true, skipEmptyLines: true, trim: true });
             let newData = transformRows(parsed.data);
@@ -1046,7 +1040,6 @@ button:not(.chip):not(.view-btn):not(.price-controls button):hover,
             await saveToDB(newData);
             localStorage.setItem(`${CACHE_KEY}_time`, Date.now());
             
-            // تحديث البيانات الحالية وإعادة العرض
             allData = newData;
             originalAllData = [...allData];
             latestTwoDates = findLatestTwoDates(allData);
@@ -1061,7 +1054,6 @@ button:not(.chip):not(.view-btn):not(.price-controls button):hover,
         }
     }
 
-    // تحميل البيانات مع استراتيجية: عرض المخزن أولاً ثم تحديث الخلفية دائمًا
     async function loadData() {
         let stored = await loadFromDB();
         if (stored && stored.length > 0) {
@@ -1069,12 +1061,10 @@ button:not(.chip):not(.view-btn):not(.price-controls button):hover,
             allData = stored;
             originalAllData = [...allData];
             hideLoading();
-            processDataAfterLoad(); // عرض البيانات فورًا
+            processDataAfterLoad();
             
-            // **التغيير الأساسي**: نقوم بتحديث البيانات في الخلفية دائمًا (بغض النظر عن الصلاحية)
             if (!backgroundUpdateInProgress) {
                 backgroundUpdateInProgress = true;
-                // تحديث في الخلفية بدون إزعاج المستخدم
                 fetchFreshDataAndUpdate(false).finally(() => {
                     backgroundUpdateInProgress = false;
                 });
@@ -1085,7 +1075,6 @@ button:not(.chip):not(.view-btn):not(.price-controls button):hover,
         }
     }
 
-    // تحديث يدوي بالقوة (مع إظهار مؤشر التحميل)
     async function forceRefresh() {
         if (backgroundUpdateInProgress) {
             alert('جاري تحديث البيانات بالفعل، انتظر قليلاً');
@@ -1667,7 +1656,7 @@ button:not(.chip):not(.view-btn):not(.price-controls button):hover,
         document.getElementById('min-price').addEventListener('input', debounce(applyAllFilters, 300));
         document.getElementById('max-price').addEventListener('input', debounce(applyAllFilters, 300));
         document.getElementById('reset-btn').addEventListener('click', refreshApplication);
-        document.getElementById('force-refresh-btn').addEventListener('click', forceRefresh); // زر التحديث اليدوي
+        document.getElementById('force-refresh-btn').addEventListener('click', forceRefresh);
         document.getElementById('share-app').addEventListener('click', () => {
             if (navigator.share) navigator.share({ title: 'عروض السوبرماركت', url: window.location.href });
             else alert('انسخ الرابط: ' + window.location.href);
@@ -1702,11 +1691,10 @@ button:not(.chip):not(.view-btn):not(.price-controls button):hover,
     function clearAutocomplete() { let list = document.getElementById('autocomplete-list'); if (list) list.remove(); }
     function debounce(fn, delay) { return function(...args) { clearTimeout(debounceTimer); debounceTimer = setTimeout(() => fn.apply(this, args), delay); }; }
 
-    // بدء التطبيق
     document.addEventListener('DOMContentLoaded', async () => {
         await loadData();
         wireEventListeners();
-        console.log("🚀 التطبيق جاهز مع تحديث تلقائي في الخلفية");
+        console.log("🚀 التطبيق جاهز مع تحديث تلقائي في الخلفية وتحسينات الموبايل");
     });
 })();
     </script>
