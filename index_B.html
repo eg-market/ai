@@ -196,7 +196,7 @@
 @media (max-width: 768px) {
 
   /* =========================
-     1) إصلاح ما تم كسره
+     إصلاح الأساسي (لا نلمسه تاني)
   ========================= */
 
   .hero-banner,
@@ -209,7 +209,6 @@
     flex-wrap: nowrap !important;
     overflow-x: auto !important;
     gap: 12px;
-    padding-bottom: 4px;
   }
 
   .stats-dashboard .stat-card {
@@ -221,21 +220,14 @@
     display: flex !important;
     flex-wrap: nowrap !important;
     overflow-x: auto !important;
-    gap: 8px;
-    padding-bottom: 4px;
   }
 
   .filter-chips {
     flex-wrap: nowrap !important;
   }
 
-  .filter-chips .chip {
-    flex: 0 0 auto;
-    white-space: nowrap;
-  }
-
   /* =========================
-     2) الصف الأول (كما هو)
+     الصف الأول (كما هو)
   ========================= */
 
   .controls .row:first-child {
@@ -249,107 +241,85 @@
     flex: 0 0 auto;
   }
 
-  /* إخراج السوبرماركت من الصف الأول */
-  #supermarket-filter {
-    order: 10;
+  /* نخفي السوبرماركت من الصف الأول */
+  .controls .row:first-child #supermarket-filter {
+    display: none;
   }
 
   /* =========================
-     3) الصف الثاني
-     (السوبرماركت + السعر من + السعر إلى)
+     الصف الثاني (Grid ذكي)
   ========================= */
 
   .controls .row:last-child {
-    display: flex;
-    flex-wrap: nowrap;
-    overflow-x: auto;
+    display: grid;
+    grid-template-columns: auto auto auto;
     gap: 8px;
   }
 
-  .controls .row:last-child > * {
-    flex: 0 0 auto;
-  }
-
+  /* ---------- الصف 1 ---------- */
   #supermarket-filter {
-    order: 1;
-    min-width: 140px;
+    display: block !important;
+    grid-column: 1;
   }
 
   .price-controls:first-of-type {
-    order: 2;
+    grid-column: 2;
   }
 
   .price-controls:last-of-type {
-    order: 3;
+    grid-column: 3;
   }
 
   /* تكبير السعر */
   .price-controls input {
-    width: 110px;
-    font-size: 13px;
+    width: 100px;
   }
 
-  /* تصغير + - */
   .price-controls button {
-    width: 26px;
-    height: 26px;
-    font-size: 14px;
+    width: 24px;
+    height: 24px;
   }
 
-  /* =========================
-     4) الصف الثالث
-     (أفضل العروض + الحد الأدنى للخصم)
-  ========================= */
-
+  /* ---------- الصف 2 ---------- */
   #sort-by {
-    order: 4;
-    min-width: 160px;
+    grid-column: 1;
   }
 
   #min-discount {
-    order: 5;
-    min-width: 140px;
+    grid-column: 2;
   }
 
-  /* =========================
-     5) الصف الرابع (الأزرار فقط)
-  ========================= */
+  /* نخليهم صف منفصل */
+  #sort-by,
+  #min-discount {
+    margin-top: 6px;
+  }
 
+  /* ---------- الصف 3 (الأزرار) ---------- */
+  #reset-btn,
+  #force-refresh-btn,
+  #share-app,
+  #compare-mode-btn {
+    grid-column: span 1;
+    margin-top: 6px;
+    min-width: 100px;
+  }
+
+  /* نخلي الأزرار في صف جديد */
   #reset-btn {
-    order: 6;
-    min-width: 120px;
+    grid-column: 1;
   }
 
   #force-refresh-btn {
-    order: 7;
-    min-width: 120px;
+    grid-column: 2;
   }
 
   #share-app {
-    order: 8;
-    min-width: 120px;
+    grid-column: 3;
   }
 
   #compare-mode-btn {
-    order: 9;
-    min-width: 120px;
-  }
-
-  /* =========================
-     تحسين السكرول (اختياري)
-  ========================= */
-
-  .controls .row::-webkit-scrollbar,
-  .filter-row::-webkit-scrollbar,
-  .stats-dashboard::-webkit-scrollbar {
-    height: 4px;
-  }
-
-  .controls .row::-webkit-scrollbar-thumb,
-  .filter-row::-webkit-scrollbar-thumb,
-  .stats-dashboard::-webkit-scrollbar-thumb {
-    background: #ccc;
-    border-radius: 4px;
+    grid-column: 1;
   }
 
 }
@@ -386,7 +356,7 @@
           </div>
         </div>
       </div>
-      <div class="user-guide-banner"> اضغط على زر "تحديث الان" لتحديث البيانات --
+      <div class="user-guide-banner"> اضغط على زر "تحديث الان" لتحديث البيانات -=-
         وانقر على أي صف في الجدول لصورة الصنف</div>
       <div class="stats-dashboard">
         <div class="stat-card">
