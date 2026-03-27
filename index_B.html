@@ -194,7 +194,14 @@
 
     /* ========== MOBILE ONLY LAYOUT RESTRUCTURING (without breaking JS) ========== */
 @media (max-width: 768px) {
-
+ #supermarket-filter {
+    order: 10; /* يخرج من الصف الأول */
+   /*     min-width: 140px;*/
+  }
+#supermarket-filter {
+    flex: 0 0 140px;
+  }
+  
   /* الصف الأول كما هو */
   .controls .row:first-child {
     display: flex;
@@ -203,17 +210,20 @@
     gap: 8px;
   }
 
-  .controls .row:first-child > * {
+
+  /* .controls .row:nth-child(2) { */
+  .controls .row:first-child {
+    display: flex;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    gap: 8px;
+  }
+/*  .controls .row:first-child > * {
     flex: 0 0 auto;
-  }
-
-  /* الصف الثاني: (السوبرماركت + السعر من + السعر إلى) */
-  #supermarket-filter {
-    order: 1;
-    min-width: 140px;
-  }
-
-  .price-controls:first-of-type {
+  }*/
+  
+  
+  /* .price-controls:first-of-type {
     order: 2;
     display: flex;
     align-items: center;
@@ -224,18 +234,29 @@
     display: flex;
     align-items: center;
   }
-
+/*
+  
+  
   /* تكبير input وتقليل أزرار + - */
+.price-controls {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+  }
+
+  /* تكبير حقول السعر */
   .price-controls input {
     width: 110px;
     font-size: 13px;
   }
 
+  /* تصغير + - */
   .price-controls button {
-    width: 28px;
-    height: 28px;
+    width: 26px;
+    height: 26px;
     font-size: 14px;
   }
+
 
   /* جعل الصف Scroll أفقي */
   .controls .row:last-child {
@@ -251,14 +272,15 @@
 
   /* الصف الثالث: (أفضل العروض + الحد الأدنى للخصم) */
   #sort-by {
-    order: 4;
+    order: 20;
     min-width: 160px;
   }
 
   #min-discount {
-    order: 5;
+    order: 21;
     min-width: 140px;
   }
+
 
   /* الصف الرابع: الأزرار */
   #reset-btn {
@@ -278,10 +300,11 @@
   }
 
   /* تجميع الأزرار في سطر Scroll */
-  #reset-btn,
+ #reset-btn,
   #force-refresh-btn,
   #share-app,
   #compare-mode-btn {
+    order: 30;
     min-width: 120px;
   }
 }
@@ -318,8 +341,7 @@
           </div>
         </div>
       </div>
-      <div class="user-guide-banner"> على الموبايل حرك جدول الأصناف السفلي إلى
-        اليمين لمشاهدة بقيته -- اضغط على زر "تحديث الان" لتحديث البيانات --
+      <div class="user-guide-banner"> عل اضغط على زر "تحديث الان" لتحديث البيانات --
         وانقر على أي صف في الجدول لصورة الصنف</div>
       <div class="stats-dashboard">
         <div class="stat-card">
