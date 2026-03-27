@@ -193,8 +193,8 @@
     .pagination button.active { background:var(--primary-blue); color:white; border-color:var(--primary-blue); }
 
     /* ========== MOBILE ONLY LAYOUT RESTRUCTURING (without breaking JS) ========== */
-@media (max-width: 768px) {
 
+      @media (max-width: 768px) {
   /* =========================
      إصلاح الأساسي (لا نلمسه تاني)
   ========================= */
@@ -322,6 +322,34 @@
     grid-column: 1;
   }
 
+
+      
+ /*     @media (max-width: 768px) {*/
+
+  /* كل صف Scroll أفقي */
+  .mobile-row {
+    display: flex;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+
+  .mobile-row > * {
+    flex: 0 0 auto;
+  }
+
+  /* تكبير السعر */
+  .price-controls input {
+    width: 110px;
+  }
+
+  /* تصغير + - */
+  .price-controls button {
+    width: 26px;
+    height: 26px;
+  }
+
 }
 
     @media (min-width: 769px) {
@@ -414,45 +442,55 @@
       </div>
       <div class="products-grid" id="products-grid"></div>
       <div class="controls">
-        <div class="row"> <input id="search-input" placeholder="ابحث عن منتج..."
 
-            type="text">
-          <select id="supermarket-filter">
-            <option value="">كل السوبرماركت</option>
-          </select>
-          <select id="category-filter">
-            <option value="">كل الفئات</option>
-          </select>
-          <select id="brand-filter">
-            <option value="">كل العلامات</option>
-          </select>
-        </div>
-        <div class="row">
-          <div class="price-controls"><button id="min-decrease">−</button><input
+  <!-- ================= الصف 1 ================= -->
+  <div class="mobile-row row-1">
+    <input id="search-input" placeholder="ابحث عن منتج..." type="text">
+    <select id="category-filter"><option value="">كل الفئات</option></select>
+    <select id="brand-filter"><option value="">كل العلامات</option></select>
+  </div>
 
-              id="min-price" placeholder="السعر من" step="0.5" min="0" type="number"><button
+  <!-- ================= الصف 2 ================= -->
+  <div class="mobile-row row-2">
+    <select id="supermarket-filter"><option value="">كل السوبرماركت</option></select>
 
-              id="min-increase">+</button></div>
-          <div class="price-controls"><button id="max-decrease">−</button><input
+    <div class="price-controls">
+      <button id="min-decrease">−</button>
+      <input id="min-price" placeholder="السعر من" type="number">
+      <button id="min-increase">+</button>
+    </div>
 
-              id="max-price" placeholder="السعر إلى" step="0.5" min="0" type="number"><button
+    <div class="price-controls">
+      <button id="max-decrease">−</button>
+      <input id="max-price" placeholder="السعر إلى" type="number">
+      <button id="max-increase">+</button>
+    </div>
+  </div>
 
-              id="max-increase">+</button></div>
-          <select id="sort-by">
-            <option value="best-deals">أفضل العروض (مركب)</option>
-            <option value="discount-desc">الخصم % - تنازلي</option>
-            <option value="saved-desc">التوفير - تنازلي</option>
-            <option value="price-asc">السعر - تصاعدي</option>
-            <option value="price-desc">السعر - تنازلي</option>
-            <option value="name-asc">الاسم (أ-ي)</option>
-            <option value="name-desc">الاسم (ي-أ)</option>
-          </select>
-          <input id="min-discount" placeholder="الحد الأدنى للخصم %" type="number">
-          <button id="reset-btn">إعادة تعيين</button> <button id="force-refresh-btn"
+  <!-- ================= الصف 3 ================= -->
+  <div class="mobile-row row-3">
+    <select id="sort-by">
+      <option value="best-deals">أفضل العروض (مركب)</option>
+      <option value="discount-desc">الخصم % - تنازلي</option>
+      <option value="saved-desc">التوفير - تنازلي</option>
+      <option value="price-asc">السعر - تصاعدي</option>
+      <option value="price-desc">السعر - تنازلي</option>
+      <option value="name-asc">الاسم (أ-ي)</option>
+      <option value="name-desc">الاسم (ي-أ)</option>
+    </select>
 
-            style="background:#ff6b00;">تحديث الآن</button> <button id="share-app">مشاركة</button>
-          <button id="compare-mode-btn">مقارنة</button> </div>
-      </div>
+    <input id="min-discount" placeholder="الحد الأدنى للخصم %" type="number">
+  </div>
+
+  <!-- ================= الصف 4 ================= -->
+  <div class="mobile-row row-4">
+    <button id="reset-btn">إعادة تعيين</button>
+    <button id="force-refresh-btn" style="background:#ff6b00;">تحديث الآن</button>
+    <button id="share-app">مشاركة</button>
+    <button id="compare-mode-btn">مقارنة</button>
+  </div>
+
+</div>
       <div id="loading" style="text-align:center; padding:40px;">جارٍ تحميل
         البيانات...</div>
       <div id="data-table" style="display:block;">
