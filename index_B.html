@@ -197,18 +197,36 @@
 
         @media (max-width: 768px) {
   /* إجبار أزرار الفلاتر (العشرة) تبقى في سطر واحد */
-  .filter-chips {
+
+  /* نخلي السطر كله Scroll */
+  .filter-row {
     display: flex !important;
     flex-wrap: nowrap !important;
     overflow-x: auto !important;
     gap: 8px;
-    padding-bottom: 4px;
+  }
+
+  /* نخلي الأزرار تاخد عرضها الطبيعي */
+  .filter-chips {
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    gap: 8px;
   }
 
   .filter-chips .chip {
     flex: 0 0 auto !important;
     white-space: nowrap;
   }
+
+  /* مهم جداً: ما نخليش view-toggle يزاحمهم */
+  .view-toggle {
+    flex: 0 0 auto;
+  }
+
+}
+          
+          
+          
         
   /* =========================
      إصلاح الأساسي (لا نلمسه تاني)
@@ -231,15 +249,6 @@
     min-width: 130px;
   }
 
-  .filter-row {
-    display: flex !important;
-    flex-wrap: nowrap !important;
-    overflow-x: auto !important;
-  }
-
-  .filter-chips {
-    flex-wrap: nowrap !important;
-  }
 
   /* =========================
      الصف الأول (كما هو)
@@ -367,9 +376,7 @@
 
     @media (min-width: 769px) {
       /* Ensure desktop rows behave normally */
-      .controls .row {
-        flex-wrap: wrap;
-      }
+/*
       .controls .row:last-child {
         flex-direction: row;
       }
@@ -377,6 +384,24 @@
         width: auto;
         margin-bottom: 0;
       }
+*/
+
+  .controls .row {
+    display: flex !important;
+    flex-wrap: wrap !important;
+  }
+
+  .filter-row {
+    flex-wrap: wrap !important;
+    overflow: visible !important;
+  }
+
+  .filter-chips {
+    flex-wrap: wrap !important;
+    overflow: visible !important;
+  }
+
+}
     }
   </style>
   </head>
