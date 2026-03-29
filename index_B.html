@@ -13,337 +13,397 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.0/papaparse.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/lz-string/1.4.4/lz-string.min.js"></script>
     <script src="https://cdn.sheetjs.com/xlsx-0.20.2/package/dist/xlsx.full.min.js"></script>
-    
-    
-<style>
-  /* ==================== جميع الأنماط الأصلية (غير معدلة) ==================== */
-  :root {
-    --primary-blue: #00539F;
-    --accent-orange: #FF6B00;
-    --success-green: #28A745;
-    --warning-yellow: #FFC107;
-    --danger-red: #DC3545;
-    --info-teal: #17a2b8;
-    --purple: #6f42c1;
-    --light-bg: #F8F9FA;
-    --card-shadow: 0 8px 30px rgba(0,0,0,0.08);
-    --border-radius: 16px;
-    --transition: all 0.3s ease;
-    --ticker-bg: #0b3b6f;
-    --ticker-text: #fff;
-    --ticker-accent: #ffd54f;
-    --text: #222;
-    --muted: #495057;
-    --control-height: 46px;
-  }
-  * { box-sizing: border-box; }
-  body {
-    margin: 0;
-    font-family: 'Cairo', sans-serif;
-    background: var(--light-bg);
-    color: var(--text);
-    -webkit-font-smoothing: antialiased;
-    line-height: 1.6;
-  }
-  .container {
-    max-width: 1400px;
-    margin: 0 auto;
-    padding: 0 16px;
-  }
+    <style>
+    :root {
+      --primary-blue: #00539F;
+      --accent-orange: #FF6B00;
+      --success-green: #28A745;
+      --warning-yellow: #FFC107;
+      --danger-red: #DC3545;
+      --info-teal: #17a2b8;
+      --purple: #6f42c1;
+      --light-bg: #F8F9FA;
+      --card-shadow: 0 8px 30px rgba(0,0,0,0.08);
+      --border-radius: 16px;
+      --transition: all 0.3s ease;
+      --ticker-bg: #0b3b6f;
+      --ticker-text: #fff;
+      --ticker-accent: #ffd54f;
+      --text: #222;
+      --muted: #495057;
+      --control-height: 46px;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: 'Cairo', sans-serif;
+      background: var(--light-bg);
+      color: var(--text);
+      -webkit-font-smoothing: antialiased;
+      line-height: 1.6;
+    }
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 0 16px;
+    }
 
-  /* Hero Banner */
-  .hero-banner {
-    background: linear-gradient(rgba(0,83,159,0.85), rgba(0,83,159,0.75)), 
-                url('https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?auto=format&fit=crop&w=1400&q=80');
-    background-size: cover;
-    background-position: center;
-    color: white;
-    padding: 15px 20px;
-    border-radius: 0 0 var(--border-radius) var(--border-radius);
-    margin-bottom: 15px;
-    text-align: center;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    /* Hero Banner */
+     .hero-banner {
+    display: none !important;
   }
-  .hero-banner h1 { font-size:1.8rem; font-weight:800; margin:0 0 5px; text-shadow:0 2px 4px rgba(0,0,0,0.2); }
-  .hero-subtitle { font-size:1rem; opacity:0.95; margin-bottom:10px; }
+    .hero-banner h1 { font-size:1.8rem; font-weight:800; margin:0 0 5px; text-shadow:0 2px 4px rgba(0,0,0,0.2); }
+    .hero-subtitle { font-size:1rem; opacity:0.95; margin-bottom:10px; }
 
-  /* Ticker */
-  .ticker-wrap {
-    width:100%; background:var(--ticker-bg); color:var(--ticker-text); border-radius:8px;
-    display:flex; align-items:center; padding:4px 8px; box-shadow:0 4px 12px rgba(0,0,0,0.12); margin-top:5px;
-  }
-  .ticker-label { flex:0 0 auto; font-weight:700; margin-left:8px; color:var(--ticker-accent); background:rgba(255,255,255,0.1); padding:4px 8px; border-radius:6px; display:flex; align-items:center; gap:5px; }
-  .ticker-viewport { flex:1; overflow:hidden; height:30px; display:flex; align-items:center; }
-  .ticker-track { display:inline-flex; white-space:nowrap; gap:20px; will-change:transform; }
-  .ticker-track.animate { animation: ticker-scroll linear infinite; }
-  @keyframes ticker-scroll { from{transform:translateX(0);} to{transform:translateX(-50%);} }
-  .ticker-item .badge { background:var(--ticker-accent); color:#000; padding:3px 6px; border-radius:4px; font-weight:700; }
+    /* Ticker */
+    .ticker-wrap {
+      width:100%; background:var(--ticker-bg); color:var(--ticker-text); border-radius:8px;
+      display:flex; align-items:center; padding:4px 8px; box-shadow:0 4px 12px rgba(0,0,0,0.12); margin-top:5px;
+    }
+    .ticker-label { flex:0 0 auto; font-weight:700; margin-left:8px; color:var(--ticker-accent); background:rgba(255,255,255,0.1); padding:4px 8px; border-radius:6px; display:flex; align-items:center; gap:5px; }
+    .ticker-viewport { flex:1; overflow:hidden; height:30px; display:flex; align-items:center; }
+    .ticker-track { display:inline-flex; white-space:nowrap; gap:20px; will-change:transform; }
+    .ticker-track.animate { animation: ticker-scroll linear infinite; }
+    @keyframes ticker-scroll { from{transform:translateX(0);} to{transform:translateX(-50%);} }
+    .ticker-item .badge { background:var(--ticker-accent); color:#000; padding:3px 6px; border-radius:4px; font-weight:700; }
 
-  /* Stats Dashboard */
-  .stats-dashboard {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-    gap: 12px;
-    margin: 15px 0;
+    /* Stats Dashboard */
+    .stats-dashboard .stat-card {
+    flex: 0 0 auto;
+    min-width: 130px;
   }
-  .stat-card {
-    background: white;
-    border-radius: 10px;
-    padding: 10px;
-    box-shadow: var(--card-shadow);
-    border: 1px solid #f0f0f0;
-    display: flex;
-    align-items: center;
+    .stat-card {
+      background: white;
+      border-radius: 10px;
+      padding: 10px;
+      box-shadow: var(--card-shadow);
+      border: 1px solid #f0f0f0;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .stat-icon { font-size:1.5rem; width:35px; text-align:center; color: var(--primary-blue); }
+    .stat-value { font-size:1.2rem; font-weight:700; color: var(--primary-blue); line-height:1.2; }
+    .stat-label { font-size:0.75rem; color: var(--muted); font-weight:600; }
+
+    html, body { width:100%; max-width:100%; overflow-x:hidden; margin:0; padding:0; }
+    .container { width:100%; max-width:100%; padding:0 12px; box-sizing:border-box; }
+    .products-grid { grid-template-columns: repeat(auto-fill, minmax(240px,1fr)); gap:12px; padding:0; width:100%; }
+    #data-table { overflow-x:auto; width:100%; }
+    table { min-width:600px; }
+    .price-controls { display:flex; gap:8px; align-items:center; background:#f8f9fa; padding:5px; border-radius:10px; }
+    .price-controls button { width:36px; height:36px; padding:0; font-size:18px; background:white; color:#333; border:1px solid #ddd; }
+    .price-controls input { width:80px; min-width:0; }
+      .filter-row {
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    overflow-x: auto !important;
+  }
+   .filter-chips {
+    flex-wrap: nowrap !important;
+  }
+    /* Buttons gold style */
+    .chip { background-color:#ffd54f !important; color:#000 !important; border:1px solid #ffd54f !important; }
+    .chip:hover:not(.active) { background-color:#ffc107 !important; }
+    .chip.active { background-color:#00539F !important; color:white !important; border-color:#00539F !important; }
+    .view-btn { background-color:#ffd54f !important; color:#000 !important; border:1px solid #ffd54f !important; }
+    .view-btn.active { background-color:#00539F !important; color:white !important; border-color:#00539F !important; }
+    button:not(.chip):not(.view-btn):not(.price-controls button),
+    #reset-btn, #share-app, #compare-mode-btn, #force-refresh-btn {
+      background-color:#ffd54f !important; color:#000 !important; border:none !important;
+    }
+    .price-controls button { background-color:white !important; color:#333 !important; border:1px solid #ddd !important; }
+    .view-toggle { display:flex; background:white; border-radius:8px; padding:3px; box-shadow:var(--card-shadow); }
+    .view-btn { padding:6px 12px; border:1px solid #e0e0e0; background:white; font-family:'Cairo',sans-serif; font-weight:600; font-size:0.85rem; cursor:pointer; border-radius:5px; display:flex; align-items:center; gap:4px; color:var(--primary-blue); }
+
+    /* Products Grid */
+    .products-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(280px,1fr)); gap:24px; margin:25px 0; }
+    .product-card { background:white; border-radius:var(--border-radius); overflow:hidden; box-shadow:var(--card-shadow); transition:var(--transition); position:relative; }
+    .product-badge { position:absolute; top:15px; right:15px; background:var(--danger-red); color:white; padding:5px 12px; border-radius:20px; font-size:0.8rem; font-weight:700; z-index:2; }
+    .product-image { height:180px; background:linear-gradient(135deg,#f5f7fa 0%,#c3cfe2 100%); display:flex; align-items:center; justify-content:center; }
+    .product-image i { font-size:4rem; color:rgba(0,0,0,0.1); }
+    .product-info { padding:20px; }
+    .product-title { font-size:1.1rem; font-weight:700; margin:0 0 10px; color:#333; height:52px; overflow:hidden; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; }
+    .price-container { display:flex; align-items:center; justify-content:space-between; margin:15px 0; }
+    .current-price { font-size:1.5rem; font-weight:800; color:var(--primary-blue); }
+    .discount-badge { background:var(--danger-red); color:white; padding:5px 12px; border-radius:20px; font-size:0.9rem; font-weight:700; }
+    .product-meta { display:flex; justify-content:space-between; align-items:center; margin-top:15px; padding-top:15px; border-top:1px solid #eee; }
+    .countdown { background:rgba(255,107,0,0.1); color:var(--accent-orange); padding:5px 10px; border-radius:8px; font-size:0.85rem; font-weight:600; display:flex; align-items:center; gap:5px; }
+    .action-buttons { display:flex; gap:10px; margin-top:15px; }
+    .btn { padding:10px 15px; border-radius:8px; border:none; font-family:'Cairo',sans-serif; font-weight:600; cursor:pointer; transition:var(--transition); flex:1; display:flex; align-items:center; justify-content:center; gap:8px; color:white; }
+    .btn-secondary { background:#6c757d; color:white; }
+    .favorite-btn, .compare-btn, .share-btn { position:absolute; background:white; width:40px; height:40px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:1.2rem; color:#666; cursor:pointer; z-index:2; box-shadow:0 4px 12px rgba(0,0,0,0.1); }
+    .favorite-btn { top:15px; left:15px; }
+    .compare-btn { top:65px; left:15px; }
+    .share-btn { bottom:15px; left:15px; }
+    .favorite-btn.active { color:var(--danger-red); }
+    .compare-btn.active { color:var(--success-green); }
+
+    /* Controls - original two rows */
+    .controls {
+      background: white;
+      border-radius: var(--border-radius);
+      padding: 20px;
+      margin-bottom: 20px;
+      box-shadow: var(--card-shadow);
+    }
+    .controls .row {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      flex-wrap: wrap;
+      margin-bottom: 15px;
+    }
+    .controls .row:last-child { margin-bottom: 0; }
+
+    input, select, button {
+      height: var(--control-height);
+      padding: 0 16px;
+      border-radius: 10px;
+      border: 2px solid #e0e0e0;
+      background: white;
+      font-size: 15px;
+      font-family: 'Cairo', sans-serif;
+      color: var(--text);
+    }
+    input:focus, select:focus { outline:none; border-color:var(--primary-blue); }
+    #search-input { flex:1; min-width:200px; }
+    button { cursor:pointer; font-weight:600; background:var(--primary-blue); color:white; border:none; }
+    #reset-btn { background:#6c757d; color:white; }
+
+    /* Table */
+    #data-table { background:white; border-radius:var(--border-radius); box-shadow:var(--card-shadow); overflow-x:auto; margin-top:20px; }
+    table { width:100%; border-collapse:collapse; font-size:14px; }
+    thead th { background:var(--primary-blue); color:white; padding:16px; text-align:right; }
+    tbody td { padding:14px 16px; border-bottom:1px solid #f0f0f0; font-weight:600; }
+    .primary-name-circle { background-color:#e9ecef; border-radius:20px; padding:4px 12px; display:inline-block; font-size:0.9rem; color:#495057; font-weight:600; }
+    .highlight { background-color:#fff3cd !important; }
+    .discount-cell { background:var(--danger-red); color:white; padding:3px 10px; border-radius:20px; display:inline-block; font-weight:700; }
+
+    /* Autocomplete */
+    #autocomplete-list { position:absolute; z-index:9999; background:white; border-radius:8px; box-shadow:0 6px 18px rgba(0,0,0,0.12); max-height:240px; overflow:auto; border:1px solid #e0e0e0; }
+    #autocomplete-list div { padding:12px 16px; cursor:pointer; border-bottom:1px solid #f0f0f0; }
+    #autocomplete-list div:hover { background:#f8f9fa; }
+
+    .user-guide-banner { background:linear-gradient(135deg,#667eea 0%,#764ba2 100%); color:white; padding:10px 15px; border-radius:8px; margin:15px 0; text-align:center; font-weight:600; display:flex; align-items:center; justify-content:center; gap:10px; animation:pulse 2s infinite; }
+    @keyframes pulse { 0%{transform:scale(1);} 50%{transform:scale(1.02);} 100%{transform:scale(1);} }
+
+    .pagination { display:flex; justify-content:center; gap:5px; margin:20px 0; flex-wrap:wrap; }
+    .pagination button { height:36px; min-width:36px; padding:0 8px; background:white; color:var(--primary-blue); border:1px solid #dee2e6; border-radius:6px; }
+    .pagination button.active { background:var(--primary-blue); color:white; border-color:var(--primary-blue); }
+
+    /* ========== MOBILE ONLY LAYOUT RESTRUCTURING (without breaking JS) ========== */
+
+
+        @media (max-width: 768px) {
+  /* إجبار أزرار الفلاتر (العشرة) تبقى في سطر واحد */
+
+  /* نخلي السطر كله Scroll */
+  .filter-row {
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    overflow-x: auto !important;
     gap: 8px;
   }
-  .stat-icon { font-size:1.5rem; width:35px; text-align:center; color: var(--primary-blue); }
-  .stat-value { font-size:1.2rem; font-weight:700; color: var(--primary-blue); line-height:1.2; }
-  .stat-label { font-size:0.75rem; color: var(--muted); font-weight:600; }
 
-  html, body { width:100%; max-width:100%; overflow-x:hidden; margin:0; padding:0; }
-  .container { width:100%; max-width:100%; padding:0 12px; box-sizing:border-box; }
-  .products-grid { grid-template-columns: repeat(auto-fill, minmax(240px,1fr)); gap:12px; padding:0; width:100%; }
-  #data-table { overflow-x:auto; width:100%; }
-  table { min-width:600px; }
-  .price-controls { display:flex; gap:8px; align-items:center; background:#f8f9fa; padding:5px; border-radius:10px; }
-  .price-controls button { width:36px; height:36px; padding:0; font-size:18px; background:white; color:#333; border:1px solid #ddd; }
-  .price-controls input { width:80px; min-width:0; }
-  .filter-row {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 10px;
-    margin: 10px 0;
-  }
+  /* نخلي الأزرار تاخد عرضها الطبيعي */
   .filter-chips {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
-    flex: 1;
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    gap: 8px;
   }
-  /* Buttons gold style */
-  .chip { background-color:#ffd54f !important; color:#000 !important; border:1px solid #ffd54f !important; }
-  .chip:hover:not(.active) { background-color:#ffc107 !important; }
-  .chip.active { background-color:#00539F !important; color:white !important; border-color:#00539F !important; }
-  .view-btn { background-color:#ffd54f !important; color:#000 !important; border:1px solid #ffd54f !important; }
-  .view-btn.active { background-color:#00539F !important; color:white !important; border-color:#00539F !important; }
-  button:not(.chip):not(.view-btn):not(.price-controls button),
-  #reset-btn, #share-app, #compare-mode-btn, #force-refresh-btn {
-    background-color:#ffd54f !important; color:#000 !important; border:none !important;
-  }
-  .price-controls button { background-color:white !important; color:#333 !important; border:1px solid #ddd !important; }
-  .view-toggle { display:flex; background:white; border-radius:8px; padding:3px; box-shadow:var(--card-shadow); }
-  .view-btn { padding:6px 12px; border:1px solid #e0e0e0; background:white; font-family:'Cairo',sans-serif; font-weight:600; font-size:0.85rem; cursor:pointer; border-radius:5px; display:flex; align-items:center; gap:4px; color:var(--primary-blue); }
 
-  /* Products Grid */
-  .products-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(280px,1fr)); gap:24px; margin:25px 0; }
-  .product-card { background:white; border-radius:var(--border-radius); overflow:hidden; box-shadow:var(--card-shadow); transition:var(--transition); position:relative; }
-  .product-badge { position:absolute; top:15px; right:15px; background:var(--danger-red); color:white; padding:5px 12px; border-radius:20px; font-size:0.8rem; font-weight:700; z-index:2; }
-  .product-image { height:180px; background:linear-gradient(135deg,#f5f7fa 0%,#c3cfe2 100%); display:flex; align-items:center; justify-content:center; }
-  .product-image i { font-size:4rem; color:rgba(0,0,0,0.1); }
-  .product-info { padding:20px; }
-  .product-title { font-size:1.1rem; font-weight:700; margin:0 0 10px; color:#333; height:52px; overflow:hidden; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; }
-  .price-container { display:flex; align-items:center; justify-content:space-between; margin:15px 0; }
-  .current-price { font-size:1.5rem; font-weight:800; color:var(--primary-blue); }
-  .discount-badge { background:var(--danger-red); color:white; padding:5px 12px; border-radius:20px; font-size:0.9rem; font-weight:700; }
-  .product-meta { display:flex; justify-content:space-between; align-items:center; margin-top:15px; padding-top:15px; border-top:1px solid #eee; }
-  .countdown { background:rgba(255,107,0,0.1); color:var(--accent-orange); padding:5px 10px; border-radius:8px; font-size:0.85rem; font-weight:600; display:flex; align-items:center; gap:5px; }
-  .action-buttons { display:flex; gap:10px; margin-top:15px; }
-  .btn { padding:10px 15px; border-radius:8px; border:none; font-family:'Cairo',sans-serif; font-weight:600; cursor:pointer; transition:var(--transition); flex:1; display:flex; align-items:center; justify-content:center; gap:8px; color:white; }
-  .btn-secondary { background:#6c757d; color:white; }
-  .favorite-btn, .compare-btn, .share-btn { position:absolute; background:white; width:40px; height:40px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:1.2rem; color:#666; cursor:pointer; z-index:2; box-shadow:0 4px 12px rgba(0,0,0,0.1); }
-  .favorite-btn { top:15px; left:15px; }
-  .compare-btn { top:65px; left:15px; }
-  .share-btn { bottom:15px; left:15px; }
-  .favorite-btn.active { color:var(--danger-red); }
-  .compare-btn.active { color:var(--success-green); }
-
-  /* Controls - original two rows */
-  .controls {
-    background: white;
-    border-radius: var(--border-radius);
-    padding: 20px;
-    margin-bottom: 20px;
-    box-shadow: var(--card-shadow);
+  .filter-chips .chip {
+    flex: 0 0 auto !important;
+    white-space: nowrap;
   }
-  .controls .row {
-    display: flex;
+
+  /* مهم جداً: ما نخليش view-toggle يزاحمهم */
+  .view-toggle {
+    flex: 0 0 auto;
+  }
+
+}
+          
+          
+          
+        
+  /* =========================
+     إصلاح الأساسي (لا نلمسه تاني)
+  ========================= */
+
+  .hero-banner,
+  .user-guide-banner {
+    display: none !important;
+  }
+
+  .stats-dashboard {
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    overflow-x: auto !important;
     gap: 12px;
-    align-items: center;
-    flex-wrap: wrap;
-    margin-bottom: 15px;
-  }
-  .controls .row:last-child { margin-bottom: 0; }
-
-  input, select, button {
-    height: var(--control-height);
-    padding: 0 16px;
-    border-radius: 10px;
-    border: 2px solid #e0e0e0;
-    background: white;
-    font-size: 15px;
-    font-family: 'Cairo', sans-serif;
-    color: var(--text);
-  }
-  input:focus, select:focus { outline:none; border-color:var(--primary-blue); }
-  #search-input { flex:1; min-width:200px; }
-  button { cursor:pointer; font-weight:600; background:var(--primary-blue); color:white; border:none; }
-  #reset-btn { background:#6c757d; color:white; }
-
-  /* Table */
-  #data-table { background:white; border-radius:var(--border-radius); box-shadow:var(--card-shadow); overflow-x:auto; margin-top:20px; }
-  table { width:100%; border-collapse:collapse; font-size:14px; }
-  thead th { background:var(--primary-blue); color:white; padding:16px; text-align:right; }
-  tbody td { padding:14px 16px; border-bottom:1px solid #f0f0f0; font-weight:600; }
-  .primary-name-circle { background-color:#e9ecef; border-radius:20px; padding:4px 12px; display:inline-block; font-size:0.9rem; color:#495057; font-weight:600; }
-  .highlight { background-color:#fff3cd !important; }
-  .discount-cell { background:var(--danger-red); color:white; padding:3px 10px; border-radius:20px; display:inline-block; font-weight:700; }
-
-  /* Autocomplete */
-  #autocomplete-list { position:absolute; z-index:9999; background:white; border-radius:8px; box-shadow:0 6px 18px rgba(0,0,0,0.12); max-height:240px; overflow:auto; border:1px solid #e0e0e0; }
-  #autocomplete-list div { padding:12px 16px; cursor:pointer; border-bottom:1px solid #f0f0f0; }
-  #autocomplete-list div:hover { background:#f8f9fa; }
-
-  .user-guide-banner { background:linear-gradient(135deg,#667eea 0%,#764ba2 100%); color:white; padding:10px 15px; border-radius:8px; margin:15px 0; text-align:center; font-weight:600; display:flex; align-items:center; justify-content:center; gap:10px; animation:pulse 2s infinite; }
-  @keyframes pulse { 0%{transform:scale(1);} 50%{transform:scale(1.02);} 100%{transform:scale(1);} }
-
-  .pagination { display:flex; justify-content:center; gap:5px; margin:20px 0; flex-wrap:wrap; }
-  .pagination button { height:36px; min-width:36px; padding:0 8px; background:white; color:var(--primary-blue); border:1px solid #dee2e6; border-radius:6px; }
-  .pagination button.active { background:var(--primary-blue); color:white; border-color:var(--primary-blue); }
-
-  /* ==================== تخصيص الموبايل فقط ==================== */
-  @media (max-width: 768px) {
-    /* إخفاء البانر والإرشاد */
-    .hero-banner, .user-guide-banner { display: none !important; }
-
-    /* إحصائيات قابلة للتمرير أفقيًا */
-    .stats-dashboard {
-      display: flex !important;
-      flex-wrap: nowrap !important;
-      overflow-x: auto !important;
-      gap: 12px;
-    }
-    .stats-dashboard .stat-card { flex: 0 0 auto; min-width: 130px; }
-
-    /* أزرار الفلاتر (العشرة) في سطر واحد مع تمرير */
-    .filter-row {
-      flex-wrap: nowrap !important;
-      overflow-x: auto !important;
-      gap: 8px;
-    }
-    .filter-chips { flex-wrap: nowrap !important; gap: 8px; }
-    .filter-chips .chip { flex: 0 0 auto !important; white-space: nowrap; }
-    .view-toggle { flex: 0 0 auto; }
-
-    /* الصف الأول من عناصر التحكم (بحث + فئة + علامة) */
-    .controls .row:first-child {
-      display: flex;
-      flex-wrap: nowrap;
-      overflow-x: auto;
-      gap: 8px;
-    }
-    .controls .row:first-child > * { flex: 0 0 auto; }
-    /* إخفاء فلتر السوبرماركت من الصف الأول */
-    .controls .row:first-child #supermarket-filter { display: none; }
-
-    /* الصف الثاني – إعادة ترتيبه إلى 3 صفوف باستخدام Grid */
-    .controls .row:last-child {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 8px;
-    }
-
-    /* الصف 1: السوبرماركت + السعر من + السعر إلى (كلها في سطر واحد) */
-    #supermarket-filter {
-      display: block !important;
-      grid-column: 1 / span 4;
-    }
-    .price-controls:first-of-type { grid-column: 1 / span 2; }
-    .price-controls:last-of-type { grid-column: 3 / span 2; }
-
-    /* تكبير حقول السعر وتصغير أزرار +/- */
-    .price-controls input { width: 100px; }
-    .price-controls button { width: 24px; height: 24px; }
-
-    /* الصف 2: أفضل العروض + الحد الأدنى للخصم */
-    #sort-by { grid-column: 1 / span 2; margin-top: 6px; }
-    #min-discount { grid-column: 3 / span 2; margin-top: 6px; }
-
-    /* الصف 3: الأزرار الأربعة */
-    #reset-btn { grid-column: 1; }
-    #force-refresh-btn { grid-column: 2; }
-    #share-app { grid-column: 3; }
-    #compare-mode-btn { grid-column: 4; }
-
-    /* تأكيد أن كل الأزرار في نفس الصف */
-    #reset-btn, #force-refresh-btn, #share-app, #compare-mode-btn {
-      margin-top: 6px;
-      min-width: 100px;
-    }
   }
 
-  /* ==================== إعادة ضبط سطح المكتب ==================== */
-  @media (min-width: 769px) {
-    /* إظهار البانر والإرشاد بشكلها الأصلي */
-    .hero-banner { display: block !important; }
-    .user-guide-banner { display: flex !important; }
-
-    /* إعادة الإحصائيات إلى الشبكة الأصلية */
-    .stats-dashboard {
-      display: grid !important;
-      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-      overflow-x: visible !important;
-    }
-
-    /* الفلاتر تعود للالتفاف الطبيعي */
-    .filter-row {
-      flex-wrap: wrap !important;
-      overflow-x: visible !important;
-    }
-    .filter-chips {
-      flex-wrap: wrap !important;
-      overflow-x: visible !important;
-    }
-    .filter-chips .chip {
-      flex: 0 1 auto !important;
-      white-space: normal;
-    }
-
-    /* إعادة صفوف التحكم إلى سطرين فقط (بدون grid) */
-    .controls .row {
-      display: flex !important;
-      flex-wrap: wrap !important;
-      gap: 12px;
-      overflow-x: visible !important;
-    }
-    .controls .row:first-child #supermarket-filter {
-      display: inline-block !important;
-    }
-    .controls .row:last-child {
-      display: flex !important;
-      flex-wrap: wrap !important;
-      grid-template-columns: none !important;
-      flex-direction: row !important;
-    }
-    .controls .row:last-child > * {
-      flex: 1 0 auto;
-      order: 0 !important;
-      width: auto !important;
-      margin: 0 !important;
-    }
-
-    /* إعادة أحجام حقول السعر الأصلية */
-    .price-controls input { width: 80px; }
-    .price-controls button { width: 36px; height: 36px; }
-
-    /* الأزرار الأربعة تظهر بشكل طبيعي */
-    #reset-btn, #force-refresh-btn, #share-app, #compare-mode-btn {
-      min-width: unset;
-    }
+  .stats-dashboard .stat-card {
+    flex: 0 0 auto;
+    min-width: 130px;
   }
-</style>
-    
-    
+
+
+  /* =========================
+     الصف الأول (كما هو)
+  ========================= */
+
+  .controls .row:first-child {
+    display: flex;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    gap: 8px;
+  }
+
+  .controls .row:first-child > * {
+    flex: 0 0 auto;
+  }
+
+  /* نخفي السوبرماركت من الصف الأول */
+  .controls .row:first-child #supermarket-filter {
+    display: none;
+  }
+
+  /* =========================
+     الصف الثاني (Grid ذكي)
+  ========================= */
+
+  .controls .row:last-child {
+    display: grid;
+    grid-template-columns: auto auto auto;
+    gap: 8px;
+  }
+
+  /* ---------- الصف 1 ---------- */
+  #supermarket-filter {
+    display: block !important;
+    grid-column: 1;
+  }
+
+  .price-controls:first-of-type {
+    grid-column: 2;
+  }
+
+  .price-controls:last-of-type {
+    grid-column: 3;
+  }
+
+  /* تكبير السعر */
+  .price-controls input {
+    width: 100px;
+  }
+
+  .price-controls button {
+    width: 24px;
+    height: 24px;
+  }
+
+  /* ---------- الصف 2 ---------- */
+  #sort-by {
+    grid-column: 1;
+  }
+
+  #min-discount {
+    grid-column: 2;
+  }
+
+  /* نخليهم صف منفصل */
+  #sort-by,
+  #min-discount {
+    margin-top: 6px;
+  }
+
+  /* ---------- الصف 3 (الأزرار) ---------- */
+  #reset-btn,
+  #force-refresh-btn,
+  #share-app,
+  #compare-mode-btn {
+    grid-column: span 1;
+    margin-top: 6px;
+    min-width: 100px;
+  }
+
+  /* نخلي الأزرار في صف جديد */
+  #reset-btn {
+    grid-column: 1;
+  }
+
+  #force-refresh-btn {
+    grid-column: 2;
+  }
+
+  #share-app {
+    grid-column: 3;
+  }
+
+  #compare-mode-btn {
+    grid-column: 1;
+  }
+
+
+
+  /* كل صف Scroll أفقي */
+  .mobile-row {
+    display: flex;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+
+  .mobile-row > * {
+    flex: 0 0 auto;
+  }
+
+  /* تكبير السعر */
+  .price-controls input {
+    width: 110px;
+  }
+
+  /* تصغير + - */
+  .price-controls button {
+    width: 26px;
+    height: 26px;
+  }
+
+}
+
+    @media (min-width: 769px) {
+      /* Ensure desktop rows behave normally */
+/*
+      .controls .row:last-child {
+        flex-direction: row;
+      }
+      .controls .row:last-child > * {
+        width: auto;
+        margin-bottom: 0;
+      }
+*/
+
+  .controls .row {
+    display: flex !important;
+    flex-wrap: wrap !important;
+  }
+
+  .filter-row {
+    flex-wrap: wrap !important;
+    overflow: visible !important;
+  }
+
+  .filter-chips {
+    flex-wrap: wrap !important;
+    overflow: visible !important;
+  }
+
+}
+    }
+  </style>
   </head>
   <body>
     <div class="container">
