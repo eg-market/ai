@@ -361,11 +361,7 @@ html[dir="rtl"] .splash-tips {
 /* Responsive */
 @media (max-width: 768px) {
   
-          /* استبدل .container-class باسم الكلاس الفعلي للحاوية التي تضم الصور */
-  .container-class {
-    display: grid !important;
-    grid-template-columns: repeat(3, 1fr) !important;
-    gap: 10px; /* يمكنك تعديل هذا الرقم لتغيير المسافة بين الصور */
+       
     
   .splash-content {
     padding: 20px;
@@ -397,6 +393,57 @@ html[dir="rtl"] .splash-tips {
   .splash-stat i {
     font-size: 1.5rem;
   }
+  /* =======================================================
+   تعديل شاشات الموبايل لعرض 3 صور في السطر لجميع الـ 18 صورة
+   ======================================================= */
+@media (max-width: 768px) {
+  
+  /* 1. إصلاح المجموعة الأولى (أول 8 صور) */
+  .flex.w-full.flex-col.gap-xs {
+    display: grid !important;
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: 8px !important;
+  }
+  
+  /* دمج السطور لإلغاء التقسيم المسبق (2 في السطر) */
+  .flex.w-full.flex-col.gap-xs > div.flex.flex-wrap {
+    display: contents !important;
+  }
+  
+  /* إلغاء العرض الثابت 50% للصور الأولى */
+  div[class*="w-[calc(50%"] {
+    width: 100% !important;
+    height: 100% !important;
+  }
+
+  /* 2. إصلاح المجموعة الثانية (الـ 10 صور / الأقسام) */
+  .flex.gap-xs.flex-wrap.justify-center {
+    display: grid !important;
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: 8px !important;
+    width: 100% !important;
+  }
+  
+  /* دمج مجموعات الأقسام لإلغاء التقسيم القديم */
+  .flex.gap-xs.flex-wrap.justify-center > div.flex.gap-xs {
+    display: contents !important;
+  }
+  
+  /* إلغاء العرض الثابت 135 بيكسل وجعله يتكيف مع مساحة الـ 3 صور */
+  div[class*="w-[135px]"], 
+  div[class*="size-[135px]"], 
+  img[class*="size-[135px]"] {
+    width: 100% !important;
+    height: auto !important;
+    aspect-ratio: 1 / 1 !important; /* للحفاظ على الصور مربعة وعدم تشوهها */
+  }
+  
+  /* تصغير النصوص قليلاً لتتناسب مع صغر حجم الصور في الموبايل */
+  .text-xs {
+    font-size: 0.75rem !important;
+    line-height: 1.2 !important;
+  }
+}
 }
   
   
