@@ -1093,18 +1093,20 @@
             let flyerId = item.pageNo?.match(/flyer_(\d+)/)?.[1] || item.solution_key || '';
             let url = flyerId ? `https://www.yabalashoffers.com/flyer.php?d=${encodeURIComponent(flyerId)}&c=eg` : '#';
             return `<tr ${rowClass} data-url="${url}" data-flyer="${flyerId}" data-page="${item.pageNo}" style="cursor:pointer;">
-                <td>${item.supermarket}</td>
-                <td><strong>${item.product}</strong></td>
-                <td><span class="primary-name-circle">${item.primaryName || ''}</span></td>
-                <td>${item.unit || ''}</td>
-                <td>${item.category || ''}</td>
-                <td>${item.brand || ''}</td>
-                <td>${item.currentPrice} ${item.currency}</td>
-                <td><span class="discount-cell">${item._discount_pct ? item._discount_pct+'%' : ''}</span></td>
-                <td>${item.updateDate ? formatDateShort(item.updateDate) : ''}</td>
-                <td>${item.validUntil || ''}</td>
-            </tr>`;
-        }).join('');
+    <td>${item.supermarket}</td>
+    <td><strong>${item.product}</strong></td>
+    <td>${item.currentPrice} ${item.currency}</td>                     <!-- السعر الحالي -->
+    <td><span class="discount-cell">${item._discount_pct ? item._discount_pct+'%' : ''}</span></td> <!-- الخصم -->
+    <td><span class="primary-name-circle">${item.primaryName || ''}</span></td>  <!-- الاسم الأساسي -->
+    <td>${item.unit || ''}</td>
+    <td>${item.category || ''}</td>
+    <td>${item.brand || ''}</td>
+    <td>${item.updateDate ? formatDateShort(item.updateDate) : ''}</td>
+    <td>${item.validUntil || ''}</td>
+  </tr>`;
+}).join('');
+      
+      
         document.querySelectorAll('#table-body tr').forEach(tr => {
             tr.addEventListener('click', function(e) {
                 let url = this.dataset.url;
