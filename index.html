@@ -12,7 +12,11 @@
 </script> <!--    <link rel="preload" href="https://raw.githubusercontent.com/eg-market/ai/main/final.csv"
           as="fetch" type="application/json" crossorigin="anonymous">-->
     <!--    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">  -->
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+<!--    <meta name="viewport" content="width=device-width, initial-scale=1.0">  -->
+    
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    
     <link rel="stylesheet" href="https://eg-market.github.io/ai/css1.css" data-precedence="next">
     <link rel="stylesheet" href="https://eg-market.github.io/ai/css2.css" data-precedence="next">
     <title> مصر | أحدث العروض كل بوم من 30 سوبر ماركت، موبايلات، الكترونيات </title>
@@ -185,6 +189,69 @@
 
           target="_blank" rel="noopener"> </a></header>
 <style>
+  /* تنسيقات عامة لجميع الشاشات */
+body {
+    direction: rtl;
+    margin: 0;
+    padding: 0;
+}
+
+/* =======================================================
+   تنسيقات الموبايل فقط (أقل من 768 بيكسل)
+   ======================================================= */
+@media (max-width: 768px) {
+    
+    /* 1. جعل الحاوية الكبيرة Grid لتستوعب 3 أعمدة */
+    .flex.w-full.flex-col.gap-xs, 
+    .flex.gap-xs.flex-wrap.justify-center {
+        display: grid !important;
+        grid-template-columns: repeat(3, 1fr) !important;
+        gap: 8px !important;
+        padding: 8px !important;
+    }
+
+    /* 2. إلغاء تأثير الديفات الحاوية القديمة */
+    .flex.w-full.flex-col.gap-xs > div.flex.flex-wrap,
+    .flex.gap-xs.flex-wrap.justify-center > div.flex.gap-xs {
+        display: contents !important;
+    }
+
+    /* 3. توحيد مقاس الصور لتكون مربعة ومنظمة */
+    div[class*="w-[calc(50%"], 
+    div[class*="w-[135px]"], 
+    div[class*="size-[135px]"],
+    .flex.w-full.flex-col.gap-xs img,
+    .flex.gap-xs.flex-wrap.justify-center img {
+        width: 100% !important;
+        height: auto !important;
+        aspect-ratio: 1 / 1 !important;
+        object-fit: cover !important;
+        border-radius: 8px !important;
+    }
+
+    /* 4. تصغير النصوص لتناسب الحجم الجديد */
+    .text-xs, .truncate {
+        font-size: 10px !important;
+        text-align: center !important;
+        display: block !important;
+        margin-top: 4px !important;
+    }
+
+    /* إصلاح السبلاتش سكرين للموبايل */
+    .splash-content { padding: 20px; width: 95%; }
+    .splash-logo h1 { font-size: 1.5rem; }
+    .splash-stat { min-width: 100px; padding: 10px; }
+}
+
+/* =======================================================
+   تنسيقات الديسكتوب فقط (أكبر من 769 بيكسل)
+   لضمان عدم تأثره بتعديلات الموبايل
+   ======================================================= */
+@media (min-width: 769px) {
+    .flex.w-full.flex-col.gap-xs {
+        /* هنا نترك التصميم الأصلي كما هو دون تدخل */
+    }
+}
 /* ==================== SPLASH SCREEN ==================== */
 #splash-screen {
     position: fixed;
@@ -208,64 +275,6 @@
     pointer-events: none;
 }
 
-/* ... باقي كود الديسكتوب الأساسي هنا ... */
-
-/* =======================================================
-   تعديلات خاصة بالموبايل فقط (شاشات أصغر من 768 بيكسل)
-   ======================================================= */
-@media (max-width: 768px) {
-    
-    .splash-content { padding: 20px; width: 95%; }
-    .splash-logo i { font-size: 3rem; }
-    .splash-logo h1 { font-size: 1.8rem; }
-    .loader-circle { width: 60px; height: 60px; }
-    .splash-stats { gap: 15px; }
-    .splash-stat { padding: 12px 15px; min-width: 120px; }
-    .splash-stat i { font-size: 1.5rem; }
-
-    /* --- تعديل عرض 3 صور في السطر --- */
-    
-    /* 1. المجموعة الأولى (أول 8 صور) */
-    .flex.w-full.flex-col.gap-xs {
-        display: grid !important;
-        grid-template-columns: repeat(3, 1fr) !important;
-        gap: 8px !important;
-    }
-    
-    .flex.w-full.flex-col.gap-xs > div.flex.flex-wrap {
-        display: contents !important;
-    }
-    
-    div[class*="w-[calc(50%"] {
-        width: 100% !important;
-        height: 100% !important;
-    }
-
-    /* 2. المجموعة الثانية (الـ 10 صور / الأقسام) */
-    .flex.gap-xs.flex-wrap.justify-center {
-        display: grid !important;
-        grid-template-columns: repeat(3, 1fr) !important;
-        gap: 8px !important;
-        width: 100% !important;
-    }
-    
-    .flex.gap-xs.flex-wrap.justify-center > div.flex.gap-xs {
-        display: contents !important;
-    }
-    
-    div[class*="w-[135px]"], 
-    div[class*="size-[135px]"], 
-    img[class*="size-[135px]"] {
-        width: 100% !important;
-        height: auto !important;
-        aspect-ratio: 1 / 1 !important;
-    }
-    
-    .text-xs {
-        font-size: 0.75rem !important;
-        line-height: 1.2 !important;
-    }
-} /* <--- هذا القوس هو "حارس" الموبايل، تأكد من وجوده في هذا المكان */
 
 /* باقي كود الهيدر والأنيميشن */
 .header { background: linear-gradient(180deg, #0b5fa5, #083e73); color: #fff; direction: rtl; }
