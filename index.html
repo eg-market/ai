@@ -21,8 +21,8 @@
   <body class="bg-white text-gray-700 __className_fd82b7">
     <div id="t6-wrapper">
       <header class="header">
-        <h1>🛒 سوق مدينتي///مصر: أول محرك بحث عن عروض ومنتجات
-          السوبرماركت اليومية</h1>
+        <h1>🛒 سوق مدينتي////مصر: أول محرك بحث عن عروض ومنتجات السوبرماركت
+          اليومية</h1>
         <p> قارن الأسعار بين كارفور وهايبر1 وسعودي و40 آخرين – وفر حتى <b>70%</b>
         </p>
         <div class="header-logos">
@@ -361,8 +361,6 @@ html[dir="rtl"] .splash-tips {
 
 /* Responsive */
 @media (max-width: 768px) {
-  
-       
     
   .splash-content {
     padding: 20px;
@@ -404,17 +402,20 @@ html[dir="rtl"] .splash-tips {
     display: grid !important;
     grid-template-columns: repeat(3, 1fr) !important;
     gap: 8px !important;
+    
   }
   
   /* دمج السطور لإلغاء التقسيم المسبق (2 في السطر) */
   .flex.w-full.flex-col.gap-xs > div.flex.flex-wrap {
     display: contents !important;
+    
   }
   
   /* إلغاء العرض الثابت 50% للصور الأولى */
   div[class*="w-[calc(50%"] {
     width: 100% !important;
     height: 100% !important;
+    
   }
 
   /* 2. إصلاح المجموعة الثانية (الـ 10 صور / الأقسام) */
@@ -423,11 +424,12 @@ html[dir="rtl"] .splash-tips {
     grid-template-columns: repeat(3, 1fr) !important;
     gap: 8px !important;
     width: 100% !important;
+    
   }
   
   /* دمج مجموعات الأقسام لإلغاء التقسيم القديم */
   .flex.gap-xs.flex-wrap.justify-center > div.flex.gap-xs {
-    display: contents !important;
+    display: contents !important; 
   }
   
   /* إلغاء العرض الثابت 135 بيكسل وجعله يتكيف مع مساحة الـ 3 صور */
@@ -435,13 +437,13 @@ html[dir="rtl"] .splash-tips {
   div[class*="size-[135px]"], 
   img[class*="size-[135px]"] {
     width: 100% !important;
-    height: auto !important;
+    height: auto !important; 
     aspect-ratio: 1 / 1 !important; /* للحفاظ على الصور مربعة وعدم تشوهها */
   }
   
   /* تصغير النصوص قليلاً لتتناسب مع صغر حجم الصور في الموبايل */
   .text-xs {
-    font-size: 0.75rem !important;
+    font-size: 1.75rem !important;
     line-height: 1.2 !important;
   }
 
@@ -527,19 +529,14 @@ animation: flashing 1s infinite;
                   <div class="font-bold pl-2xs overflow-hidden text-ellipsis text-xs leading-4 md:text-lg md:leading-5">عروض
                     قديمة</div>
                 </button> </a> </div>
-            <div>
-              <a href="https://eg-market.github.io/ai/index_B.html">
-                <button class="flashing focus-visible:ring-ring whitespace-nowrap font-bold focus-visible:outline-none focus-visible:ring-1
-disabled:pointer-events-none disabled:opacity-[0.12] bg-primary text-white duration-300 ease-in-outtransition-[height,opacity,margin,flex] p-3xs transition-height relative flex w-[92px] shrink-0 flex-col
-items-center justify-center md:border-2 md:w-[260px] md:flex-row md:justify-center rounded-lg"
+            <div> <a href="https://eg-market.github.io/ai/index_B.html"> <button
+
+                  class="flashing focus-visible:ring-ring whitespace-nowrap font-bold focus-visible:outline-none focus-visible:ring-1
+disabled:pointer-events-none disabled:opacity-[0.12] bg-primary text-white duration-300 ease-in-outtransition-[height,opacity,margin,flex] p-3xs transition-height relative flex w-[92px] shrink-0 flex-colitems-center justify-center md:border-2 md:w-[260px] md:flex-row md:justify-center rounded-lg"
 
                   data-tabindex="1" style="height: 72px; font-size: 1.5rem;">
-                  ------------
-                  (--اضغط هنا اذا كنت مستخدم جديد )----------عروض
-                  اليوم---------
-                </button>
-              </a>
-            </div>
+                  ------------ (--اضغط هنا اذا كنت مستخدم جديد )----------عروض
+                  اليوم--------- </button> </a> </div>
             <div><a href="https://eg-market.github.io/ai/index_B.html?category=%D8%A3%D8%AC%D9%87%D8%B2%D8%A9+%D8%AA%D9%84%D9%8A%D9%81%D8%B2%D9%8A%D9%88%D9%86+%D9%88%D8%A7%D9%84%D9%83%D8%AA%D8%B1%D9%88%D9%86%D9%8A%D8%A7%D8%AA">
                 <button class="focus-visible:ring-ring whitespace-nowrap font-bold focus-visible:outline-none focus-visible:ring-1 
                disabled:pointer-events-none disabled:opacity-[0.12] bg-primary text-white duration-300 ease-in-out transition-[height,opacity,margin,flex]               p-2xs transition-height relative flex w-[72px] shrink-0 flex-col items-center justify-center md:border-2 md:w-[168px] md:flex-row                md:justify-center h-[86px] pb-3xs md:h-3xl rounded-lg">
@@ -567,9 +564,10 @@ items-center justify-center md:border-2 md:w-[260px] md:flex-row md:justify-cent
                           <span class="whitespace-pre-wrap"></span> </span> <span
 
 class="whitespace-pre-wrap">صنف</span> </div>
-                      <button class="focus-visible:ring-ring justify-center whitespace-nowrap rounded-xl font-bold transition-colors focus-visible:outline-none focus-visible:ring-1 disabled:pointer-events-none disabled:opacity-[0.12] text-primary absolute top-1/2 flex -translate-y-1/2 items-center right-sm"
+                      <button class="focus-visible:ring-ring justify-center whitespace-nowrap rounded-xl font-bold transition-colors 
+                                     focus-visible:outline-none focus-visible:ring-1 disabled:pointer-events-none disabled:opacity-[0.12]                                     text-primary absolute top-1/2 flex -translate-y-1/2 items-center right-sm"
 
-                        type="submit" style="top: 15px; left: 12px; width: 43px; height: 43px;">
+                        type="submit" style="top: 15px; left: 12px; width: 33px; height: 43px;">
                         <svg class="size-lg stroke-2 text-gray-500" stroke="currentColor"
 
                           viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -588,7 +586,8 @@ class="whitespace-pre-wrap">صنف</span> </div>
             <div class="duration-300 ease-in-out transition-[height,opacity,margin,flex] hidden md:flex gap-lg items-center md:mr-lg md:flex-1"><button                class="focus-visible:ring-ring justify-center whitespace-nowrap font-bold transition-colors focus-visible:outline-none focus-visible:ring-1                 disabled:pointer-events-none disabled:opacity-[0.12] text-star flex shrink-0 items-center rounded-sm h-[34px] md:h-[40px]                  bg-transparent-active w-[28px] md:h-md"><img                  alt="Flag" loading="lazy" decoding="async" data-nimg="1" class="size-full"                  style="color:transparent" src="https://eg-market.github.io/ai/user.png"                  height="16" width="24"></button><a href="/login">                <div class="text-md leading-5 font-bold text-gray-600">تسجيل                  الدخول</div>              </a></div>-->
             <a href="/login"> </a></div>
           <!--            
-            <a class="gap-2xs px-sm py-2xs bg-primary flex items-center rounded-[30px] hidden md:flex"              href="/mafegy/ar/app/cart"><svg class="size-lg text-white stroke-2"                stroke="currentColor" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><title>Cart</title><path                  d="M7.5 21.375C8.12132 21.375 8.625 20.8713 8.625 20.25C8.625 19.6287 8.12132 19.125 7.5 19.125C6.87868 19.125 6.375 19.6287 6.375 20.25C6.375 20.8713 6.87868 21.375 7.5 21.375Z"                  fill="currentColor" stroke-width="1"></path><path d="M17.25 21.375C17.8713 21.375 18.375 20.8713 18.375 20.25C18.375 19.6287 17.8713 19.125 17.25 19.125C16.6287 19.125 16.125 19.6287 16.125 20.25C16.125 20.8713 16.6287 21.375 17.25 21.375Z"                  fill="currentColor" stroke-width="1"></path><path d="M3.96429 6.75H20.7857L18.3108 15.4121C18.2213 15.7255 18.0321 16.0012 17.7718 16.1975C17.5116 16.3938 17.1945 16.5 16.8685 16.5H7.88145C7.55549 16.5 7.23839 16.3938 6.97816 16.1975C6.71792 16.0012 6.52872 15.7255 6.43917 15.4121L3.04827 3.54396C3.0035 3.38725 2.90889 3.24939 2.77878 3.15124C2.64866 3.05309 2.49011 3 2.32713 3H0.75"                  stroke-linecap="round" stroke-linejoin="round"></path></svg>                            <div class="text-md leading-5 font-bold min-w-[18px] text-center text-white">0</div>            </a>-->
+            <a class="gap-2xs px-sm py-2xs bg-primary flex items-center rounded-[30px] hidden md:flex"  href="/mafegy/ar/app/cart"><svg class="size-lg text-white stroke-2"   
+stroke="currentColor" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><title>Cart</title><path  d="M7.5 21.375C8.12132 21.375 8.625 20.8713 8.625 20.25C8.625 19.6287 8.12132 19.125 7.5 19.125C6.87868 19.125 6.375 19.6287 6.375 20.25C6.375 20.8713 6.87868 21.375 7.5 21.375Z"                  fill="currentColor" stroke-width="1"></path><path d="M17.25 21.375C17.8713 21.375 18.375 20.8713 18.375 20.25C18.375 19.6287 17.8713 19.125 17.25 19.125C16.6287 19.125 16.125 19.6287 16.125 20.25C16.125 20.8713 16.6287 21.375 17.25 21.375Z"                  fill="currentColor" stroke-width="1"></path><path d="M3.96429 6.75H20.7857L18.3108 15.4121C18.2213 15.7255 18.0321 16.0012 17.7718 16.1975C17.5116 16.3938 17.1945 16.5 16.8685 16.5H7.88145C7.55549 16.5 7.23839 16.3938 6.97816 16.1975C6.71792 16.0012 6.52872 15.7255 6.43917 15.4121L3.04827 3.54396C3.0035 3.38725 2.90889 3.24939 2.77878 3.15124C2.64866 3.05309 2.49011 3 2.32713 3H0.75"                  stroke-linecap="round" stroke-linejoin="round"></path></svg>                            <div class="text-md leading-5 font-bold min-w-[18px] text-center text-white">0</div>            </a>-->
         </div>
         <nav class="w-full items-center justify-between hidden md:block">
           <!--
@@ -1457,7 +1456,7 @@ return false; // Allow the default handling (e.g., displaying the error in the c
     <!-- Modal للمستخدم -->
     <div id="user-modal" class="modal" style="display:none;">
       <div class="modal-content"> <span class="close-btn">×</span>
-        <div class="modal-header"> <button id="tab-login" class="tab-button active">تسجيل
+        <div class="modal-header"> <button id="tab-login" class="tab-button active ">تسجيل
             الدخول</button> <button id="tab-signup" class="tab-button">إنشاء
             حساب</button> </div>
         <div id="login-form" class="tab-content active">
