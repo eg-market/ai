@@ -7,7 +7,8 @@
     <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
     <title>عروض السوبرماركت - أفضل العروض اليومية</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;800&amp;display=swap"
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;800&amp;display=swap"
+
       rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.0/papaparse.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/lz-string/1.4.4/lz-string.min.js"></script>
@@ -463,25 +464,47 @@
         <div class="filter-chips" id="filter-chips"> <button class="chip" data-filter="all">العروض
             القديمة</button> <button class="chip active" data-filter="active">العروض
             السارية</button> <button class="chip" data-filter="hot">عروض ساخنة</button>
-          <button class="chip" data-filter="ending">تنتهي قريباً</button> <button
-            class="chip" data-filter="discount">خصومات كبيرة</button> <button class="chip"
+          <button class="chip" data-filter="ending">تنتهي قريباً</button> <button
+
+            class="chip" data-filter="discount">خصومات كبيرة</button> <button class="chip"
+
             data-filter="carrefour">هايبر1</button> <button class="chip" data-filter="food">منتجات
             غذائية</button> <button class="chip" data-filter="recent">آخر يومين</button>
         </div>
-        <div class="view-toggle"> <button class="view-btn" id="view-grid-btn"><i
-              class="fas fa-th-large"></i> شبكي</button> <button class="view-btn active"
+        <div class="view-toggle"> <button class="view-btn" id="view-grid-btn"><i
+
+              class="fas fa-th-large"></i> شبكي</button> <button class="view-btn active"
+
             id="view-table-btn"><i class="fas fa-table"></i> جدول</button> </div>
       </div>
-      <button id="min-decrease">−</button> <input id="min-price" placeholder="السعر من"
-        type="number"> <button id="min-increase">+&nbsp; </button><button><span
-          style="white-space: nowrap;"><b><span style="color: #333333; font-size: 16px; font-style: normal; font-variant-ligatures: normal; font-variant-caps: normal; font-weight: 700; letter-spacing: normal; text-align: center; text-indent: 0px; text-transform: none; word-spacing: 0px; -webkit-text-stroke-width: 0px; background-color: white; text-decoration-style: initial; text-decoration-color: initial; display: inline !important; float: none; ">ادخل
-              علي حسابك في الصفحة الرئيسية : ليصلك مجانا تطبيق الموبايل
-              ------------</span></b></span></button>
+      <div class="products-grid" id="products-grid"></div>
       <div class="controls">
+        <!-- ================= الصف 1 ================= -->
+        <div class="mobile-row row-1"> <input id="search-input" placeholder="ابحث عن منتج..."
+
+            type="text">
+          <select id="category-filter">
+            <option value="">كل الفئات</option>
+          </select>
+          <select id="brand-filter">
+            <option value="">كل العلامات</option>
+          </select>
+        </div>
+        <!-- ================= الصف 2 ================= -->
         <div class="mobile-row row-2">
-          <div class="price-controls"> <button id="max-decrease">−</button> <input
-              id="max-price" placeholder="السعر إلى" type="number"> <button id="max-increase">+</button>
+          <select id="supermarket-filter">
+            <option value="">كل السوبرماركت</option>
+          </select>
+          <div class="price-controls"> <button id="min-decrease">−</button> <input
+
+              id="min-price" placeholder="السعر من" type="number"> <button id="min-increase">+</button>
           </div>
+          <div class="price-controls"> <button id="max-decrease">−</button> <input
+
+              id="max-price" placeholder="السعر إلى" type="number"> <button id="max-increase">+
+            </button><button><span style="white-space: nowrap;"><sup><b><span style="color: #333333; font-size: 16px; font-style: normal; font-variant-ligatures: normal; font-variant-caps: normal; font-weight: 700; letter-spacing: normal; text-align: center; text-indent: 0px; text-transform: none; word-spacing: 0px; -webkit-text-stroke-width: 0px; background-color: white; text-decoration-style: initial; text-decoration-color: initial; display: inline !important; float: none; animation: flashing 1s infinite;">ادخل
+                      علي حسابك في الصفحة الرئيسية : ليصلك مجانا
+                      تطبيق الموبايل</span></b></sup></span></button> </div>
         </div>
         <!-- ================= الصف 3 ================= -->
         <div class="mobile-row row-3">
@@ -530,9 +553,12 @@
       <div class="comparison-header" style="display:flex; justify-content:space-between; align-items:center;">
         <h3 style="margin:0;"><i class="fas fa-balance-scale"></i> مقارنة
           المنتجات (<span id="comparison-count">0</span>/4)</h3>
-        <div><button id="clear-comparison" style="background:#dc3545; color:white; border:none; padding:8px 16px; border-radius:6px;"><i
-              class="fas fa-trash"></i> مسح</button> <button id="close-comparison"
-            style="background:#6c757d; color:white; border:none; padding:8px 16px; border-radius:6px;"><i
+        <div><button id="clear-comparison" style="background:#dc3545; color:white; border:none; padding:8px 16px; border-radius:6px;"><i
+
+              class="fas fa-trash"></i> مسح</button> <button id="close-comparison"
+
+            style="background:#6c757d; color:white; border:none; padding:8px 16px; border-radius:6px;"><i
+
               class="fas fa-times"></i> إغلاق</button></div>
       </div>
       <div class="comparison-items" id="comparison-items" style="display:flex; gap:15px; overflow-x:auto; padding:10px 0;"></div>
