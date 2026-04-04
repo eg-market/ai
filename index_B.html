@@ -486,16 +486,16 @@
 
             type="text">
           <select id="category-filter">
-            <option value="">اختر نوع المنتج</option>
+            <option value="">إختار نوع المنتج</option>
           </select>
           <select id="brand-filter">
-            <option value="">اختر البراند</option>
+            <option value="">إختار البراند</option>
           </select>
         </div>
         <!-- ================= الصف 2 ================= -->
         <div class="mobile-row row-2">
           <select id="supermarket-filter">
-            <option value="">اختر السوبرماركت</option>
+            <option value="">إختار السوبرماركت</option>
           </select>
           <div class="price-controls"> <button id="min-decrease">−</button> <input
 
@@ -509,7 +509,7 @@
         <!-- ================= الصف 3 ================= -->
         <div class="mobile-row row-3"> 
           <select id="sort-by">
-            <option value="best-deals">اختر الترتيب : أفضل العروض</option>
+            <option value="best-deals">إختار الترتيب : أفضل العروض</option>
             <option value="discount-desc">الخصم % - تنازلي</option>
             <option value="saved-desc">التوفير - تنازلي</option>
             <option value="price-asc">السعر - تصاعدي</option>
@@ -884,7 +884,7 @@
         });
         const supermarketSelect = document.getElementById('supermarket-filter');
         const currentSupermarket = (typeof urlMarket !== 'undefined' && urlMarket) ? urlMarket : supermarketSelect.value;
-        supermarketSelect.innerHTML = '<option value="">كل السوبرماركت</option>';
+        supermarketSelect.innerHTML = '<option value="">إختار السوبرماركت</option>';
         Array.from(supermarketSet).sort().forEach(s => {
             let opt = document.createElement('option');
             opt.value = s;
@@ -894,7 +894,7 @@
         });
         const categorySelect = document.getElementById('category-filter');
         const currentCategory = categorySelect.value;
-        categorySelect.innerHTML = '<option value="">كل الفئات</option>';
+        categorySelect.innerHTML = '<option value="">إختار فئة المنتج</option>';
         Array.from(categorySet).sort().forEach(c => {
             let opt = document.createElement('option');
             opt.value = c;
@@ -904,7 +904,7 @@
         });
         const brandSelect = document.getElementById('brand-filter');
         const currentBrand = brandSelect.value;
-        brandSelect.innerHTML = '<option value="">كل العلامات</option>';
+        brandSelect.innerHTML = '<option value="">إختار البراند</option>';
         Array.from(brandSet).sort().forEach(b => {
             let opt = document.createElement('option');
             opt.value = b;
