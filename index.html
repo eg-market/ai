@@ -25,8 +25,7 @@
         <p><br>
         </p>
         <p>*******<cite><b style="font-family: monospace; animation: flashing 1s infinite; white-space: nowrap; font-size: 150%;">ادخل
-              علي حسابك أو إنشاء بجانب خانة البحث ليصلك مجانا تطبيق
-              الموبايل</b></cite>*********</p>
+              علي حسابك أو إنشاء بجانب خانة البحث ليصلك مجانا تطبيق الموبايل</b></cite>*********</p>
         <br>
         <p> قارن الأسعار بين كارفور وهايبر1 وسعودي و40 آخرين – وفر حتى <b>70%</b>
         </p>
@@ -1633,20 +1632,20 @@ return false; // Allow the default handling (e.g., displaying the error in the c
   const signupWhatsapp = document.getElementById('signup-whatsapp');
 
   // إضافة زر تسجيل الدخول في الصفحة
-  function addLoginButton() {
-    const searchDiv = document.querySelector('.z-20.duration-300.ease-in-out.md\\:mr-xl.md\\:grow-3.relative');
-    if (!searchDiv) return;
-    const buttonContainer = document.createElement('div');
-    buttonContainer.className = 'duration-300 ease-in-out hidden md:flex gap-lg items-center md:mr-lg md:flex-1';
-    buttonContainer.style.margin = '0 15px';
-    const btn = document.createElement('button');
-    btn.className = 'login-btn';
-    btn.innerHTML = '<img src="https://eg-market.github.io/ai/user.png" alt="User" style="width:60px; animation: flashing 1s infinite;height:60px;"> تسجيل الدخول / حساب جديد ((ادخل علي حسابك ليصلك مجانا تطبيق الموبايل))-';
-    btn.addEventListener('click', () => modal.style.display = 'block');
-    buttonContainer.appendChild(btn);
-    searchDiv.parentNode.appendChild(buttonContainer);
-    return btn;
-  }
+function addLoginButton() {
+const searchDiv = document.querySelector('.z-20.duration-300.ease-in-out.md\\:mr-xl.md\\:grow-3.relative');
+if (!searchDiv) return;
+const buttonContainer = document.createElement('div');
+buttonContainer.className = 'duration-300 ease-in-out hidden md:flex gap-lg items-center md:mr-lg md:flex-1';
+buttonContainer.style.margin = '0 15px';
+const btn = document.createElement('button');
+btn.className = 'login-btn';
+btn.innerHTML = '<img src="https://eg-market.github.io/ai/user.png" alt="User" style="width:60px; animation: flashing 1s infinite;height:60px;"> <span style="font-size: 1.5em;">تسجيل الدخول / حساب جديد ((ادخل علي حسابك ليصلك مجانا تطبيق الموبايل))-</span>';
+btn.addEventListener('click', () => modal.style.display = 'block');
+buttonContainer.appendChild(btn);
+searchDiv.parentNode.appendChild(buttonContainer);
+return btn;
+}
 
   // عرض رسالة الترحيب
   function showUserGreeting(user) {
