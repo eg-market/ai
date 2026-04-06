@@ -532,14 +532,72 @@ animation: flashing 1s infinite;
                   </div>
                   <div class="font-bold pl-2xs overflow-hidden ">عروض قديمة</div>
                 </button> </a> </div>
-            <div> <a href="https://eg-market.github.io/ai/index_B.html"> <b style="white-space: nowrap; font-family: monospace;"><button
+            <!-- Modal للمستخدم -->
+            <div id="user-modal" class="modal" style="display:none;">
+              <div class="modal-content">
+                <span class="close-btn">×</span>
+                <div class="modal-header">
+                   <button id="tab-login" class="tab-button">تسجيل الدخول --- </button>  
+                  <button id="tab-signup" class="tab-button active">إنشاء حساب</button>
+                  <!-- جعل هذا التبويب نشطاً -->
+                </div>
+                <div id="login-form" class="tab-content">
+                  <h2>-----تسجيل الدخول</h2> 
+                  <form id="login">
+                    <input id="login-email" placeholder="البريد الإلكتروني" required=""
 
-                    class=" focus-visible:ring-ring whitespace-nowrap font-bold focus-visible:outline-none focus-visible:ring-1
-disabled:pointer-events-none disabled:opacity-[0.12] bg-primary text-white duration-300 ease-in-outtransition-[height,opacity,margin,              flex] p-3xs transition-height relative flex w-[92px] shrink-0 flex-colitems-center justify-center md:border-2              md:w-[60px] md:flex-row md:justify-center rounded-lg"
+                      type="email">
+                    <input id="login-password" placeholder="كلمة المرور" required=""
 
-                    data-tabindex="1" style="height: 72px; font-size: 2.5rem;">
-                    (اضغط هنا اذا كنت مستخدم جديد)-عروض اليوم- </button></b> </a>
+                      type="password">
+                    <button type="submit">دخول</button>
+                  </form>
+                  <div id="login-message"></div>
+                </div>
+                <div id="signup-form" class="tab-content">
+                  <h2>إنشاء حساب جديد</h2>
+                  <form id="signup">
+                    <input id="signup-email" placeholder="البريد الإلكتروني" required=""
+
+                      type="email">
+                    <input id="signup-password" placeholder="كلمة المرور" required=""
+
+                      type="password">
+                    <input id="signup-whatsapp" placeholder="رقم واتساب (اختياري)"
+
+                      type="tel">
+                    <button type="submit">إنشاء حساب</button>
+                  </form>
+                  <div id="signup-message"></div>
+                </div>
+              </div>
             </div>
+            <div style="display: flex; justify-content: center; gap: 10px;">
+              <script>
+function showModal() {
+const modal = document.getElementById('user-modal');
+modal.style.display = 'block';
+
+// جعل التبويب "إنشاء حساب" هو النشط
+document.getElementById('tab-login').classList.remove('active');
+document.getElementById('tab-signup').classList.add('active');
+
+// إخفاء نموذج تسجيل الدخول وعرض نموذج إنشاء حساب
+document.getElementById('login-form').classList.remove('active');
+document.getElementById('signup-form').classList.add('active');
+}
+</script><a>
+                <button class="focus-visible:ring-ring whitespace-nowrap font-bold focus-visible:outline-none focus-visible:ring-1 disabled:pointer-events-none disabled:opacity-[0.12] bg-primary text-white duration-300 ease-in-out transition-[height,opacity,margin,flex] p-3 xs transition-height relative flex w-[92px] shrink-0 flex-col items-center justify-center md:border-2 md:w-[60px] md:flex-row md:justify-center rounded-lg"
+
+                  onclick="showModal()" data-tabindex="1" style="height: 72px; font-size: 2rem;">
+                  اضغط هنا اذا كنت مستخدم جديد
+                </button>
+              </a> <a href="https://eg-market.github.io/ai/index_B.html">
+                <!-- Assuming you want both buttons to link to the same URL -->
+                <button class="focus-visible:ring-ring whitespace-nowrap font-bold focus-visible:outline-none focus-visible:ring-1 disabled:pointer-events-none disabled:opacity-[0.12] bg-primary text-white duration-300 ease-in-out transition-[height,opacity,margin,flex] p-3 xs transition-height relative flex w-[92px] shrink-0 flex-col items-center justify-center md:border-2 md:w-[60px] md:flex-row md:justify-center rounded-lg"
+
+                  data-tabindex="1" style="height: 72px; font-size: 2rem;">
+                  --عروض اليوم-- </button> </a> </div>
             <div><a href="https://eg-market.github.io/ai/index_B.html?category=%D8%A3%D8%AC%D9%87%D8%B2%D8%A9+%D8%AA%D9%84%D9%8A%D9%81%D8%B2%D9%8A%D9%88%D9%86+%D9%88%D8%A7%D9%84%D9%83%D8%AA%D8%B1%D9%88%D9%86%D9%8A%D8%A7%D8%AA">
                 <button class="focus-visible:ring-ring whitespace-nowrap font-bold focus-visible:outline-none focus-visible:ring-1 
                disabled:pointer-events-none disabled:opacity-[0.12] bg-primary text-white duration-300 ease-in-out transition-[height,opacity,margin,flex]               p-2xs transition-height relative flex w-[72px] shrink-0 flex-col items-center justify-center md:border-2 md:w-[168px] md:flex-row                md:justify-center h-[86px] pb-3xs md:h-3xl rounded-lg">
@@ -1455,6 +1513,7 @@ return false; // Allow the default handling (e.g., displaying the error in the c
   const db = firebase.firestore();
 </script> <!-- نضيف هذا الكود قبل إغلاق </body> -->
     <!-- Modal للمستخدم -->
+      
     <div id="user-modal" class="modal" style="display:none;">
       <div class="modal-content"> <span class="close-btn">×</span>
         <div class="modal-header"> <button id="tab-login" class="tab-button active ">تسجيل
@@ -1482,7 +1541,8 @@ return false; // Allow the default handling (e.g., displaying the error in the c
           <div id="signup-message"></div>
         </div>
       </div>
-    </div>
+    </div> 
+      
     <!-- رسالة ترحيب بعد تسجيل الدخول (مخفية افتراضياً) -->
     <div id="user-greeting" style="display:none;"></div>
     <!-- ==================== نظام تسجيل الدخول وإدارة المستخدمين ==================== -->
@@ -1781,6 +1841,8 @@ function handleSignup(e) {
     }
   }
 
+
+  
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', init);
   } else {
