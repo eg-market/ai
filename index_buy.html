@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>??? ??????? ?????</title>
+
+<script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+<script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+<style>
+body{
+    font-family:Arial;
+    background:#f5f5f5;
+    margin:0;
+    padding:20px;
+}
+
+.container{
+    max-width:1400px;
+    margin:auto;
+}
+
+.toolbar{
+    display:flex;
+    gap:10px;
+    margin-bottom:20px;
+}
+
+input[type="text"]{
+    flex:1;
+    padding:12px;
+    font-size:16px;
+}
+
+button{
+    padding:12px 20px;
+    border:none;
+    border-radius:8px;
+    background:#1976d2;
+    color:white;
+    cursor:pointer;
+    font-size:16px;
+}
+
+.grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill,minmax(280px,1fr));
+    gap:20px;
+}
+
+.card{
+    background:white;
+    border-radius:12px;
+    padding:15px;
+    box-shadow:0 2px 8px rgba(0,0,0,0.1);
+}
+
+.card img{
+    width:100%;
+    height:220px;
+    object-fit:cover;
+    border-radius:8px;
+}
+
+.price{
+    font-size:20px;
+    font-weight:bold;
+    color:green;
+}
+
+.pagination{
+    margin-top:20px;
+    display:flex;
+    justify-content:center;
+    gap:10px;
+}
+</style>
+</head>
+<body>
+
+<div id="root"></div>
+
+<script type="text/babel">
+
+const {useState,useEffect,useMemo} = React;
+
+function App(){
+
+    const [products,setProducts] = useState([]);
+    const [search,setSearch] = useState("");
+    const [selected,setSelected] = useState({});
+    const [page,setPage] = useState(1);
+
+    const pageSize = 30;
+
+    useEffect(()=>{
+        loadTSV();
+    },[]);
+
+    async function loadTSV(){
+        const res = await fetch("matched_flyer_products.xlsx");
+        const text = await res.text();
+
+        const lines = text.trim().split("\n");
+
+        const headers = lines[0].split("\t");
+
+        const rows = lines.slice(1).map(line=>{
+            const cols = line.split("\t");
+            let obj = {};
+
+            headers.forEach((h,i)=>{
+                obj[h.trim()] = cols[i] || "";
+            });
+
+            return obj;
+        });
+
+        setProducts(rows);
+    }
+
+    const filtered = useMemo(()=>{
+        return products.filter(p=>
+            (p["????? ????????"] || "").includes(search) ||
+            (p["matched_name"] || "").toLowerCase().includes(search.toLowerCase())
+        );
+    },[products,search]);
+
+    const totalPages = Math.ceil(filtered.length/pageSize);
+
+    const paginated = useMemo(()=>{
+        const start = (page-1)*pageSize;
+        return filtered.slice(start,start+pageSize);
+    },[filtered,page]);
+
+    function toggleItem(sku){
+        setSelected(prev=>({
+            ...prev,
+            [sku]: !prev[sku]
+        }));
+    }
+
+    async function createCart(){
+        const query = `
+            mutation {
+                createEmptyCart
+            }
+        `;
+
+        const res = await fetch(
+            "https://mcprod.seoudisupermarket.com/graphql?source=45&store=ar_EG",
+            {
+                method:"POST",
+                headers:{
+                    "Content-Type":"application/json"
+                },
+                body:JSON.stringify({query})
+            }
+        );
+
+        const data = await res.json();
+        return data.data.createEmptyCart;
+    }
+
+    async function addItemsToCart(cartId,items){
+
+        const query = `
+        mutation AddItem($cartId: String!, $items: [CartItemInput!]!) {
+          response: addProductsToCart(cartId: $cartId, cartItems: $items) {
+            user_errors {
+              code
+              message
+            }
+          }
+        }
+        `;
+
+        const res = await fetch(
+            "https://mcprod.seoudisupermarket.com/graphql?source=45&store=ar_EG",
+            {
+                method:"POST",
+                headers:{
+                    "Content-Type":"application/json"
+                },
+                body:JSON.stringify({
+                    query,
+                    variables:{
+                        cartId,
+                        items
+                    }
+                })
+            }
+        );
+
+        return await res.json();
+    }
+
+    async function goToCart(){
+
+        const checked = Object.keys(selected)
+            .filter(k=>selected[k])
+            .map(sku=>({
+                sku: sku,
+                quantity: 1
+            }));
+
+        if(!checked.length){
+            alert("???? ??? ???? ??? ?????");
+            return;
+        }
+
+        const cartId = await createCart();
+
+        await addItemsToCart(cartId,checked);
+
+        window.open(
+            `https://www.seoudisupermarket.com/cart?cartId=${cartId}`,
+            "_blank"
+        );
+    }
+
+    return(
+        <div className="container">
+
+            <h1>????? ?????? ??? ??? ?????</h1>
+
+            <div className="toolbar">
+                <input
+                    type="text"
+                    placeholder="???? ?? ???..."
+                    value={search}
+                    onChange={(e)=>{
+                        setSearch(e.target.value);
+                        setPage(1);
+                    }}
+                />
+
+                <button onClick={goToCart}>
+                    ???? ??? ??? ?????
+                </button>
+            </div>
+
+            <div className="grid">
+                {paginated.map((p,index)=>(
+                    <div className="card" key={index}>
+
+                        <input
+                            type="checkbox"
+                            checked={!!selected[p.matched_sku]}
+                            onChange={()=>toggleItem(p.matched_sku)}
+                        />
+
+                        <img
+                            src={p.matched_image}
+                            onError={(e)=>{
+                                e.target.src = "https://via.placeholder.com/300x220?text=No+Image";
+                            }}
+                        />
+
+                        <h3>{p["????? ????????"]}</h3>
+
+                        <div>{p.matched_name}</div>
+
+                        <div className="price">
+                            {p["????? ??????"]} ????
+                        </div>
+
+                        <div>SKU: {p.matched_sku}</div>
+
+                        <div>???????: {p.confidence}</div>
+
+                    </div>
+                ))}
+            </div>
+
+            <div className="pagination">
+
+                <button
+                    disabled={page===1}
+                    onClick={()=>setPage(page-1)}
+                >
+                    ??????
+                </button>
+
+                <span>
+                    ???? {page} ?? {totalPages}
+                </span>
+
+                <button
+                    disabled={page===totalPages}
+                    onClick={()=>setPage(page+1)}
+                >
+                    ??????
+                </button>
+
+            </div>
+        </div>
+    );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+
+</script>
+
+</body>
+</html>
