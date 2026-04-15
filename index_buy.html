@@ -1,308 +1,301 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>??? ??????? ?????</title>
+<html dir="rtl" lang="ar">
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>سلة مشتريات سعودي</title>
+    <script crossorigin="" src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script crossorigin="" src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <style>
+  body { font-family: Arial; background: #f5f5f5; margin: 0; padding: 20px; direction: rtl; }
+  .container { max-width: 1400px; margin: auto; }
+  .toolbar { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
+  input[type="text"] { flex: 1; padding: 12px; font-size: 16px; border: 1px solid #ccc; border-radius: 8px; }
+  button { padding: 12px 20px; border: none; border-radius: 8px; background: #1976d2; color: white; cursor: pointer; font-size: 16px; }
+  button:disabled { opacity: 0.6; cursor: not-allowed; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
+  .card { background: white; border-radius: 12px; padding: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); position: relative; }
+  .card img { width: 100%; height: 220px; object-fit: cover; border-radius: 8px; background: #eee; }
+  .card input[type="checkbox"] { position: absolute; top: 15px; left: 15px; transform: scale(1.3); }
+  .price { font-size: 20px; font-weight: bold; color: green; margin: 8px 0; }
+  .pagination { margin-top: 20px; display: flex; justify-content: center; gap: 10px; align-items: center; }
+  .error { background: #ffebee; color: #c62828; padding: 10px; border-radius: 8px; margin-bottom: 20px; }
+  .loading { text-align: center; font-size: 18px; padding: 50px; }
+</style> </head>
+  <body>
+    <div id="root"></div>
+    <script type="text/babel">
+const { useState, useEffect, useMemo } = React;
 
-<script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
-<script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
-<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+function App() {
+  const [products, setProducts] = useState([]);
+  const [search, setSearch] = useState("");
+  const [selected, setSelected] = useState({});
+  const [page, setPage] = useState(1);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const pageSize = 30;
 
-<style>
-body{
-    font-family:Arial;
-    background:#f5f5f5;
-    margin:0;
-    padding:20px;
-}
+  useEffect(() => {
+    loadCSV();
+  }, []);
 
-.container{
-    max-width:1400px;
-    margin:auto;
-}
-
-.toolbar{
-    display:flex;
-    gap:10px;
-    margin-bottom:20px;
-}
-
-input[type="text"]{
-    flex:1;
-    padding:12px;
-    font-size:16px;
-}
-
-button{
-    padding:12px 20px;
-    border:none;
-    border-radius:8px;
-    background:#1976d2;
-    color:white;
-    cursor:pointer;
-    font-size:16px;
-}
-
-.grid{
-    display:grid;
-    grid-template-columns:repeat(auto-fill,minmax(280px,1fr));
-    gap:20px;
-}
-
-.card{
-    background:white;
-    border-radius:12px;
-    padding:15px;
-    box-shadow:0 2px 8px rgba(0,0,0,0.1);
-}
-
-.card img{
-    width:100%;
-    height:220px;
-    object-fit:cover;
-    border-radius:8px;
-}
-
-.price{
-    font-size:20px;
-    font-weight:bold;
-    color:green;
-}
-
-.pagination{
-    margin-top:20px;
-    display:flex;
-    justify-content:center;
-    gap:10px;
-}
-</style>
-</head>
-<body>
-
-<div id="root"></div>
-
-<script type="text/babel">
-
-const {useState,useEffect,useMemo} = React;
-
-function App(){
-
-    const [products,setProducts] = useState([]);
-    const [search,setSearch] = useState("");
-    const [selected,setSelected] = useState({});
-    const [page,setPage] = useState(1);
-
-    const pageSize = 30;
-
-    useEffect(()=>{
-        loadTSV();
-    },[]);
-
-    async function loadTSV(){
-        const res = await fetch("matched_flyer_products.xlsx");
-        const text = await res.text();
-
-        const lines = text.trim().split("\n");
-
-        const headers = lines[0].split("\t");
-
-        const rows = lines.slice(1).map(line=>{
-            const cols = line.split("\t");
-            let obj = {};
-
-            headers.forEach((h,i)=>{
-                obj[h.trim()] = cols[i] || "";
-            });
-
-            return obj;
+  async function loadCSV() {
+    try {
+      setLoading(true);
+      // تحميل ملف CSV (تأكد من اسم الملف صحيح)
+      const res = await fetch("matched_flyer_products.csv");
+      if (!res.ok) throw new Error(`HTTP ${res.status}: فشل تحميل الملف`);
+      let text = await res.text();
+      // إزالة BOM إن وجد
+      if (text.charCodeAt(0) === 0xFEFF) text = text.slice(1);
+      
+      const lines = text.split(/\r?\n/).filter(line => line.trim() !== "");
+      if (lines.length < 2) throw new Error("الملف لا يحتوي على بيانات كافية");
+      
+      // استخراج العناوين (الصف الأول)
+      const headers = parseCSVLine(lines[0]);
+      console.log("العناوين:", headers);
+      
+      const rows = [];
+      for (let i = 1; i < lines.length; i++) {
+        const values = parseCSVLine(lines[i]);
+        if (values.length === 0) continue;
+        const obj = {};
+        headers.forEach((h, idx) => {
+          obj[h.trim()] = values[idx] !== undefined ? values[idx] : "";
         });
-
-        setProducts(rows);
+        rows.push(obj);
+      }
+      
+      if (rows.length === 0) throw new Error("لم يتم العثور على منتجات في الملف");
+      setProducts(rows);
+    } catch (err) {
+      console.error(err);
+      setError(err.message);
+    } finally {
+      setLoading(false);
     }
+  }
 
-    const filtered = useMemo(()=>{
-        return products.filter(p=>
-            (p["????? ????????"] || "").includes(search) ||
-            (p["matched_name"] || "").toLowerCase().includes(search.toLowerCase())
-        );
-    },[products,search]);
-
-    const totalPages = Math.ceil(filtered.length/pageSize);
-
-    const paginated = useMemo(()=>{
-        const start = (page-1)*pageSize;
-        return filtered.slice(start,start+pageSize);
-    },[filtered,page]);
-
-    function toggleItem(sku){
-        setSelected(prev=>({
-            ...prev,
-            [sku]: !prev[sku]
-        }));
+  // دالة لتحليل سطر CSV مع احترام الحقول المحاطة بعلامات اقتباس
+  function parseCSVLine(line) {
+    const result = [];
+    let inQuote = false;
+    let current = "";
+    for (let i = 0; i < line.length; i++) {
+      const ch = line[i];
+      if (ch === '"') {
+        inQuote = !inQuote;
+      } else if (ch === ',' && !inQuote) {
+        result.push(current.trim());
+        current = "";
+      } else {
+        current += ch;
+      }
     }
+    result.push(current.trim());
+    // إزالة علامات الاقتباس المزدوجة من بداية ونهاية الحقل إذا وجدت
+    return result.map(field => {
+      if (field.startsWith('"') && field.endsWith('"')) return field.slice(1, -1);
+      return field;
+    });
+  }
 
-    async function createCart(){
-        const query = `
-            mutation {
-                createEmptyCart
-            }
-        `;
+  // التصفية حسب البحث (الاسم العربي أو matched_name)
+  const filtered = useMemo(() => {
+    return products.filter(p => {
+      const arabicName = p["الاسم بالعربية"] || "";
+      const matchedName = p.matched_name || "";
+      const term = search.trim().toLowerCase();
+      return arabicName.includes(term) || matchedName.toLowerCase().includes(term);
+    });
+  }, [products, search]);
 
-        const res = await fetch(
-            "https://mcprod.seoudisupermarket.com/graphql?source=45&store=ar_EG",
-            {
-                method:"POST",
-                headers:{
-                    "Content-Type":"application/json"
-                },
-                body:JSON.stringify({query})
-            }
-        );
+  const totalPages = Math.ceil(filtered.length / pageSize);
+  const paginated = useMemo(() => {
+    const start = (page - 1) * pageSize;
+    return filtered.slice(start, start + pageSize);
+  }, [filtered, page]);
 
-        const data = await res.json();
-        return data.data.createEmptyCart;
+  function toggleItem(sku) {
+    setSelected(prev => ({ ...prev, [sku]: !prev[sku] }));
+  }
+
+async function createCart() {
+  try {
+    const query = `
+      mutation CreateEmptyCart {
+        createEmptyCart {
+          cart_id
+          id
+        }
+      }
+    `;
+    
+    // ⚠️ إزالة credentials عند الاستدعاء من خار�� الموقع
+    const res = await fetch("https://mcprod.seoudisupermarket.com/graphql?source=45&store=ar_EG", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Accept": "application/json"
+      },
+      // credentials: "include", ❌ احذفها أو استخدم "omit"
+      credentials: "omit", // ✅ هذا أفضل
+      body: JSON.stringify({ query })
+    });
+    
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+    
+    if (data.errors) {
+      console.error("GraphQL Errors:", data.errors);
+      throw new Error(data.errors[0].message);
     }
+    
+    return data.data?.createEmptyCart?.id || data.data?.createEmptyCart?.cart_id || data.data?.createEmptyCart;
+  } catch (err) {
+    console.error("Cart creation failed:", err);
+    throw err;
+  }
+}
 
-    async function addItemsToCart(cartId,items){
+async function addItemsToCart(cartId, items) {
+  try {
+    const formattedItems = items.map(item => ({
+      sku: item.sku,
+      quantity: item.quantity || 1
+    }));
 
-        const query = `
-        mutation AddItem($cartId: String!, $items: [CartItemInput!]!) {
-          response: addProductsToCart(cartId: $cartId, cartItems: $items) {
-            user_errors {
-              code
-              message
+    const query = `
+      mutation AddProductsToCart($cartId: String!, $cartItems: [CartItemInput!]!) {
+        addProductsToCart(cartId: $cartId, cartItems: $cartItems) {
+          cart {
+            id
+            items {
+              product_name
+              quantity
+              sku
             }
           }
+          user_errors {
+            code
+            message
+            path
+          }
         }
-        `;
+      }
+    `;
 
-        const res = await fetch(
-            "https://mcprod.seoudisupermarket.com/graphql?source=45&store=ar_EG",
-            {
-                method:"POST",
-                headers:{
-                    "Content-Type":"application/json"
-                },
-                body:JSON.stringify({
-                    query,
-                    variables:{
-                        cartId,
-                        items
-                    }
-                })
-            }
-        );
+    const res = await fetch("https://mcprod.seoudisupermarket.com/graphql?source=45&store=ar_EG", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Accept": "application/json"
+      },
+      credentials: "omit", // ✅ إزالة credentials
+      body: JSON.stringify({
+        query,
+        variables: {
+          cartId: cartId,
+          cartItems: formattedItems
+        }
+      })
+    });
 
-        return await res.json();
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const response = await res.json();
+
+    if (response.errors) {
+      console.error("GraphQL Errors:", response.errors);
+      throw new Error(response.errors[0].message);
     }
 
-    async function goToCart(){
+    return response;
+  } catch (err) {
+    console.error("Add to cart failed:", err);
+    throw err;
+  }
+}
 
-        const checked = Object.keys(selected)
-            .filter(k=>selected[k])
-            .map(sku=>({
-                sku: sku,
-                quantity: 1
-            }));
+async function goToCart() {
+  const checked = Object.keys(selected)
+    .filter(sku => selected[sku])
+    .map(sku => ({ sku, quantity: 1 }));
 
-        if(!checked.length){
-            alert("???? ??? ???? ??? ?????");
-            return;
-        }
+  if (checked.length === 0) {
+    alert("اختر صنف واحد على الأقل");
+    return;
+  }
 
-        const cartId = await createCart();
+  try {
+    console.log("Creating cart...");
+    const cartId = await createCart();
+    console.log("✅ Cart created:", cartId);
 
-        await addItemsToCart(cartId,checked);
+    console.log("Adding items...", checked);
+    const response = await addItemsToCart(cartId, checked);
 
-        window.open(
-            `https://www.seoudisupermarket.com/cart?cartId=${cartId}`,
-            "_blank"
-        );
+    const cart = response.data?.addProductsToCart?.cart;
+    const userErrors = response.data?.addProductsToCart?.user_errors;
+
+    if (userErrors && userErrors.length > 0) {
+      console.error("User Errors:", userErrors);
+      alert("خطأ: " + userErrors[0].message);
+      return;
     }
 
-    return(
-        <div className="container">
+    if (cart && cart.items) {
+      console.log("✅ Items added successfully!");
+      console.log("Cart items:", cart.items);
+    }
 
-            <h1>????? ?????? ??? ??? ?????</h1>
+    // افتح الموقع
+    setTimeout(() => {
+      window.open(
+        `https://www.seoudisupermarket.com/ar/cart?cartId=${cartId}`,
+        "_blank"
+      );
+    }, 500);
 
-            <div className="toolbar">
-                <input
-                    type="text"
-                    placeholder="???? ?? ???..."
-                    value={search}
-                    onChange={(e)=>{
-                        setSearch(e.target.value);
-                        setPage(1);
-                    }}
-                />
-
-                <button onClick={goToCart}>
-                    ???? ??? ??? ?????
-                </button>
-            </div>
-
-            <div className="grid">
-                {paginated.map((p,index)=>(
-                    <div className="card" key={index}>
-
-                        <input
-                            type="checkbox"
-                            checked={!!selected[p.matched_sku]}
-                            onChange={()=>toggleItem(p.matched_sku)}
-                        />
-
-                        <img
-                            src={p.matched_image}
-                            onError={(e)=>{
-                                e.target.src = "https://via.placeholder.com/300x220?text=No+Image";
-                            }}
-                        />
-
-                        <h3>{p["????? ????????"]}</h3>
-
-                        <div>{p.matched_name}</div>
-
-                        <div className="price">
-                            {p["????? ??????"]} ????
-                        </div>
-
-                        <div>SKU: {p.matched_sku}</div>
-
-                        <div>???????: {p.confidence}</div>
-
-                    </div>
-                ))}
-            </div>
-
-            <div className="pagination">
-
-                <button
-                    disabled={page===1}
-                    onClick={()=>setPage(page-1)}
-                >
-                    ??????
-                </button>
-
-                <span>
-                    ???? {page} ?? {totalPages}
-                </span>
-
-                <button
-                    disabled={page===totalPages}
-                    onClick={()=>setPage(page+1)}
-                >
-                    ??????
-                </button>
-
-            </div>
+  } catch (err) {
+    console.error("❌ Error:", err);
+    alert("❌ خطأ: " + err.message);
+  }
+}
+  return (
+    <div className="container">
+      <h1>إضافة العروض إلى سلة سعودي</h1>
+      <div className="toolbar">
+        <input type="text" placeholder="ابحث عن صنف..." value={search} onChange={(e) => { setSearch(e.target.value); setPage(1); }} />
+        <button onClick={goToCart}>اذهب إلى سلة سعودي</button>
+      </div>
+      <div className="grid">
+        {paginated.map((p, idx) => (
+          <div className="card" key={idx}>
+            <input type="checkbox" checked={!!selected[p.matched_sku]} onChange={() => toggleItem(p.matched_sku)} />
+            <img src={p.matched_image} onError={(e) => { e.target.src = "https://via.placeholder.com/300x220?text=No+Image"; }} />
+            <h3>{p["الاسم بالعربية"] || "بدون اسم"}</h3>
+            <div>{p.matched_name || ""}</div>
+            <div className="price">{p["السعر الحالي"] || p.matched_price || "0"} جنيه</div>
+            <div>SKU: {p.matched_sku || "غير متوفر"}</div>
+            <div>التقييم: {p.confidence || p.match_score || "—"}</div>
+          </div>
+        ))}
+      </div>
+      {totalPages > 1 && (
+        <div className="pagination">
+          <button disabled={page === 1} onClick={() => setPage(page - 1)}>السابق</button>
+          <span>صفحة {page} من {totalPages}</span>
+          <button disabled={page === totalPages} onClick={() => setPage(page + 1)}>التالي</button>
         </div>
-    );
+      )}
+    </div>
+  );
 }
 
 ReactDOM.createRoot(document.getElementById("root")).render(<App />);
-
 </script>
-
-</body>
+  </body>
 </html>
