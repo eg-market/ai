@@ -396,8 +396,6 @@
               class="fas fa-th-large"></i> شبكي</button> <button class="view-btn active"
             id="view-table-btn"><i class="fas fa-table"></i> جدول</button> </div>
       </div>
-      <button><span style="white-space: nowrap;"><sup><b><span style="color: #333333; font-size: 16px; font-style: normal; font-variant-ligatures: normal; font-variant-caps: normal; font-weight: 700; letter-spacing: normal; text-align: center; text-indent: 0px; text-transform: none; word-spacing: 0px; -webkit-text-stroke-width: 0px; background-color: white; text-decoration-style: initial; text-decoration-color: initial; display: inline !important; float: none;">ادخل
-                علي حسابك في الصفحة الرئيسية : ليصلك مجانا تطبيق الموبايل</span></b></sup></span></button>
       <div class="products-grid" id="products-grid"></div>
       <div class="controls">
         <!-- ================= الصف 1 ================= -->
@@ -1311,7 +1309,7 @@
             chip.addEventListener('click', function() {
                 let filter = this.dataset.filter;
                 if (filter === 'all') {
-                    showLoading('جارٍ تحميل العروض القديمة...');
+                    showLoading('جارٍ تحميل العروض القديمة التحميل يستغرق حوالي 10 دقائق...');
                     fetch('https://eg-market.github.io/ai/final.xlsx')
                         .then(response => response.arrayBuffer())
                         .then(arrayBuffer => {
