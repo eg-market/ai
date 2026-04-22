@@ -505,8 +505,6 @@
     let bestPriceMode = false;
     let urlMarket = null;
     let oneDayFilter = false;   // <-- NEW: filter for one_day parameter
-  
-  let croppedImageCache = new Map();   // لتخزين الصور المقتطعة base64
 
     // ==================== IndexedDB ====================
     function openDB() {
@@ -559,69 +557,44 @@
     }
 
     // ==================== Data transformation ====================
-function transformRows(rows) {
-    return rows.map(item => {
-        let rawEndDate = String(item['end_date'] || '').trim();
-        let isoDate = convertArabicDateToISO(rawEndDate);
-        let d = isoDate ? new Date(isoDate) : null;
-        let status = String(item['status'] || '').trim();
-        if (status === 'س') status = 'منتهي';
-        let validUntil = String(item.validUntil || '').trim();
-        if (!validUntil || validUntil === 'غير متاح') validUntil = status || 'غير متاح';
-        let updateDateStr = item['تاريخ تعديل ملف الفلاير'] || item['Update Date'] || '';
-        let updateDate = null;
-        if (updateDateStr) {
-            let d2 = new Date(updateDateStr);
-            if (!isNaN(d2.getTime())) updateDate = d2;
-        }
-
-        // ========== استخراج إحداثيات الاقتصاص (تم نقلها إلى هنا) ==========
-        let cropX = null, cropY = null, cropW = null, cropH = null;
-        if (item['X'] !== undefined && item['Y'] !== undefined && item['Width'] !== undefined && item['Height'] !== undefined) {
-            cropX = parseFloat(item['X']);
-            cropY = parseFloat(item['Y']);
-            cropW = parseFloat(item['Width']);
-            cropH = parseFloat(item['Height']);
-        } else if (item['x1'] !== undefined && item['y1'] !== undefined && item['x2'] !== undefined && item['y2'] !== undefined) {
-            cropX = parseFloat(item['x1']);
-            cropY = parseFloat(item['y1']);
-            cropW = parseFloat(item['x2']) - cropX;
-            cropH = parseFloat(item['y2']) - cropY;
-        } else if (item['X1'] !== undefined && item['Y1'] !== undefined && item['X2'] !== undefined && item['Y2'] !== undefined) {
-            cropX = parseFloat(item['X1']);
-            cropY = parseFloat(item['Y1']);
-            cropW = parseFloat(item['X2']) - cropX;
-            cropH = parseFloat(item['Y2']) - cropY;
-        }
-        if (isNaN(cropX) || isNaN(cropY) || isNaN(cropW) || isNaN(cropH) || cropW <= 0 || cropH <= 0) {
-            cropX = cropY = cropW = cropH = null;
-        }
-        // ================================================================
-
-        return {
-            supermarket: String(item['اسم السوبر ماركت'] || ''),
-            product: String(item['الاسم بالعربية'] || ''),
-            primaryName: String(item['اسم المنتج (الأساسي)'] || ''),
-            unit: String(item['الوحدة'] || ''),
-            category: String(item['الفئة'] || ''),
-            brand: String(item['اسم العلامة التجارية'] || ''),
-            originalPrice: parseFloat(item['السعر الأصلي']) || 0,
-            currentPrice: parseFloat(item['السعر الحالي']) || 0,
-            discount: parseFloat(item['الخصم %']) || 0,
-            pageNo: String(item['اسم ملف الفلاير'] || ''),
-            solution_key: String(item['solution_key'] || ''),
-            currency: 'EGP',
-            endDate: d,
-            validUntil: validUntil,
-            updateDate: updateDate,
-            status: status,
-            _saved: 0,
-            _discount_pct: 0,
-            _score: 0,
-            crop: (cropX !== null) ? { x: cropX, y: cropY, w: cropW, h: cropH } : null
-        };
-    }).filter(item => item.product);
-}
+    function transformRows(rows) {
+        return rows.map(item => {
+            let rawEndDate = String(item['end_date'] || '').trim();
+            let isoDate = convertArabicDateToISO(rawEndDate);
+            let d = isoDate ? new Date(isoDate) : null;
+            let status = String(item['status'] || '').trim();
+            if (status === 'س') status = 'منتهي';
+            let validUntil = String(item.validUntil || '').trim();
+            if (!validUntil || validUntil === 'غير متاح') validUntil = status || 'غير متاح';
+            let updateDateStr = item['تاريخ تعديل ملف الفلاير'] || item['Update Date'] || '';
+            let updateDate = null;
+            if (updateDateStr) {
+                let d2 = new Date(updateDateStr);
+                if (!isNaN(d2.getTime())) updateDate = d2;
+            }
+            return {
+                supermarket: String(item['اسم السوبر ماركت'] || ''),
+                product: String(item['الاسم بالعربية'] || ''),
+                primaryName: String(item['اسم المنتج (الأساسي)'] || ''),
+                unit: String(item['الوحدة'] || ''),
+                category: String(item['الفئة'] || ''),
+                brand: String(item['اسم العلامة التجارية'] || ''),
+                originalPrice: parseFloat(item['السعر الأصلي']) || 0,
+                currentPrice: parseFloat(item['السعر الحالي']) || 0,
+                discount: parseFloat(item['الخصم %']) || 0,
+                pageNo: String(item['اسم ملف الفلاير'] || ''),
+                solution_key: String(item['solution_key'] || ''),
+                currency: 'EGP',
+                endDate: d,
+                validUntil: validUntil,
+                updateDate: updateDate,
+                status: status,
+                _saved: 0,
+                _discount_pct: 0,
+                _score: 0
+            };
+        }).filter(item => item.product);
+    }
 
     function convertArabicDateToISO(arabicDate) {
         const months = {
@@ -702,8 +675,6 @@ function transformRows(rows) {
         if (!d || !(d instanceof Date) || isNaN(d)) return 'غير متاح';
         return d.toISOString().split('T')[0];
     }
-  
-  
 
     // ==================== URL params ====================
     function applyUrlParams() {
@@ -781,40 +752,6 @@ function transformRows(rows) {
         }
     }
 
-      function updatePagination() {
-    const pagination = document.getElementById('pagination');
-    const totalPages = Math.ceil(filteredData.length / ITEMS_PER_PAGE);
-    if (totalPages <= 1) { pagination.innerHTML = ''; return; }
-    let html = '';
-    const maxVisible = 5;
-    if (currentPage > 1) {
-        html += `<button onclick="window.goToPage(1)"><i class="fas fa-angle-double-right"></i></button>`;
-        html += `<button onclick="window.goToPage(${currentPage-1})"><i class="fas fa-angle-right"></i></button>`;
-    }
-    let startPage = Math.max(1, currentPage - Math.floor(maxVisible / 2));
-    let endPage = Math.min(totalPages, startPage + maxVisible - 1);
-    if (endPage - startPage + 1 < maxVisible) startPage = Math.max(1, endPage - maxVisible + 1);
-    if (startPage > 1) {
-        html += `<button onclick="window.goToPage(1)">1</button>`;
-        if (startPage > 2) html += `<span>...</span>`;
-    }
-    for (let i = startPage; i <= endPage; i++) {
-        if (i === currentPage) html += `<button class="active" disabled>${i}</button>`;
-        else html += `<button onclick="window.goToPage(${i})">${i}</button>`;
-    }
-    if (endPage < totalPages) {
-        if (endPage < totalPages - 1) html += `<span>...</span>`;
-        html += `<button onclick="window.goToPage(${totalPages})">${totalPages}</button>`;
-    }
-    if (currentPage < totalPages) {
-        html += `<button onclick="window.goToPage(${currentPage+1})"><i class="fas fa-angle-left"></i></button>`;
-        html += `<button onclick="window.goToPage(${totalPages})"><i class="fas fa-angle-double-left"></i></button>`;
-    }
-    pagination.innerHTML = html;
-}
-window.goToPage = (page) => { currentPage = page; renderContent(); };
-    
-      
     async function loadData() {
         let stored = await loadFromDB();
         if (stored && stored.length > 0) {
@@ -1021,96 +958,58 @@ window.goToPage = (page) => { currentPage = page; renderContent(); };
     }
 
     function renderGrid() {
-    const grid = document.getElementById('products-grid');
-    grid.style.display = 'grid';
-    document.getElementById('data-table').style.display = 'none';
-    const start = (currentPage - 1) * ITEMS_PER_PAGE;
-    const pageData = filteredData.slice(start, start + ITEMS_PER_PAGE);
-    if (!pageData.length) {
-        grid.innerHTML = '<div style="grid-column:1/-1; text-align:center; padding:40px;">لا توجد عروض مطابقة</div>';
+        const grid = document.getElementById('products-grid');
+        grid.style.display = 'grid';
+        document.getElementById('data-table').style.display = 'none';
+        const start = (currentPage - 1) * ITEMS_PER_PAGE;
+        const pageData = filteredData.slice(start, start + ITEMS_PER_PAGE);
+        if (!pageData.length) {
+            grid.innerHTML = '<div style="grid-column:1/-1; text-align:center; padding:40px;">لا توجد عروض مطابقة</div>';
+            updatePagination();
+            return;
+        }
+        grid.innerHTML = pageData.map(item => {
+            const isFav = favorites.includes(item.solution_key);
+            const inComp = comparisonItems.some(c => c.product === item.product);
+            let productIcon = 'fa-box';
+            if (item.category) {
+                if (item.category.includes('غذائي')) productIcon = 'fa-utensils';
+                else if (item.category.includes('مشروب')) productIcon = 'fa-wine-bottle';
+            }
+            let marketIcon = item.supermarket?.includes('هايبر1') ? 'fa-shopping-cart' : 'fa-store';
+            let countdown = '';
+            if (item.endDate) {
+                let diff = Math.ceil((item.endDate - new Date()) / (1000*60*60*24));
+                if (diff <= 1 && diff >= 0) countdown = `<div class="countdown"><i class="fas fa-clock"></i> ${diff} يوم</div>`;
+            }
+            return `
+            <div class="product-card" data-product="${item.product}">
+                ${item._discount_pct > 50 ? '<div class="product-badge"><i class="fas fa-fire"></i> ساخن</div>' : ''}
+                <div class="favorite-btn ${isFav ? 'active' : ''}" data-id="${item.solution_key}"><i class="fas fa-heart"></i></div>
+                <div class="compare-btn ${inComp ? 'active' : ''}" data-id="${item.product}"><i class="fas fa-balance-scale"></i></div>
+                <div class="share-btn" data-product="${item.product}" data-price="${item.currentPrice}"><i class="fas fa-share-alt"></i></div>
+                <div class="product-image"><i class="fas ${productIcon}"></i></div>
+                <div class="product-info">
+                    <h3 class="product-title">${item.product}</h3>
+                    ${item.unit ? `<div><i class="fas fa-weight"></i> ${item.unit}</div>` : ''}
+                    <div class="price-container">
+                        <span class="current-price">${item.currentPrice} ${item.currency}</span>
+                        ${item._discount_pct ? `<span class="discount-badge">-${item._discount_pct}%</span>` : ''}
+                    </div>
+                    <div class="product-meta">
+                        <span><i class="fas ${marketIcon}"></i> ${item.supermarket}</span>
+                        ${countdown}
+                    </div>
+                    <div class="action-buttons">
+                        <button class="btn btn-primary buy-now-btn" data-page="${item.pageNo}" data-solution="${item.solution_key}"><i class="fas fa-image"></i> صورة</button>
+                        <button class="btn btn-secondary view-details-btn" data-id="${item.product}"><i class="fas fa-info-circle"></i> تفاصيل</button>
+                    </div>
+                </div>
+            </div>`;
+        }).join('');
+        attachCardEvents();
         updatePagination();
-        return;
     }
-    grid.innerHTML = pageData.map(item => {
-        const isFav = favorites.includes(item.solution_key);
-        const inComp = comparisonItems.some(c => c.product === item.product);
-        let productIcon = 'fa-box';
-        if (item.category) {
-            if (item.category.includes('غذائي')) productIcon = 'fa-utensils';
-            else if (item.category.includes('مشروب')) productIcon = 'fa-wine-bottle';
-        }
-        let marketIcon = item.supermarket?.includes('هايبر1') ? 'fa-shopping-cart' : 'fa-store';
-        let countdown = '';
-        if (item.endDate) {
-            let diff = Math.ceil((item.endDate - new Date()) / (1000*60*60*24));
-            if (diff <= 1 && diff >= 0) countdown = `<div class="countdown"><i class="fas fa-clock"></i> ${diff} يوم</div>`;
-        }
-        const hasCrop = item.crop && item.crop.w > 0 && item.crop.h > 0;
-        const imagePlaceholder = hasCrop ? 
-              
-            `<div class="product-image" data-product-key="${item.solution_key}" data-flyer="${item.pageNo?.match(/flyer_(\d+)/)?.[1] || item.solution_key}" data-crop='${JSON.stringify(item.crop)}' style="background:#f0f2f5;"><i class="fas fa-spinner fa-pulse"></i></div>` :
-            `<div class="product-image"><i class="fas ${productIcon}"></i></div>`;
-        return `
-        <div class="product-card" data-product="${item.product}">
-            ${item._discount_pct > 50 ? '<div class="product-badge"><i class="fas fa-fire"></i> ساخن</div>' : ''}
-            <div class="favorite-btn ${isFav ? 'active' : ''}" data-id="${item.solution_key}"><i class="fas fa-heart"></i></div>
-            <div class="compare-btn ${inComp ? 'active' : ''}" data-id="${item.product}"><i class="fas fa-balance-scale"></i></div>
-            <div class="share-btn" data-product="${item.product}" data-price="${item.currentPrice}"><i class="fas fa-share-alt"></i></div>
-            ${imagePlaceholder}
-            <div class="product-info">
-                <h3 class="product-title">${item.product}</h3>
-                ${item.unit ? `<div><i class="fas fa-weight"></i> ${item.unit}</div>` : ''}
-                <div class="price-container">
-                    <span class="current-price">${item.currentPrice} ${item.currency}</span>
-                    ${item._discount_pct ? `<span class="discount-badge">-${item._discount_pct}%</span>` : ''}
-                </div>
-                <div class="product-meta">
-                    <span><i class="fas ${marketIcon}"></i> ${item.supermarket}</span>
-                    ${countdown}
-                </div>
-                <div class="action-buttons">
-                    <button class="btn btn-primary buy-now-btn" data-page="${item.pageNo}" data-solution="${item.solution_key}"><i class="fas fa-image"></i> صورة</button>
-                    <button class="btn btn-secondary view-details-btn" data-id="${item.product}"><i class="fas fa-info-circle"></i> تفاصيل</button>
-                </div>
-            </div>
-        </div>`;
-    }).join('');
-    attachCardEvents();
-    // تحميل الصور المقتطعة عند الظهور
-    const imageContainers = document.querySelectorAll('.product-image[data-product-key]');
-      
-      // إذا لم تكن الصور مدعومة، نمنع الـ Observer
-if (!imageContainers.length) return;
-      
-    if (imageContainers.length) {
-        const observer = new IntersectionObserver((entries, obs) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    const container = entry.target;
-                    const productKey = container.dataset.productKey;
-                    const item = allData.find(i => i.solution_key === productKey);
-                    if (item && item.crop) {
-                        loadAndCropImage(item).then(dataUrl => {
-                            if (dataUrl) {
-                                container.innerHTML = `<img src="${dataUrl}" alt="صورة المنتج" style="width:100%; height:100%; object-fit:cover;">`;
-                            } else {
-                                container.innerHTML = '<i class="fas fa-image"></i>';
-                            }
-                        }).catch(() => {
-                            container.innerHTML = '<i class="fas fa-image"></i>';
-                        });
-                    } else {
-                        container.innerHTML = '<i class="fas fa-image"></i>';
-                    }
-                    obs.unobserve(container);
-                }
-            });
-        }, { rootMargin: '0px 0px 200px 0px' });
-        imageContainers.forEach(container => observer.observe(container));
-    }
-    updatePagination();
-}
-      
 
     function renderTable() {
         document.getElementById('products-grid').style.display = 'none';
@@ -1144,62 +1043,84 @@ if (!imageContainers.length) return;
       
         document.querySelectorAll('#table-body tr').forEach(tr => {
             tr.addEventListener('click', function(e) {
-    let url = this.dataset.url;
-    let flyerId = this.dataset.flyer;
-    let pageNo = this.dataset.page;
-    let pageNumber = pageNo?.match(/page_(\d+)/)?.[1] || '';
-    if (url && url !== '#') openWithOverlay(url, pageNumber, flyerId);
-});
+                let url = this.dataset.url;
+                let flyerId = this.dataset.flyer;
+                let pageNo = this.dataset.page;
+                let pageNumber = pageNo?.match(/page_(\d+)/)?.[1] || '';
+                if (url && url !== '#') openWithOverlay(url, pageNumber);
+            });
         });
         updatePagination();
     }
 
-function openWithOverlay(url, flyerFileName, pageNo) {
-    // بناء رابط الصورة المباشرة باستخدام رقم المجلد (flyerId) ورقم الصفحة (pageNo)
-    // مثال: https://example.com/flyers/folder_{flyerId}/page_{pageNo}.jpg
-    // يرجى تعديل الرابط أدناه حسب البنية الحقيقية للموقع الذي يخزن صور الفلايرات
-    
-    const flyerId = url.match(/d=([^&]+)/)?.[1] || '';  // استخراج flyerId من الرابط القديم
-    let imageUrl = '';
-    
-    if (flyerId && pageNo) {
-        // افترض أن الصورة موجودة بهذا الشكل (قم بتعديله):
-        imageUrl = `https://www.yabalashoffers.com/images/flyers/${flyerId}/page_${pageNo}.jpg`;
-        // إذا لم تظهر الصورة، جرب:
-        // imageUrl = `https://example.com/flyer_images/${flyerId}_${pageNo}.jpg`;
-    } else {
-        // fallback إلى الرابط القديم
-        imageUrl = url;
+    function openWithOverlay(url, flyerFileName) {
+        try {
+            const newWin = window.open('', '_blank');
+            if (newWin) {
+                newWin.document.write(`
+                    <!DOCTYPE html>
+                    <html>
+                    <head>
+                        <style>
+                            body { margin: 0; padding: 0; overflow: hidden; background: #f0f0f0; font-family: 'Cairo', sans-serif; }
+                            .overlay { position: fixed; bottom: 5px; left: 50%; transform: translateX(-50%); width: auto; max-width: 90vw; padding: 15px 30px; background: #1e3c72; color: white; font-size: 1.8rem; border-radius: 50px; box-shadow: 0 5px 15px rgba(0,0,0,0.3); display: flex; align-items: center; justify-content: center; gap: 15px; z-index: 10000; text-align: center; direction: rtl; }
+                            .iframe-wrapper { width: 100vw; height: 100vh; display: flex; flex-direction: column; }
+                            iframe { width: 100vw; height: 150vh; border: none; clip-path: inset(38% 0 16.2% 0); margin-top: -37vh; }
+                            @media only screen and (max-width: 768px) { .overlay { font-size: 1rem; padding: 10px 20px; } }
+                        </style>
+                    </head>
+                    <body>
+                        <div class="iframe-wrapper">
+                            <iframe src="${url}" scrolling="yes" onload="document.getElementById('guide-overlay').style.display='flex';"></iframe>
+                            <div class="overlay" id="guide-overlay" style="display: none;">
+                                اسحب الشاشة للأسفل حتى الصورة رقم ${flyerFileName || ''} واضغط عليها للتكبير
+                            </div>
+                        </div>
+                    </body>
+                    </html>
+                `);
+                newWin.document.close();
+            } else {
+                window.open(url, '_blank');
+            }
+        } catch (error) {
+            console.error('Error in openWithOverlay:', error);
+            window.open(url, '_blank');
+        }
     }
-    
-    // فتح نافذة جديدة تحتوي على الصورة فقط
-    const newWin = window.open('', '_blank');
-    if (newWin) {
-        newWin.document.write(`
-            <!DOCTYPE html>
-            <html dir="rtl">
-            <head>
-                <meta charset="UTF-8">
-                <title>صورة الفلاير</title>
-                <style>
-                    body { margin: 0; padding: 20px; background: #333; display: flex; justify-content: center; align-items: center; min-height: 100vh; font-family: Cairo, sans-serif; }
-                    img { max-width: 90vw; max-height: 90vh; box-shadow: 0 4px 20px rgba(0,0,0,0.5); border-radius: 8px; }
-                    .info { position: fixed; bottom: 10px; left: 10px; background: rgba(0,0,0,0.7); color: white; padding: 5px 10px; border-radius: 5px; font-size: 12px; }
-                </style>
-            </head>
-            <body>
-                <img src="${imageUrl}" alt="صفحة الفلاير ${pageNo}" onerror="this.onerror=null; this.src='${url}'; this.alt='تعذر تحميل الصورة';">
-                <div class="info">رقم الصفحة: ${pageNo || 'غير معروف'} | ${flyerId ? 'مجلد: '+flyerId : ''}</div>
-            </body>
-            </html>
-        `);
-        newWin.document.close();
-    } else {
-        window.open(url, '_blank');
-    }
-}
 
-     
+    function updatePagination() {
+        const pagination = document.getElementById('pagination');
+        const totalPages = Math.ceil(filteredData.length / ITEMS_PER_PAGE);
+        if (totalPages <= 1) { pagination.innerHTML = ''; return; }
+        let html = '';
+        const maxVisible = 5;
+        if (currentPage > 1) {
+            html += `<button onclick="window.goToPage(1)"><i class="fas fa-angle-double-right"></i></button>`;
+            html += `<button onclick="window.goToPage(${currentPage-1})"><i class="fas fa-angle-right"></i></button>`;
+        }
+        let startPage = Math.max(1, currentPage - Math.floor(maxVisible / 2));
+        let endPage = Math.min(totalPages, startPage + maxVisible - 1);
+        if (endPage - startPage + 1 < maxVisible) startPage = Math.max(1, endPage - maxVisible + 1);
+        if (startPage > 1) {
+            html += `<button onclick="window.goToPage(1)">1</button>`;
+            if (startPage > 2) html += `<span>...</span>`;
+        }
+        for (let i = startPage; i <= endPage; i++) {
+            if (i === currentPage) html += `<button class="active" disabled>${i}</button>`;
+            else html += `<button onclick="window.goToPage(${i})">${i}</button>`;
+        }
+        if (endPage < totalPages) {
+            if (endPage < totalPages - 1) html += `<span>...</span>`;
+            html += `<button onclick="window.goToPage(${totalPages})">${totalPages}</button>`;
+        }
+        if (currentPage < totalPages) {
+            html += `<button onclick="window.goToPage(${currentPage+1})"><i class="fas fa-angle-left"></i></button>`;
+            html += `<button onclick="window.goToPage(${totalPages})"><i class="fas fa-angle-double-left"></i></button>`;
+        }
+        pagination.innerHTML = html;
+    }
+    window.goToPage = (page) => { currentPage = page; renderContent(); };
 
     function updateStats() {
         document.getElementById('total-offers').textContent = filteredData.length;
@@ -1305,7 +1226,8 @@ function openWithOverlay(url, flyerFileName, pageNo) {
                 let url = flyerId ? `https://www.yabalashoffers.com/flyer.php?d=${encodeURIComponent(flyerId)}&c=eg` : '#';
                 if (url !== '#') {
                     let pageNumber = page?.match(/page_(\d+)/)?.[1] || '';
-openWithOverlay(url, pageNumber, flyerId);                }
+                    openWithOverlay(url, pageNumber);
+                }
             });
         });
         document.querySelectorAll('.view-details-btn').forEach(btn => {
@@ -1319,25 +1241,6 @@ openWithOverlay(url, pageNumber, flyerId);                }
             });
         });
     }
-
-function getFlyerImageUrl(flyerId) {
-    // الخيار 1: إذا كان هناك رابط مباشر للصورة (مثال افتراضي)
-    // return `https://www.yabalashoffers.com/images/flyers/${flyerId}.jpg`;
-    
-    // الخيار 2: استخدام خدمة تحويل الصفحة إلى صورة (غير موثوقة)
-    // return `https://api.screenshotmachine.com/?key=YOUR_KEY&url=https://www.yabalashoffers.com/flyer.php?d=${flyerId}&c=eg&dimension=1024x768`;
-    
-    // الخيار 3: تجاوز الـ iframe واستخدام الـ PDF إن وجد
-    console.warn('لا يوجد رابط صورة مباشر للفلاير', flyerId);
-    return null; // سيعود إلى الأيقونة الافتراضية
-}
-                                 
-
-async function loadAndCropImage(item) {
-    // حالياً لا توجد صور حقيقية متاحة، نعيد null لعرض الأيقونة
-    return null;
-}
-
 
     function updateComparisonPanel() {
         const panel = document.getElementById('comparison-panel');
