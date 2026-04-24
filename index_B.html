@@ -328,42 +328,50 @@
   }
 }
       
-      /* جعل الصف العلوي (المحتوي على البحث والفلاتر) ثابتاً في الأعلى */
+      /* ===== جعل صف البحث والفلترة العلوي ثابتاً ===== */
 .mobile-row.row-1 {
-    position: sticky;
+    position: -webkit-sticky;
+    position: fixed;
     top: 0;
-    background: var(--light-bg);
-    z-index: 100;
-    padding: 5px 0;
+    background-color: white;
+    z-index: 1000;
+    padding: 8px 0;
     margin: 0;
-    border-bottom: 1px solid #ddd;
-    background-color: white; /* لتغطية الخلفية أثناء التمرير */
+    border-bottom: 1px solid #eee;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
 }
 
-/* جعل أزرار التصفح ثابتة في الأسفل */
+/* ===== جعل أزرار التصفح ثابتة في الأسفل ===== */
 .pagination {
+    position: -webkit-sticky;
     position: sticky;
     bottom: 0;
-    background: var(--light-bg);
-    padding: 10px 0;
-    z-index: 100;
-    border-top: 1px solid #e9ecef;
-    margin-top: 20px;
     background-color: var(--light-bg);
+    z-index: 1000;
+    padding: 12px 0;
+    margin-top: 20px;
+    border-top: 1px solid #ddd;
+    justify-content: center;
 }
 
-/* توافق مع الموبايل */
+/* ضمان عدم وجود overflow يمنع الـ sticky */
+.container,
+.controls,
+#data-table {
+    overflow: visible !important;
+}
+
+/* على الموبايل التأكد من أن الخلفية تغطي المحتوى */
 @media (max-width: 768px) {
     .mobile-row.row-1 {
-        background: white;
+        background-color: white;
         top: 0;
     }
     .pagination {
-        background: var(--light-bg);
+        background-color: var(--light-bg);
         bottom: 0;
     }
 }
-      
       
   </style>
   </head>
