@@ -870,6 +870,8 @@ window.goToPage = (page) => { currentPage = page; renderContent(); };
         applyAllFilters();
         populateTicker();
         dataLoaded = true;
+       // ✅ استعادة الحالة المخزنة (إذا كانت موجودة)
+    restoreStateIfExists();
     }
 
     // ==================== Populate filters ====================
@@ -1154,27 +1156,23 @@ function renderTable() {
     <\/tr>`;
     }).join('');
     
-    document.querySelectorAll('#table-body tr').forEach(tr => {
+document.querySelectorAll('#table-body tr').forEach(tr => {
     tr.addEventListener('click', function(e) {
         let productName = this.cells[1]?.innerText || '';
         let productObj = allData.find(p => p.product === productName);
         if (productObj) {
-            // تخزين بيانات المنتج في sessionStorage
+            saveCurrentState();  // حفظ الحالة الحالية
             sessionStorage.setItem('selectedProduct', JSON.stringify(productObj));
-            // فتح صفحة التفاصيل في نافذة جديدة أو نفس النافذة (اختر)
             window.open('product_details.html', '_blank');
         } else {
-            // fallback: فتح الفلاير مباشرة
             let url = this.dataset.url;
             if (url && url !== '#') window.open(url, '_blank');
         }
     });
 });
-    updatePagination();
+        updatePagination();
 }
  
-      
-    
 
 function openWithOverlay(url, flyerFileName, pageNo, flyerIdFromAttr) {
     let flyerId = flyerIdFromAttr;
@@ -1275,6 +1273,26 @@ function openWithOverlay(url, flyerFileName, pageNo, flyerIdFromAttr) {
         }
     }
 
+  function saveCurrentState() {
+    const state = {
+        currentView: currentView,
+        activeChipFilter: activeChipFilter,
+        currentPage: currentPage,
+        search: document.getElementById('search-input').value,
+        supermarket: document.getElementById('supermarket-filter').value,
+        category: document.getElementById('category-filter').value,
+        brand: document.getElementById('brand-filter').value,
+        minDiscount: document.getElementById('min-discount').value,
+        minPrice: document.getElementById('min-price').value,
+        maxPrice: document.getElementById('max-price').value,
+        sort: document.getElementById('sort-by').value,
+        showAllOffers: showAllOffers,
+        oneDayFilter: oneDayFilter,
+        bestPriceMode: bestPriceMode
+    };
+    sessionStorage.setItem('offersPageState', JSON.stringify(state));
+}
+  
     function attachCardEvents() {
         document.querySelectorAll('.favorite-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
@@ -1522,6 +1540,58 @@ async function loadAndCropImage(item) {
     }
 
     function clearAutocomplete() { let list = document.getElementById('autocomplete-list'); if (list) list.remove(); }
+          function restoreStateIfExists() {
+    const saved = sessionStorage.getItem('offersPageState');
+    if (!saved) return false;
+    
+    try {
+        const state = JSON.parse(saved);
+        
+        currentView = state.currentView;
+        activeChipFilter = state.activeChipFilter;
+        currentPage = state.currentPage;
+        showAllOffers = state.showAllOffers;
+        oneDayFilter = state.oneDayFilter;
+        bestPriceMode = state.bestPriceMode;
+        
+        document.getElementById('search-input').value = state.search;
+        document.getElementById('supermarket-filter').value = state.supermarket;
+        document.getElementById('category-filter').value = state.category;
+        document.getElementById('brand-filter').value = state.brand;
+        document.getElementById('min-discount').value = state.minDiscount;
+        document.getElementById('min-price').value = state.minPrice;
+        document.getElementById('max-price').value = state.maxPrice;
+        document.getElementById('sort-by').value = state.sort;
+        
+        // تفعيل الـ chip المناسب
+        document.querySelectorAll('.chip').forEach(chip => {
+            chip.classList.remove('active');
+            if (chip.dataset.filter === state.activeChipFilter) {
+                chip.classList.add('active');
+            }
+        });
+        
+        // تطبيق الفلاتر وإعادة التصيير بعد تحميل البيانات
+        applyAllFilters();
+        
+        // تحديث عرض الأزرار (grid/table)
+        if (currentView === 'grid') {
+            document.getElementById('view-grid-btn').classList.add('active');
+            document.getElementById('view-table-btn').classList.remove('active');
+        } else {
+            document.getElementById('view-grid-btn').classList.remove('active');
+            document.getElementById('view-table-btn').classList.add('active');
+        }
+        
+        // حذف الحالة من sessionStorage بعد استعادتها (لمنع استعادتها مجدداً عند تحديث الصفحة)
+        sessionStorage.removeItem('offersPageState');
+        return true;
+    } catch(e) {
+        console.warn('خطأ في استعادة الحالة', e);
+        sessionStorage.removeItem('offersPageState');
+        return false;
+    }
+}
     function debounce(fn, delay) { return function(...args) { clearTimeout(debounceTimer); debounceTimer = setTimeout(() => fn.apply(this, args), delay); }; }
 
     // Start application
