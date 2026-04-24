@@ -329,47 +329,53 @@
 }
       
       /* ===== جعل صف البحث والفلترة العلوي ثابتاً ===== */
+/* تثبيت صف البحث والفلترة العلوي في الأعلى (fixed) مع حساب المسافة */
 .mobile-row.row-1 {
-    position: -webkit-sticky;
     position: fixed;
     top: 0;
-    background-color: white;
+    left: 0;
+    right: 0;
+    background: white;
     z-index: 1000;
-    padding: 8px 0;
+    padding: 8px 16px;
     margin: 0;
-    border-bottom: 1px solid #eee;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    border-bottom: 1px solid #ddd;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    /* نخفي العنصر مؤقتاً حتى نحسب المسافة */
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s;
 }
 
-/* ===== جعل أزرار التصفح ثابتة في الأسفل ===== */
+/* تثبيت أزرار التصفح في الأسفل */
 .pagination {
-    position: -webkit-sticky;
-    position: sticky;
+    position: fixed;
     bottom: 0;
-    background-color: var(--light-bg);
+    left: 0;
+    right: 0;
+    background: var(--light-bg);
     z-index: 1000;
-    padding: 12px 0;
-    margin-top: 20px;
+    padding: 10px;
+    margin: 0;
     border-top: 1px solid #ddd;
     justify-content: center;
+    background-color: white;
 }
 
-/* ضمان عدم وجود overflow يمنع الـ sticky */
-.container,
-.controls,
-#data-table {
-    overflow: visible !important;
+/* إضافة مساحة خالية في أعلى وأسفل المحتوى لعدم تغطية العناصر الثابتة */
+body {
+    padding-top: 70px;  /* يضبط حسب ارتفاع الصف العلوي بعد تحميل الصفحة */
+    padding-bottom: 70px; /* يضبط حسب ارتفاع أزرار التصفح */
 }
 
-/* على الموبايل التأكد من أن الخلفية تغطي المحتوى */
+/* تعديل على الموبايل */
 @media (max-width: 768px) {
     .mobile-row.row-1 {
-        background-color: white;
-        top: 0;
+        padding: 6px 12px;
     }
-    .pagination {
-        background-color: var(--light-bg);
-        bottom: 0;
+    body {
+        padding-top: 60px;
+        padding-bottom: 60px;
     }
 }
       
@@ -1647,6 +1653,27 @@ async function loadAndCropImage(item) {
         console.log("🚀 التطبيق جاهز مع دعم one_day");
     });
 })();
+      
+      // ضبط موقع الصف العلوي الثابت ليتجنب تغطية الإحصائيات
+function adjustFixedHeader() {
+    const statsDiv = document.querySelector('.stats-dashboard');
+    const headerRow = document.querySelector('.mobile-row.row-1');
+    if (statsDiv && headerRow) {
+        const statsHeight = statsDiv.offsetHeight;
+        headerRow.style.top = statsHeight + 'px';
+        headerRow.style.opacity = '1';
+        headerRow.style.pointerEvents = 'auto';
+        // تعديل padding-top للـ body لضمان عدم تداخل المحتوى
+        document.body.style.paddingTop = (statsHeight + headerRow.offsetHeight) + 'px';
+    }
+}
+
+// عند تحميل الصفحة وبعد أي تغيير في حجم الشاشة
+window.addEventListener('load', adjustFixedHeader);
+window.addEventListener('resize', adjustFixedHeader);
+// إعادة الضبط بعد عرض البيانات (لأن ارتفاع الإحصائيات قد يتغير)
+const observer = new MutationObserver(adjustFixedHeader);
+observer.observe(document.querySelector('.stats-dashboard'), { childList: true, subtree: true });
 </script>
   </body>
 </html>
