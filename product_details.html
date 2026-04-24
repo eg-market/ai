@@ -16,11 +16,13 @@
             height: 100vh;
             overflow: hidden;
         }
+        /* تخطيط ثنائي الأعمدة على الكمبيوتر */
         .split-layout {
             display: flex;
             height: 100vh;
             width: 100%;
         }
+        /* الجانب الأيسر (بيانات + صورة عامة) */
         .left-side {
             width: 35%;
             background: white;
@@ -30,6 +32,7 @@
             display: flex;
             flex-direction: column;
         }
+        /* الجانب الأيمن (الصورة الكبيرة) */
         .right-side {
             width: 65%;
             background: #1a1a2e;
@@ -39,6 +42,15 @@
             overflow: hidden;
             cursor: pointer;
         }
+        .right-side img {
+            max-width: 95%;
+            max-height: 95%;
+            object-fit: contain;
+            border-radius: 16px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+            transition: 0.2s;
+        }
+        /* صندوق الصورة العامة */
         .general-flyer {
             background: #f8f9fa;
             border-radius: 20px;
@@ -46,24 +58,25 @@
             margin-bottom: 20px;
             text-align: center;
             box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            cursor: pointer;
         }
         .general-flyer img {
             max-width: 100%;
             max-height: 220px;
             border-radius: 12px;
             box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-            cursor: pointer;
         }
         .general-flyer h4 {
             margin-top: 10px;
             color: #00539F;
             font-size: 0.9rem;
         }
+        /* الأزرار الستة */
         .actions-row {
             display: flex;
             flex-wrap: wrap;
             gap: 8px;
-            margin-bottom: 20px;
+            margin: 15px 0 20px;
             justify-content: center;
         }
         .btn {
@@ -93,28 +106,30 @@
         .btn-favorite.active { background: #c82333; color: #ffd700; }
         .btn:hover { opacity: 0.85; transform: translateY(-2px); }
         
-        .product-info { flex: 1; }
+        /* معلومات المنتج */
+        .product-info {
+            flex: 1;
+        }
         .title-row {
             display: flex;
             align-items: baseline;
-            flex-wrap: wrap-reverse;
-            gap: 8px;
-            margin-bottom: 12px;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 15px;
         }
         .product-title {
-            font-size: 1rem;
-            font-weight: 700;
+            font-size: 2rem;
+            font-weight: 800;
             color: #00539F;
             margin: 0;
-            flex: 1;
         }
         .supermarket-name {
-            font-size: 0.9rem;
+            font-size: 1.6rem;
             color: #FF6B00;
-            font-weight: 600;
+            font-weight: 700;
             display: flex;
             align-items: center;
-            gap: 4px;
+            gap: 8px;
         }
         .price-box {
             background: #e9ecef;
@@ -180,29 +195,49 @@
             font-weight: 600;
             margin-top: 20px;
         }
-        .right-side img {
+        
+        /* ===== modal لتكبير الصور ===== */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.95);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+        }
+        .modal img {
             max-width: 95%;
             max-height: 95%;
             object-fit: contain;
-            border-radius: 16px;
-            box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+            border-radius: 8px;
+        }
+        .modal .close {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            color: white;
+            font-size: 2rem;
+            cursor: pointer;
+            background: rgba(0,0,0,0.6);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
         
-        /* ========== شاشات كبيرة ========== */
-        @media (min-width: 769px) {
-            .product-title {
-                font-size: 2rem !important;   /* تكبير الاسم ضعف */
-            }
-            .supermarket-name {
-                font-size: 1.6rem !important; /* تكبير السوبر ماركت */
-            }
-            .title-row {
-                gap: 15px;
-            }
-        }
-        
-        /* ========== شاشات صغيرة ========== */
+        /* ===== استجابة الجوال ===== */
         @media (max-width: 768px) {
+            body {
+                overflow: auto;
+                height: auto;
+            }
             .split-layout {
                 flex-direction: column;
                 height: auto;
@@ -211,76 +246,67 @@
             .left-side, .right-side {
                 width: 100%;
             }
-            /* تصغير حجم الصورة الكبيرة لتظهر الست خانات بدون سكرول */
+            /* الصورة الكبيرة في الأعلى بحجم أصغر */
             .right-side {
-                min-height: 40vh;  /* كان 40vh، يمكن تقليصه إلى 35vh */
-                max-height: 45vh;
+                min-height: 35vh;
+                max-height: 35vh;
                 order: -1;
             }
             .right-side img {
-                max-height: 90%;
-                max-width: 90%;
+                max-height: 100%;
+                width: auto;
+                cursor: pointer;
             }
+            /* محتوى اليسار يظهر بعد الأزرار */
             .left-side {
-                max-height: none;
+                order: 0;
                 overflow-y: auto;
+                padding: 16px;
             }
-            .actions-row {
-                flex-wrap: wrap;
+            /* رفع سطر الاسم والسوبر ماركت ليكون فوق الأزرار مباشرة */
+            .title-row {
+                order: -1;
+                margin-top: 0;
+                margin-bottom: 10px;
                 justify-content: center;
-                gap: 6px;
-            }
-            .actions-row .btn {
-                flex: 1 0 calc(33% - 6px);
-                min-width: 70px;
-                font-size: 0.7rem;
-                padding: 8px 3px;
             }
             .product-title {
-                font-size: 0.95rem; /* كما هو */
+                font-size: 1.1rem;
             }
             .supermarket-name {
-                font-size: 0.85rem;
+                font-size: 0.95rem;
+            }
+            .actions-row {
+                order: 0;
+                margin: 10px 0;
+            }
+            .product-info {
+                order: 1;
+            }
+            .general-flyer {
+                order: 2;
+                margin-top: 10px;
+            }
+            .back-btn {
+                order: 3;
+            }
+            .price-box {
+                margin: 10px 0;
             }
             .current-price {
-                font-size: 1.3rem;
+                font-size: 1.4rem;
             }
             .detail-value {
                 font-size: 0.85rem;
             }
-            .general-flyer img {
-                max-height: 150px;
+            .actions-row .btn {
+                flex: 1 0 calc(33% - 6px);
+                font-size: 0.7rem;
+                padding: 6px 3px;
             }
-        }
-        
-        /* ========== Modal للتكبير ========== */
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 9999;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0,0,0,0.95);
-            justify-content: center;
-            align-items: center;
-            cursor: pointer;
-        }
-        .modal img {
-            max-width: 90%;
-            max-height: 90%;
-            object-fit: contain;
-            border-radius: 12px;
-        }
-        .modal-close {
-            position: absolute;
-            top: 20px;
-            left: 30px;
-            color: white;
-            font-size: 40px;
-            cursor: pointer;
-            z-index: 10000;
+            .general-flyer img {
+                max-height: 130px;
+            }
         }
     </style>
 </head>
@@ -289,9 +315,9 @@
     <div class="loading">جارٍ تحميل البيانات...</div>
 </div>
 
-<!-- Modal للتكبير -->
+<!-- Modal لتكبير الصور -->
 <div id="imageModal" class="modal" onclick="closeModal()">
-    <span class="modal-close">&times;</span>
+    <div class="close">&times;</div>
     <img id="modalImage" src="" alt="صورة مكبرة">
 </div>
 
@@ -355,6 +381,7 @@
         return null;
     }
 
+    // وظائف المفضلة والمشاركة
     window.shareProduct = function() {
         if (!productData) return;
         const text = `${productData.product} - بسعر ${productData.currentPrice} جنيه - ${productData.supermarket}`;
@@ -401,7 +428,7 @@
         document.getElementById('mainContainer').innerHTML = `<div style="padding:40px;text-align:center"><i class="fas fa-exclamation-triangle" style="font-size:3rem;color:#dc3545"></i><p>${msg}</p><button class="back-btn" onclick="window.close()">إغلاق</button></div>`;
     }
 
-    // دوال التكبير باستخدام Modal
+    // ===== دوال تكبير الصور =====
     function openModal(imgSrc) {
         const modal = document.getElementById('imageModal');
         const modalImg = document.getElementById('modalImage');
@@ -424,14 +451,6 @@
 
         const html = `
             <div class="left-side">
-                <div class="actions-row">
-                    <a href="tel:${phone}" class="btn btn-success"><i class="fas fa-phone-alt"></i> اتصل</a>
-                    <button onclick="showAddress('${address.replace(/'/g, "\\'")}')" class="btn btn-info"><i class="fas fa-map-marker-alt"></i> العنوان</button>
-                    <a href="${website}" target="_blank" class="btn btn-primary"><i class="fas fa-globe"></i> الموقع</a>
-                    <a href="${mapLink}" target="_blank" class="btn btn-danger"><i class="fas fa-map"></i> الخريطة</a>
-                    <button onclick="shareProduct()" class="btn btn-warning"><i class="fas fa-share-alt"></i> مشاركة</button>
-                    <button onclick="toggleFavorite()" class="btn btn-favorite" id="favoriteBtn"><i class="fas fa-heart"></i> تفضيل</button>
-                </div>
                 <div class="product-info">
                     <div class="title-row">
                         <div class="supermarket-name"><i class="fas fa-store"></i> ${productData.supermarket}</div>
@@ -440,6 +459,14 @@
                     <div class="price-box">
                         <div><span class="current-price">${productData.currentPrice} ${productData.currency}</span><span class="original-price">${productData.originalPrice} ج.م</span></div>
                         <span class="discount-badge">-${productData._discount_pct}%</span>
+                    </div>
+                    <div class="actions-row">
+                        <a href="tel:${phone}" class="btn btn-success"><i class="fas fa-phone-alt"></i> اتصل</a>
+                        <button onclick="showAddress('${address.replace(/'/g, "\\'")}')" class="btn btn-info"><i class="fas fa-map-marker-alt"></i> العنوان</button>
+                        <a href="${website}" target="_blank" class="btn btn-primary"><i class="fas fa-globe"></i> الموقع</a>
+                        <a href="${mapLink}" target="_blank" class="btn btn-danger"><i class="fas fa-map"></i> الخريطة</a>
+                        <button onclick="shareProduct()" class="btn btn-warning"><i class="fas fa-share-alt"></i> مشاركة</button>
+                        <button onclick="toggleFavorite()" class="btn btn-favorite" id="favoriteBtn"><i class="fas fa-heart"></i> تفضيل</button>
                     </div>
                     <div class="details-grid">
                         <div class="detail-item"><div class="detail-label">الاسم الأساسي</div><div class="detail-value">${productData.primaryName || '-'}</div></div>
@@ -450,13 +477,13 @@
                         <div class="detail-item"><div class="detail-label">تاريخ التحديث</div><div class="detail-value">${productData.updateDate ? new Date(productData.updateDate).toLocaleDateString('ar-EG') : '-'}</div></div>
                     </div>
                 </div>
-                <div class="general-flyer">
+                <div class="general-flyer" onclick="openModal('${generalImageUrl}')">
                     <h4><i class="fas fa-info-circle"></i> معلومات عامة (صفحة 1)</h4>
-                    ${generalImageUrl ? `<img src="${generalImageUrl}" alt="صفحة 1" onclick="openModal('${generalImageUrl}')" onerror="this.src='https://via.placeholder.com/300?text=No+Image'">` : '<i class="fas fa-image" style="font-size:3rem;color:#ccc"></i><p>لا توجد صورة عامة</p>'}
+                    ${generalImageUrl ? `<img src="${generalImageUrl}" alt="صفحة 1" onerror="this.src='https://via.placeholder.com/300?text=No+Image'">` : '<i class="fas fa-image" style="font-size:3rem;color:#ccc"></i><p>لا توجد صورة عامة</p>'}
                 </div>
                 <button class="back-btn" onclick="window.close()"><i class="fas fa-arrow-right"></i> إغلاق</button>
             </div>
-            <div class="right-side" onclick="openModal('${productImageUrl || ''}')">
+            <div class="right-side" onclick="openModal('${productImageUrl}')">
                 <img src="${productImageUrl || 'https://via.placeholder.com/500?text=صورة+المنتج'}" alt="المنتج" onerror="this.src='https://via.placeholder.com/500?text=Image+Not+Found'">
             </div>
         `;
