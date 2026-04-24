@@ -327,6 +327,44 @@
     overflow: visible !important;
   }
 }
+      
+      /* جعل الصف العلوي (المحتوي على البحث والفلاتر) ثابتاً في الأعلى */
+.mobile-row.row-1 {
+    position: sticky;
+    top: 0;
+    background: var(--light-bg);
+    z-index: 100;
+    padding: 5px 0;
+    margin: 0;
+    border-bottom: 1px solid #ddd;
+    background-color: white; /* لتغطية الخلفية أثناء التمرير */
+}
+
+/* جعل أزرار التصفح ثابتة في الأسفل */
+.pagination {
+    position: sticky;
+    bottom: 0;
+    background: var(--light-bg);
+    padding: 10px 0;
+    z-index: 100;
+    border-top: 1px solid #e9ecef;
+    margin-top: 20px;
+    background-color: var(--light-bg);
+}
+
+/* توافق مع الموبايل */
+@media (max-width: 768px) {
+    .mobile-row.row-1 {
+        background: white;
+        top: 0;
+    }
+    .pagination {
+        background: var(--light-bg);
+        bottom: 0;
+    }
+}
+      
+      
   </style>
   </head>
   <body>
