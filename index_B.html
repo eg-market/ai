@@ -7,8 +7,7 @@
     <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
     <title>عروض السوبرماركت - أفضل العروض اليومية</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;800&amp;display=swap"
-
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;800&amp;display=swap"
       rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.0/papaparse.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/lz-string/1.4.4/lz-string.min.js"></script>
@@ -379,14 +378,48 @@ body {
     }
 }
       
+      /* إزالة السطر الفارغ من الأعلى */
+.container {
+    margin-top: 0 !important;
+    padding-top: 0 !important;
+}
+
+.container > :first-child {
+    margin-top: 0 !important;
+    padding-top: 0 !important;
+}
+
+/* التأكد من أن العناصر المخفية لا تترك فراغاً */
+.hero-banner,
+.user-guide-banner,
+.hero-banner *,
+.user-guide-banner * {
+    display: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    height: 0 !important;
+    min-height: 0 !important;
+}
+
+/* إزالة أي هوامش علوية من العناصر التالية */
+.stats-dashboard,
+.filter-row {
+    margin-top: 0 !important;
+    padding-top: 0 !important;
+}
+
+body {
+    margin-top: 0;
+    padding-top: 0;
+}
+      
   </style>
   </head>
   <body>
     <div class="container">
       <div class="hero-banner">
         <div class="hero-content">
-          <h1>🛒سوق مصر : أفضل محرك بحث عن منتجات وعروض السوبرماركت
-            اليومية</h1>
+          <h1>🛒سوق مصر : أفضل محرك بحث عن منتجات وعروض السوبرماركت اليومية</h1>
           <p class="hero-subtitle">قارن الأسعار بين كبرى المتاجر - وفر حتى 70%</p>
           <div class="ticker-wrap">
             <div class="ticker-label"><i class="fas fa-bolt"></i> عروض مميزة</div>
@@ -441,10 +474,8 @@ body {
         <div class="filter-chips" id="filter-chips"> <button class="chip" data-filter="all">العروض
             القديمة</button> <button class="chip active" data-filter="active">العروض
             السارية</button> <button class="chip" data-filter="hot">عروض ساخنة</button>
-          <button class="chip" data-filter="ending">تنتهي قريباً</button> <button
-
-            class="chip" data-filter="discount">خصومات كبيرة</button> <button class="chip"
-
+          <button class="chip" data-filter="ending">تنتهي قريباً</button> <button
+            class="chip" data-filter="discount">خصومات كبيرة</button> <button class="chip"
             data-filter="carrefour">هايبر1</button> <button class="chip" data-filter="food">منتجات
             غذائية</button> <button class="chip" data-filter="recent">آخر يومين</button>
         </div>
@@ -455,8 +486,7 @@ body {
       <div class="products-grid" id="products-grid"></div>
       <div class="controls">
         <!-- ================= الصف 1 ================= -->
-        <div class="mobile-row row-1"> <input id="search-input" placeholder="ابحث عن منتج..."
-
+        <div class="mobile-row row-1"> <input id="search-input" placeholder="ابحث عن منتج..."
             type="text">
           <select id="category-filter">
             <option value="">إختار نوع المنتج</option>
@@ -470,12 +500,10 @@ body {
           <select id="supermarket-filter">
             <option value="">إختار السوبرماركت</option>
           </select>
-          <div class="price-controls"> <button id="min-decrease">−</button> <input
-
+          <div class="price-controls"> <button id="min-decrease">−</button> <input
               id="min-price" placeholder="السعر من" type="number"> <button id="min-increase">+</button>
           </div>
-          <div class="price-controls"> <button id="max-decrease">−</button> <input
-
+          <div class="price-controls"> <button id="max-decrease">−</button> <input
               id="max-price" placeholder="السعر إلى" type="number"> <button id="max-increase">+&nbsp;</button>
           </div>
         </div>
@@ -526,12 +554,9 @@ body {
       <div class="comparison-header" style="display:flex; justify-content:space-between; align-items:center;">
         <h3 style="margin:0;"><i class="fas fa-balance-scale"></i> مقارنة
           المنتجات (<span id="comparison-count">0</span>/4)</h3>
-        <div><button id="clear-comparison" style="background:#dc3545; color:white; border:none; padding:8px 16px; border-radius:6px;"><i
-
-              class="fas fa-trash"></i> مسح</button> <button id="close-comparison"
-
-            style="background:#6c757d; color:white; border:none; padding:8px 16px; border-radius:6px;"><i
-
+        <div><button id="clear-comparison" style="background:#dc3545; color:white; border:none; padding:8px 16px; border-radius:6px;"><i
+              class="fas fa-trash"></i> مسح</button> <button id="close-comparison"
+            style="background:#6c757d; color:white; border:none; padding:8px 16px; border-radius:6px;"><i
               class="fas fa-times"></i> إغلاق</button></div>
       </div>
       <div class="comparison-items" id="comparison-items" style="display:flex; gap:15px; overflow-x:auto; padding:10px 0;"></div>
@@ -1674,6 +1699,5 @@ window.addEventListener('resize', adjustFixedHeader);
 // إعادة الضبط بعد عرض البيانات (لأن ارتفاع الإحصائيات قد يتغير)
 const observer = new MutationObserver(adjustFixedHeader);
 observer.observe(document.querySelector('.stats-dashboard'), { childList: true, subtree: true });
-</script>
-  </body>
+</script> </body>
 </html>
