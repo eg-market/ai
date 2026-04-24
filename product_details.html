@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تفاصيل المنتج - عروض السوبرماركت</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.2/package/dist/xlsx.full.min.js"></script>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Cairo', sans-serif;
+            background: #f0f2f5;
+            direction: rtl;
+            height: 100vh;
+            overflow: hidden;
+        }
+        .split-layout {
+            display: flex;
+            height: 100vh;
+            width: 100%;
+        }
+        /* الجانب الأيسر (أصغر - معلومات عامة + تفاصيل المنتج) */
+        .left-side {
+            width: 35%;
+            background: white;
+            box-shadow: 4px 0 12px rgba(0,0,0,0.05);
+            overflow-y: auto;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+        }
+        /* الجانب الأيمن (أكبر - الصورة المقتطعة) */
+        .right-side {
+            width: 65%;
+            background: #1a1a2e;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+        .general-flyer {
+            background: #f8f9fa;
+            border-radius: 20px;
+            padding: 15px;
+            margin-bottom: 25px;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .general-flyer img {
+            max-width: 100%;
+            max-height: 280px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        .general-flyer h4 {
+            margin-top: 10px;
+            color: #00539F;
+            font-size: 0.9rem;
+        }
+        .product-info {
+            flex: 1;
+        }
+        .product-title {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: #00539F;
+            margin-bottom: 10px;
+        }
+        .supermarket-name {
+            font-size: 1.2rem;
+            color: #FF6B00;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .price-box {
+            background: #e9ecef;
+            border-radius: 16px;
+            padding: 15px;
+            margin: 20px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            flex-wrap: wrap;
+        }
+        .current-price {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: #00539F;
+        }
+        .original-price {
+            text-decoration: line-through;
+            color: #6c757d;
+            margin-left: 10px;
+        }
+        .discount-badge {
+            background: #DC3545;
+            color: white;
+            padding: 5px 12px;
+            border-radius: 30px;
+            font-weight: 700;
+        }
+        .details-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin: 20px 0;
+        }
+        .detail-item {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 12px;
+        }
+        .detail-label {
+            font-size: 0.7rem;
+            color: #6c757d;
+        }
+        .detail-value {
+            font-weight: 700;
+            color: #333;
+            font-size: 0.9rem;
+        }
+        .actions {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin: 20px 0;
+        }
+        .btn {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 12px;
+            font-family: 'Cairo', sans-serif;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            text-decoration: none;
+            color: white;
+            font-size: 0.9rem;
+            transition: 0.2s;
+        }
+        .btn-primary { background: #00539F; }
+        .btn-success { background: #28A745; }
+        .btn-info { background: #17a2b8; }
+        .btn-danger { background: #DC3545; }
+        .btn:hover { opacity: 0.85; transform: translateY(-2px); }
+        .back-btn {
+            background: #6c757d;
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 30px;
+            cursor: pointer;
+            width: 100%;
+            font-family: 'Cairo', sans-serif;
+            margin-top: 20px;
+        }
+        .right-side img {
+            max-width: 95%;
+            max-height: 95%;
+            object-fit: contain;
+            border-radius: 16px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+        }
+        .loading {
+            text-align: center;
+            padding: 50px;
+            font-size: 1.2rem;
+        }
+        hr { margin: 15px 0; }
+        @media (max-width: 768px) {
+            .split-layout { flex-direction: column-reverse; }
+            .left-side, .right-side { width: 100%; height: auto; }
+            .right-side { min-height: 50vh; }
+            .left-side { max-height: 50vh; overflow-y: auto; }
+        }
+    </style>
+</head>
+<body>
+<div class="split-layout" id="mainContainer">
+    <div class="loading">جارٍ تحميل البيانات...</div>
+</div>
+
+<script>
+    // ==================== متغيرات عامة ====================
+    let productData = null;
+    let supermarketData = {};  // سيتم ملؤه من ملف Excel
+
+    // بيانات افتراضية للعرض في حال عدم وجود ملف السوبرماركت
+    const defaultSupermarketInfo = {
+        phone: "0123456789",
+        address: "شارع التسوق، مول مصر، القاهرة",
+        website: "https://www.example.com",
+        map_link: "https://maps.google.com/?q=30.0444,31.2357"
+    };
+
+    // ==================== تحميل بيانات المنتج من sessionStorage ====================
+    function loadProductFromSession() {
+        const stored = sessionStorage.getItem('selectedProduct');
+        if (!stored) {
+            showError('لم يتم العثور على بيانات المنتج. يرجى العودة إلى الصفحة الرئيسية والمحاولة مرة أخرى.');
+            return false;
+        }
+        try {
+            productData = JSON.parse(stored);
+            return true;
+        } catch(e) {
+            showError('خطأ في قراءة بيانات المنتج');
+            return false;
+        }
+    }
+
+    // ==================== تحميل بيانات السوبرماركت من Excel ====================
+    async function loadSupermarketData() {
+        const excelUrl = 'supermarkets.xlsx';
+        try {
+            const response = await fetch(excelUrl);
+            if (!response.ok) {
+                console.warn('ملف السوبرماركت غير موجود، سيتم استخدام بيانات افتراضية');
+                return;
+            }
+            const arrayBuffer = await response.arrayBuffer();
+            const workbook = XLSX.read(arrayBuffer, { type: 'array' });
+            const sheet = workbook.Sheets[workbook.SheetNames[0]];
+            const rows = XLSX.utils.sheet_to_json(sheet);
+            rows.forEach(row => {
+                const name = row['supermarket_name'] || row['اسم السوبرماركت'];
+                if (name) {
+                    supermarketData[name] = {
+                        phone: row['phone'] || row['هاتف'] || '',
+                        address: row['address'] || row['العنوان'] || '',
+                        website: row['website'] || row['موقع'] || '',
+                        map_link: row['map_link'] || row['رابط الخريطة'] || ''
+                    };
+                }
+            });
+            console.log('تم تحميل بيانات السوبرماركت:', supermarketData);
+        } catch(err) {
+            console.error('فشل تحميل بيانات السوبرماركت:', err);
+        }
+    }
+
+    // ==================== بناء الروابط ====================
+    function getProductImageUrl(item) {
+        let flyerId = item.pageNo?.match(/flyer_(\d+)/)?.[1] || item.solution_key;
+        let pageNumber = item.pageNo?.match(/page_(\d+)/)?.[1] || '';
+        if (flyerId && pageNumber) {
+            return `https://www.mobappsbaker.com/catalogs/thwr/offers/${flyerId}/${pageNumber}.jpg`;
+        }
+        return null;
+    }
+
+    function getGeneralFlyerUrl(item) {
+        // الصفحة الأولى من نفس المجلد (page_1.jpg)
+        let flyerId = item.pageNo?.match(/flyer_(\d+)/)?.[1] || item.solution_key;
+        if (flyerId) {
+            return `https://www.mobappsbaker.com/catalogs/thwr/offers/${flyerId}/1.jpg`;
+        }
+        return null;
+    }
+
+    // ==================== عرض الصفحة ====================
+    function renderPage() {
+        if (!productData) return;
+        
+        const productImageUrl = getProductImageUrl(productData);
+        const generalImageUrl = getGeneralFlyerUrl(productData);
+        const marketInfo = supermarketData[productData.supermarket] || defaultSupermarketInfo;
+        
+        // التأكد من وجود أزرار حتى لو كانت البيانات افتراضية
+        const phone = marketInfo.phone || defaultSupermarketInfo.phone;
+        const address = marketInfo.address || defaultSupermarketInfo.address;
+        const website = marketInfo.website || defaultSupermarketInfo.website;
+        const mapLink = marketInfo.map_link || defaultSupermarketInfo.map_link;
+        
+        const html = `
+            <div class="left-side">
+                <div class="general-flyer">
+                    <h4><i class="fas fa-info-circle"></i> معلومات عامة (صفحة 1)</h4>
+                    ${generalImageUrl ? `<img src="${generalImageUrl}" alt="الصفحة الأولى للفلاير" onerror="this.src='https://via.placeholder.com/300?text=No+Image'">` : '<i class="fas fa-image" style="font-size: 3rem; color: #ccc;"></i><p>لا توجد صورة عامة</p>'}
+                </div>
+                
+                <div class="product-info">
+                    <div class="product-title">${productData.product}</div>
+                    <div class="supermarket-name">
+                        <i class="fas fa-store"></i> ${productData.supermarket}
+                    </div>
+                    
+                    <div class="price-box">
+                        <div>
+                            <span class="current-price">${productData.currentPrice} ${productData.currency}</span>
+                            <span class="original-price">${productData.originalPrice} ج.م</span>
+                        </div>
+                        <span class="discount-badge">-${productData._discount_pct}%</span>
+                    </div>
+                    
+                    <div class="details-grid">
+                        <div class="detail-item"><div class="detail-label">الاسم الأساسي</div><div class="detail-value">${productData.primaryName || '-'}</div></div>
+                        <div class="detail-item"><div class="detail-label">الوحدة</div><div class="detail-value">${productData.unit || '-'}</div></div>
+                        <div class="detail-item"><div class="detail-label">الفئة</div><div class="detail-value">${productData.category || '-'}</div></div>
+                        <div class="detail-item"><div class="detail-label">العلامة التجارية</div><div class="detail-value">${productData.brand || '-'}</div></div>
+                        <div class="detail-item"><div class="detail-label">ساري حتى</div><div class="detail-value">${productData.validUntil || '-'}</div></div>
+                        <div class="detail-item"><div class="detail-label">تاريخ التحديث</div><div class="detail-value">${productData.updateDate ? new Date(productData.updateDate).toLocaleDateString('ar-EG') : '-'}</div></div>
+                    </div>
+                    
+                    <hr>
+                    
+                    <div class="actions">
+                        <a href="tel:${phone}" class="btn btn-success"><i class="fas fa-phone-alt"></i> اتصل</a>
+                        <button onclick="showAddress('${address.replace(/'/g, "\\'")}')" class="btn btn-info"><i class="fas fa-map-marker-alt"></i> العنوان</button>
+                        <a href="${website}" target="_blank" class="btn btn-primary"><i class="fas fa-globe"></i> الموقع</a>
+                        <a href="${mapLink}" target="_blank" class="btn btn-danger"><i class="fas fa-map"></i> الخريطة</a>
+                    </div>
+                    
+                    <button class="back-btn" onclick="window.close()"><i class="fas fa-arrow-right"></i> إغلاق</button>
+                </div>
+            </div>
+            <div class="right-side">
+                <img src="${productImageUrl || 'https://via.placeholder.com/500?text=صورة+المنتج'}" alt="صورة المنتج" onerror="this.src='https://via.placeholder.com/500?text=Image+Not+Found'">
+            </div>
+        `;
+        
+        document.getElementById('mainContainer').innerHTML = html;
+    }
+    
+    function showAddress(addr) {
+        alert(`العنوان:\n${addr}`);
+        // يمكن فتح خرائط جوجل بنص العنوان
+        window.open(`https://www.google.com/maps?q=${encodeURIComponent(addr)}`, '_blank');
+    }
+    
+    function showError(msg) {
+        document.getElementById('mainContainer').innerHTML = `
+            <div style="padding: 40px; text-align: center; width: 100%;">
+                <i class="fas fa-exclamation-triangle" style="font-size: 3rem; color: #dc3545;"></i>
+                <p style="margin-top: 20px;">${msg}</p>
+                <button class="back-btn" onclick="window.close()">إغلاق</button>
+            </div>
+        `;
+    }
+    
+    // ==================== بدء التشغيل ====================
+    (async function init() {
+        if (!loadProductFromSession()) return;
+        await loadSupermarketData();
+        renderPage();
+    })();
+</script>
+</body>
+</html>
