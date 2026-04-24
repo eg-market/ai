@@ -2,7 +2,7 @@
 <html dir="rtl" lang="ar">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>تفاصيل المنتج - عروض السوبرماركت</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
@@ -96,22 +96,23 @@
             display: flex;
             align-items: baseline;
             flex-wrap: wrap;
-            gap: 10px;
-            margin-bottom: 15px;
+            gap: 8px;
+            margin-bottom: 12px;
         }
         .product-title {
-            font-size: 1.6rem;
-            font-weight: 800;
+            font-size: 1rem;
+            font-weight: 700;
             color: #00539F;
             margin: 0;
+            flex: 1;
         }
         .supermarket-name {
-            font-size: 1.1rem;
+            font-size: 0.9rem;
             color: #FF6B00;
             font-weight: 600;
             display: flex;
             align-items: center;
-            gap: 5px;
+            gap: 4px;
         }
         .price-box {
             background: #e9ecef;
@@ -184,13 +185,51 @@
             border-radius: 16px;
             box-shadow: 0 8px 25px rgba(0,0,0,0.3);
         }
+        
+        /* استجابة الشاشات الصغيرة */
         @media (max-width: 768px) {
-            .split-layout { flex-direction: column-reverse; }
-            .left-side, .right-side { width: 100%; height: auto; }
-            .right-side { min-height: 50vh; }
-            .left-side { max-height: 50vh; overflow-y: auto; }
-            .actions-row { flex-wrap: nowrap; overflow-x: auto; padding-bottom: 5px; }
-            .actions-row .btn { flex: 0 0 auto; }
+            .split-layout {
+                flex-direction: column;
+                height: auto;
+                min-height: 100vh;
+            }
+            .left-side, .right-side {
+                width: 100%;
+            }
+            .right-side {
+                min-height: 40vh;
+                order: -1;  /* الصورة الكبيرة تظهر أولاً */
+            }
+            .left-side {
+                max-height: none;
+                overflow-y: auto;
+            }
+            .actions-row {
+                flex-wrap: wrap;
+                justify-content: center;
+                gap: 6px;
+            }
+            .actions-row .btn {
+                flex: 1 0 calc(33% - 6px);
+                min-width: 70px;
+                font-size: 0.7rem;
+                padding: 8px 3px;
+            }
+            .product-title {
+                font-size: 0.95rem;
+            }
+            .supermarket-name {
+                font-size: 0.85rem;
+            }
+            .current-price {
+                font-size: 1.3rem;
+            }
+            .detail-value {
+                font-size: 0.85rem;
+            }
+            .general-flyer img {
+                max-height: 150px;
+            }
         }
     </style>
 </head>
@@ -275,7 +314,7 @@
     }
 
     // ==================== دوال المشاركة والتفضيل ====================
-    function shareProduct() {
+    window.shareProduct = function() {
         if (!productData) return;
         const text = `${productData.product} - بسعر ${productData.currentPrice} جنيه - ${productData.supermarket}`;
         if (navigator.share) {
@@ -284,9 +323,9 @@
             navigator.clipboard.writeText(text + ' ' + window.location.href);
             alert('تم نسخ الرابط والتفاصيل إلى الحافظة');
         }
-    }
+    };
 
-    function toggleFavorite() {
+    window.toggleFavorite = function() {
         if (!productData) return;
         let favorites = JSON.parse(localStorage.getItem('product_favorites') || '[]');
         const exists = favorites.some(f => f.solution_key === productData.solution_key);
@@ -305,7 +344,7 @@
         }
         localStorage.setItem('product_favorites', JSON.stringify(favorites));
         updateFavoriteButtonStatus();
-    }
+    };
 
     function updateFavoriteButtonStatus() {
         if (!productData) return;
@@ -331,10 +370,10 @@
         setTimeout(() => toast.remove(), 2000);
     }
 
-    function showAddress(addr) {
+    window.showAddress = function(addr) {
         alert(`العنوان:\n${addr}`);
         window.open(`https://www.google.com/maps?q=${encodeURIComponent(addr)}`, '_blank');
-    }
+    };
 
     function showError(msg) {
         document.getElementById('mainContainer').innerHTML = `
@@ -372,8 +411,8 @@
 
                 <div class="product-info">
                     <div class="title-row">
-                        <div class="product-title">${productData.product}</div>
                         <div class="supermarket-name"><i class="fas fa-store"></i> ${productData.supermarket}</div>
+                        <div class="product-title">${productData.product}</div>
                     </div>
                     <div class="price-box">
                         <div>
