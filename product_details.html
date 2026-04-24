@@ -233,81 +233,87 @@
         }
         
         /* ===== استجابة الجوال ===== */
-        @media (max-width: 768px) {
-            body {
-                overflow: auto;
-                height: auto;
-            }
-            .split-layout {
-                flex-direction: column;
-                height: auto;
-                min-height: 100vh;
-            }
-            .left-side, .right-side {
-                width: 100%;
-            }
-            /* الصورة الكبيرة في الأعلى بحجم أصغر */
-            .right-side {
-                min-height: 35vh;
-                max-height: 35vh;
-                order: -1;
-            }
-            .right-side img {
-                max-height: 100%;
-                width: auto;
-                cursor: pointer;
-            }
-            /* محتوى اليسار يظهر بعد الأزرار */
-            .left-side {
-                order: 0;
-                overflow-y: auto;
-                padding: 16px;
-            }
-            /* رفع سطر الاسم والسوبر ماركت ليكون فوق الأزرار مباشرة */
-            .title-row {
-                order: -1;
-                margin-top: 0;
-                margin-bottom: 10px;
-                justify-content: center;
-            }
-            .product-title {
-                font-size: 1.1rem;
-            }
-            .supermarket-name {
-                font-size: 0.95rem;
-            }
-            .actions-row {
-                order: 0;
-                margin: 10px 0;
-            }
-            .product-info {
-                order: 1;
-            }
-            .general-flyer {
-                order: 2;
-                margin-top: 10px;
-            }
-            .back-btn {
-                order: 3;
-            }
-            .price-box {
-                margin: 10px 0;
-            }
-            .current-price {
-                font-size: 1.4rem;
-            }
-            .detail-value {
-                font-size: 0.85rem;
-            }
-            .actions-row .btn {
-                flex: 1 0 calc(33% - 6px);
-                font-size: 0.7rem;
-                padding: 6px 3px;
-            }
-            .general-flyer img {
-                max-height: 130px;
-            }
-        }
+@media (max-width: 768px) {
+    body {
+        overflow: auto;
+        height: auto;
+    }
+    .split-layout {
+        flex-direction: column;
+        height: auto;
+        min-height: 100vh;
+    }
+    .left-side, .right-side {
+        width: 100%;
+    }
+    .right-side {
+        min-height: 35vh;
+        max-height: 35vh;
+        order: -1;
+    }
+    .right-side img {
+        max-height: 100%;
+        width: auto;
+        cursor: pointer;
+    }
+    .left-side {
+        order: 0;
+        overflow-y: auto;
+        padding: 12px;
+    }
+    /* تقليل المسافات الرأسية للعناصر */
+    .title-row {
+        order: -1;
+        margin-top: 0;
+        margin-bottom: 6px;
+        justify-content: center;
+    }
+    .product-title {
+        font-size: 1rem;
+    }
+    .supermarket-name {
+        font-size: 0.85rem;
+    }
+    .actions-row {
+        order: 0;
+        margin: 6px 0 10px;
+        gap: 6px;
+    }
+    .actions-row .btn {
+        flex: 1 0 calc(33% - 6px);
+        font-size: 0.7rem;
+        padding: 5px 3px;
+    }
+    .price-box {
+        margin: 8px 0;
+        padding: 6px 10px;
+    }
+    .current-price {
+        font-size: 1.3rem;
+    }
+    /* تقليل padding و gap للمربعات الستة */
+    .details-grid {
+        gap: 8px;
+        margin: 10px 0;
+    }
+    .detail-item {
+        padding: 6px 8px;   /* ← تم التصغير (كان 12px) */
+    }
+    .detail-value {
+        font-size: 0.85rem;
+    }
+    .general-flyer {
+        margin-bottom: 12px;
+        padding: 10px;
+    }
+    .general-flyer img {
+        max-height: 120px;
+    }
+    .back-btn {
+        padding: 10px;
+        margin-top: 12px;
+    }
+}
     </style>
 </head>
 <body>
