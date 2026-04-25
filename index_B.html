@@ -7,7 +7,8 @@
     <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
     <title>عروض السوبرماركت - أفضل العروض اليومية</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;800&amp;display=swap"
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;800&amp;display=swap"
+
       rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.0/papaparse.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/lz-string/1.4.4/lz-string.min.js"></script>
@@ -35,6 +36,7 @@
     * { box-sizing: border-box; }
     body {
       margin: 0;
+      padding: 0;
       font-family: 'Cairo', sans-serif;
       background: var(--light-bg);
       color: var(--text);
@@ -47,14 +49,19 @@
       padding: 0 16px;
     }
 
-    /* Hero Banner */
-     .hero-banner {
-    display: none !important;
-  }
-  .hero-banner h1 { font-size:1.8rem; font-weight:800; margin:0 0 5px; text-shadow:0 2px 4px rgba(0,0,0,0.2); }
-    .hero-subtitle { font-size:1rem; opacity:0.95; margin-bottom:10px; }
+    /* إخفاء البانرات غير المرغوب فيها نهائياً */
+    .hero-banner,
+    .user-guide-banner,
+    .hero-banner *,
+    .user-guide-banner * {
+      display: none !important;
+      height: 0 !important;
+      min-height: 0 !important;
+      margin: 0 !important;
+      padding: 0 !important;
+    }
 
-    /* Ticker */
+    /* Ticker - يظهر داخل hero-banner ولكن تم إخفاء الحاوية، يمكن إبقاؤه أو إخفاؤه */
     .ticker-wrap {
       width:100%; background:var(--ticker-bg); color:var(--ticker-text); border-radius:8px;
       display:flex; align-items:center; padding:4px 8px; box-shadow:0 4px 12px rgba(0,0,0,0.12); margin-top:5px;
@@ -67,10 +74,14 @@
     .ticker-item .badge { background:var(--ticker-accent); color:#000; padding:3px 6px; border-radius:4px; font-weight:700; }
 
     /* Stats Dashboard */
-    .stats-dashboard .stat-card {
-    flex: 0 0 auto;
-    min-width: 130px;
-  }
+    .stats-dashboard {
+      display: flex;
+      flex-wrap: nowrap;
+      overflow-x: auto;
+      gap: 12px;
+      margin: 0 0 12px 0;
+      padding: 5px 0;
+    }
     .stat-card {
       background: white;
       border-radius: 10px;
@@ -80,42 +91,108 @@
       display: flex;
       align-items: center;
       gap: 8px;
+      flex: 0 0 auto;
+      min-width: 130px;
     }
     .stat-icon { font-size:1.5rem; width:35px; text-align:center; color: var(--primary-blue); }
     .stat-value { font-size:1.2rem; font-weight:700; color: var(--primary-blue); line-height:1.2; }
     .stat-label { font-size:0.75rem; color: var(--muted); font-weight:600; }
 
-    html, body { width:100%; max-width:100%; overflow-x:hidden; margin:0; padding:0; }
+    html, body { width:100%; max-width:100%; overflow-x:hidden; }
     .container { width:100%; max-width:100%; padding:0 12px; box-sizing:border-box; }
-    .products-grid { grid-template-columns: repeat(auto-fill, minmax(240px,1fr)); gap:12px; padding:0; width:100%; }
-    #data-table { overflow-x:auto; width:100%; }
-    table { min-width:600px; }
-    .price-controls { display:flex; gap:8px; align-items:center; background:#f8f9fa; padding:5px; border-radius:10px; }
-    .price-controls button { width:36px; height:36px; padding:0; font-size:18px; background:white; color:#333; border:1px solid #ddd; }
-    .price-controls input { width:80px; min-width:0; }
-      .filter-row {
-    display: flex !important;
-    flex-wrap: nowrap !important;
-    overflow-x: auto !important;
-  }
-   .filter-chips {
-    flex-wrap: nowrap !important;
-  }
-    /* Buttons gold style */
-    .chip { background-color:#ffd54f !important; color:#000 !important; border:1px solid #ffd54f !important; }
-    .chip:hover:not(.active) { background-color:#ffc107 !important; }
-    .chip.active { background-color:#00539F !important; color:white !important; border-color:#00539F !important; }
-    .view-btn { background-color:#ffd54f !important; color:#000 !important; border:1px solid #ffd54f !important; }
-    .view-btn.active { background-color:#00539F !important; color:white !important; border-color:#00539F !important; }
-    button:not(.chip):not(.view-btn):not(.price-controls button),
-    #reset-btn, #share-app, #compare-mode-btn, #force-refresh-btn {
-      background-color:#ffd54f !important; color:#000 !important; border:none !important;
-    }
-    .price-controls button { background-color:white !important; color:#333 !important; border:1px solid #ddd !important; }
-    .view-toggle { display:flex; background:white; border-radius:8px; padding:3px; box-shadow:var(--card-shadow); }
-    .view-btn { padding:6px 12px; border:1px solid #e0e0e0; background:white; font-family:'Cairo',sans-serif; font-weight:600; font-size:0.85rem; cursor:pointer; border-radius:5px; display:flex; align-items:center; gap:4px; color:var(--primary-blue); }
 
-    /* Products Grid */
+    /* شريط البحث والفلترة - NOT fixed, normal flow */
+    .mobile-row.row-1 {
+      position: relative;
+      top: auto;
+      left: auto;
+      right: auto;
+      background: white;
+      z-index: auto;
+      padding: 8px 16px;
+      margin: 0 0 12px 0;
+      border-bottom: 1px solid #ddd;
+      border-radius: 12px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+      opacity: 1;
+      pointer-events: auto;
+      display: flex;
+      flex-wrap: nowrap;
+      overflow-x: auto;
+      gap: 8px;
+    }
+    .mobile-row.row-1 > * {
+      flex: 0 0 auto;
+    }
+
+    /* باقي الصفوف */
+    .mobile-row {
+      display: flex;
+      flex-wrap: nowrap;
+      overflow-x: auto;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+    .mobile-row > * {
+      flex: 0 0 auto;
+    }
+
+    /* الفلاتر العلوية (أزرار) */
+    .filter-row {
+      display: flex;
+      flex-wrap: nowrap;
+      overflow-x: auto;
+      gap: 8px;
+      margin: 10px 0;
+    }
+    .filter-chips {
+      display: flex;
+      flex-wrap: nowrap;
+      gap: 8px;
+    }
+    .filter-chips .chip {
+      flex: 0 0 auto;
+      white-space: nowrap;
+    }
+    .view-toggle {
+      flex: 0 0 auto;
+    }
+
+    /* أزرار وحدة التحكم */
+    .controls {
+      background: white;
+      border-radius: var(--border-radius);
+      padding: 20px;
+      margin-bottom: 20px;
+      box-shadow: var(--card-shadow);
+    }
+    /* إعادة تنظيم الأزرار في الشاشات الكبيرة */
+    @media (min-width: 769px) {
+      .controls .row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        align-items: center;
+        margin-bottom: 15px;
+      }
+      .filter-row {
+        flex-wrap: wrap;
+        overflow: visible;
+      }
+      .filter-chips {
+        flex-wrap: wrap;
+        overflow: visible;
+      }
+      .mobile-row {
+        flex-wrap: wrap;
+        overflow: visible;
+      }
+      .mobile-row.row-1 {
+        flex-wrap: wrap;
+      }
+    }
+
+    /* باقي الأنماط (المنتجات، الجدول، إلخ) */
     .products-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(280px,1fr)); gap:24px; margin:25px 0; }
     .product-card { background:white; border-radius:var(--border-radius); overflow:hidden; box-shadow:var(--card-shadow); transition:var(--transition); position:relative; }
     .product-badge { position:absolute; top:15px; right:15px; background:var(--danger-red); color:white; padding:5px 12px; border-radius:20px; font-size:0.8rem; font-weight:700; z-index:2; }
@@ -138,23 +215,7 @@
     .favorite-btn.active { color:var(--danger-red); }
     .compare-btn.active { color:var(--success-green); }
 
-    /* Controls - original two rows */
-    .controls {
-      background: white;
-      border-radius: var(--border-radius);
-      padding: 20px;
-      margin-bottom: 20px;
-      box-shadow: var(--card-shadow);
-    }
-    .controls .row {
-      display: flex;
-      gap: 12px;
-      align-items: center;
-      flex-wrap: wrap;
-      margin-bottom: 15px;
-    }
-    .controls .row:last-child { margin-bottom: 0; }
-
+    /* النماذج والأزرار */
     input, select, button {
       height: var(--control-height);
       padding: 0 16px;
@@ -169,8 +230,19 @@
     #search-input { flex:1; min-width:200px; }
     button { cursor:pointer; font-weight:600; background:var(--primary-blue); color:white; border:none; }
     #reset-btn { background:#6c757d; color:white; }
+    .chip { background-color:#ffd54f !important; color:#000 !important; border:1px solid #ffd54f !important; }
+    .chip:hover:not(.active) { background-color:#ffc107 !important; }
+    .chip.active { background-color:#00539F !important; color:white !important; border-color:#00539F !important; }
+    .view-btn { background-color:#ffd54f !important; color:#000 !important; border:1px solid #ffd54f !important; }
+    .view-btn.active { background-color:#00539F !important; color:white !important; border-color:#00539F !important; }
+    button:not(.chip):not(.view-btn):not(.price-controls button),
+    #reset-btn, #share-app, #compare-mode-btn, #force-refresh-btn {
+      background-color:#ffd54f !important; color:#000 !important; border:none !important;
+    }
+    .price-controls button { background-color:white !important; color:#333 !important; border:1px solid #ddd !important; }
+    .view-toggle { display:flex; background:white; border-radius:8px; padding:3px; box-shadow:var(--card-shadow); }
 
-    /* Table */
+    /* الجدول */
     #data-table { background:white; border-radius:var(--border-radius); box-shadow:var(--card-shadow); overflow-x:auto; margin-top:20px; }
     table { width:100%; border-collapse:collapse; font-size:14px; }
     thead th { background:var(--primary-blue); color:white; padding:16px; text-align:right; }
@@ -184,236 +256,26 @@
     #autocomplete-list div { padding:12px 16px; cursor:pointer; border-bottom:1px solid #f0f0f0; }
     #autocomplete-list div:hover { background:#f8f9fa; }
 
-    .user-guide-banner { background:linear-gradient(135deg,#667eea 0%,#764ba2 100%); color:white; padding:10px 15px; border-radius:8px; margin:15px 0; text-align:center; font-weight:600; display:flex; align-items:center; justify-content:center; gap:10px; animation:pulse 2s infinite; }
-    @keyframes pulse { 0%{transform:scale(1);} 50%{transform:scale(1.02);} 100%{transform:scale(1);} }
-
-    .pagination { display:flex; justify-content:center; gap:5px; margin:20px 0; flex-wrap:wrap; }
+    /* Pagination - not fixed (normal flow) */
+    .pagination {
+      display: flex;
+      justify-content: center;
+      gap: 5px;
+      margin: 20px 0;
+      flex-wrap: wrap;
+      position: relative;
+      bottom: auto;
+      background: transparent;
+    }
     .pagination button { height:36px; min-width:36px; padding:0 8px; background:white; color:var(--primary-blue); border:1px solid #dee2e6; border-radius:6px; }
     .pagination button.active { background:var(--primary-blue); color:white; border-color:var(--primary-blue); }
 
-    /* ========== MOBILE ONLY LAYOUT RESTRUCTURING (without breaking JS) ========== */
-        @media (max-width: 768px) {
-  /* إجبار أزرار الفلاتر (العشرة) تبقى في سطر واحد */
-  .filter-row {
-    display: flex !important;
-    flex-wrap: nowrap !important;
-    overflow-x: auto !important;
-    gap: 8px;
-  }
-  .filter-chips {
-    display: flex !important;
-    flex-wrap: nowrap !important;
-    gap: 8px;
-  }
-  .filter-chips .chip {
-    flex: 0 0 auto !important;
-    white-space: nowrap;
-  }
-  .view-toggle {
-    flex: 0 0 auto;
-  }
-}
-  /* =========================
-     إصلاح الأساسي (لا نلمسه تاني)
-  ========================= */
-  .hero-banner,
-  .user-guide-banner {
-    display: none !important;
-  }
-  .stats-dashboard {
-    display: flex !important;
-    flex-wrap: nowrap !important;
-    overflow-x: auto !important;
-    gap: 12px;
-  }
-  .stats-dashboard .stat-card {
-    flex: 0 0 auto;
-    min-width: 130px;
-  }
-  .controls .row:first-child {
-    display: flex;
-    flex-wrap: nowrap;
-    overflow-x: auto;
-    gap: 8px;
-  }
-  .controls .row:first-child > * {
-    flex: 0 0 auto;
-  }
-  .controls .row:first-child #supermarket-filter {
-    display: none;
-  }
-  .controls .row:last-child {
-    display: grid;
-    grid-template-columns: auto auto auto;
-    gap: 8px;
-  }
-  #supermarket-filter {
-    display: block !important;
-    grid-column: 1;
-  }
-  .price-controls:first-of-type {
-    grid-column: 2;
-  }
-  .price-controls:last-of-type {
-    grid-column: 3;
-  }
-  .price-controls input {
-    width: 100px;
-  }
-  .price-controls button {
-    width: 24px;
-    height: 24px;
-  }
-  #sort-by {
-    grid-column: 1;
-  }
-  #min-discount {
-    grid-column: 2;
-  }
-  #sort-by,
-  #min-discount {
-    margin-top: 6px;
-  }
-  #reset-btn,
-  #force-refresh-btn,
-  #share-app,
-  #compare-mode-btn {
-    grid-column: span 1;
-    margin-top: 6px;
-    min-width: 100px;
-  }
-  #reset-btn {
-    grid-column: 1;
-  }
-  #force-refresh-btn {
-    grid-column: 2;
-  }
-  #share-app {
-    grid-column: 3;
-  }
-  #compare-mode-btn {
-    grid-column: 1;
-  }
-  .mobile-row {
-    display: flex;
-    flex-wrap: nowrap;
-    overflow-x: auto;
-    gap: 8px;
-    margin-bottom: 10px;
-  }
-  .mobile-row > * {
-    flex: 0 0 auto;
-  }
-  .price-controls input {
-    width: 110px;
-  }
-  .price-controls button {
-    width: 26px;
-    height: 26px;
-  }
-}
-    @media (min-width: 769px) {
-  .controls .row {
-    display: flex !important;
-    flex-wrap: wrap !important;
-  }
-  .filter-row {
-    flex-wrap: wrap !important;
-    overflow: visible !important;
-  }
-  .filter-chips {
-    flex-wrap: wrap !important;
-    overflow: visible !important;
-  }
-}
-      
-      /* ===== جعل صف البحث والفلترة العلوي ثابتاً ===== */
-/* تثبيت صف البحث والفلترة العلوي في الأعلى (fixed) مع حساب المسافة */
-.mobile-row.row-1 {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    background: white;
-    z-index: 1000;
-    padding: 8px 16px;
-    margin: 0;
-    border-bottom: 1px solid #ddd;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    /* نخفي العنصر مؤقتاً حتى نحسب المسافة */
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.2s;
-}
-
-/* تثبيت أزرار التصفح في الأسفل */
-.pagination {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    background: var(--light-bg);
-    z-index: 1000;
-    padding: 10px;
-    margin: 0;
-    border-top: 1px solid #ddd;
-    justify-content: center;
-    background-color: white;
-}
-
-/* إضافة مساحة خالية في أعلى وأسفل المحتوى لعدم تغطية العناصر الثابتة */
-body {
-    padding-top: 70px;  /* يضبط حسب ارتفاع الصف العلوي بعد تحميل الصفحة */
-    padding-bottom: 70px; /* يضبط حسب ارتفاع أزرار التصفح */
-}
-
-/* تعديل على الموبايل */
-@media (max-width: 768px) {
-    .mobile-row.row-1 {
-        padding: 6px 12px;
+    /* إزالة أي هوامش علوية */
+    body, .container, .stats-dashboard, .filter-row, .controls {
+      margin-top: 0 !important;
+      padding-top: 0 !important;
     }
-    body {
-        padding-top: 60px;
-        padding-bottom: 60px;
-    }
-}
-      
-      /* إزالة السطر الفارغ من الأعلى */
-.container {
-    margin-top: 0 !important;
-    padding-top: 0 !important;
-}
-
-.container > :first-child {
-    margin-top: 0 !important;
-    padding-top: 0 !important;
-}
-
-/* التأكد من أن العناصر المخفية لا تترك فراغاً */
-.hero-banner,
-.user-guide-banner,
-.hero-banner *,
-.user-guide-banner * {
-    display: none !important;
-    margin: 0 !important;
-    padding: 0 !important;
-    height: 0 !important;
-    min-height: 0 !important;
-}
-
-/* إزالة أي هوامش علوية من العناصر التالية */
-.stats-dashboard,
-.filter-row {
-    margin-top: 0 !important;
-    padding-top: 0 !important;
-}
-
-body {
-    margin-top: 0;
-    padding-top: 0;
-}
-      
-  </style>
+    </style>
   </head>
   <body>
     <div class="container">
@@ -473,12 +335,13 @@ body {
       <div class="filter-row">
         <div class="filter-chips" id="filter-chips"> <button class="chip" data-filter="all">العروض
             القديمة</button> <button class="chip active" data-filter="active">العروض
-            السارية</button> <button class="chip" data-filter="hot">عروض ساخنة</button>
-          <button class="chip" data-filter="ending">تنتهي قريباً</button> <button
-            class="chip" data-filter="discount">خصومات كبيرة</button> <button class="chip"
-            data-filter="carrefour">هايبر1</button> <button class="chip" data-filter="food">منتجات
-            غذائية</button> <button class="chip" data-filter="recent">آخر يومين</button>
-        </div>
+            السارية</button> <button class="chip" data-filter="hot">عروض
+            ساخنة</button> <button class="chip" data-filter="ending">تنتهي
+            قريباً</button> <button class="chip" data-filter="discount">خصومات
+            كبيرة</button> <button class="chip" data-filter="carrefour">هايبر1</button>
+          <button class="chip" data-filter="food">منتجات غذائية</button> <button
+
+            class="chip" data-filter="recent">آخر يومين</button> </div>
         <div class="view-toggle"> <button class="view-btn" id="view-grid-btn">
             كروت</button> <button class="view-btn active" id="view-table-btn">
             جدول</button> </div>
@@ -486,7 +349,8 @@ body {
       <div class="products-grid" id="products-grid"></div>
       <div class="controls">
         <!-- ================= الصف 1 ================= -->
-        <div class="mobile-row row-1"> <input id="search-input" placeholder="ابحث عن منتج..."
+        <div class="mobile-row row-1"> <input id="search-input" placeholder="ابحث عن منتج..."
+
             type="text">
           <select id="category-filter">
             <option value="">إختار نوع المنتج</option>
@@ -500,10 +364,12 @@ body {
           <select id="supermarket-filter">
             <option value="">إختار السوبرماركت</option>
           </select>
-          <div class="price-controls"> <button id="min-decrease">−</button> <input
+          <div class="price-controls"> <button id="min-decrease">−</button> <input
+
               id="min-price" placeholder="السعر من" type="number"> <button id="min-increase">+</button>
           </div>
-          <div class="price-controls"> <button id="max-decrease">−</button> <input
+          <div class="price-controls"> <button id="max-decrease">−</button> <input
+
               id="max-price" placeholder="السعر إلى" type="number"> <button id="max-increase">+&nbsp;</button>
           </div>
         </div>
@@ -554,9 +420,12 @@ body {
       <div class="comparison-header" style="display:flex; justify-content:space-between; align-items:center;">
         <h3 style="margin:0;"><i class="fas fa-balance-scale"></i> مقارنة
           المنتجات (<span id="comparison-count">0</span>/4)</h3>
-        <div><button id="clear-comparison" style="background:#dc3545; color:white; border:none; padding:8px 16px; border-radius:6px;"><i
-              class="fas fa-trash"></i> مسح</button> <button id="close-comparison"
-            style="background:#6c757d; color:white; border:none; padding:8px 16px; border-radius:6px;"><i
+        <div><button id="clear-comparison" style="background:#dc3545; color:white; border:none; padding:8px 16px; border-radius:6px;"><i
+
+              class="fas fa-trash"></i> مسح</button> <button id="close-comparison"
+
+            style="background:#6c757d; color:white; border:none; padding:8px 16px; border-radius:6px;"><i
+
               class="fas fa-times"></i> إغلاق</button></div>
       </div>
       <div class="comparison-items" id="comparison-items" style="display:flex; gap:15px; overflow-x:auto; padding:10px 0;"></div>
@@ -1678,26 +1547,11 @@ async function loadAndCropImage(item) {
         console.log("🚀 التطبيق جاهز مع دعم one_day");
     });
 })();
-      
-      // ضبط موقع الصف العلوي الثابت ليتجنب تغطية الإحصائيات
-function adjustFixedHeader() {
-    const statsDiv = document.querySelector('.stats-dashboard');
-    const headerRow = document.querySelector('.mobile-row.row-1');
-    if (statsDiv && headerRow) {
-        const statsHeight = statsDiv.offsetHeight;
-        headerRow.style.top = statsHeight + 'px';
-        headerRow.style.opacity = '1';
-        headerRow.style.pointerEvents = 'auto';
-        // تعديل padding-top للـ body لضمان عدم تداخل المحتوى
-        document.body.style.paddingTop = (statsHeight + headerRow.offsetHeight) + 'px';
-    }
+    
+      function adjustFixedHeader() {
+    // do nothing
 }
 
-// عند تحميل الصفحة وبعد أي تغيير في حجم الشاشة
-window.addEventListener('load', adjustFixedHeader);
-window.addEventListener('resize', adjustFixedHeader);
-// إعادة الضبط بعد عرض البيانات (لأن ارتفاع الإحصائيات قد يتغير)
-const observer = new MutationObserver(adjustFixedHeader);
-observer.observe(document.querySelector('.stats-dashboard'), { childList: true, subtree: true });
-</script> </body>
+</script>
+  </body>
 </html>
