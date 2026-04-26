@@ -490,6 +490,52 @@ body {
       <div class="comparison-items" id="comparison-items" style="display:flex; gap:15px; overflow-x:auto; padding:10px 0;"></div>
     </div>
     <script>
+      // ==================== دوال تطبيع الحروف العربية ====================
+function normalizeArabic(text) {
+    if (!text) return '';
+    // توحيد الألف (أ، إ، آ، ٱ، إلخ) إلى ألف عادية (ا)
+    let normalized = text.replace(/[أإآٱ]/g, 'ا');
+    // توحيد الياءات (ي، ى) إلى ياء عادية (ي)
+    normalized = normalized.replace(/[يى]/g, 'ي');
+    // توحيد الهاء والتاء المربوطة
+    normalized = normalized.replace(/[هة]/g, 'ه');
+    return normalized;
+}
+
+// ==================== دالة التحقق من أن الكلمة كاملة (وليس جزءاً من كلمة أكبر) ====================
+function isCompleteWordMatch(productName, searchWord) {
+    const normalizedProduct = normalizeArabic(productName);
+    const normalizedSearch = normalizeArabic(searchWord);
+    // استخدام تعبير منتظم للتأكد من أن الكلمة المطلوبة تأتي كاملة
+    const regex = new RegExp('(^|[\\s،,؛])' + normalizedSearch.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '($|[\\s،,؛]|\\W)', 'i');
+    return regex.test(normalizedProduct);
+}
+
+// ==================== دالة تصفية المنتجات حسب بارامتر products ====================
+function filterByPriorityList(data, priorityList) {
+    if (!priorityList.length) return data;
+    return data.filter(item => {
+        const productName = item.product || '';
+        const primaryName = item.primaryName || '';
+        return priorityList.some(p => 
+            isCompleteWordMatch(productName, p) || 
+            (primaryName && isCompleteWordMatch(primaryName, p))
+        );
+    });
+}
+
+// ==================== دالة لاستبعاد المنتجات غير المرغوب فيها ====================
+function shouldExcludeItem(item) {
+    const product = normalizeArabic(item.product || '');
+    const primary = normalizeArabic(item.primaryName || '');
+    const combined = product + ' ' + primary;
+    // استبعاد أي منتج يحتوي على علامة + أو كلمة "مع" مفصولة بمسافات
+    if (combined.includes('+')) return true;
+    // كلمة "مع" كاملة وليست جزءاً من كلمة أخرى
+    if (/\bمع\b/.test(combined)) return true;
+    return false;
+}
+      
 (function() {
     // ==================== الإعدادات العامة ====================
     const DATA_URL = 'https://raw.githubusercontent.com/eg-market/ai/main/final.csv';
@@ -954,68 +1000,83 @@ function processDataAfterLoad() {
     }
 
     // ==================== Apply filters ====================
-    function applyAllFilters() {
-        const searchVal = document.getElementById('search-input').value.trim().toLowerCase();
-        const supermarket = document.getElementById('supermarket-filter').value;
-        const category = document.getElementById('category-filter').value;
-        const brand = document.getElementById('brand-filter').value;
-        const minDiscount = parseFloat(document.getElementById('min-discount').value) || 0;
-        let minPrice = parseFloat(document.getElementById('min-price').value) || 0;
-        let maxPrice = parseFloat(document.getElementById('max-price').value) || Infinity;
-        if (minPrice > maxPrice) [minPrice, maxPrice] = [maxPrice, minPrice];
-        const sort = document.getElementById('sort-by').value;
-        const effectiveSearchTerms = urlSearchTerms.length ? urlSearchTerms : (searchVal ? searchVal.split(/\s+/) : []);
-        filteredData = allData.filter(item => {
-            if (!showAllOffers && activeChipFilter !== 'all' && activeChipFilter !== 'recent') {
-                if (item.status === 'منتهي' || item.status === 'العرض منتهى') return false;
-            }
-            if (effectiveSearchTerms.length) {
-                const hay = (item.product + ' ' + item.primaryName + ' ' + item.brand + ' ' + item.supermarket).toLowerCase();
-                if (!effectiveSearchTerms.every(t => hay.includes(t))) return false;
-            }
-            if (urlCategories.length) {
-                const itemCat = String(item.category || '').toLowerCase();
-                if (!urlCategories.some(c => itemCat.includes(c))) return false;
-            }
-            if (supermarket && item.supermarket !== supermarket) return false;
-            if (category && (!item.category || !item.category.toLowerCase().includes(category.toLowerCase()))) return false;
-            if (brand && item.brand !== brand) return false;
-            if (minDiscount > 0 && (item._discount_pct || 0) < minDiscount) return false;
-            const price = item.currentPrice || 0;
-            if (price < minPrice || price > maxPrice) return false;
-            switch (activeChipFilter) {
-                case 'hot': if ((item._discount_pct || 0) < 30) return false; break;
-                case 'ending':
-                    if (!item.endDate) return false;
-                    const diff = (item.endDate - new Date()) / (1000 * 60 * 60 * 24);
-                    if (diff <= 0 || diff > 1) return false;
-                    break;
-                case 'discount': if ((item._discount_pct || 0) < 20) return false; break;
-                case 'carrefour': if (!item.supermarket.includes('هايبر1')) return false; break;
-                case 'food': if (!item.category || !/طعام|غذائ|مأكولات|أطعمة|غذاء/i.test(item.category)) return false; break;
-                case 'recent':
-                    if (!latestTwoDates.length) return false;
-                    const d = item.updateDate || item.endDate;
-                    if (!d) return false;
-                    const ds = d instanceof Date ? d.toISOString().split('T')[0] : null;
-                    if (!ds || !latestTwoDates.includes(ds)) return false;
-                    break;
-            }
-            // NEW: one_day filter (independent from chip)
-            if (oneDayFilter) {
+function applyAllFilters() {
+    const searchVal = document.getElementById('search-input').value.trim().toLowerCase();
+    const supermarket = document.getElementById('supermarket-filter').value;
+    const category = document.getElementById('category-filter').value;
+    const brand = document.getElementById('brand-filter').value;
+    const minDiscount = parseFloat(document.getElementById('min-discount').value) || 0;
+    let minPrice = parseFloat(document.getElementById('min-price').value) || 0;
+    let maxPrice = parseFloat(document.getElementById('max-price').value) || Infinity;
+    if (minPrice > maxPrice) [minPrice, maxPrice] = [maxPrice, minPrice];
+    const sort = document.getElementById('sort-by').value;
+    const effectiveSearchTerms = urlSearchTerms.length ? urlSearchTerms : (searchVal ? searchVal.split(/\s+/) : []);
+    
+    // الفلترة الأساسية
+    filteredData = allData.filter(item => {
+        if (!showAllOffers && activeChipFilter !== 'all' && activeChipFilter !== 'recent') {
+            if (item.status === 'منتهي' || item.status === 'العرض منتهى') return false;
+        }
+        if (effectiveSearchTerms.length) {
+            const hay = (item.product + ' ' + item.primaryName + ' ' + item.brand + ' ' + item.supermarket).toLowerCase();
+            if (!effectiveSearchTerms.every(t => hay.includes(t))) return false;
+        }
+        if (urlCategories.length) {
+            const itemCat = String(item.category || '').toLowerCase();
+            if (!urlCategories.some(c => itemCat.includes(c))) return false;
+        }
+        if (supermarket && item.supermarket !== supermarket) return false;
+        if (category && (!item.category || !item.category.toLowerCase().includes(category.toLowerCase()))) return false;
+        if (brand && item.brand !== brand) return false;
+        if (minDiscount > 0 && (item._discount_pct || 0) < minDiscount) return false;
+        const price = item.currentPrice || 0;
+        if (price < minPrice || price > maxPrice) return false;
+        switch (activeChipFilter) {
+            case 'hot': if ((item._discount_pct || 0) < 30) return false; break;
+            case 'ending':
                 if (!item.endDate) return false;
-                const diffDays = (item.endDate - new Date()) / (1000 * 60 * 60 * 24);
-                if (diffDays <= 0 || diffDays > 1) return false;
-            }
-            return true;
-        });
-        if (bestPriceMode) filteredData = reduceBestPricePerCategory(filteredData);
-        sortData(filteredData, sort);
-        populateFilters();
-        currentPage = 1;
-        renderContent();
-        updateStats();
-    }
+                const diff = (item.endDate - new Date()) / (1000 * 60 * 60 * 24);
+                if (diff <= 0 || diff > 1) return false;
+                break;
+            case 'discount': if ((item._discount_pct || 0) < 20) return false; break;
+            case 'carrefour': if (!item.supermarket.includes('هايبر1')) return false; break;
+            case 'food': if (!item.category || !/طعام|غذائ|مأكولات|أطعمة|غذاء/i.test(item.category)) return false; break;
+            case 'recent':
+                if (!latestTwoDates.length) return false;
+                const d = item.updateDate || item.endDate;
+                if (!d) return false;
+                const ds = d instanceof Date ? d.toISOString().split('T')[0] : null;
+                if (!ds || !latestTwoDates.includes(ds)) return false;
+                break;
+        }
+        if (oneDayFilter) {
+            if (!item.endDate) return false;
+            const diffDays = (item.endDate - new Date()) / (1000 * 60 * 60 * 24);
+            if (diffDays <= 0 || diffDays > 1) return false;
+        }
+        return true;
+    });
+    
+   
+    // ========== استبعاد المنتجات التي تحتوي على + أو كلمة "مع" ==========
+filteredData = filteredData.filter(item => !shouldExcludeItem(item));
+// =================================================================
+
+// ========== تصفية المنتجات حسب بارامتر products (الحفاظ على المطلوب فقط) ==========
+const priorityProducts = getProductsFromURL();
+if (priorityProducts.length) {
+    filteredData = filterByPriorityList(filteredData, priorityProducts);
+}
+// =================================================================
+  
+  
+    if (bestPriceMode) filteredData = reduceBestPricePerCategory(filteredData);
+    sortData(filteredData, sort);
+    populateFilters();
+    currentPage = 1;
+    renderContent();
+    updateStats();
+}
 
     function reduceBestPricePerCategory(data) {
         const bestByCategory = new Map();
@@ -1040,26 +1101,18 @@ function sortData(data, sortKey) {
     if (!data.length) return;
     const priorityProducts = getProductsFromURL();
     if (priorityProducts.length) {
-        // ترتيب حسب الأولوية أولاً، ثم حسب المعيار المختار للمنتجات غير ذات الأولوية
         data.sort((a, b) => {
-            // البحث عن مؤشر المنتج في قائمة الأولوية (بدون حساسية حالة الأحرف)
             const aIdx = priorityProducts.findIndex(p => 
-                a.product.includes(p) || 
-                a.primaryName.includes(p) ||
-                a.product.toLowerCase().includes(p.toLowerCase()) ||
-                (a.primaryName && a.primaryName.toLowerCase().includes(p.toLowerCase()))
+                isCompleteWordMatch(a.product, p) || 
+                (a.primaryName && isCompleteWordMatch(a.primaryName, p))
             );
             const bIdx = priorityProducts.findIndex(p => 
-                b.product.includes(p) || 
-                b.primaryName.includes(p) ||
-                b.product.toLowerCase().includes(p.toLowerCase()) ||
-                (b.primaryName && b.primaryName.toLowerCase().includes(p.toLowerCase()))
+                isCompleteWordMatch(b.product, p) || 
+                (b.primaryName && isCompleteWordMatch(b.primaryName, p))
             );
-            // المنتجات ذات الأولوية تظهر أولاً حسب ترتيبها في القائمة
             if (aIdx !== -1 && bIdx !== -1) return aIdx - bIdx;
             if (aIdx !== -1) return -1;
             if (bIdx !== -1) return 1;
-            // باقي المنتجات (خارج القائمة) تطبق عليها معيار الفرز المختار
             switch (sortKey) {
                 case 'best-deals': return (b._score || 0) - (a._score || 0);
                 case 'discount-desc': return (b._discount_pct || 0) - (a._discount_pct || 0);
@@ -1072,7 +1125,6 @@ function sortData(data, sortKey) {
             }
         });
     } else {
-        // الوضع العادي (بدون بارامتر products)
         switch (sortKey) {
             case 'best-deals': data.sort((a,b) => (b._score || 0) - (a._score || 0)); break;
             case 'discount-desc': data.sort((a,b) => (b._discount_pct || 0) - (a._discount_pct || 0)); break;
@@ -1671,30 +1723,26 @@ function getProductsFromURL() {
     const urlParams = new URLSearchParams(window.location.search);
     const productsParam = urlParams.get('products');
     if (!productsParam) return [];
-    // فك الترميز وفصل القائمة
-    return decodeURIComponent(productsParam).split(',').map(p => p.trim());
+    // فك الترميز وفصل القائمة وتطبيع المنتجات
+    return decodeURIComponent(productsParam).split(',').map(p => normalizeArabic(p.trim())).filter(Boolean);
 }
 
 function prioritizeProducts(data, priorityList) {
     if (!priorityList.length) return data;
     const result = [...data];
     result.sort((a, b) => {
-        const aIndex = priorityList.findIndex(p => 
-            a.product.includes(p) || 
-            a.primaryName.includes(p) ||
-            a.product.toLowerCase().includes(p.toLowerCase()) ||
-            (a.primaryName && a.primaryName.toLowerCase().includes(p.toLowerCase()))
+        const aIdx = priorityList.findIndex(p => 
+            isCompleteWordMatch(a.product, p) || 
+            (a.primaryName && isCompleteWordMatch(a.primaryName, p))
         );
-        const bIndex = priorityList.findIndex(p => 
-            b.product.includes(p) || 
-            b.primaryName.includes(p) ||
-            b.product.toLowerCase().includes(p.toLowerCase()) ||
-            (b.primaryName && b.primaryName.toLowerCase().includes(p.toLowerCase()))
+        const bIdx = priorityList.findIndex(p => 
+            isCompleteWordMatch(b.product, p) || 
+            (b.primaryName && isCompleteWordMatch(b.primaryName, p))
         );
-        if (aIndex === -1 && bIndex === -1) return 0;
-        if (aIndex === -1) return 1;
-        if (bIndex === -1) return -1;
-        return aIndex - bIndex;
+        if (aIdx === -1 && bIdx === -1) return 0;
+        if (aIdx === -1) return 1;
+        if (bIdx === -1) return -1;
+        return aIdx - bIdx;
     });
     return result;
 }
