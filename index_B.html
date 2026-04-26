@@ -1590,31 +1590,7 @@ async function loadAndCropImage(item) {
 })();
       
  // ===== إعادة ترتيب العناصر للموبايل (نقل الإحصائيات والفلاتر والأزرار إلى الأسفل) =====
-function moveBottomElementsMobile() {
-  if (window.innerWidth > 768) return;
 
-  const container = document.querySelector('.container');
-  const pagination = document.getElementById('pagination');
-  const stats = document.querySelector('.stats-dashboard');
-  const filterRow = document.querySelector('.filter-row');
-  const controls = document.querySelector('.controls');
-  
-  if (!container || !pagination) return;
-
-  // العناصر التي يجب أن تكون بعد pagination
-  const elementsToMove = [stats, filterRow, controls];
-  
-  elementsToMove.forEach(el => {
-    if (el && el.parentNode === container && el.nextSibling !== pagination) {
-      // نقل العنصر ليأتي بعد pagination مباشرة
-      container.insertBefore(el, pagination.nextSibling);
-    }
-  });
-}
-
-// تشغيل الدالة عند تحميل الصفحة وعند تغيير الحجم
-window.addEventListener('load', moveBottomElementsMobile);
-window.addEventListener('resize', moveBottomElementsMobile);
 </script>
   </body>
   
