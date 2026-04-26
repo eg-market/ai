@@ -285,11 +285,22 @@
   width: 15%; /* توسيع */
 }
   
+/* تثبيت pagination في الأسفل */
 .pagination {
-  position: sticky;
-  bottom: 0;
+  position: fixed !important;
+  bottom: 0 !important;
+  left: 0;
+  right: 0;
   background: white;
-  z-index: 999;
+  z-index: 1001;
+  margin: 0 !important;
+  border-top: 1px solid #ddd;
+  padding: 8px;
+}
+
+/* إضافة مساحة أسفل الجسم لعدم تداخل المحتوى مع pagination */
+body {
+  padding-bottom: 60px !important;
 }
   .stats-dashboard,
   .filter-row,
