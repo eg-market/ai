@@ -413,6 +413,59 @@ body {
     margin-top: 0;
     padding-top: 0;
 }
+   
+      /* === إعادة الترتيب للموبايل === */
+@media (max-width: 768px) {
+  /* جعل شريط البحث ثابتاً في الأعلى */
+  .mobile-row.row-1 {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0;
+    right: 0;
+    background: white;
+    z-index: 1000;
+    margin: 0 !important;
+    border-radius: 0 !important;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  }
+
+  /* إضافة مساحة علوية لتجنب تداخل المحتوى الثابت */
+  body {
+    padding-top: 70px !important;
+  }
+
+  /* الحاوية الرئيسية تصبح عامودية */
+  .container {
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* اجعل الجدول والمحتوى الرئيسي يظهران بشكل طبيعي */
+  #data-table, .products-grid {
+    order: 1;
+  }
+
+  /* أزرار التصفح تبقى أسفل الجدول مباشرة */
+  .pagination {
+    order: 2;
+    position: relative;
+    margin: 10px 0;
+  }
+
+  /* جميع العناصر التي كانت بالأعلى (إحصائيات، فلاتر، أزرار تحكم) تنقل أسفل pagination */
+  .stats-dashboard,
+  .filter-row,
+  .controls:not(.mobile-row.row-1) {
+    order: 3;
+    margin-top: 15px;
+  }
+
+  /* إخفاء أي عناصر متكررة داخل controls غير row-1 */
+  .controls .mobile-row:not(.row-1) {
+    display: flex;
+    flex-wrap: wrap;
+  }
+}
       
   </style>
   </head>
@@ -420,7 +473,8 @@ body {
     <div class="container">
       <div class="hero-banner">
         <div class="hero-content">
-          <h1>🛒سوق مصر : أفضل محرك بحث عن منتجات وعروض السوبرماركت اليومية</h1>
+          <h1>🛒سوق مصر : أفضل محرك بحث عن منتجات وعروض السوبرماركت
+            اليومية</h1>
           <p class="hero-subtitle">قارن الأسعار بين كبرى المتاجر - وفر حتى 70%</p>
           <div class="ticker-wrap">
             <div class="ticker-label"><i class="fas fa-bolt"></i> عروض مميزة</div>
@@ -474,26 +528,34 @@ body {
       <div class="filter-row">
         <div class="filter-chips" id="filter-chips"> <button class="chip" data-filter="all">العروض
             القديمة</button> <button class="chip active" data-filter="active">العروض
-            السارية</button> <button class="chip" data-filter="hot">عروض
-            ساخنة</button> <button class="chip" data-filter="ending">تنتهي
-            قريباً</button> <button class="chip" data-filter="discount">خصومات
-            كبيرة</button> <button class="chip" data-filter="carrefour">هايبر1</button>
-          <button class="chip" data-filter="food">منتجات غذائية</button> <button
+            السارية</button> <button class="chip" data-filter="hot">عروض ساخنة</button>
+          <button class="chip" data-filter="ending">تنتهي قريباً</button> <button
 
-            class="chip" data-filter="recent">آخر يومين</button> </div>
+            class="chip" data-filter="discount">خصومات كبيرة</button> <button class="chip"
+
+            data-filter="carrefour">هايبر1</button> <button class="chip" data-filter="food">منتجات
+            غذائية</button> <button class="chip" data-filter="recent">آخر يومين</button>
+        </div>
         <div class="view-toggle"> <button class="view-btn" id="view-grid-btn">
             كروت</button> <button class="view-btn active" id="view-table-btn">
             جدول</button> </div>
       </div>
       <div class="products-grid" id="products-grid"></div>
-      <div class="controls">
-        <!-- ================= الصف 1 ================= -->
+      
         <div class="mobile-row row-1"> <input id="search-input" placeholder="ابحث عن منتج..."
 
             type="text">
-          <select id="category-filter">
-            <option value="">إختار نوع المنتج</option>
+        
+           <select id="sort-by">
+            <option value="best-deals">إختار الترتيب : أفضل العروض</option>
+            <option value="discount-desc">الخصم % - تنازلي</option>
+            <option value="saved-desc">التوفير - تنازلي</option>
+            <option value="price-asc">السعر - تصاعدي</option>
+            <option value="price-desc">السعر - تنازلي</option>
+            <option value="name-asc">الاسم (أ-ي)</option>
+            <option value="name-desc">الاسم (ي-أ)</option>
           </select>
+          
           <select id="brand-filter">
             <option value="">إختار البراند</option>
           </select>
@@ -513,15 +575,10 @@ body {
           </div>
         </div>
         <!-- ================= الصف 3 ================= -->
+         
         <div class="mobile-row row-3">
-          <select id="sort-by">
-            <option value="best-deals">إختار الترتيب : أفضل العروض</option>
-            <option value="discount-desc">الخصم % - تنازلي</option>
-            <option value="saved-desc">التوفير - تنازلي</option>
-            <option value="price-asc">السعر - تصاعدي</option>
-            <option value="price-desc">السعر - تنازلي</option>
-            <option value="name-asc">الاسم (أ-ي)</option>
-            <option value="name-desc">الاسم (ي-أ)</option>
+          <select id="category-filter">
+            <option value="">إختار نوع المنتج</option>
           </select>
           <input id="min-discount" placeholder="الحد الأدنى للخصم %" type="number">
         </div>
@@ -530,6 +587,10 @@ body {
           <button id="force-refresh-btn" style="background:#ff6b00;">تحديث الآن</button>
           <button id="share-app">مشاركة</button> <button id="compare-mode-btn">مقارنة</button>
         </div>
+      
+      <div class="controls">
+        <!-- ================= الصف 1 ================= -->
+      
       </div>
       <div id="loading" style="text-align:center; padding:40px;">جارٍ تحميل
         البيانات...</div>
@@ -1707,6 +1768,56 @@ window.addEventListener('resize', adjustFixedHeader);
 // إعادة الضبط بعد عرض البيانات (لأن ارتفاع الإحصائيات قد يتغير)
 const observer = new MutationObserver(adjustFixedHeader);
 observer.observe(document.querySelector('.stats-dashboard'), { childList: true, subtree: true });
+      
+      // ===== إعادة ترتيب العناصر للموبايل (نقل الجزء العلوي إلى الأسفل) =====
+function rearrangeForMobile() {
+  const isMobile = window.innerWidth <= 768;
+  const container = document.querySelector('.container');
+  const dataTable = document.getElementById('data-table');
+  const pagination = document.getElementById('pagination');
+  const stats = document.querySelector('.stats-dashboard');
+  const filterRow = document.querySelector('.filter-row');
+  const controls = document.querySelector('.controls');
+  const row1 = document.querySelector('.mobile-row.row-1');
+
+  if (!container || !dataTable) return;
+
+  if (isMobile) {
+    // تجميع العناصر التي نريد نقلها أسفل pagination
+    const elementsToMove = [stats, filterRow, controls];
+    
+    // التأكد من أن row-1 ليس ضمن elementsToMove (يبقى في مكانه)
+    // ننقل كل عنصر إلى مكانه الجديد: بعد pagination
+    elementsToMove.forEach(el => {
+      if (el && el.parentNode === container) {
+        // إذا كان العنصر لا يزال في container مباشرة، ننقله بعد pagination
+        if (pagination && pagination.parentNode === container) {
+          container.insertBefore(el, pagination.nextSibling);
+        } else if (pagination) {
+          // إذا كان pagination داخل dataTable أو مكان آخر، نضعه بعد dataTable
+          container.insertBefore(el, dataTable.nextSibling);
+        } else {
+          container.appendChild(el);
+        }
+      }
+    });
+  } else {
+    // في وضع سطح المكتب، نعيد العناصر إلى مواقعها الأصلية (اختياري حسب هيكلك)
+    // يمكنك تركها أو إعادة ترتيبها حسب الحاجة. هنا سنعيدها أمام dataTable.
+    const originalOrder = [stats, filterRow, controls, dataTable];
+    originalOrder.forEach(el => {
+      if (el && el.parentNode === container) container.appendChild(el); // يعيد ترتيبهم ببساطة
+    });
+    // نضمن أن row-1 ليس ضمن المنقولين
+  }
+}
+
+// استدعاء الدالة عند التحميل وتغيير الحجم
+window.addEventListener('load', rearrangeForMobile);
+window.addEventListener('resize', rearrangeForMobile);
+      
 </script>
   </body>
+  
+  
 </html>
