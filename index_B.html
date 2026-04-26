@@ -523,6 +523,7 @@ body {
   
   let croppedImageCache = new Map();   // لتخزين الصور المقتطعة base64
 
+  let productsSorted = false;
     // ==================== IndexedDB ====================
     function openDB() {
         return new Promise((resolve, reject) => {
@@ -542,7 +543,8 @@ body {
     }
 
     async function loadFromDB() {
-        try {
+        
+      try {
             const db = await openDB();
             return new Promise((resolve, reject) => {
                 const tx = db.transaction(STORE_NAME, 'readonly');
@@ -774,16 +776,26 @@ function transformRows(rows) {
             const response = await fetch(DATA_URL + '?t=' + Date.now());
             const text = await response.text();
             const parsed = Papa.parse(text, { header: true, skipEmptyLines: true, trim: true });
-            let newData = transformRows(parsed.data);
-            normalizeDates(newData);
-            computeSavedAndDiscount(newData);
-            computeCombinedScore(newData);
-            
-            await saveToDB(newData);
+           
+              
+    let newData = transformRows(parsed.data);
+    normalizeDates(newData);
+    computeSavedAndDiscount(newData);
+    computeCombinedScore(newData);
+    
+    // تطبيق ترتيب المنتجات المطلوبة من الرابط
+    const priorityProducts = getProductsFromURL();
+    if (priorityProducts.length) {
+        newData = prioritizeProducts(newData, priorityProducts);
+    }
+        await saveToDB(newData);
+ 
             localStorage.setItem(`${CACHE_KEY}_time`, Date.now());
             
             allData = newData;
             originalAllData = [...allData];
+              window._productsOrdered = true;
+
             latestTwoDates = findLatestTwoDates(allData);
             applyAllFilters();
             populateTicker();
@@ -831,13 +843,20 @@ window.goToPage = (page) => { currentPage = page; renderContent(); };
     
       
     async function loadData() {
-        let stored = await loadFromDB();
-        if (stored && stored.length > 0) {
-            console.log("✅ تم العثور على بيانات في المخزن المحلي.");
-            allData = stored;
-            originalAllData = [...allData];
-            hideLoading();
-            processDataAfterLoad();
+    let stored = await loadFromDB();
+    if (stored && stored.length > 0) {
+        console.log("✅ تم العثور على بيانات في المخزن المحلي.");
+        allData = stored;
+        // تطبيق ترتيب المنتجات المطلوبة من الرابط
+        const priorityProducts = getProductsFromURL();
+        if (priorityProducts.length) {
+            allData = prioritizeProducts(allData, priorityProducts);
+        }
+        originalAllData = [...allData];
+      window._productsOrdered = true;   // علامة بأن البيانات مرتبة حسب products
+
+        hideLoading();
+        processDataAfterLoad();
             
             if (!backgroundUpdateInProgress) {
                 backgroundUpdateInProgress = true;
@@ -859,18 +878,17 @@ window.goToPage = (page) => { currentPage = page; renderContent(); };
         await fetchFreshDataAndUpdate(true);
     }
 
-    function processDataAfterLoad() {
-        latestTwoDates = findLatestTwoDates(allData);
-        applyUrlParams();
-        document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
-        if (activeChipFilter === 'all') {
-            document.querySelector('.chip[data-filter="all"]').classList.add('active');
-        } else if (activeChipFilter === 'recent') {
-            document.querySelector('.chip[data-filter="recent"]').classList.add('active');
-        } else {
-            document.querySelector('.chip[data-filter="active"]').classList.add('active');
-        }
+function processDataAfterLoad() {
+    latestTwoDates = findLatestTwoDates(allData);
+    // تطبيق ترتيب المنتجات إذا لم يسبق تطبيقه
+    const priorityProducts = getProductsFromURL();
+    if (priorityProducts.length && !window._productsOrdered) {
+        allData = prioritizeProducts(allData, priorityProducts);
         originalAllData = [...allData];
+        window._productsOrdered = true;
+    }
+    // ... باقي الكود نفسه
+    
         populateFilters();
         applyAllFilters();
         populateTicker();
@@ -1018,8 +1036,43 @@ window.goToPage = (page) => { currentPage = page; renderContent(); };
         return Array.from(bestByCategory.values());
     }
 
-    function sortData(data, sortKey) {
-        if (!data.length) return;
+function sortData(data, sortKey) {
+    if (!data.length) return;
+    const priorityProducts = getProductsFromURL();
+    if (priorityProducts.length) {
+        // ترتيب حسب الأولوية أولاً، ثم حسب المعيار المختار للمنتجات غير ذات الأولوية
+        data.sort((a, b) => {
+            // البحث عن مؤشر المنتج في قائمة الأولوية (بدون حساسية حالة الأحرف)
+            const aIdx = priorityProducts.findIndex(p => 
+                a.product.includes(p) || 
+                a.primaryName.includes(p) ||
+                a.product.toLowerCase().includes(p.toLowerCase()) ||
+                (a.primaryName && a.primaryName.toLowerCase().includes(p.toLowerCase()))
+            );
+            const bIdx = priorityProducts.findIndex(p => 
+                b.product.includes(p) || 
+                b.primaryName.includes(p) ||
+                b.product.toLowerCase().includes(p.toLowerCase()) ||
+                (b.primaryName && b.primaryName.toLowerCase().includes(p.toLowerCase()))
+            );
+            // المنتجات ذات الأولوية تظهر أولاً حسب ترتيبها في القائمة
+            if (aIdx !== -1 && bIdx !== -1) return aIdx - bIdx;
+            if (aIdx !== -1) return -1;
+            if (bIdx !== -1) return 1;
+            // باقي المنتجات (خارج القائمة) تطبق عليها معيار الفرز المختار
+            switch (sortKey) {
+                case 'best-deals': return (b._score || 0) - (a._score || 0);
+                case 'discount-desc': return (b._discount_pct || 0) - (a._discount_pct || 0);
+                case 'saved-desc': return (b._saved || 0) - (a._saved || 0);
+                case 'price-asc': return (a.currentPrice || 0) - (b.currentPrice || 0);
+                case 'price-desc': return (b.currentPrice || 0) - (a.currentPrice || 0);
+                case 'name-asc': return (a.product || '').localeCompare(b.product || '', 'ar');
+                case 'name-desc': return (b.product || '').localeCompare(a.product || '', 'ar');
+                default: return 0;
+            }
+        });
+    } else {
+        // الوضع العادي (بدون بارامتر products)
         switch (sortKey) {
             case 'best-deals': data.sort((a,b) => (b._score || 0) - (a._score || 0)); break;
             case 'discount-desc': data.sort((a,b) => (b._discount_pct || 0) - (a._discount_pct || 0)); break;
@@ -1030,6 +1083,7 @@ window.goToPage = (page) => { currentPage = page; renderContent(); };
             case 'name-desc': data.sort((a,b) => (b.product || '').localeCompare(a.product || '', 'ar')); break;
         }
     }
+}
 
     // ==================== Rendering ====================
     function renderContent() {
@@ -1487,15 +1541,18 @@ async function loadAndCropImage(item) {
                             hideLoading();
                             alert('فشل تحميل العروض القديمة. تأكد من وجود الملف.');
                         });
-                } else {
-                    if (originalAllData.length > 0) allData = [...originalAllData];
-                    activeChipFilter = filter;
-                    showAllOffers = false;
-                    document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
-                    this.classList.add('active');
-                    if (filter === 'hot') document.getElementById('sort-by').value = 'discount-desc';
-                    else if (filter === 'discount') document.getElementById('sort-by').value = 'saved-desc';
-                    applyAllFilters();
+              
+} else {
+    // لا نعيد تعيين allData من originalAllData، لأن originalAllData مرتبة بالفعل
+    // لكن نأكد أن allData هي نفس originalAllData إن لم تكن محملة
+    if (allData.length === 0 && originalAllData.length > 0) allData = [...originalAllData];
+    activeChipFilter = filter;
+    showAllOffers = false;
+    document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+    this.classList.add('active');
+    if (filter === 'hot') document.getElementById('sort-by').value = 'discount-desc';
+    else if (filter === 'discount') document.getElementById('sort-by').value = 'saved-desc';
+    applyAllFilters();
                 }
             });
         });
@@ -1607,8 +1664,49 @@ async function loadAndCropImage(item) {
     });
 })();
       
- // ===== إعادة ترتيب العناصر للموبايل (نقل الإحصائيات والفلاتر والأزرار إلى الأسفل) =====
 
+      
+      // ==================== معالجة بارامتر products ====================
+function getProductsFromURL() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const productsParam = urlParams.get('products');
+    if (!productsParam) return [];
+    // فك الترميز وفصل القائمة
+    return decodeURIComponent(productsParam).split(',').map(p => p.trim());
+}
+
+function prioritizeProducts(data, priorityList) {
+    if (!priorityList.length) return data;
+    const result = [...data];
+    result.sort((a, b) => {
+        const aIndex = priorityList.findIndex(p => 
+            a.product.includes(p) || 
+            a.primaryName.includes(p) ||
+            a.product.toLowerCase().includes(p.toLowerCase()) ||
+            (a.primaryName && a.primaryName.toLowerCase().includes(p.toLowerCase()))
+        );
+        const bIndex = priorityList.findIndex(p => 
+            b.product.includes(p) || 
+            b.primaryName.includes(p) ||
+            b.product.toLowerCase().includes(p.toLowerCase()) ||
+            (b.primaryName && b.primaryName.toLowerCase().includes(p.toLowerCase()))
+        );
+        if (aIndex === -1 && bIndex === -1) return 0;
+        if (aIndex === -1) return 1;
+        if (bIndex === -1) return -1;
+        return aIndex - bIndex;
+    });
+    return result;
+}
+
+// استخدم هذه الدوال بعد تحميل البيانات وقبل عرضها:
+// let allData = ... (البيانات المحملة)
+// const priorityProducts = getProductsFromURL();
+// if (priorityProducts.length) {
+//     allData = prioritizeProducts(allData, priorityProducts);
+// }
+// ثم اعرض allData
+      
 </script>
   </body>
   
