@@ -415,8 +415,9 @@ body {
 }
    
       /* === إعادة الترتيب للموبايل === */
+/* === للموبايل فقط: إعادة ترتيب الصفحة === */
 @media (max-width: 768px) {
-  /* جعل شريط البحث ثابتاً في الأعلى */
+  /* تثبيت شريط البحث في الأعلى */
   .mobile-row.row-1 {
     position: fixed !important;
     top: 0 !important;
@@ -424,46 +425,50 @@ body {
     right: 0;
     background: white;
     z-index: 1000;
+    padding: 8px 12px;
     margin: 0 !important;
-    border-radius: 0 !important;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    border-radius: 0;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
   }
 
-  /* إضافة مساحة علوية لتجنب تداخل المحتوى الثابت */
+  /* إضافة مساحة علوية للصفحة حتى لا يغطي الشريط المحتوى */
   body {
     padding-top: 70px !important;
   }
 
-  /* الحاوية الرئيسية تصبح عامودية */
+  /* جعل الحاوية الرئيسية تستخدم flex لترتيب العناصر */
   .container {
     display: flex;
     flex-direction: column;
   }
 
-  /* اجعل الجدول والمحتوى الرئيسي يظهران بشكل طبيعي */
-  #data-table, .products-grid {
+  /* الجدول أولاً */
+  #data-table,
+  .products-grid {
     order: 1;
+    margin-top: 0;
   }
 
-  /* أزرار التصفح تبقى أسفل الجدول مباشرة */
+  /* أرقام الصفحات ثانياً (تأكد من ظهورها) */
   .pagination {
     order: 2;
-    position: relative;
-    margin: 10px 0;
+    position: relative !important;
+    bottom: auto !important;
+    margin: 10px 0 !important;
+    display: flex !important;
   }
 
-  /* جميع العناصر التي كانت بالأعلى (إحصائيات، فلاتر، أزرار تحكم) تنقل أسفل pagination */
+  /* ثم بقية العناصر (الإحصائيات، الفلاتر، الأزرار) */
   .stats-dashboard,
   .filter-row,
-  .controls:not(.mobile-row.row-1) {
+  .controls {
     order: 3;
     margin-top: 15px;
   }
 
-  /* إخفاء أي عناصر متكررة داخل controls غير row-1 */
-  .controls .mobile-row:not(.row-1) {
-    display: flex;
-    flex-wrap: wrap;
+  /* إخفاء row-1 القديم داخل controls حتى لا يتكرر */
+  .controls .mobile-row.row-1 {
+    display: none !important;
   }
 }
       
@@ -560,7 +565,10 @@ body {
             <option value="">إختار البراند</option>
           </select>
         </div>
-        <!-- ================= الصف 2 ================= -->
+    
+      <div class="controls">
+        <!-- ================= الصف 1 ================= -->
+          <!-- ================= الصف 2 ================= -->
         <div class="mobile-row row-2">
           <select id="supermarket-filter">
             <option value="">إختار السوبرماركت</option>
@@ -587,9 +595,6 @@ body {
           <button id="force-refresh-btn" style="background:#ff6b00;">تحديث الآن</button>
           <button id="share-app">مشاركة</button> <button id="compare-mode-btn">مقارنة</button>
         </div>
-      
-      <div class="controls">
-        <!-- ================= الصف 1 ================= -->
       
       </div>
       <div id="loading" style="text-align:center; padding:40px;">جارٍ تحميل
@@ -1815,6 +1820,45 @@ function rearrangeForMobile() {
 // استدعاء الدالة عند التحميل وتغيير الحجم
 window.addEventListener('load', rearrangeForMobile);
 window.addEventListener('resize', rearrangeForMobile);
+                        
+                        // ===== إصلاح ترتيب الموبايل =====
+function fixMobileLayout() {
+  if (window.innerWidth > 768) return;
+
+  // 1. التأكد من وجود pagination وإظهاره
+  const pagination = document.getElementById('pagination');
+  if (pagination) {
+    pagination.style.display = 'flex';
+  }
+
+  // 2. إخفاء row-1 الموجود داخل controls (لأننا سنستخدم المستقل)
+  const oldRow1 = document.querySelector('.controls .mobile-row.row-1');
+  if (oldRow1) oldRow1.style.display = 'none';
+
+  // 3. نقل stats-dashboard و filter-row و controls إلى أسفل الـ pagination
+  const container = document.querySelector('.container');
+  const dataTable = document.getElementById('data-table');
+  const elementsToMove = [
+    document.querySelector('.stats-dashboard'),
+    document.querySelector('.filter-row'),
+    document.querySelector('.controls')
+  ];
+
+  // نبحث عن مكان الإدراج: بعد الـ pagination أو بعد الـ data-table
+  let insertAfter = pagination && pagination.parentNode === container ? pagination : dataTable;
+
+  elementsToMove.forEach(el => {
+    if (el && el.parentNode === container && insertAfter) {
+      // ننقل العنصر ليصبح بعد insertAfter
+      container.insertBefore(el, insertAfter.nextSibling);
+      insertAfter = el; // لتحديث الترتيب
+    }
+  });
+}
+
+// تنفيذ الدالة عند التحميل وعند تغيير حجم الشاشة
+window.addEventListener('load', fixMobileLayout);
+window.addEventListener('resize', fixMobileLayout);
       
 </script>
   </body>
