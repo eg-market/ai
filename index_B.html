@@ -196,7 +196,7 @@
 /* === للموبايل فقط: إعادة ترتيب الصفحة === */
 /* ========== الموبايل فقط ========== */
 @media (max-width: 768px) {
-  /* تثبيت شريط البحث */
+  /* تثبيت شريط البحث في الأعلى */
   .mobile-row.row-1 {
     position: fixed !important;
     top: 0 !important;
@@ -209,102 +209,120 @@
     border-radius: 0;
     box-shadow: 0 2px 5px rgba(0,0,0,0.1);
   }
+
+  /* إضافة مساحة علوية حتى لا يغطي الشريط المحتوى */
   body {
     padding-top: 70px !important;
-    padding-bottom: 70px !important;
   }
-  /* Pagination ثابت في الأسفل */
+
+  /* إلغاء التثبيت عن pagination (لم يعد fixed) */
   .pagination {
-    position: fixed !important;
-    bottom: 0 !important;
-    left: 0;
-    right: 0;
-    background: white;
-    z-index: 1001;
-    margin: 0 !important;
-    border-top: 1px solid #ddd;
-    padding: 8px;
+    position: relative !important;
+    bottom: auto !important;
+    margin: 15px 0 !important;
+    background: transparent !important;
+    border: none !important;
   }
-  /* ترتيب العناصر */
+
+  /* استخدام flex لترتيب العناصر داخل .container */
   .container {
     display: flex;
     flex-direction: column;
   }
-  #data-table, .products-grid { order: 1; }
+
+  /* الترتيب: الجدول أولاً، ثم pagination، ثم باقي العناصر */
+  /* إعادة توزيع عرض الأعمدة للموبايل */
+#data-table table {
+  table-layout: fixed;
+  width: 100%;
+}
+
+#data-table th, #data-table td {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* تحديد عرض كل عمود بالنسبة المئوية */
+#data-table th:nth-child(1), /* السوبر ماركت */
+#data-table td:nth-child(1) {
+  width: 12%;
+}
+#data-table th:nth-child(2), /* المنتج */
+#data-table td:nth-child(2) {
+  width: 35%;  /* توسيع */
+}
+#data-table th:nth-child(3), /* السعر الحالي */
+#data-table td:nth-child(3) {
+  width: 12%;
+}
+#data-table th:nth-child(4), /* الخصم */
+#data-table td:nth-child(4) {
+  width: 10%;
+}
+#data-table th:nth-child(5), /* الاسم الأساسي */
+#data-table td:nth-child(5) {
+  width: 15%; /* توسيع */
+}
+#data-table th:nth-child(6), /* الوحدة */
+#data-table td:nth-child(6) {
+  width: 5%;
+}
+#data-table th:nth-child(7), /* الفئة */
+#data-table td:nth-child(7) {
+  width: 5%;
+}
+#data-table th:nth-child(8), /* العلامة التجارية */
+#data-table td:nth-child(8) {
+  width: 5%;
+}
+#data-table th:nth-child(9), /* تاريخ التحديث */
+#data-table td:nth-child(9) {
+  width: 8%;
+}
+#data-table th:nth-child(10), /* ساري حتى */
+#data-table td:nth-child(10) {
+  width: 15%; /* توسيع */
+}
   
-  .stats-dashboard, .filter-row, .controls { order: 3; margin-top: 20px; }
-  
-  /* إخفاء row-1 المكرر داخل controls */
-  .controls .mobile-row.row-1 { display: none !important; }
-  
-  /* إصلاح تبعثر الأزرار والفلاتر */
-  .filter-row {
-    display: flex;
-    flex-wrap: nowrap;
-    overflow-x: auto;
-    gap: 8px;
-    padding: 8px 0;
-    margin: 0 0 10px 0;
-    background: transparent;
+/* تثبيت pagination في الأسفل */
+.pagination {
+  position: fixed !important;
+  bottom: 0 !important;
+  left: 0;
+  right: 0;
+  background: white;
+  z-index: 1001;
+  margin: 0 !important;
+  border-top: 1px solid #ddd;
+  padding: 8px;
+}
+
+/* إضافة مساحة أسفل الجسم لعدم تداخل المحتوى مع pagination */
+body {
+  padding-bottom: 60px !important;
+}
+  .stats-dashboard,
+  .filter-row,
+  .controls {
+    order: 3;
+    margin-top: 20px;
   }
-  .filter-chips {
-    display: flex;
-    flex-wrap: nowrap;
-    gap: 8px;
+
+  /* إخفاء أي نسخة مكررة من row-1 داخل controls */
+  .controls .mobile-row.row-1 {
+    display: none !important;
   }
+
+  /* تحسين عرض الأزرار داخل controls للموبايل */
   .controls .mobile-row {
-    display: flex;
     flex-wrap: wrap;
-    gap: 8px;
-    margin-bottom: 12px;
+    justify-content: space-between;
   }
   .controls .mobile-row > * {
     flex: 1 1 auto;
-    min-width: 100px;
+    min-width: 120px;
   }
-  /* تحسين أزرار الصف الرابع */
-  .controls .mobile-row.row-4 {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-  }
-  .controls .mobile-row.row-4 button {
-    flex: 1 1 auto;
-    min-width: 100px;
-  }
-  
-  /* توزيع أعمدة الجدول - المنتج والخصم كبيران والباقي صغير */
-  #data-table {
-    overflow-x: auto; /* للسماح بالتمرير الأفقي إذا لزم الأمر */
-  }
-  #data-table table {
-    table-layout: fixed;
-    width: 100%;
-    min-width: 600px; /* عرض مناسب للموبايل مع إمكانية التمرير */
-  }
-  #data-table th, #data-table td {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    font-size: 12px;
-    padding: 8px 4px;
-  }
-  /* السماح لعمود المنتج بالتفاف النص إذا لزم الأمر */
-  #data-table td:nth-child(2) {
-    white-space: normal;
-    word-break: break-word;
-  }
-  /* تحديد العروض: المنتج 35%، الخصم 15%، الباقي 5-8% */
-  #data-table th:nth-child(1), #data-table td:nth-child(1) { width: 8%; }  /* سوبر ماركت */
-  #data-table th:nth-child(2), #data-table td:nth-child(2) { width: 38%; } /* المنتج */
-  #data-table th:nth-child(3), #data-table td:nth-child(3) { width: 8%; }  /* السعر */
-  #data-table th:nth-child(4), #data-table td:nth-child(4) { width: 15%; } /* الخصم */
-  #data-table th:nth-child(5), #data-table td:nth-child(5) { width: 6%; }  /* الاسم الأساسي */
-  #data-table th:nth-child(6), #data-table td:nth-child(6) { width: 5%; }  /* الوحدة */
-  #data-table th:nth-child(7), #data-table td:nth-child(7) { width: 6%; }  /* الفئة */
-  #data-table th:nth-child(8), #data-table td:nth-child(8) { width: 6%; }  /* العلامة التجارية */
-  #data-table th:nth-child(9), #data-table td:nth-child(9) { width: 8%; }  /* تاريخ التحديث */
-  #data-table th:nth-child(10), #data-table td:nth-child(10) { width: 8%; } /* ساري حتى */
 }
       
       
