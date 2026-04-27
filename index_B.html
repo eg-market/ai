@@ -7,7 +7,8 @@
     <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
     <title>عروض السوبرماركت - أفضل العروض اليومية</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;800&amp;display=swap"
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;800&amp;display=swap"
+
       rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.0/papaparse.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/lz-string/1.4.4/lz-string.min.js"></script>
@@ -195,7 +196,7 @@
 /* === للموبايل فقط: إعادة ترتيب الصفحة === */
 /* ========== الموبايل فقط ========== */
 @media (max-width: 768px) {
-  /* تثبيت شريط البحث في الأعلى */
+  /* تثبيت شريط البحث */
   .mobile-row.row-1 {
     position: fixed !important;
     top: 0 !important;
@@ -208,121 +209,104 @@
     border-radius: 0;
     box-shadow: 0 2px 5px rgba(0,0,0,0.1);
   }
-
-  /* إضافة مساحة علوية حتى لا يغطي الشريط المحتوى */
   body {
     padding-top: 70px !important;
+    padding-bottom: 70px !important;
   }
-
-  /* إلغاء التثبيت عن pagination (لم يعد fixed) */
+  /* Pagination ثابت في الأسفل */
   .pagination {
-    position: relative !important;
-    bottom: auto !important;
-    margin: 15px 0 !important;
-    background: transparent !important;
-    border: none !important;
+    position: fixed !important;
+    bottom: 0 !important;
+    left: 0;
+    right: 0;
+    background: white;
+    z-index: 1001;
+    margin: 0 !important;
+    border-top: 1px solid #ddd;
+    padding: 8px;
   }
-
-  /* استخدام flex لترتيب العناصر داخل .container */
+  /* ترتيب العناصر */
   .container {
     display: flex;
     flex-direction: column;
   }
-
-  /* الترتيب: الجدول أولاً، ثم pagination، ثم باقي العناصر */
-  /* إعادة توزيع عرض الأعمدة للموبايل */
-#data-table table {
-  table-layout: fixed;
-  width: 100%;
-}
-
-#data-table th, #data-table td {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-/* تحديد عرض كل عمود بالنسبة المئوية */
-#data-table th:nth-child(1), /* السوبر ماركت */
-#data-table td:nth-child(1) {
-  width: 12%;
-}
-#data-table th:nth-child(2), /* المنتج */
-#data-table td:nth-child(2) {
-  width: 35%;  /* توسيع */
-}
-#data-table th:nth-child(3), /* السعر الحالي */
-#data-table td:nth-child(3) {
-  width: 12%;
-}
-#data-table th:nth-child(4), /* الخصم */
-#data-table td:nth-child(4) {
-  width: 10%;
-}
-#data-table th:nth-child(5), /* الاسم الأساسي */
-#data-table td:nth-child(5) {
-  width: 15%; /* توسيع */
-}
-#data-table th:nth-child(6), /* الوحدة */
-#data-table td:nth-child(6) {
-  width: 5%;
-}
-#data-table th:nth-child(7), /* الفئة */
-#data-table td:nth-child(7) {
-  width: 5%;
-}
-#data-table th:nth-child(8), /* العلامة التجارية */
-#data-table td:nth-child(8) {
-  width: 5%;
-}
-#data-table th:nth-child(9), /* تاريخ التحديث */
-#data-table td:nth-child(9) {
-  width: 8%;
-}
-#data-table th:nth-child(10), /* ساري حتى */
-#data-table td:nth-child(10) {
-  width: 15%; /* توسيع */
-}
+  #data-table, .products-grid { order: 1; }
+  .pagination { order: 2; }
+  .stats-dashboard, .filter-row, .controls { order: 3; margin-top: 20px; }
   
-/* تثبيت pagination في الأسفل */
-.pagination {
-  position: fixed !important;
-  bottom: 0 !important;
-  left: 0;
-  right: 0;
-  background: white;
-  z-index: 1001;
-  margin: 0 !important;
-  border-top: 1px solid #ddd;
-  padding: 8px;
-}
-
-/* إضافة مساحة أسفل الجسم لعدم تداخل المحتوى مع pagination */
-body {
-  padding-bottom: 60px !important;
-}
-  .stats-dashboard,
-  .filter-row,
-  .controls {
-    order: 3;
-    margin-top: 20px;
+  /* إخفاء row-1 المكرر داخل controls */
+  .controls .mobile-row.row-1 { display: none !important; }
+  
+  /* إصلاح تبعثر الأزرار والفلاتر */
+  .filter-row {
+    display: flex;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    gap: 8px;
+    padding: 8px 0;
+    margin: 0 0 10px 0;
+    background: transparent;
   }
-
-  /* إخفاء أي نسخة مكررة من row-1 داخل controls */
-  .controls .mobile-row.row-1 {
-    display: none !important;
+  .filter-chips {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 8px;
   }
-
-  /* تحسين عرض الأزرار داخل controls للموبايل */
   .controls .mobile-row {
+    display: flex;
     flex-wrap: wrap;
-    justify-content: space-between;
+    gap: 8px;
+    margin-bottom: 12px;
   }
   .controls .mobile-row > * {
     flex: 1 1 auto;
-    min-width: 120px;
+    min-width: 100px;
   }
+  /* تحسين أزرار الصف الرابع */
+  .controls .mobile-row.row-4 {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .controls .mobile-row.row-4 button {
+    flex: 1 1 auto;
+    min-width: 100px;
+  }
+  
+  /* توزيع أعمدة الجدول - المنتج والخصم كبيران والباقي صغير */
+  #data-table {
+    overflow-x: auto; /* للسماح بالتمرير الأفقي إذا لزم الأمر */
+  }
+  #data-table table {
+    table-layout: fixed;
+    width: 100%;
+    min-width: 600px; /* عرض مناسب للموبايل مع إمكانية التمرير */
+  }
+  #data-table th, #data-table td {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 12px;
+    padding: 8px 4px;
+  }
+  /* السماح لعمود المنتج بالتفاف النص إذا لزم الأمر */
+  #data-table td:nth-child(2) {
+    white-space: normal;
+    word-break: break-word;
+  }
+  /* تحديد العروض: المنتج 35%، الخصم 15%، الباقي 5-8% */
+  #data-table th:nth-child(1), #data-table td:nth-child(1) { width: 8%; }  /* سوبر ماركت */
+  #data-table th:nth-child(2), #data-table td:nth-child(2) { width: 38%; } /* المنتج */
+  #data-table th:nth-child(3), #data-table td:nth-child(3) { width: 8%; }  /* السعر */
+  #data-table th:nth-child(4), #data-table td:nth-child(4) { width: 15%; } /* الخصم */
+  #data-table th:nth-child(5), #data-table td:nth-child(5) { width: 6%; }  /* الاسم الأساسي */
+  #data-table th:nth-child(6), #data-table td:nth-child(6) { width: 5%; }  /* الوحدة */
+  #data-table th:nth-child(7), #data-table td:nth-child(7) { width: 6%; }  /* الفئة */
+  #data-table th:nth-child(8), #data-table td:nth-child(8) { width: 6%; }  /* العلامة التجارية */
+  #data-table th:nth-child(9), #data-table td:nth-child(9) { width: 8%; }  /* تاريخ التحديث */
+  #data-table th:nth-child(10), #data-table td:nth-child(10) { width: 8%; } /* ساري حتى */
 }
+      
       
       
   </style>
@@ -331,7 +315,8 @@ body {
     <div class="container">
       <div class="hero-banner">
         <div class="hero-content">
-          <h1>🛒سوق مصر : أفضل محرك بحث عن منتجات وعروض السوبرماركت اليومية</h1>
+          <h1>🛒سوق مصر : أفضل محرك بحث عن منتجات وعروض السوبرماركت
+            اليومية</h1>
           <p class="hero-subtitle">قارن الأسعار بين كبرى المتاجر - وفر حتى 70%</p>
           <div class="ticker-wrap">
             <div class="ticker-label"><i class="fas fa-bolt"></i> عروض مميزة</div>
@@ -386,8 +371,10 @@ body {
         <div class="filter-chips" id="filter-chips"> <button class="chip" data-filter="all">العروض
             القديمة</button> <button class="chip active" data-filter="active">العروض
             السارية</button> <button class="chip" data-filter="hot">عروض ساخنة</button>
-          <button class="chip" data-filter="ending">تنتهي قريباً</button> <button
-            class="chip" data-filter="discount">خصومات كبيرة</button> <button class="chip"
+          <button class="chip" data-filter="ending">تنتهي قريباً</button> <button
+
+            class="chip" data-filter="discount">خصومات كبيرة</button> <button class="chip"
+
             data-filter="carrefour">هايبر1</button> <button class="chip" data-filter="food">منتجات
             غذائية</button> <button class="chip" data-filter="recent">آخر يومين</button>
         </div>
@@ -396,7 +383,8 @@ body {
             جدول</button> </div>
       </div>
       <div class="products-grid" id="products-grid"></div>
-      <div class="mobile-row row-1"> <input id="search-input" placeholder="ابحث عن منتج..."
+      <div class="mobile-row row-1"> <input id="search-input" placeholder="ابحث عن منتج..."
+
           type="text">
         <select id="sort-by">
           <option value="best-deals">إختار الترتيب : أفضل العروض</option>
@@ -418,10 +406,12 @@ body {
           <select id="supermarket-filter">
             <option value="">إختار السوبرماركت</option>
           </select>
-          <div class="price-controls"> <button id="min-decrease">−</button> <input
+          <div class="price-controls"> <button id="min-decrease">−</button> <input
+
               id="min-price" placeholder="السعر من" type="number"> <button id="min-increase">+</button>
           </div>
-          <div class="price-controls"> <button id="max-decrease">−</button> <input
+          <div class="price-controls"> <button id="max-decrease">−</button> <input
+
               id="max-price" placeholder="السعر إلى" type="number"> <button id="max-increase">+&nbsp;</button>
           </div>
         </div>
@@ -466,9 +456,12 @@ body {
       <div class="comparison-header" style="display:flex; justify-content:space-between; align-items:center;">
         <h3 style="margin:0;"><i class="fas fa-balance-scale"></i> مقارنة
           المنتجات (<span id="comparison-count">0</span>/4)</h3>
-        <div><button id="clear-comparison" style="background:#dc3545; color:white; border:none; padding:8px 16px; border-radius:6px;"><i
-              class="fas fa-trash"></i> مسح</button> <button id="close-comparison"
-            style="background:#6c757d; color:white; border:none; padding:8px 16px; border-radius:6px;"><i
+        <div><button id="clear-comparison" style="background:#dc3545; color:white; border:none; padding:8px 16px; border-radius:6px;"><i
+
+              class="fas fa-trash"></i> مسح</button> <button id="close-comparison"
+
+            style="background:#6c757d; color:white; border:none; padding:8px 16px; border-radius:6px;"><i
+
               class="fas fa-times"></i> إغلاق</button></div>
       </div>
       <div class="comparison-items" id="comparison-items" style="display:flex; gap:15px; overflow-x:auto; padding:10px 0;"></div>
@@ -1593,5 +1586,6 @@ async function loadAndCropImage(item) {
       
  // ===== إعادة ترتيب العناصر للموبايل (نقل الإحصائيات والفلاتر والأزرار إلى الأسفل) =====
 
-</script> </body>
+</script>
+  </body>
 </html>
