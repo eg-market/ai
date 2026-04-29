@@ -27,13 +27,13 @@ steps:
 
 - name: Run script
   env:
-    API_KEY: ${{ secrets.API_KEY }}
+    API_KEY: ${{bf6f7aee-34ef-4c70-95fa-bd446fac56c7}}
   run: |
-    python script.py
+    python nanonets.py
 
 - name: Upload Excel result
   uses: actions/upload-artifact@v4
   with:
-    name: result-excel
+    name: aggregated_bulk_flyer_data_unified-excel
     path: output/*.xlsx
 ```
