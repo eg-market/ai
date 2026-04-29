@@ -26,7 +26,7 @@ steps:
 
 - name: Run script
   env:
-    API_KEY: ${{bf6f7aee-34ef-4c70-95fa-bd446fac56c7}}
+    API_KEY: ${{"bf6f7aee-34ef-4c70-95fa-bd446fac56c7"}}
   run: |
     python nanonets.py
 
