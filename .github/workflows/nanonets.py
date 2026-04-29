@@ -20,7 +20,7 @@ OCR_API_URL = "https://extraction-api.nanonets.com/extract"
 # OCR_API_URL = "https://extraction-api.nanonets.com/api/v1/extract/sync"
 
 # 3. Image Source Directory
-IMAGE_ROOT_DIR = r"C:\Users\t\Downloads\docstrange-main\docstrange-main\carr_ocr\flyers_highres"
+IMAGE_ROOT_DIR = "./flyers_highres"
 
 # 🛑 4. **نقطة البدء الجديدة (للتشغيل الجزئي)** #    - أدخل اسم الملف الذي تود البدء منه (مثل 'page_72.jpg') لتخطي الملفات التي تمت معالجتها.
 #    - اتركها None للبدء من أول ملف (إذا كنت تريد إعادة معالجة الكل).
