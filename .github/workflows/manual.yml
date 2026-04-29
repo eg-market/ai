@@ -4,34 +4,34 @@ on:
   workflow_dispatch:
 
 jobs:
- run-script:
+  run-script:
     runs-on: ubuntu-latest
     timeout-minutes: 360
 
- steps:
-   - name: Checkout repo
-    uses: actions/checkout@v4
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
 
-   - name: Set up Python
-    uses: actions/setup-python@v5
-    with:
-      python-version: "3.11"
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
 
-   - name: Install dependencies
-    run: |
-      pip install pandas openpyxl requests tqdm xlsxwriter
+      - name: Install dependencies
+        run: |
+          pip install pandas openpyxl requests tqdm xlsxwriter
 
-   - name: Create output folder
-    run: mkdir -p output
+      - name: Create output folder
+        run: mkdir -p output
 
-   - name: Run script
-    env:
-      API_KEY: ${{ secrets.API_KEY}}
-    run: |
-      python nanonets.py
+      - name: Run script
+        env:
+          API_KEY: ${{ secrets.API_KEY }}
+        run: |
+          python nanonets.py
 
-   - name: Upload Excel result
-    uses: actions/upload-artifact@v4
-    with:
-      name: aggregated_bulk_flyer_data_unified-excel
-      path: output/*.xlsx
+      - name: Upload Excel result
+        uses: actions/upload-artifact@v4
+        with:
+          name: aggregated_bulk_flyer_data_unified-excel
+          path: output/*.xlsx
