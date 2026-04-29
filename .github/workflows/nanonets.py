@@ -11,7 +11,7 @@ import time # لاستخدام التأخير الزمني في إعادة ال�
 #                 **CONFIGURATION / الإعدادات (هام جداً للمراجعة!)**
 # ==============================================================================
 
-API_KEY = "bf6f7aee-34ef-4c70-95fa-bd446fac56c7"
+API_KEY = os.getenv("API_KEY")
 
 
 
@@ -72,7 +72,7 @@ JSON_SCHEMA = {
 SCHEMA_JSON_STRING = json.dumps(JSON_SCHEMA)
 
 # 6. Output Excel File
-OUTPUT_EXCEL_FILENAME = "aggregated_bulk_flyer_data_unified.xlsx" 
+OUTPUT_EXCEL_FILENAME = "./output/aggregated_bulk_flyer_data_unified.xlsx" 
 
 # 7. إعدادات إعادة المحاولة
 MAX_RETRIES = 3 
@@ -335,7 +335,7 @@ def main():
         
     if all_extracted_data:
         if START_FILE_NAME and START_FILE_NAME != "None" and start_index > 0:
-            temp_filename = "aggregated_bulk_flyer_data_NEW_RUN.xlsx"
+            temp_filename = "./output/aggregated_bulk_flyer_data_NEW_RUN.xlsx"
             print("\n=========================================================")
             print("⚠️ ملاحظة: تم إنشاء ملف جديد للبيانات المُستأنفة فقط لتجنب تكرار البيانات السابقة.")
             export_to_excel(all_extracted_data, temp_filename)
