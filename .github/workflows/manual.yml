@@ -28,7 +28,7 @@ jobs:
         env:
           API_KEY: ${{ secrets.API_KEY }}
         run: |
-          python /home/runner/work/ai/.github/workflows/nanonets.py
+          python ../workflows/nanonets.py
 
       - name: Upload Excel result
         uses: actions/upload-artifact@v4
