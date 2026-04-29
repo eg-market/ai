@@ -11,22 +11,7 @@ import time # لاستخدام التأخير الزمني في إعادة ال�
 #                 **CONFIGURATION / الإعدادات (هام جداً للمراجعة!)**
 # ==============================================================================
 
-# 1. API Key (المفتاح السري)
-# API_KEY = "55be209e-d082-11f0-a5b7-2eb1bb7dbb5d" 
-# API_KEY = "398e032a-f37d-11f0-8ea1-f66cce6377f3"
-# API_KEY = "75bcb01c-f43e-11f0-949f-62476a3a77ca"
-
-# API_KEY = "42e9c73b-56ed-46ee-ac00-8a7b2e4bb51a"
-# API_KEY = "83c43cb9-d117-11f0-a243-ce27c0942467"
-# API_KEY = "ef288b43-e98a-4d12-b1ca-ff0ec5253915"
-# API_KEY = "805ce4e7-6f14-43ea-aaf6-60977e285930"
-# API_KEY = "f2bcf1b8-9a40-4c5c-acc8-5d275a4cca7f"
-# API_KEY = "66f710e4-de2e-4aed-96f8-effc441ea187"
-# API_KEY = "03d3d0da-73aa-423e-aabe-7cad2d6e37b9"
-# API_KEY = "c7d64bee-6252-4fd8-8726-630e445f7d83"
-# API_KEY = "5e6ce1fb-06be-4dbb-8747-217514006c4c"
-# API_KEY = "e8bdc3ac-3596-40b1-b969-a82653f6ec6f"
-API_KEY = "bf6f7aee-34ef-4c70-95fa-bd446fac56c7"
+API_KEY = os.getenv("API_KEY")
 
 
 
@@ -35,7 +20,7 @@ OCR_API_URL = "https://extraction-api.nanonets.com/extract"
 # OCR_API_URL = "https://extraction-api.nanonets.com/api/v1/extract/sync"
 
 # 3. Image Source Directory
-IMAGE_ROOT_DIR = r"C:\Users\t\Downloads\docstrange-main\docstrange-main\carr_ocr\flyers_highres"
+IMAGE_ROOT_DIR = "./flyers_highres"
 
 # 🛑 4. **نقطة البدء الجديدة (للتشغيل الجزئي)** #    - أدخل اسم الملف الذي تود البدء منه (مثل 'page_72.jpg') لتخطي الملفات التي تمت معالجتها.
 #    - اتركها None للبدء من أول ملف (إذا كنت تريد إعادة معالجة الكل).
@@ -87,7 +72,7 @@ JSON_SCHEMA = {
 SCHEMA_JSON_STRING = json.dumps(JSON_SCHEMA)
 
 # 6. Output Excel File
-OUTPUT_EXCEL_FILENAME = "aggregated_bulk_flyer_data_unified.xlsx" 
+OUTPUT_EXCEL_FILENAME = "./output/aggregated_bulk_flyer_data_unified.xlsx" 
 
 # 7. إعدادات إعادة المحاولة
 MAX_RETRIES = 3 
@@ -350,7 +335,7 @@ def main():
         
     if all_extracted_data:
         if START_FILE_NAME and START_FILE_NAME != "None" and start_index > 0:
-            temp_filename = "aggregated_bulk_flyer_data_NEW_RUN.xlsx"
+            temp_filename = "./output/aggregated_bulk_flyer_data_NEW_RUN.xlsx"
             print("\n=========================================================")
             print("⚠️ ملاحظة: تم إنشاء ملف جديد للبيانات المُستأنفة فقط لتجنب تكرار البيانات السابقة.")
             export_to_excel(all_extracted_data, temp_filename)
