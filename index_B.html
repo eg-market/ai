@@ -367,26 +367,50 @@
 }
 
 .price-controls input {
-    width: 80px;
+    width: 120px;
     text-align: center;
 }
 
-/* للموبايل */
+     
+      /* السطر الخاص بالسوبرماركت - خفيف ومدمج */
+.mobile-row.row-supermarket {
+    display: block;
+    margin-bottom: 8px;
+    width: 100%;
+}
+.mobile-row.row-supermarket select {
+    width: 100%;
+    max-width: 100%;
+}
+
+/* الصف الخاص بالسعر من وإلى - متجاوران في سطر واحد أفقي */
+.mobile-row.row-2 {
+    display: flex;
+    flex-flow: row nowrap;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+}
+.mobile-row.row-2 .price-controls {
+    flex: 1;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+.mobile-row.row-2 .price-controls input {
+    width: 100%;
+    max-width: 110px;
+}
+
+/* في الموبايل: الحفاظ على التجاوب */
 @media (max-width: 768px) {
+    .mobile-row.row-supermarket {
+        margin-bottom: 6px;
+    }
     .mobile-row.row-2 {
-        display: flex;
-        flex-wrap: nowrap;
-        overflow-x: auto;
         gap: 8px;
     }
-    .mobile-row.row-2 select {
-        min-width: 110px;
-        flex-shrink: 0;
-    }
-    .price-controls {
-        flex-shrink: 0;
-    }
-    .price-controls input {
+    .mobile-row.row-2 .price-controls input {
         width: 65px;
     }
 }
@@ -483,19 +507,15 @@
       <div class="controls">
         <!-- ================= الصف 1 ================= -->
         <!-- ================= الصف 2 ================= -->
-        <div class="mobile-row row-2">
-          <select id="supermarket-filter">
-            <option value="">إختار السوبرماركت</option>
-          </select>
-          <div class="price-controls"> <button id="min-decrease">−</button> <input
-
-              id="min-price" placeholder="السعر من" type="number"> <button id="min-increase">+</button>
-          </div>
-          <div class="price-controls"> <button id="max-decrease">−</button> <input
-
-              id="max-price" placeholder="السعر إلى" type="number"> <button id="max-increase">+&nbsp;</button>
-          </div>
-        </div>
+<div class="mobile-row row-supermarket">
+  <select id="supermarket-filter">
+    <option value="">إختار السوبرماركت</option>
+  </select>
+</div>
+<div class="mobile-row row-2">
+  <div class="price-controls"> <button id="min-decrease">−</button> <input id="min-price" placeholder="السعر من" type="number"> <button id="min-increase">+</button> </div>
+  <div class="price-controls"> <button id="max-decrease">−</button> <input id="max-price" placeholder="السعر إلى" type="number"> <button id="max-increase">+&nbsp;</button> </div>
+</div>
         <!-- ================= الصف 3 ================= -->
         <div class="mobile-row row-3">
           <select id="category-filter">
