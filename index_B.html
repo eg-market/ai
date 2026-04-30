@@ -68,7 +68,10 @@
     .ticker-item .badge { background:var(--ticker-accent); color:#000; padding:3px 6px; border-radius:4px; font-weight:700; }
 
     /* Stats Dashboard */
-
+    .stats-dashboard .stat-card {
+    flex: 0 0 auto;
+    min-width: 130px;
+  }
     .stat-card {
       background: white;
       border-radius: 10px;
@@ -229,6 +232,7 @@
   }
   #data-table, .products-grid { order: 1; }
   .pagination { order: 2; }
+  .stats-dashboard, .filter-row, .controls { order: 3; margin-top: 20px; }
   
   /* إخفاء row-1 المكرر داخل controls */
   .controls .mobile-row.row-1 { display: none !important; }
