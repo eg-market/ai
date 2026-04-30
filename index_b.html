@@ -91,9 +91,7 @@
     .products-grid { grid-template-columns: repeat(auto-fill, minmax(240px,1fr)); gap:12px; padding:0; width:100%; }
     #data-table { overflow-x:auto; width:100%; }
     table { min-width:600px; }
-    .price-controls { display:flex; gap:8px; align-items:center; background:#f8f9fa; padding:5px; border-radius:10px; }
-    .price-controls button { width:36px; height:36px; padding:0; font-size:18px; background:white; color:#333; border:1px solid #ddd; }
-    .price-controls input { width:80px; min-width:0; }
+   
       .filter-row {
     display: flex !important;
     flex-wrap: nowrap !important;
@@ -112,7 +110,7 @@
     #reset-btn, #share-app, #compare-mode-btn, #force-refresh-btn {
       background-color:#ffd54f !important; color:#000 !important; border:none !important;
     }
-    .price-controls button { background-color:white !important; color:#333 !important; border:1px solid #ddd !important; }
+   
     .view-toggle { display:flex; background:white; border-radius:8px; padding:3px; box-shadow:var(--card-shadow); }
     .view-btn { padding:6px 12px; border:1px solid #e0e0e0; background:white; font-family:'Cairo',sans-serif; font-weight:600; font-size:0.85rem; cursor:pointer; border-radius:5px; display:flex; align-items:center; gap:4px; color:var(--primary-blue); }
 
@@ -306,9 +304,116 @@
   #data-table th:nth-child(9), #data-table td:nth-child(9) { width: 8%; }  /* تاريخ التحديث */
   #data-table th:nth-child(10), #data-table td:nth-child(10) { width: 8%; } /* ساري حتى */
 }
+   
       
+      /* جعل الإحصائيات صفاً أفقياً */
+.stats-dashboard {
+    display: flex;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    gap: 12px;
+    padding: 8px 0;
+    margin: 10px 0;
+    justify-content: space-between;
+}
+
+.stats-dashboard .stat-card {
+    flex: 1 1 auto;
+    min-width: 120px;
+}
+
+/* في الموبايل: تأكيد الصف الأفقي مع التمرير */
+@media (max-width: 768px) {
+    .stats-dashboard {
+        display: flex;
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        gap: 8px;
+        justify-content: flex-start;
+    }
+    .stats-dashboard .stat-card {
+        flex: 0 0 auto;
+        min-width: 110px;
+    }
+}
       
-      
+      /* جعل حقلي السعر في صف واحد أفقي */
+.mobile-row.row-2 {
+    display: flex;
+    flex-flow: row nowrap;
+    align-items: center;
+    gap: 12px;
+}
+
+.mobile-row.row-2 select {
+    flex: 1 1 auto;
+    min-width: 120px;
+}
+
+.price-controls {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+/* السعر من (أكبر قليلاً) */
+.price-controls:first-child {
+    flex: 1.2;
+}
+
+/* السعر إلى (أصغر بنسبة ~20%) */
+.price-controls:last-child {
+    flex: 0.8;
+}
+
+.price-controls input {
+    width: 120px;
+    text-align: center;
+}
+
+     
+      /* السطر الخاص بالسوبرماركت - خفيف ومدمج */
+.mobile-row.row-supermarket {
+    display: block;
+    margin-bottom: 8px;
+    width: 100%;
+}
+.mobile-row.row-supermarket select {
+    width: 100%;
+    max-width: 100%;
+}
+
+/* الصف الخاص بالسعر من وإلى - متجاوران في سطر واحد أفقي */
+.mobile-row.row-2 {
+    display: flex;
+    flex-flow: row nowrap;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+}
+.mobile-row.row-2 .price-controls {
+    flex: 1;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+.mobile-row.row-2 .price-controls input {
+    width: 100%;
+    max-width: 110px;
+}
+
+/* في الموبايل: الحفاظ على التجاوب */
+@media (max-width: 768px) {
+    .mobile-row.row-supermarket {
+        margin-bottom: 6px;
+    }
+    .mobile-row.row-2 {
+        gap: 8px;
+    }
+    .mobile-row.row-2 .price-controls input {
+        width: 65px;
+    }
+}
   </style>
   </head>
   <body>
@@ -402,19 +507,15 @@
       <div class="controls">
         <!-- ================= الصف 1 ================= -->
         <!-- ================= الصف 2 ================= -->
-        <div class="mobile-row row-2">
-          <select id="supermarket-filter">
-            <option value="">إختار السوبرماركت</option>
-          </select>
-          <div class="price-controls"> <button id="min-decrease">−</button> <input
-
-              id="min-price" placeholder="السعر من" type="number"> <button id="min-increase">+</button>
-          </div>
-          <div class="price-controls"> <button id="max-decrease">−</button> <input
-
-              id="max-price" placeholder="السعر إلى" type="number"> <button id="max-increase">+&nbsp;</button>
-          </div>
-        </div>
+<div class="mobile-row row-supermarket">
+  <select id="supermarket-filter">
+    <option value="">إختار السوبرماركت</option>
+  </select>
+</div>
+<div class="mobile-row row-2">
+  <div class="price-controls"> <button id="min-decrease">−</button> <input id="min-price" placeholder="السعر من" type="number"> <button id="min-increase">+</button> </div>
+  <div class="price-controls"> <button id="max-decrease">−</button> <input id="max-price" placeholder="السعر إلى" type="number"> <button id="max-increase">+&nbsp;</button> </div>
+</div>
         <!-- ================= الصف 3 ================= -->
         <div class="mobile-row row-3">
           <select id="category-filter">
