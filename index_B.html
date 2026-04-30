@@ -339,7 +339,59 @@
     }
 }
       
-      
+      /* جعل حقلي السعر في صف واحد أفقي */
+.mobile-row.row-2 {
+    display: flex;
+    flex-flow: row nowrap;
+    align-items: center;
+    gap: 12px;
+}
+
+.mobile-row.row-2 select {
+    flex: 1 1 auto;
+    min-width: 120px;
+}
+
+.price-controls {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+/* السعر من (أكبر قليلاً) */
+.price-controls:first-child {
+    flex: 1.2;
+}
+
+/* السعر إلى (أصغر بنسبة ~20%) */
+.price-controls:last-child {
+    flex: 0.8;
+}
+
+.price-controls input {
+    width: 80px;
+    text-align: center;
+}
+
+/* للموبايل */
+@media (max-width: 768px) {
+    .mobile-row.row-2 {
+        display: flex;
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        gap: 8px;
+    }
+    .mobile-row.row-2 select {
+        min-width: 110px;
+        flex-shrink: 0;
+    }
+    .price-controls {
+        flex-shrink: 0;
+    }
+    .price-controls input {
+        width: 65px;
+    }
+}
   </style>
   </head>
   <body>
