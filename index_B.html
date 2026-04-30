@@ -196,7 +196,7 @@
 /* === للموبايل فقط: إعادة ترتيب الصفحة === */
 /* ========== الموبايل فقط ========== */
 @media (max-width: 768px) {
-  /* تثبيت شريط البحث */
+  /* تثبيت شريط البحث في الأعلى */
   .mobile-row.row-1 {
     position: fixed !important;
     top: 0 !important;
@@ -209,104 +209,121 @@
     border-radius: 0;
     box-shadow: 0 2px 5px rgba(0,0,0,0.1);
   }
+
+  /* إضافة مساحة علوية حتى لا يغطي الشريط المحتوى */
   body {
     padding-top: 70px !important;
-    padding-bottom: 70px !important;
   }
-  /* Pagination ثابت في الأسفل */
+
+  /* إلغاء التثبيت عن pagination (لم يعد fixed) */
   .pagination {
-    position: fixed !important;
-    bottom: 0 !important;
-    left: 0;
-    right: 0;
-    background: white;
-    z-index: 1001;
-    margin: 0 !important;
-    border-top: 1px solid #ddd;
-    padding: 8px;
+    position: relative !important;
+    bottom: auto !important;
+    margin: 15px 0 !important;
+    background: transparent !important;
+    border: none !important;
   }
-  /* ترتيب العناصر */
+
+  /* استخدام flex لترتيب العناصر داخل .container */
   .container {
     display: flex;
     flex-direction: column;
   }
-  #data-table, .products-grid { order: 1; }
-  .pagination { order: 2; }
-  .stats-dashboard, .filter-row, .controls { order: 3; margin-top: 20px; }
+
+  /* الترتيب: الجدول أولاً، ثم pagination، ثم باقي العناصر */
+  /* إعادة توزيع عرض الأعمدة للموبايل */
+#data-table table {
+  table-layout: fixed;
+  width: 100%;
+}
+
+#data-table th, #data-table td {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* تحديد عرض كل عمود بالنسبة المئوية */
+#data-table th:nth-child(1), /* السوبر ماركت */
+#data-table td:nth-child(1) {
+  width: 12%;
+}
+#data-table th:nth-child(2), /* المنتج */
+#data-table td:nth-child(2) {
+  width: 35%;  /* توسيع */
+}
+#data-table th:nth-child(3), /* السعر الحالي */
+#data-table td:nth-child(3) {
+  width: 12%;
+}
+#data-table th:nth-child(4), /* الخصم */
+#data-table td:nth-child(4) {
+  width: 10%;
+}
+#data-table th:nth-child(5), /* الاسم الأساسي */
+#data-table td:nth-child(5) {
+  width: 15%; /* توسيع */
+}
+#data-table th:nth-child(6), /* الوحدة */
+#data-table td:nth-child(6) {
+  width: 5%;
+}
+#data-table th:nth-child(7), /* الفئة */
+#data-table td:nth-child(7) {
+  width: 5%;
+}
+#data-table th:nth-child(8), /* العلامة التجارية */
+#data-table td:nth-child(8) {
+  width: 5%;
+}
+#data-table th:nth-child(9), /* تاريخ التحديث */
+#data-table td:nth-child(9) {
+  width: 8%;
+}
+#data-table th:nth-child(10), /* ساري حتى */
+#data-table td:nth-child(10) {
+  width: 15%; /* توسيع */
+}
   
-  /* إخفاء row-1 المكرر داخل controls */
-  .controls .mobile-row.row-1 { display: none !important; }
-  
-  /* إصلاح تبعثر الأزرار والفلاتر */
-  .filter-row {
-    display: flex;
-    flex-wrap: nowrap;
-    overflow-x: auto;
-    gap: 8px;
-    padding: 8px 0;
-    margin: 0 0 10px 0;
-    background: transparent;
+/* تثبيت pagination في الأسفل */
+.pagination {
+  position: fixed !important;
+  bottom: 0 !important;
+  left: 0;
+  right: 0;
+  background: white;
+  z-index: 1001;
+  margin: 0 !important;
+  border-top: 1px solid #ddd;
+  padding: 8px;
+}
+
+/* إضافة مساحة أسفل الجسم لعدم تداخل المحتوى مع pagination */
+body {
+  padding-bottom: 60px !important;
+}
+  .stats-dashboard,
+  .filter-row,
+  .controls {
+    order: 3;
+    margin-top: 20px;
   }
-  .filter-chips {
-    display: flex;
-    flex-wrap: nowrap;
-    gap: 8px;
+
+  /* إخفاء أي نسخة مكررة من row-1 داخل controls */
+  .controls .mobile-row.row-1 {
+    display: none !important;
   }
+
+  /* تحسين عرض الأزرار داخل controls للموبايل */
   .controls .mobile-row {
-    display: flex;
     flex-wrap: wrap;
-    gap: 8px;
-    margin-bottom: 12px;
+    justify-content: space-between;
   }
   .controls .mobile-row > * {
     flex: 1 1 auto;
-    min-width: 100px;
+    min-width: 120px;
   }
-  /* تحسين أزرار الصف الرابع */
-  .controls .mobile-row.row-4 {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-  }
-  .controls .mobile-row.row-4 button {
-    flex: 1 1 auto;
-    min-width: 100px;
-  }
-  
-  /* توزيع أعمدة الجدول - المنتج والخصم كبيران والباقي صغير */
-  #data-table {
-    overflow-x: auto; /* للسماح بالتمرير الأفقي إذا لزم الأمر */
-  }
-  #data-table table {
-    table-layout: fixed;
-    width: 100%;
-    min-width: 600px; /* عرض مناسب للموبايل مع إمكانية التمرير */
-  }
-  #data-table th, #data-table td {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    font-size: 12px;
-    padding: 8px 4px;
-  }
-  /* السماح لعمود المنتج بالتفاف النص إذا لزم الأمر */
-  #data-table td:nth-child(2) {
-    white-space: normal;
-    word-break: break-word;
-  }
-  /* تحديد العروض: المنتج 35%، الخصم 15%، الباقي 5-8% */
-  #data-table th:nth-child(1), #data-table td:nth-child(1) { width: 8%; }  /* سوبر ماركت */
-  #data-table th:nth-child(2), #data-table td:nth-child(2) { width: 38%; } /* المنتج */
-  #data-table th:nth-child(3), #data-table td:nth-child(3) { width: 8%; }  /* السعر */
-  #data-table th:nth-child(4), #data-table td:nth-child(4) { width: 15%; } /* الخصم */
-  #data-table th:nth-child(5), #data-table td:nth-child(5) { width: 6%; }  /* الاسم الأساسي */
-  #data-table th:nth-child(6), #data-table td:nth-child(6) { width: 5%; }  /* الوحدة */
-  #data-table th:nth-child(7), #data-table td:nth-child(7) { width: 6%; }  /* الفئة */
-  #data-table th:nth-child(8), #data-table td:nth-child(8) { width: 6%; }  /* العلامة التجارية */
-  #data-table th:nth-child(9), #data-table td:nth-child(9) { width: 8%; }  /* تاريخ التحديث */
-  #data-table th:nth-child(10), #data-table td:nth-child(10) { width: 8%; } /* ساري حتى */
 }
-      
       
       
   </style>
@@ -328,7 +345,7 @@
           </div>
         </div>
       </div>
-      <div class="user-guide-banner"> اضغط على زر "تحديث الان" لتحديث البيانات
+      <div class="user-guide-banner"> اضغط ///على زر "تحديث الان" لتحديث البيانات
         -=- وانقر على أي صف في الجدول لصورة الصنف</div>
       <div class="stats-dashboard">
         <div class="stat-card">
@@ -467,6 +484,52 @@
       <div class="comparison-items" id="comparison-items" style="display:flex; gap:15px; overflow-x:auto; padding:10px 0;"></div>
     </div>
     <script>
+      // ==================== دوال تطبيع الحروف العربية ====================
+function normalizeArabic(text) {
+    if (!text) return '';
+    // توحيد الألف (أ، إ، آ، ٱ، إلخ) إلى ألف عادية (ا)
+    let normalized = text.replace(/[أإآٱ]/g, 'ا');
+    // توحيد الياءات (ي، ى) إلى ياء عادية (ي)
+    normalized = normalized.replace(/[يى]/g, 'ي');
+    // توحيد الهاء والتاء المربوطة
+    normalized = normalized.replace(/[هة]/g, 'ه');
+    return normalized;
+}
+
+// ==================== دالة التحقق من أن الكلمة كاملة (وليس جزءاً من كلمة أكبر) ====================
+function isCompleteWordMatch(productName, searchWord) {
+    const normalizedProduct = normalizeArabic(productName);
+    const normalizedSearch = normalizeArabic(searchWord);
+    // استخدام تعبير منتظم للتأكد من أن الكلمة المطلوبة تأتي كاملة
+    const regex = new RegExp('(^|[\\s،,؛])' + normalizedSearch.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '($|[\\s،,؛]|\\W)', 'i');
+    return regex.test(normalizedProduct);
+}
+
+// ==================== دالة تصفية المنتجات حسب بارامتر products ====================
+function filterByPriorityList(data, priorityList) {
+    if (!priorityList.length) return data;
+    return data.filter(item => {
+        const productName = item.product || '';
+        const primaryName = item.primaryName || '';
+        return priorityList.some(p => 
+            isCompleteWordMatch(productName, p) || 
+            (primaryName && isCompleteWordMatch(primaryName, p))
+        );
+    });
+}
+
+// ==================== دالة لاستبعاد المنتجات غير المرغوب فيها ====================
+function shouldExcludeItem(item) {
+    const product = normalizeArabic(item.product || '');
+    const primary = normalizeArabic(item.primaryName || '');
+    const combined = product + ' ' + primary;
+    // استبعاد أي منتج يحتوي على علامة + أو كلمة "مع" مفصولة بمسافات
+    if (combined.includes('+')) return true;
+    // كلمة "مع" كاملة وليست جزءاً من كلمة أخرى
+    if (/\bمع\b/.test(combined)) return true;
+    return false;
+}
+      
 (function() {
     // ==================== الإعدادات العامة ====================
     const DATA_URL = 'https://raw.githubusercontent.com/eg-market/ai/main/final.csv';
@@ -500,6 +563,7 @@
   
   let croppedImageCache = new Map();   // لتخزين الصور المقتطعة base64
 
+  let productsSorted = false;
     // ==================== IndexedDB ====================
     function openDB() {
         return new Promise((resolve, reject) => {
@@ -519,7 +583,8 @@
     }
 
     async function loadFromDB() {
-        try {
+        
+      try {
             const db = await openDB();
             return new Promise((resolve, reject) => {
                 const tx = db.transaction(STORE_NAME, 'readonly');
@@ -745,33 +810,56 @@ function transformRows(rows) {
     }
 
     // ==================== Data fetch and update ====================
-    async function fetchFreshDataAndUpdate(showLoadingIndicator = false) {
-        if (showLoadingIndicator) showLoading('جارٍ تحميل أحدث العروض...');
-        try {
-            const response = await fetch(DATA_URL + '?t=' + Date.now());
-            const text = await response.text();
-            const parsed = Papa.parse(text, { header: true, skipEmptyLines: true, trim: true });
-            let newData = transformRows(parsed.data);
-            normalizeDates(newData);
-            computeSavedAndDiscount(newData);
-            computeCombinedScore(newData);
-            
-            await saveToDB(newData);
-            localStorage.setItem(`${CACHE_KEY}_time`, Date.now());
-            
-            allData = newData;
-            originalAllData = [...allData];
-            latestTwoDates = findLatestTwoDates(allData);
-            applyAllFilters();
-            populateTicker();
-            console.log('تم تحديث البيانات بنجاح');
-        } catch (err) {
-            console.error('فشل تحديث البيانات:', err);
-            if (showLoadingIndicator) alert('حدث خطأ أثناء التحديث، تأكد من اتصال الإنترنت');
-        } finally {
-            if (showLoadingIndicator) hideLoading();
+async function fetchFreshDataAndUpdate(showLoadingIndicator = false, force = false) {
+    if (backgroundUpdateInProgress && !force) return;
+    backgroundUpdateInProgress = true;
+    if (showLoadingIndicator) showLoading('جارٍ تحميل أحدث العروض... قد يستغرق دقيقة...');
+    
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 120000); // مهلة 120 ثانية
+    
+    try {
+        const response = await fetch(DATA_URL + '?t=' + Date.now(), {
+            signal: controller.signal,
+            headers: { 'Cache-Control': 'no-cache' }
+        });
+        clearTimeout(timeoutId);
+        
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        const text = await response.text();
+        const parsed = Papa.parse(text, { header: true, skipEmptyLines: true, trim: true });
+        
+        let newData = transformRows(parsed.data);
+        normalizeDates(newData);
+        computeSavedAndDiscount(newData);
+        computeCombinedScore(newData);
+        
+        const priorityProducts = getProductsFromURL();
+        if (priorityProducts.length) {
+            newData = prioritizeProducts(newData, priorityProducts);
         }
+        
+        await saveToDB(newData);
+        localStorage.setItem(`${CACHE_KEY}_time`, Date.now());
+        
+        allData = newData;
+        originalAllData = [...allData];
+        window._productsOrdered = true;
+        latestTwoDates = findLatestTwoDates(allData);
+        applyAllFilters();
+        populateTicker();
+        console.log('تم تحديث البيانات بنجاح');
+    } catch (err) {
+        console.error('فشل تحديث البيانات:', err);
+        if (showLoadingIndicator) {
+            alert('فشل التحديث. سيتم استخدام البيانات المخزنة مؤقتاً. تأكد من اتصال الإنترنت.');
+        }
+    } finally {
+        clearTimeout(timeoutId);
+        backgroundUpdateInProgress = false;
+        if (showLoadingIndicator) hideLoading();
     }
+}
 
       function updatePagination() {
     const pagination = document.getElementById('pagination');
@@ -807,26 +895,34 @@ function transformRows(rows) {
 window.goToPage = (page) => { currentPage = page; renderContent(); };
     
       
-    async function loadData() {
-        let stored = await loadFromDB();
-        if (stored && stored.length > 0) {
-            console.log("✅ تم العثور على بيانات في المخزن المحلي.");
-            allData = stored;
-            originalAllData = [...allData];
-            hideLoading();
-            processDataAfterLoad();
-            
-            if (!backgroundUpdateInProgress) {
-                backgroundUpdateInProgress = true;
-                fetchFreshDataAndUpdate(false).finally(() => {
-                    backgroundUpdateInProgress = false;
-                });
-            }
-        } else {
-            console.log("❌ المخزن فارغ، جاري التحميل من الخادم...");
-            await fetchFreshDataAndUpdate(true);
+async function loadData() {
+    let stored = await loadFromDB();
+    if (stored && stored.length > 0) {
+        console.log(`✅ تم تحميل ${stored.length} عرض من المخزن المحلي (سريع جداً).`);
+        allData = stored;
+        const priorityProducts = getProductsFromURL();
+        if (priorityProducts.length) {
+            allData = prioritizeProducts(allData, priorityProducts);
         }
+        originalAllData = [...allData];
+        window._productsOrdered = true;
+        hideLoading();
+        processDataAfterLoad();
+        
+        // تحديث الخلفية فقط إذا مر وقت طويل على آخر تحديث
+        const lastUpdate = localStorage.getItem(`${CACHE_KEY}_time`);
+        const needUpdate = !lastUpdate || (Date.now() - parseInt(lastUpdate) > CACHE_EXPIRY);
+        if (needUpdate && !backgroundUpdateInProgress) {
+            backgroundUpdateInProgress = true;
+            fetchFreshDataAndUpdate(false).finally(() => {
+                backgroundUpdateInProgress = false;
+            });
+        }
+    } else {
+        console.log("❌ المخزن فارغ، جاري التحميل من الخادم (قد يستغرق دقائق)...");
+        await fetchFreshDataAndUpdate(true);
     }
+}
 
     async function forceRefresh() {
         if (backgroundUpdateInProgress) {
@@ -836,18 +932,17 @@ window.goToPage = (page) => { currentPage = page; renderContent(); };
         await fetchFreshDataAndUpdate(true);
     }
 
-    function processDataAfterLoad() {
-        latestTwoDates = findLatestTwoDates(allData);
-        applyUrlParams();
-        document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
-        if (activeChipFilter === 'all') {
-            document.querySelector('.chip[data-filter="all"]').classList.add('active');
-        } else if (activeChipFilter === 'recent') {
-            document.querySelector('.chip[data-filter="recent"]').classList.add('active');
-        } else {
-            document.querySelector('.chip[data-filter="active"]').classList.add('active');
-        }
+function processDataAfterLoad() {
+    latestTwoDates = findLatestTwoDates(allData);
+    // تطبيق ترتيب المنتجات إذا لم يسبق تطبيقه
+    const priorityProducts = getProductsFromURL();
+    if (priorityProducts.length && !window._productsOrdered) {
+        allData = prioritizeProducts(allData, priorityProducts);
         originalAllData = [...allData];
+        window._productsOrdered = true;
+    }
+    // ... باقي الكود نفسه
+    
         populateFilters();
         applyAllFilters();
         populateTicker();
@@ -913,68 +1008,83 @@ window.goToPage = (page) => { currentPage = page; renderContent(); };
     }
 
     // ==================== Apply filters ====================
-    function applyAllFilters() {
-        const searchVal = document.getElementById('search-input').value.trim().toLowerCase();
-        const supermarket = document.getElementById('supermarket-filter').value;
-        const category = document.getElementById('category-filter').value;
-        const brand = document.getElementById('brand-filter').value;
-        const minDiscount = parseFloat(document.getElementById('min-discount').value) || 0;
-        let minPrice = parseFloat(document.getElementById('min-price').value) || 0;
-        let maxPrice = parseFloat(document.getElementById('max-price').value) || Infinity;
-        if (minPrice > maxPrice) [minPrice, maxPrice] = [maxPrice, minPrice];
-        const sort = document.getElementById('sort-by').value;
-        const effectiveSearchTerms = urlSearchTerms.length ? urlSearchTerms : (searchVal ? searchVal.split(/\s+/) : []);
-        filteredData = allData.filter(item => {
-            if (!showAllOffers && activeChipFilter !== 'all' && activeChipFilter !== 'recent') {
-                if (item.status === 'منتهي' || item.status === 'العرض منتهى') return false;
-            }
-            if (effectiveSearchTerms.length) {
-                const hay = (item.product + ' ' + item.primaryName + ' ' + item.brand + ' ' + item.supermarket).toLowerCase();
-                if (!effectiveSearchTerms.every(t => hay.includes(t))) return false;
-            }
-            if (urlCategories.length) {
-                const itemCat = String(item.category || '').toLowerCase();
-                if (!urlCategories.some(c => itemCat.includes(c))) return false;
-            }
-            if (supermarket && item.supermarket !== supermarket) return false;
-            if (category && (!item.category || !item.category.toLowerCase().includes(category.toLowerCase()))) return false;
-            if (brand && item.brand !== brand) return false;
-            if (minDiscount > 0 && (item._discount_pct || 0) < minDiscount) return false;
-            const price = item.currentPrice || 0;
-            if (price < minPrice || price > maxPrice) return false;
-            switch (activeChipFilter) {
-                case 'hot': if ((item._discount_pct || 0) < 30) return false; break;
-                case 'ending':
-                    if (!item.endDate) return false;
-                    const diff = (item.endDate - new Date()) / (1000 * 60 * 60 * 24);
-                    if (diff <= 0 || diff > 1) return false;
-                    break;
-                case 'discount': if ((item._discount_pct || 0) < 20) return false; break;
-                case 'carrefour': if (!item.supermarket.includes('هايبر1')) return false; break;
-                case 'food': if (!item.category || !/طعام|غذائ|مأكولات|أطعمة|غذاء/i.test(item.category)) return false; break;
-                case 'recent':
-                    if (!latestTwoDates.length) return false;
-                    const d = item.updateDate || item.endDate;
-                    if (!d) return false;
-                    const ds = d instanceof Date ? d.toISOString().split('T')[0] : null;
-                    if (!ds || !latestTwoDates.includes(ds)) return false;
-                    break;
-            }
-            // NEW: one_day filter (independent from chip)
-            if (oneDayFilter) {
+function applyAllFilters() {
+    const searchVal = document.getElementById('search-input').value.trim().toLowerCase();
+    const supermarket = document.getElementById('supermarket-filter').value;
+    const category = document.getElementById('category-filter').value;
+    const brand = document.getElementById('brand-filter').value;
+    const minDiscount = parseFloat(document.getElementById('min-discount').value) || 0;
+    let minPrice = parseFloat(document.getElementById('min-price').value) || 0;
+    let maxPrice = parseFloat(document.getElementById('max-price').value) || Infinity;
+    if (minPrice > maxPrice) [minPrice, maxPrice] = [maxPrice, minPrice];
+    const sort = document.getElementById('sort-by').value;
+    const effectiveSearchTerms = urlSearchTerms.length ? urlSearchTerms : (searchVal ? searchVal.split(/\s+/) : []);
+    
+    // الفلترة الأساسية
+    filteredData = allData.filter(item => {
+        if (!showAllOffers && activeChipFilter !== 'all' && activeChipFilter !== 'recent') {
+            if (item.status === 'منتهي' || item.status === 'العرض منتهى') return false;
+        }
+        if (effectiveSearchTerms.length) {
+            const hay = (item.product + ' ' + item.primaryName + ' ' + item.brand + ' ' + item.supermarket).toLowerCase();
+            if (!effectiveSearchTerms.every(t => hay.includes(t))) return false;
+        }
+        if (urlCategories.length) {
+            const itemCat = String(item.category || '').toLowerCase();
+            if (!urlCategories.some(c => itemCat.includes(c))) return false;
+        }
+        if (supermarket && item.supermarket !== supermarket) return false;
+        if (category && (!item.category || !item.category.toLowerCase().includes(category.toLowerCase()))) return false;
+        if (brand && item.brand !== brand) return false;
+        if (minDiscount > 0 && (item._discount_pct || 0) < minDiscount) return false;
+        const price = item.currentPrice || 0;
+        if (price < minPrice || price > maxPrice) return false;
+        switch (activeChipFilter) {
+            case 'hot': if ((item._discount_pct || 0) < 30) return false; break;
+            case 'ending':
                 if (!item.endDate) return false;
-                const diffDays = (item.endDate - new Date()) / (1000 * 60 * 60 * 24);
-                if (diffDays <= 0 || diffDays > 1) return false;
-            }
-            return true;
-        });
-        if (bestPriceMode) filteredData = reduceBestPricePerCategory(filteredData);
-        sortData(filteredData, sort);
-        populateFilters();
-        currentPage = 1;
-        renderContent();
-        updateStats();
-    }
+                const diff = (item.endDate - new Date()) / (1000 * 60 * 60 * 24);
+                if (diff <= 0 || diff > 1) return false;
+                break;
+            case 'discount': if ((item._discount_pct || 0) < 20) return false; break;
+            case 'carrefour': if (!item.supermarket.includes('هايبر1')) return false; break;
+            case 'food': if (!item.category || !/طعام|غذائ|مأكولات|أطعمة|غذاء/i.test(item.category)) return false; break;
+            case 'recent':
+                if (!latestTwoDates.length) return false;
+                const d = item.updateDate || item.endDate;
+                if (!d) return false;
+                const ds = d instanceof Date ? d.toISOString().split('T')[0] : null;
+                if (!ds || !latestTwoDates.includes(ds)) return false;
+                break;
+        }
+        if (oneDayFilter) {
+            if (!item.endDate) return false;
+            const diffDays = (item.endDate - new Date()) / (1000 * 60 * 60 * 24);
+            if (diffDays <= 0 || diffDays > 1) return false;
+        }
+        return true;
+    });
+    
+   
+    // ========== استبعاد المنتجات التي تحتوي على + أو كلمة "مع" ==========
+filteredData = filteredData.filter(item => !shouldExcludeItem(item));
+// =================================================================
+
+// ========== تصفية المنتجات حسب بارامتر products (الحفاظ على المطلوب فقط) ==========
+const priorityProducts = getProductsFromURL();
+if (priorityProducts.length) {
+    filteredData = filterByPriorityList(filteredData, priorityProducts);
+}
+// =================================================================
+  
+  
+    if (bestPriceMode) filteredData = reduceBestPricePerCategory(filteredData);
+    sortData(filteredData, sort);
+    populateFilters();
+    currentPage = 1;
+    renderContent();
+    updateStats();
+}
 
     function reduceBestPricePerCategory(data) {
         const bestByCategory = new Map();
@@ -995,8 +1105,34 @@ window.goToPage = (page) => { currentPage = page; renderContent(); };
         return Array.from(bestByCategory.values());
     }
 
-    function sortData(data, sortKey) {
-        if (!data.length) return;
+function sortData(data, sortKey) {
+    if (!data.length) return;
+    const priorityProducts = getProductsFromURL();
+    if (priorityProducts.length) {
+        data.sort((a, b) => {
+            const aIdx = priorityProducts.findIndex(p => 
+                isCompleteWordMatch(a.product, p) || 
+                (a.primaryName && isCompleteWordMatch(a.primaryName, p))
+            );
+            const bIdx = priorityProducts.findIndex(p => 
+                isCompleteWordMatch(b.product, p) || 
+                (b.primaryName && isCompleteWordMatch(b.primaryName, p))
+            );
+            if (aIdx !== -1 && bIdx !== -1) return aIdx - bIdx;
+            if (aIdx !== -1) return -1;
+            if (bIdx !== -1) return 1;
+            switch (sortKey) {
+                case 'best-deals': return (b._score || 0) - (a._score || 0);
+                case 'discount-desc': return (b._discount_pct || 0) - (a._discount_pct || 0);
+                case 'saved-desc': return (b._saved || 0) - (a._saved || 0);
+                case 'price-asc': return (a.currentPrice || 0) - (b.currentPrice || 0);
+                case 'price-desc': return (b.currentPrice || 0) - (a.currentPrice || 0);
+                case 'name-asc': return (a.product || '').localeCompare(b.product || '', 'ar');
+                case 'name-desc': return (b.product || '').localeCompare(a.product || '', 'ar');
+                default: return 0;
+            }
+        });
+    } else {
         switch (sortKey) {
             case 'best-deals': data.sort((a,b) => (b._score || 0) - (a._score || 0)); break;
             case 'discount-desc': data.sort((a,b) => (b._discount_pct || 0) - (a._discount_pct || 0)); break;
@@ -1007,6 +1143,7 @@ window.goToPage = (page) => { currentPage = page; renderContent(); };
             case 'name-desc': data.sort((a,b) => (b.product || '').localeCompare(a.product || '', 'ar')); break;
         }
     }
+}
 
     // ==================== Rendering ====================
     function renderContent() {
@@ -1464,15 +1601,18 @@ async function loadAndCropImage(item) {
                             hideLoading();
                             alert('فشل تحميل العروض القديمة. تأكد من وجود الملف.');
                         });
-                } else {
-                    if (originalAllData.length > 0) allData = [...originalAllData];
-                    activeChipFilter = filter;
-                    showAllOffers = false;
-                    document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
-                    this.classList.add('active');
-                    if (filter === 'hot') document.getElementById('sort-by').value = 'discount-desc';
-                    else if (filter === 'discount') document.getElementById('sort-by').value = 'saved-desc';
-                    applyAllFilters();
+              
+} else {
+    // لا نعيد تعيين allData من originalAllData، لأن originalAllData مرتبة بالفعل
+    // لكن نأكد أن allData هي نفس originalAllData إن لم تكن محملة
+    if (allData.length === 0 && originalAllData.length > 0) allData = [...originalAllData];
+    activeChipFilter = filter;
+    showAllOffers = false;
+    document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+    this.classList.add('active');
+    if (filter === 'hot') document.getElementById('sort-by').value = 'discount-desc';
+    else if (filter === 'discount') document.getElementById('sort-by').value = 'saved-desc';
+    applyAllFilters();
                 }
             });
         });
@@ -1584,8 +1724,56 @@ async function loadAndCropImage(item) {
     });
 })();
       
- // ===== إعادة ترتيب العناصر للموبايل (نقل الإحصائيات والفلاتر والأزرار إلى الأسفل) =====
 
+      
+      // ==================== معالجة بارامتر products ====================
+function getProductsFromURL() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const productsParam = urlParams.get('products');
+    if (!productsParam) return [];
+    // فك الترميز وفصل القائمة وتطبيع المنتجات
+    return decodeURIComponent(productsParam).split(',').map(p => normalizeArabic(p.trim())).filter(Boolean);
+}
+
+function prioritizeProducts(data, priorityList) {
+    if (!priorityList.length) return data;
+    const result = [...data];
+    result.sort((a, b) => {
+        const aIdx = priorityList.findIndex(p => 
+            isCompleteWordMatch(a.product, p) || 
+            (a.primaryName && isCompleteWordMatch(a.primaryName, p))
+        );
+        const bIdx = priorityList.findIndex(p => 
+            isCompleteWordMatch(b.product, p) || 
+            (b.primaryName && isCompleteWordMatch(b.primaryName, p))
+        );
+        if (aIdx === -1 && bIdx === -1) return 0;
+        if (aIdx === -1) return 1;
+        if (bIdx === -1) return -1;
+        return aIdx - bIdx;
+    });
+    return result;
+}
+
+// استخدم هذه الدوال بعد تحميل البيانات وقبل عرضها:
+// let allData = ... (البيانات المحملة)
+// const priorityProducts = getProductsFromURL();
+// if (priorityProducts.length) {
+//     allData = prioritizeProducts(allData, priorityProducts);
+// }
+// ثم اعرض allData
+      
+      async function clearLocalCache() {
+    if (confirm('مسح البيانات المحلية سيؤدي إلى إعادة التحميل الكامل من الخادم. قد يستغرق وقتاً. هل تريد المتابعة؟')) {
+        const db = await openDB();
+        const tx = db.transaction(STORE_NAME, 'readwrite');
+        tx.objectStore(STORE_NAME).clear();
+        await tx.complete;
+        localStorage.removeItem(`${CACHE_KEY}_time`);
+        location.reload();
+    }
+}
+// يمكنك إضافة زر لاستدعائها في واجهة المستخدم.
 </script>
   </body>
 </html>
