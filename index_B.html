@@ -275,18 +275,24 @@
  /* توزيع الأعمدة الجديد في الموبايل (7 أعمدة) */
 #data-table th:nth-child(1), #data-table td:nth-child(1) { width: 7%; white-space: normal; }  /* السوبر ماركت */
   
-#data-table th:nth-child(2), #data-table td:nth-child(2) {
+  #data-table {
+overflow-x: auto; /* يسمح بالتمرير الأفقي للجدول */
+width: 100%; /* يضمن أخذ الجدول لكامل العرض */
+}
+#data-table th:nth-child(2),
+#data-table td:nth-child(2) {
 width: 40%;
-white-space: nowrap;
-text-overflow: ellipsis; /* إضافة ... عند Overflow */
-overflow: hidden; /* إخفاء النص الزائد */
+white-space: nowrap; /* يمنع التفاف النص */
+overflow: hidden; /* لإخفاء النص الزائد */
+text-overflow: ellipsis; /* لإضافة "..." للنص المقطوع */
 }
 
-#data-table {
-overflow-x: auto; /* تمكين التمرير الأفقي للجدول */
-display: block; /* تمكين التمرير الأفقي */
+/* للتأكد من أن الجدول نفسه يمكن تمريره أفقيًا */
+#data-table-wrapper {
+overflow-x: auto;
+width: 100%;
 }
-  
+
   #data-table th:nth-child(3), #data-table td:nth-child(3) { width: 10%; }                         /* السعر الحالي */
 #data-table th:nth-child(4), #data-table td:nth-child(4) { width: 4%; }                         /* الخصم */
 #data-table th:nth-child(5), #data-table td:nth-child(5) { width: 15%; white-space: normal; }    /* العلامة التجارية */
@@ -456,7 +462,7 @@ border-radius: 4px; /* إضافة انحناء بسيط للحدود (اختيا
         </div>
       </div>
       <div class="user-guide-banner"> اضغط زر "تحديث" في الاسفل لتحديث البيانات
-        /5/ وانقر أي صف في الجدول لتفاصيل الصنف</div>
+        /6/ وانقر أي صف في الجدول لتفاصيل الصنف</div>
       <div class="stats-dashboard">
         <div class="stat-card">
           <div class="stat-icon">💰</div>
