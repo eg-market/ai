@@ -294,39 +294,13 @@
   }
   /* تحديد العروض: المنتج 35%، الخصم 15%، الباقي 5-8% */
 /* إخفاء أعمدة: الفئة، العلامة التجارية، تاريخ التحديث */
-#data-table th:nth-child(7),
-#data-table td:nth-child(7),
-#data-table th:nth-child(8),
-#data-table td:nth-child(8),
-#data-table th:nth-child(9),
-#data-table td:nth-child(9) {
-    display: none;
-}
-
-/* إعادة توزيع نسب الأعمدة المتبقية مع تصغير المنتج 10% وتوزيع المساحة على السوبر ماركت والسعر */
-#data-table th:nth-child(1), #data-table td:nth-child(1) {
-    width: 9%;
-    white-space: normal;      /* جعل السوبر ماركت قابل للالتفاف */
-}
-#data-table th:nth-child(2), #data-table td:nth-child(2) {
-    width: 34%;               /* تم التصغير من 38% إلى 34% (-10% من عرضه السابق تقريباً) */
-}
-#data-table th:nth-child(3), #data-table td:nth-child(3) {
-    width: 12%;               /* تمت الزيادة بالتساوي مع السوبر ماركت */
-}
-#data-table th:nth-child(4), #data-table td:nth-child(4) {
-    width: 11%;               /* الخصم (قلل قليلاً لتعويض المجموع) */
-}
-#data-table th:nth-child(5), #data-table td:nth-child(5) {
-    width: 25%;                /* الاسم الأساسي */
-}
-#data-table th:nth-child(6), #data-table td:nth-child(6) {
-    width: 10%;                /* الوحدة */
-}
-#data-table th:nth-child(10), #data-table td:nth-child(10) {
-    width: 15%;                /* ساري حتى */
-   white-space: normal; 
-}
+#data-table th:nth-child(1), #data-table td:nth-child(1) { width: 18%; white-space: normal; }  /* السوبر ماركت */
+#data-table th:nth-child(2), #data-table td:nth-child(2) { width: 32%; }  /* المنتج */
+#data-table th:nth-child(3), #data-table td:nth-child(3) { width: 12%; }  /* السعر */
+#data-table th:nth-child(4), #data-table td:nth-child(4) { width: 10%; }  /* الخصم */
+#data-table th:nth-child(5), #data-table td:nth-child(5) { width: 12%; }  /* العلامة التجارية */
+#data-table th:nth-child(6), #data-table td:nth-child(6) { width: 8%; }   /* الوحدة */
+#data-table th:nth-child(7), #data-table td:nth-child(7) { width: 12%; white-space: normal; } /* ساري حتى */
 }
    
       
@@ -1307,29 +1281,32 @@ function renderTable() {
         }
         
         // معالجة "ساري حتى" للموبايل: استخراج اليوم والشهر فقط
-        let validUntilHtml = item.validUntil || '';
-        if (isMobile && validUntilHtml) {
-            // محاولة استخراج "رقم يوم" و "شهر" من النص العربي
-            const arabicMonths = {
-                'يناير': 'يناير', 'فبراير': 'فبراير', 'مارس': 'مارس', 'أبريل': 'أبريل',
-                'مايو': 'مايو', 'يونيو': 'يونيو', 'يوليو': 'يوليو', 'أغسطس': 'أغسطس',
-                'سبتمبر': 'سبتمبر', 'أكتوبر': 'أكتوبر', 'نوفمبر': 'نوفمبر', 'ديسمبر': 'ديسمبر'
-            };
-            let day = '';
-            let month = '';
-            // regex لاستخراج رقم اليوم واسم الشهر
-            const match = validUntilHtml.match(/(\d{1,2})\s+(\w+)/);
-            if (match) {
-                day = match[1];
-                let monthName = match[2];
-                // اختصار الشهر إلى 3 حروف أو استخدام الكامل
-                if (arabicMonths[monthName]) month = monthName;
-                validUntilHtml = `${day} ${month}`;
-            } else {
-                // إذا لم يجد، يبقى النص الأصلي
-                validUntilHtml = validUntilHtml.substring(0, 15);
-            }
+// معالجة "ساري حتى" للموبايل: استخراج اليوم والشهر فقط بشكل أكثر شمولاً
+let validUntilHtml = item.validUntil || '';
+if (isMobile && validUntilHtml) {
+    // قائمة الأشهر العربية
+    const arabicMonthsList = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+    let day = '';
+    let month = '';
+    // البحث عن رقم (1 أو 2 خانة) متبوعاً باسم شهر عربي
+    let match = validUntilHtml.match(/(\d{1,2})\s+([^\d\s]+)/);
+    if (match && arabicMonthsList.includes(match[2])) {
+        day = match[1];
+        month = match[2];
+        validUntilHtml = `${day} ${month}`;
+    } else {
+        // محاولة ثانية: البحث عن اسم شهر ثم رقم
+        let match2 = validUntilHtml.match(/([^\d\s]+)\s+(\d{1,2})/);
+        if (match2 && arabicMonthsList.includes(match2[1])) {
+            day = match2[2];
+            month = match2[1];
+            validUntilHtml = `${day} ${month}`;
+        } else {
+            // إذا فشل كل شيء، نعرض أول 10 حروف فقط
+            validUntilHtml = validUntilHtml.substring(0, 12);
         }
+    }
+}
         
         // بناء خلايا الجدول حسب الجهاز
         let cells = '';
