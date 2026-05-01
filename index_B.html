@@ -293,16 +293,39 @@
     word-break: break-word;
   }
   /* تحديد العروض: المنتج 35%، الخصم 15%، الباقي 5-8% */
-  #data-table th:nth-child(1), #data-table td:nth-child(1) { width: 8%; }  /* سوبر ماركت */
-  #data-table th:nth-child(2), #data-table td:nth-child(2) { width: 38%; } /* المنتج */
-  #data-table th:nth-child(3), #data-table td:nth-child(3) { width: 8%; }  /* السعر */
-  #data-table th:nth-child(4), #data-table td:nth-child(4) { width: 15%; } /* الخصم */
-  #data-table th:nth-child(5), #data-table td:nth-child(5) { width: 6%; }  /* الاسم الأساسي */
-  #data-table th:nth-child(6), #data-table td:nth-child(6) { width: 5%; }  /* الوحدة */
-  #data-table th:nth-child(7), #data-table td:nth-child(7) { width: 6%; }  /* الفئة */
-  #data-table th:nth-child(8), #data-table td:nth-child(8) { width: 6%; }  /* العلامة التجارية */
-  #data-table th:nth-child(9), #data-table td:nth-child(9) { width: 8%; }  /* تاريخ التحديث */
-  #data-table th:nth-child(10), #data-table td:nth-child(10) { width: 8%; } /* ساري حتى */
+/* إخفاء أعمدة: الفئة، العلامة التجارية، تاريخ التحديث */
+#data-table th:nth-child(7),
+#data-table td:nth-child(7),
+#data-table th:nth-child(8),
+#data-table td:nth-child(8),
+#data-table th:nth-child(9),
+#data-table td:nth-child(9) {
+    display: none;
+}
+
+/* إعادة توزيع نسب الأعمدة المتبقية مع تصغير المنتج 10% وتوزيع المساحة على السوبر ماركت والسعر */
+#data-table th:nth-child(1), #data-table td:nth-child(1) {
+    width: 20%;
+    white-space: normal;      /* جعل السوبر ماركت قابل للالتفاف */
+}
+#data-table th:nth-child(2), #data-table td:nth-child(2) {
+    width: 34%;               /* تم التصغير من 38% إلى 34% (-10% من عرضه السابق تقريباً) */
+}
+#data-table th:nth-child(3), #data-table td:nth-child(3) {
+    width: 20%;               /* تمت الزيادة بالتساوي مع السوبر ماركت */
+}
+#data-table th:nth-child(4), #data-table td:nth-child(4) {
+    width: 12%;               /* الخصم (قلل قليلاً لتعويض المجموع) */
+}
+#data-table th:nth-child(5), #data-table td:nth-child(5) {
+    width: 6%;                /* الاسم الأساسي */
+}
+#data-table th:nth-child(6), #data-table td:nth-child(6) {
+    width: 5%;                /* الوحدة */
+}
+#data-table th:nth-child(10), #data-table td:nth-child(10) {
+    width: 8%;                /* ساري حتى */
+}
 }
    
       
