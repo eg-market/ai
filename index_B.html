@@ -418,6 +418,7 @@
   /* للموبايل: جعل البحث والترتيب والبراند في سطر واحد أفقي */
 .mobile-row.row-1 {
   width: auto;
+  overflow-x: auto;
     display: flex !important;
     flex-direction: row !important;
     flex-wrap: nowrap !important;
@@ -438,7 +439,7 @@
 
 .mobile-row.row-1 #search-input {
     flex: 3;
-    min-width: 160;
+    min-width: 150;
     font-size: 13px;
     padding: 0 8px;
 }
@@ -446,8 +447,8 @@
 .mobile-row.row-1 #sort-by,
 .mobile-row.row-1 #brand-filter {
     flex: 2;
-    min-width: 160px;
-    font-size: 12px;
+    min-width: 170px;
+    font-size: 11px;
     padding: 0 4px;
     text-overflow: ellipsis;
     white-space: nowrap;
