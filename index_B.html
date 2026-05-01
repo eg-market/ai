@@ -272,26 +272,16 @@
   }
   
   /* توزيع أعمدة الجدول - المنتج والخصم كبيران والباقي صغير */
-  #data-table {
-    overflow-x: auto; /* للسماح بالتمرير الأفقي إذا لزم الأمر */
-  }
-  #data-table table {
-    table-layout: fixed;
-    width: 100%;
-    min-width: 600px; /* عرض مناسب للموبايل مع إمكانية التمرير */
-  }
-  #data-table th, #data-table td {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    font-size: 12px;
-    padding: 8px 4px;
-  }
-  /* السماح لعمود المنتج بالتفاف النص إذا لزم الأمر */
-  #data-table td:nth-child(2) {
-    white-space: normal;
-    word-break: break-word;
-  }
+ /* توزيع الأعمدة الجديد في الموبايل (7 أعمدة) */
+#data-table th:nth-child(1), #data-table td:nth-child(1) { width: 9%; white-space: normal; }  /* السوبر ماركت */
+#data-table th:nth-child(2), #data-table td:nth-child(2) { width: 55%; }                        /* المنتج */
+#data-table th:nth-child(3), #data-table td:nth-child(3) { width: 9%; }                         /* السعر الحالي */
+#data-table th:nth-child(4), #data-table td:nth-child(4) { width: 7%; }                         /* الخصم */
+#data-table th:nth-child(5), #data-table td:nth-child(5) { width: 9%; white-space: normal; }    /* العلامة التجارية */
+#data-table th:nth-child(6), #data-table td:nth-child(6) { width: 5%; }                         /* الوحدة */
+#data-table th:nth-child(7), #data-table td:nth-child(7) { width: 6%; white-space: normal; }    /* ساري حتى */
+  
+  
  
 
 
@@ -314,9 +304,6 @@
     min-width: 120px;
 }
 
-/* في الموبايل: تأكيد الصف الأفقي مع التمرير */
-
-      
       /* جعل حقلي السعر في صف واحد أفقي */
 .mobile-row.row-2 {
     display: flex;
@@ -436,6 +423,8 @@ border-radius: 4px; /* إضافة انحناء بسيط للحدود (اختيا
     white-space: nowrap;
 }
 }
+      
+      
   </style>
   </head>
   <body>
@@ -454,7 +443,7 @@ border-radius: 4px; /* إضافة انحناء بسيط للحدود (اختيا
           </div>
         </div>
       </div>
-      <div class="user-guide-banner"> اضغط زر "تحديث" في الاسفل  لتحديث البيانات
+      <div class="user-guide-banner"> اضغط زر "تحديث" في الاسفل لتحديث البيانات
         // وانقر أي صف في الجدول لتفاصيل الصنف</div>
       <div class="stats-dashboard">
         <div class="stat-card">
@@ -534,9 +523,10 @@ border-radius: 4px; /* إضافة انحناء بسيط للحدود (اختيا
           </select>
         </div>
         <div class="mobile-row row-2">
-          <div class="price-controls"> <button id="min-decrease">−</button>
-            <input id="min-price" placeholder="السعر من" type="number">
-            <button id="min-increase">+</button> </div>
+          <div class="price-controls"> <button id="min-decrease">−</button> <input
+
+              id="min-price" placeholder="السعر من" type="number"> <button id="min-increase">+</button>
+          </div>
           <div class="price-controls"> <button id="max-decrease">−</button> <input
 
               id="max-price" placeholder="السعر إلى" type="number"> <button id="max-increase">+&nbsp;</button>
