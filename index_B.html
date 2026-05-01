@@ -287,15 +287,21 @@
     display: flex;
     flex-wrap: nowrap;
     overflow-x: auto;
-    gap: 6px;
-    padding: 4px 0;
-    margin: 5px 0;
+    gap: 12px;
+    padding: 8px 0;
+    margin: 10px 0;
     justify-content: space-between;
 }
 
-.stats-dashboard .stat-card {
-    flex: 1 1 auto;
-    min-width: 120px;
+/* تقليل الهوامش الداخلية للأعمدة بنسبة 40% */
+#data-table th, #data-table td {
+    padding: 8px 2px;  /* كان 8px 4px، خفضنا الجهة اليمنى واليسرى إلى 2px (تخفيض 50%) */
+}
+/* أيضاً يمكن تقليل تباعد الجدول الأساسي */
+#data-table table {
+    border-collapse: collapse;
+    width: 100%;
+}
 }
 
       /* جعل حقلي السعر في صف واحد أفقي */
