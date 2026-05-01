@@ -284,17 +284,21 @@
     justify-content: space-between;
 }
 
-/* إعادة ضبط الجدول في الموبايل */
+/* توزيع أعمدة الجدول في الموبايل */
+#data-table {
+    overflow-x: auto;
+}
 #data-table table {
-    table-layout: auto;  /* بدلاً من fixed ليتناسب مع المحتوى */
     width: 100%;
-    min-width: 100%;
+    min-width: 580px;   /* عرض كافٍ لاستيعاب 7 أعمدة */
+    table-layout: auto;
 }
-
 #data-table th, #data-table td {
-    white-space: normal;  /* السماح بالالتفاف لجميع الخلايا */
-    word-break: break-word;
+    white-space: nowrap;
+    padding: 6px 4px;
+    font-size: 11px;
 }
+/* يمكن إزالة أي قاعدة سابقة لـ nth-child - نعتمد على التوزيع التلقائي */
 
 /* توزيع الأعمدة (نسب تقريبية) */
 #data-table th:nth-child(1), #data-table td:nth-child(1) { width: 12%; }  /* السوبر ماركت */
@@ -446,7 +450,7 @@ border-radius: 4px; /* إضافة انحناء بسيط للحدود (اختيا
         </div>
       </div>
       <div class="user-guide-banner"> اضغط زر "تحديث" في الاسفل لتحديث البيانات
-        /7/ وانقر أي صف في الجدول لتفاصيل الصنف</div>
+        /8/ وانقر أي صف في الجدول لتفاصيل الصنف</div>
       <div class="stats-dashboard">
         <div class="stat-card">
           <div class="stat-icon">💰</div>
