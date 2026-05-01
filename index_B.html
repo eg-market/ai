@@ -285,37 +285,37 @@
 }
 
 /* توزيع أعمدة الجدول في الموبايل */
-/* توزيع أعمدة الجدول في الموبايل (بدون تمرير أفقي) */
 #data-table {
-    overflow-x: hidden;  /* نمنع التمرير الأفقي العام */
+    overflow-x: auto;
 }
 #data-table table {
     width: 100%;
-    min-width: 100%;     /* نلغي الحد الأدنى للعرض */
-    table-layout: fixed; /* هام لتثبيت توزيع الأعمدة */
+    min-width: 580px;   /* عرض كافٍ لاستيعاب 7 أعمدة */
+    table-layout: auto;
 }
 #data-table th, #data-table td {
     white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
     padding: 6px 4px;
     font-size: 11px;
 }
-/* عمود المنتج: عرض أصغر مع ellipsis */
+  
+  /* عمود المنتج: عرض أصغر مع ellipsis */
 #data-table th:nth-child(2), #data-table td:nth-child(2) {
-    width: 22%;
+    width: 44%;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
 }
-/* باقي الأعمدة بنسب تتناسب مع الشاشة */
-#data-table th:nth-child(1), #data-table td:nth-child(1) { width: 7%; }  /* السوبر ماركت */
-#data-table th:nth-child(3), #data-table td:nth-child(3) { width: 12%; }  /* السعر */
-#data-table th:nth-child(4), #data-table td:nth-child(4) { width: 9%; }   /* الخصم */
-#data-table th:nth-child(5), #data-table td:nth-child(5) { width: 18%; }  /* العلامة التجارية */
-#data-table th:nth-child(6), #data-table td:nth-child(6) { width: 10%; }  /* الوحدة */
-#data-table th:nth-child(7), #data-table td:nth-child(7) { width: 19%; }  /* ساري حتى */
   
+/* يمكن إزالة أي قاعدة سابقة لـ nth-child - نعتمد على التوزيع التلقائي */
+
+/* توزيع الأعمدة (نسب تقريبية) */
+#data-table th:nth-child(1), #data-table td:nth-child(1) { width: 5%; }  /* السوبر ماركت */
+#data-table th:nth-child(3), #data-table td:nth-child(3) { width: 10%; }  /* السعر */
+#data-table th:nth-child(4), #data-table td:nth-child(4) { width: 7%; }   /* الخصم */
+#data-table th:nth-child(5), #data-table td:nth-child(5) { width: 13%; }  /* العلامة التجارية */
+#data-table th:nth-child(6), #data-table td:nth-child(6) { width: 8%; }   /* الوحدة */
+#data-table th:nth-child(7), #data-table td:nth-child(7) { width: 12%; }  /* ساري حتى */
 }
 
       /* جعل حقلي السعر في صف واحد أفقي */
@@ -458,7 +458,7 @@ border-radius: 4px; /* إضافة انحناء بسيط للحدود (اختيا
         </div>
       </div>
       <div class="user-guide-banner"> اضغط زر "تحديث" في الاسفل لتحديث البيانات
-        /10/ وانقر أي صف في الجدول لتفاصيل الصنف</div>
+        /11/ وانقر أي صف في الجدول لتفاصيل الصنف</div>
       <div class="stats-dashboard">
         <div class="stat-card">
           <div class="stat-icon">💰</div>
