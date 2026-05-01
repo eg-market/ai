@@ -271,16 +271,62 @@
     min-width: 100px;
   }
   
-
+  /* توزيع أعمدة الجدول - المنتج والخصم كبيران والباقي صغير */
+  #data-table {
+    overflow-x: auto; /* للسماح بالتمرير الأفقي إذا لزم الأمر */
+  }
+  #data-table table {
+    table-layout: fixed;
+    width: 100%;
+    min-width: 600px; /* عرض مناسب للموبايل مع إمكانية التمرير */
+  }
+  #data-table th, #data-table td {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 12px;
+    padding: 8px 4px;
+  }
+  /* السماح لعمود المنتج بالتفاف النص إذا لزم الأمر */
+  #data-table td:nth-child(2) {
+    white-space: normal;
+    word-break: break-word;
+  }
   /* تحديد العروض: المنتج 35%، الخصم 15%، الباقي 5-8% */
 /* إخفاء أعمدة: الفئة، العلامة التجارية، تاريخ التحديث */
-#data-table th:nth-child(1), #data-table td:nth-child(1) { width: 11%; white-space: normal; }  /* السوبر ماركت */
-#data-table th:nth-child(2), #data-table td:nth-child(2) { width: 35%; }  /* المنتج */
-#data-table th:nth-child(3), #data-table td:nth-child(3) { width: 12%; }  /* السعر */
-#data-table th:nth-child(4), #data-table td:nth-child(4) { width: 8%; }  /* الخصم */
-#data-table th:nth-child(5), #data-table td:nth-child(5) { width: 16%; white-space: normal;  }  /* العلامة التجارية */
-#data-table th:nth-child(6), #data-table td:nth-child(6) { width: 9%; }   /* الوحدة */
-#data-table th:nth-child(7), #data-table td:nth-child(7) { width: 14%; white-space: normal; } /* ساري حتى */
+#data-table th:nth-child(7),
+#data-table td:nth-child(7),
+#data-table th:nth-child(8),
+#data-table td:nth-child(8),
+#data-table th:nth-child(9),
+#data-table td:nth-child(9) {
+    display: none;
+}
+
+/* إعادة توزيع نسب الأعمدة المتبقية مع تصغير المنتج 10% وتوزيع المساحة على السوبر ماركت والسعر */
+#data-table th:nth-child(1), #data-table td:nth-child(1) {
+    width: 9%;
+    white-space: normal;      /* جعل السوبر ماركت قابل للالتفاف */
+}
+#data-table th:nth-child(2), #data-table td:nth-child(2) {
+    width: 34%;               /* تم التصغير من 38% إلى 34% (-10% من عرضه السابق تقريباً) */
+}
+#data-table th:nth-child(3), #data-table td:nth-child(3) {
+    width: 12%;               /* تمت الزيادة بالتساوي مع السوبر ماركت */
+}
+#data-table th:nth-child(4), #data-table td:nth-child(4) {
+    width: 11%;               /* الخصم (قلل قليلاً لتعويض المجموع) */
+}
+#data-table th:nth-child(5), #data-table td:nth-child(5) {
+    width: 25%;                /* الاسم الأساسي */
+}
+#data-table th:nth-child(6), #data-table td:nth-child(6) {
+    width: 10%;                /* الوحدة */
+}
+#data-table th:nth-child(10), #data-table td:nth-child(10) {
+    width: 15%;                /* ساري حتى */
+   white-space: normal; 
+}
 }
    
       
@@ -1260,56 +1306,34 @@ function renderTable() {
             currentPriceHtml = `${item.currentPrice} ج`;
         }
         
-// معالجة "ساري حتى" للموبايل: استخراج اليوم والشهر فقط
+        // معالجة "ساري حتى" للموبايل: استخراج اليوم والشهر فقط
+// معالجة "ساري حتى" للموبايل: استخراج اليوم والشهر فقط بشكل أكثر شمولاً
 let validUntilHtml = item.validUntil || '';
 if (isMobile && validUntilHtml) {
+    // قائمة الأشهر العربية
     const arabicMonthsList = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
     let day = '';
     let month = '';
-    // محاولة مطابقة الرقم ثم الشهر
-    let match = validUntilHtml.match(/(\d{1,2})\s+([أبتثجحخدذرزسشصضطظعغفقكلمنهوي]+)/);
-    if (match) {
-        let potentialMonth = match[2];
-        // البحث إذا كان مطابقاً لأحد الأشهر
-        let foundMonth = arabicMonthsList.find(m => potentialMonth.includes(m) || m.includes(potentialMonth));
-        if (foundMonth) {
-            day = match[1];
-            month = foundMonth;
-        }
-    }
-    // إذا فشل، حاول العكس (شهر ثم رقم)
-    if (!day && !month) {
-        let match2 = validUntilHtml.match(/([أبتثجحخدذرزسشصضطظعغفقكلمنهوي]+)\s+(\d{1,2})/);
-        if (match2) {
-            let potentialMonth = match2[1];
-            let foundMonth = arabicMonthsList.find(m => potentialMonth.includes(m) || m.includes(potentialMonth));
-            if (foundMonth) {
-                day = match2[2];
-                month = foundMonth;
-            }
-        }
-    }
-    if (day && month) {
+    // البحث عن رقم (1 أو 2 خانة) متبوعاً باسم شهر عربي
+    let match = validUntilHtml.match(/(\d{1,2})\s+([^\d\s]+)/);
+    if (match && arabicMonthsList.includes(match[2])) {
+        day = match[1];
+        month = match[2];
         validUntilHtml = `${day} ${month}`;
     } else {
-        // آخر محاولة: البحث عن أي رقمين وأي كلمة من الأشهر في النص
-        for (let m of arabicMonthsList) {
-            if (validUntilHtml.includes(m)) {
-                let dayMatch = validUntilHtml.match(/(\d{1,2})/);
-                if (dayMatch) {
-                    validUntilHtml = `${dayMatch[1]} ${m}`;
-                    break;
-                }
-            }
-        }
-        // إذا فشل كل شيء، نحذف الكلمات الشائعة ونعرض ما تبقى
-        if (!day && !month) {
-            validUntilHtml = validUntilHtml.replace(/ينتهي في|الاثنين|الثلاثاء|الأربعاء|الخميس|الجمعة|السبت|الأحد|الـ|،|\./g, '').trim();
-            // إذا كان الناتج طويلاً، نأخذ أول 15 حرفاً
-            if (validUntilHtml.length > 15) validUntilHtml = validUntilHtml.substring(0, 15);
+        // محاولة ثانية: البحث عن اسم شهر ثم رقم
+        let match2 = validUntilHtml.match(/([^\d\s]+)\s+(\d{1,2})/);
+        if (match2 && arabicMonthsList.includes(match2[1])) {
+            day = match2[2];
+            month = match2[1];
+            validUntilHtml = `${day} ${month}`;
+        } else {
+            // إذا فشل كل شيء، نعرض أول 10 حروف فقط
+            validUntilHtml = validUntilHtml.substring(0, 12);
         }
     }
-}        
+}
+        
         // بناء خلايا الجدول حسب الجهاز
         let cells = '';
         if (isMobile) {
