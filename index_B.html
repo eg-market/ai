@@ -1286,45 +1286,131 @@ function renderTable() {
     const pageData = filteredData.slice(start, start + ITEMS_PER_PAGE);
     
     if (!pageData.length) {
-        tbody.innerHTML = '<tr><td colspan="10" style="text-align:center;">لا توجد عروض<\/td><\/tr>';
+        tbody.innerHTML = `<tr><td colspan="10" style="text-align:center;">لا توجد عروض<\/td><\/tr>`;
         updatePagination();
         return;
     }
+    
+    // كشف الموبايل
+    const isMobile = window.innerWidth <= 768;
+    
     tbody.innerHTML = pageData.map(item => {
         let rowClass = item._discount_pct > 20 ? 'class="highlight"' : '';
         let flyerId = item.pageNo?.match(/flyer_(\d+)/)?.[1] || item.solution_key || '';
         let url = flyerId ? `https://www.yabalashoffers.com/flyer.php?d=${encodeURIComponent(flyerId)}&c=eg` : '#';
         let pageNumber = item.pageNo?.match(/page_(\d+)/)?.[1] || '';
-        return `<tr ${rowClass} data-url="${url}" data-flyer="${flyerId}" data-page-number="${pageNumber}" data-page="${item.pageNo}" style="cursor:pointer;">
-    <td>${item.supermarket}<\/td>
-    <td><strong>${item.product}<\/strong><\/td>
-    <td>${item.currentPrice} ${item.currency}<\/td>
-    <td><span class="discount-cell">${item._discount_pct ? item._discount_pct+'%' : ''}<\/span><\/td>
-    <td><span class="primary-name-circle">${item.primaryName || ''}<\/span><\/td>
-    <td>${item.unit || ''}<\/td>
-    <td>${item.category || ''}<\/td>
-    <td>${item.brand || ''}<\/td>
-    <td>${item.updateDate ? formatDateShort(item.updateDate) : ''}<\/td>
-    <td>${item.validUntil || ''}<\/td>
-    <\/tr>`;
+        
+        // معالجة السعر الحالي (تحويل EGP → ج)
+        let currentPriceHtml = `${item.currentPrice} ${item.currency}`;
+        if (isMobile && item.currency === 'EGP') {
+            currentPriceHtml = `${item.currentPrice} ج`;
+        }
+        
+        // معالجة "ساري حتى" للموبايل: استخراج اليوم والشهر فقط
+        let validUntilHtml = item.validUntil || '';
+        if (isMobile && validUntilHtml) {
+            // محاولة استخراج "رقم يوم" و "شهر" من النص العربي
+            const arabicMonths = {
+                'يناير': 'يناير', 'فبراير': 'فبراير', 'مارس': 'مارس', 'أبريل': 'أبريل',
+                'مايو': 'مايو', 'يونيو': 'يونيو', 'يوليو': 'يوليو', 'أغسطس': 'أغسطس',
+                'سبتمبر': 'سبتمبر', 'أكتوبر': 'أكتوبر', 'نوفمبر': 'نوفمبر', 'ديسمبر': 'ديسمبر'
+            };
+            let day = '';
+            let month = '';
+            // regex لاستخراج رقم اليوم واسم الشهر
+            const match = validUntilHtml.match(/(\d{1,2})\s+(\w+)/);
+            if (match) {
+                day = match[1];
+                let monthName = match[2];
+                // اختصار الشهر إلى 3 حروف أو استخدام الكامل
+                if (arabicMonths[monthName]) month = monthName;
+                validUntilHtml = `${day} ${month}`;
+            } else {
+                // إذا لم يجد، يبقى النص الأصلي
+                validUntilHtml = validUntilHtml.substring(0, 15);
+            }
+        }
+        
+        // بناء خلايا الجدول حسب الجهاز
+        let cells = '';
+        if (isMobile) {
+            // للموبايل: نعرض الأعمدة بالترتيب: السوبر ماركت, المنتج, السعر, الخصم, البراند, الوحدة, ساري حتى (نخفي الأساسي، الفئة، تاريخ التحديث)
+            cells = `
+                <td style="white-space: normal;">${item.supermarket}<\/td>
+                <td><strong>${item.product}<\/strong><\/td>
+                <td>${currentPriceHtml}<\/td>
+                <td><span class="discount-cell">${item._discount_pct ? item._discount_pct+'%' : ''}<\/span><\/td>
+                <td>${item.brand || ''}<\/td>
+                <td>${item.unit || ''}<\/td>
+                <td>${validUntilHtml}<\/td>
+            `;
+        } else {
+            // الوضع الاعتيادي (كمبيوتر، تابلت) نعرض كل الأعمدة
+            cells = `
+                <td>${item.supermarket}<\/td>
+                <td><strong>${item.product}<\/strong><\/td>
+                <td>${item.currentPrice} ${item.currency}<\/td>
+                <td><span class="discount-cell">${item._discount_pct ? item._discount_pct+'%' : ''}<\/span><\/td>
+                <td><span class="primary-name-circle">${item.primaryName || ''}<\/span><\/td>
+                <td>${item.unit || ''}<\/td>
+                <td>${item.category || ''}<\/td>
+                <td>${item.brand || ''}<\/td>
+                <td>${item.updateDate ? formatDateShort(item.updateDate) : ''}<\/td>
+                <td>${item.validUntil || ''}<\/td>
+            `;
+        }
+        
+        return `<tr ${rowClass} data-url="${url}" data-flyer="${flyerId}" data-page-number="${pageNumber}" data-page="${item.pageNo}" style="cursor:pointer;">${cells}<\/tr>`;
     }).join('');
     
-document.querySelectorAll('#table-body tr').forEach(tr => {
-    tr.addEventListener('click', function(e) {
-        let productName = this.cells[1]?.innerText || '';
-        let productObj = allData.find(p => p.product === productName);
-        if (productObj) {
-            saveCurrentState();  // حفظ الحالة الحالية
-            sessionStorage.setItem('selectedProduct', JSON.stringify(productObj));
-            window.open('product_details.html', '_blank');
-        } else {
-            let url = this.dataset.url;
-            if (url && url !== '#') window.open(url, '_blank');
-        }
+    // تحديث رأس الجدول (thead) للموبايل لإزالة الأعمدة المخفية وتعديل الترويسات
+    const thead = document.querySelector('#data-table thead');
+    if (isMobile) {
+        thead.innerHTML = `
+            <tr>
+                <th>السوبر ماركت</th>
+                <th>المنتج</th>
+                <th>السعر الحالي</th>
+                <th>الخصم</th>
+                <th>العلامة التجارية</th>
+                <th>الوحدة</th>
+                <th>ساري حتى</th>
+            </tr>
+        `;
+    } else {
+        thead.innerHTML = `
+            <tr>
+                <th>السوبر ماركت</th>
+                <th>المنتج</th>
+                <th>السعر الحالي</th>
+                <th>الخصم</th>
+                <th>الاسم الأساسي</th>
+                <th>الوحدة</th>
+                <th>الفئة</th>
+                <th>العلامة التجارية</th>
+                <th>تاريخ التحديث</th>
+                <th>ساري حتى</th>
+            </tr>
+        `;
+    }
+    
+    document.querySelectorAll('#table-body tr').forEach(tr => {
+        tr.addEventListener('click', function(e) {
+            let productName = this.cells[1]?.innerText || '';
+            let productObj = allData.find(p => p.product === productName);
+            if (productObj) {
+                saveCurrentState();
+                sessionStorage.setItem('selectedProduct', JSON.stringify(productObj));
+                window.open('product_details.html', '_blank');
+            } else {
+                let url = this.dataset.url;
+                if (url && url !== '#') window.open(url, '_blank');
+            }
+        });
     });
-});
-        updatePagination();
+    updatePagination();
 }
+
  
 
 function openWithOverlay(url, flyerFileName, pageNo, flyerIdFromAttr) {
