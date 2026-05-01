@@ -285,7 +285,10 @@
 }
 
 /* توزيع أعمدة الجدول في الموبايل */
-#data-table {
+/* عنصر الحاوية للجدول لتمكين التمرير الأفقي */
+#data-table-container {
+overflow-x: auto; /* يسمح بالتمرير الأفقي */
+width: 100%; /* يأخذ العرض الكامل */
 }
 
 #data-table table {
@@ -295,20 +298,21 @@ table-layout: fixed; /* هام لتثبيت توزيع الأعمدة */
 
 #data-table th, #data-table td {
 white-space: nowrap; /* يمنع التفاف النص */
+overflow: hidden; /* لإخفاء النص الزائد */
 text-overflow: ellipsis; /* لإضافة "..." للنص المقطوع */
 padding: 6px 4px; /* الحشوة */
 font-size: 11px; /* حجم الخط */
+box-sizing: border-box;/* لضمان حساب الحشوة ضمن عرض الخلية */
 }
 
 /* الأعمدة بنسب محددة */
 #data-table th:nth-child(1), #data-table td:nth-child(1) { width: 10%; } /* السوبر ماركت */
-#data-table th:nth-child(2), #data-table td:nth-child(2) { width: 28%; } /* المنتج */
+#data-table th:nth-child(2), #data-table td:nth-child(2) { width: 22%; } /* المنتج */
 #data-table th:nth-child(3), #data-table td:nth-child(3) { width: 12%; } /* السعر */
 #data-table th:nth-child(4), #data-table td:nth-child(4) { width: 9%; } /* الخصم */
 #data-table th:nth-child(5), #data-table td:nth-child(5) { width: 18%; } /* العلامة التجارية */
 #data-table th:nth-child(6), #data-table td:nth-child(6) { width: 10%; } /* الوحدة */
-#data-table th:nth-child(7), #data-table td:nth-child(7) { width: 19%; } /* ساري حتى */
-  
+#data-table th:nth-child(7), #data-table td:nth-child(7) { width: 19%; } /* ساري حتى */ 
 }
 
       /* جعل حقلي السعر في صف واحد أفقي */
@@ -451,7 +455,7 @@ border-radius: 4px; /* إضافة انحناء بسيط للحدود (اختيا
         </div>
       </div>
       <div class="user-guide-banner"> اضغط زر "تحديث" في الاسفل لتحديث البيانات
-        /16/ وانقر أي صف في الجدول لتفاصيل الصنف</div>
+        /17/ وانقر أي صف في الجدول لتفاصيل الصنف</div>
       <div class="stats-dashboard">
         <div class="stat-card">
           <div class="stat-icon">💰</div>
