@@ -306,11 +306,11 @@ box-sizing: border-box;/* لضمان حساب الحشوة ضمن عرض الخ�
 }
 
 /* الأعمدة بنسب محددة */
-#data-table th:nth-child(1), #data-table td:nth-child(1) { width: 10%; } /* السوبر ماركت */
+#data-table th:nth-child(1), #data-table td:nth-child(1) { width: 9%; } /* السوبر ماركت */
 #data-table th:nth-child(2), #data-table td:nth-child(2) { width: 44%; } /* المنتج */
 #data-table th:nth-child(3), #data-table td:nth-child(3) { width: 12%; } /* السعر */
-#data-table th:nth-child(4), #data-table td:nth-child(4) { width: 9%; } /* الخصم */
-#data-table th:nth-child(5), #data-table td:nth-child(5) { width: 18%; } /* العلامة التجارية */
+#data-table th:nth-child(4), #data-table td:nth-child(4) { width: 8%; } /* الخصم */
+#data-table th:nth-child(5), #data-table td:nth-child(5) { width: 22%; } /* العلامة التجارية */
 #data-table th:nth-child(6), #data-table td:nth-child(6) { width: 10%; } /* الوحدة */
 #data-table th:nth-child(7), #data-table td:nth-child(7) { width: 19%; } /* ساري حتى */ 
 }
@@ -455,7 +455,7 @@ border-radius: 4px; /* إضافة انحناء بسيط للحدود (اختيا
         </div>
       </div>
       <div class="user-guide-banner"> اضغط زر "تحديث" في الاسفل لتحديث البيانات
-        /19/ وانقر أي صف في الجدول لتفاصيل الصنف</div>
+        // وانقر أي صف في الجدول لتفاصيل الصنف</div>
       <div class="stats-dashboard">
         <div class="stat-card">
           <div class="stat-icon">💰</div>
@@ -562,9 +562,9 @@ border-radius: 4px; /* إضافة انحناء بسيط للحدود (اختيا
         <table>
           <thead>
             <tr>
-              <th>المتجر</th>
+              <th>السوبر ماركت</th>
               <th>المنتج</th>
-              <th>السعر الحالي</th>
+              <th>السعر الحالي </th>
               <th>الخصم</th>
               <th>الاسم الأساسي</th>
               <th>الوحدة</th>
@@ -1042,17 +1042,26 @@ window.goToPage = (page) => { currentPage = page; renderContent(); };
 
     // ==================== Apply filters ====================
     function applyAllFilters() {
-        const searchVal = document.getElementById('search-input').value.trim().toLowerCase();
-        const supermarket = document.getElementById('supermarket-filter').value;
-        const category = document.getElementById('category-filter').value;
-        const brand = document.getElementById('brand-filter').value;
-        const minDiscount = parseFloat(document.getElementById('min-discount').value) || 0;
-        let minPrice = parseFloat(document.getElementById('min-price').value) || 0;
-        let maxPrice = parseFloat(document.getElementById('max-price').value) || Infinity;
-        if (minPrice > maxPrice) [minPrice, maxPrice] = [maxPrice, minPrice];
-        const sort = document.getElementById('sort-by').value;
-        const effectiveSearchTerms = urlSearchTerms.length ? urlSearchTerms : (searchVal ? searchVal.split(/\s+/) : []);
-        filteredData = allData.filter(item => {
+    const searchVal = document.getElementById('search-input').value.trim().toLowerCase();
+    const supermarket = document.getElementById('supermarket-filter').value;
+    const category = document.getElementById('category-filter').value;
+    const brand = document.getElementById('brand-filter').value;
+    const minDiscount = parseFloat(document.getElementById('min-discount').value) || 0;
+    let minPrice = parseFloat(document.getElementById('min-price').value) || 0;
+    let maxPrice = parseFloat(document.getElementById('max-price').value) || Infinity;
+    if (minPrice > maxPrice) [minPrice, maxPrice] = [maxPrice, minPrice];
+      
+       const effectiveSearchTerms = urlSearchTerms.length ? urlSearchTerms : (searchVal ? searchVal.split(/\s+/) : []);
+    let sort = document.getElementById('sort-by').value;
+    if (effectiveSearchTerms.length > 0) {
+        // إذا كان هناك بحث، نجبر الترتيب على السعر تصاعدي
+        sort = 'price-asc';
+        // يمكن أيضاً تحديث الـ select ليعكس الواقع (اختياري)
+        document.getElementById('sort-by').value = 'price-asc';
+    }
+      
+      
+      filteredData = allData.filter(item => {
             if (!showAllOffers && activeChipFilter !== 'all' && activeChipFilter !== 'recent') {
                 if (item.status === 'منتهي' || item.status === 'العرض منتهى') return false;
             }
@@ -1363,7 +1372,7 @@ if (isMobile && validUntilHtml) {
     } else {
         thead.innerHTML = `
             <tr>
-                <th>السوبر ماركت</th>
+                <th>المتجر</th>
                 <th>المنتج</th>
                 <th>السعر الحالي</th>
                 <th>الخصم</th>
