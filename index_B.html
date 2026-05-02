@@ -309,8 +309,8 @@ box-sizing: border-box;/* لضمان حساب الحشوة ضمن عرض الخ�
 #data-table th:nth-child(1), #data-table td:nth-child(1) { width: 9%; } /* السوبر ماركت */
 #data-table th:nth-child(2), #data-table td:nth-child(2) { width: 40%; } /* المنتج */
 #data-table th:nth-child(3), #data-table td:nth-child(3) { width: 10%; } /* السعر */
-#data-table th:nth-child(4), #data-table td:nth-child(4) { width: 7%; } /* الخصم */
-#data-table th:nth-child(5), #data-table td:nth-child(5) { width: 21%; } /* العلامة التجارية */
+#data-table th:nth-child(4), #data-table td:nth-child(4) { width: 8%; } /* الخصم */
+#data-table th:nth-child(5), #data-table td:nth-child(5) { width: 23%; } /* العلامة التجارية */
 #data-table th:nth-child(6), #data-table td:nth-child(6) { width: 12%; } /* الوحدة */
 #data-table th:nth-child(7), #data-table td:nth-child(7) { width: 19%; } /* ساري حتى */ 
 }
@@ -327,27 +327,31 @@ box-sizing: border-box;/* لضمان حساب الحشوة ضمن عرض الخ�
     flex: 1 1 auto;
     min-width: 120px;
 }
-
+      
+      
 .price-controls {
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
+display: inline-flex;
+align-items: center;
+gap: 4px;
 }
 
 /* السعر من (أكبر قليلاً) */
 .price-controls:first-child {
-    flex: 1.2;
+flex: 1.2;
 }
 
 /* السعر إلى (أصغر بنسبة ~20%) */
 .price-controls:last-child {
-    flex: 0.8;
+flex: 0.8;
 }
 
 .price-controls input {
-    width: 120px;
-    text-align: center;
+width: 120px;
+text-align: center;
+word-wrap: break-word; /* تمكين التفاف النص */
+white-space: normal; /* للسماح بالتفاف النص */
 }
+      
 
      
       /* السطر الخاص بالسوبرماركت - خفيف ومدمج */
@@ -454,7 +458,8 @@ border-radius: 4px; /* إضافة انحناء بسيط للحدود (اختيا
           </div>
         </div>
       </div>
-      <div class="user-guide-banner"> انقر أي صف في الجدول للتفاصيل /1/ ولتحديث البيانات اضغط زر "تحديث" في الاسفل</div>
+      <div class="user-guide-banner"> انقر أي صف في الجدول للتفاصيل /3/ ولتحديث
+        البيانات اضغط زر "تحديث" في الاسفل</div>
       <div class="stats-dashboard">
         <div class="stat-card">
           <div class="stat-icon">💰</div>
@@ -533,10 +538,9 @@ border-radius: 4px; /* إضافة انحناء بسيط للحدود (اختيا
           </select>
         </div>
         <div class="mobile-row row-2">
-          <div class="price-controls"> <button id="min-decrease">−</button> <input
-
-              id="min-price" placeholder="السعر من" type="number"> <button id="min-increase">+</button>
-          </div>
+          <div class="price-controls"> <button id="min-decrease">−</button>
+            <input id="min-price" placeholder="السعر من" type="number">
+            <button id="min-increase">+</button> </div>
           <div class="price-controls"> <button id="max-decrease">−</button> <input
 
               id="max-price" placeholder="السعر إلى" type="number"> <button id="max-increase">+&nbsp;</button>
