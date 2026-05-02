@@ -309,7 +309,7 @@ box-sizing: border-box;/* لضمان حساب الحشوة ضمن عرض الخ�
 #data-table th:nth-child(1), #data-table td:nth-child(1) { width: 9%; } /* السوبر ماركت */
 #data-table th:nth-child(2), #data-table td:nth-child(2) { width: 40%; } /* المنتج */
 #data-table th:nth-child(3), #data-table td:nth-child(3) { width: 10%; } /* السعر */
-#data-table th:nth-child(4), #data-table td:nth-child(4) { width: 8%; } /* الخصم */
+#data-table th:nth-child(4), #data-table td:nth-child(4) { width: 9%; } /* الخصم */
 #data-table th:nth-child(5), #data-table td:nth-child(5) { width: 21%; } /* العلامة التجارية */
 #data-table th:nth-child(6), #data-table td:nth-child(6) { width: 14%; } /* الوحدة */
 #data-table th:nth-child(7), #data-table td:nth-child(7) { width: 19%; } /* ساري حتى */ 
@@ -327,50 +327,27 @@ box-sizing: border-box;/* لضمان حساب الحشوة ضمن عرض الخ�
     flex: 1 1 auto;
     min-width: 120px;
 }
-      
-      
+
 .price-controls {
-display: flex;
-flex-wrap: wrap; /* السماح بالالتفاف */
-align-items: center;
-gap: 4px;
-width: 100%; /* يأخذ العرض الكامل */
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
 }
 
 /* السعر من (أكبر قليلاً) */
 .price-controls:first-child {
-flex: 1.2;
-min-width: 100px; /* حد أدنى للعرض */
+    flex: 1.2;
 }
 
 /* السعر إلى (أصغر بنسبة ~20%) */
 .price-controls:last-child {
-flex: 0.8;
-min-width: 100px; /* حد أدنى للعرض */
+    flex: 0.8;
 }
 
 .price-controls input {
-width: 100%; /* يأخذ العرض الكامل للحاوية */
-max-width: 120px; /* حد أقصى للعرض */
-text-align: center;
-box-sizing: border-box; /* لاحتساب الحشوة والحدود ضمن العرض */
+    width: 120px;
+    text-align: center;
 }
-
-/* استجابة للشاشات الصغيرة */
-@media (max-width: 480px) {
-.price-controls {
-flex-direction: column; /* تغيير الاتجاه للعمودي عند الشاشات الصغيرة */
-align-items: stretch; /* لتمديد العناصر */
-}
-
-.price-controls:first-child,
-.price-controls:last-child {
-flex: 1; /* نفس النسبة */
-min-width: auto; /* إلغاء الحد الأدنى للعرض */
-}
-}
-      
-      
 
      
       /* السطر الخاص بالسوبرماركت - خفيف ومدمج */
@@ -477,7 +454,7 @@ border-radius: 4px; /* إضافة انحناء بسيط للحدود (اختيا
           </div>
         </div>
       </div>
-      <div class="user-guide-banner"> انقر أي صف في الجدول للتفاصيل /4/ ولتحديث
+      <div class="user-guide-banner"> انقر أي صف في الجدول للتفاصيل /2/ ولتحديث
         البيانات اضغط زر "تحديث" في الاسفل</div>
       <div class="stats-dashboard">
         <div class="stat-card">
