@@ -310,8 +310,8 @@ box-sizing: border-box;/* لضمان حساب الحشوة ضمن عرض الخ�
 #data-table th:nth-child(2), #data-table td:nth-child(2) { width: 40%; } /* المنتج */
 #data-table th:nth-child(3), #data-table td:nth-child(3) { width: 10%; } /* السعر */
 #data-table th:nth-child(4), #data-table td:nth-child(4) { width: 8%; } /* الخصم */
-#data-table th:nth-child(5), #data-table td:nth-child(5) { width: 23%; } /* العلامة التجارية */
-#data-table th:nth-child(6), #data-table td:nth-child(6) { width: 12%; } /* الوحدة */
+#data-table th:nth-child(5), #data-table td:nth-child(5) { width: 21%; } /* العلامة التجارية */
+#data-table th:nth-child(6), #data-table td:nth-child(6) { width: 14%; } /* الوحدة */
 #data-table th:nth-child(7), #data-table td:nth-child(7) { width: 19%; } /* ساري حتى */ 
 }
 
@@ -330,27 +330,46 @@ box-sizing: border-box;/* لضمان حساب الحشوة ضمن عرض الخ�
       
       
 .price-controls {
-display: inline-flex;
+display: flex;
+flex-wrap: wrap; /* السماح بالالتفاف */
 align-items: center;
 gap: 4px;
+width: 100%; /* يأخذ العرض الكامل */
 }
 
 /* السعر من (أكبر قليلاً) */
 .price-controls:first-child {
 flex: 1.2;
+min-width: 100px; /* حد أدنى للعرض */
 }
 
 /* السعر إلى (أصغر بنسبة ~20%) */
 .price-controls:last-child {
 flex: 0.8;
+min-width: 100px; /* حد أدنى للعرض */
 }
 
 .price-controls input {
-width: 120px;
+width: 100%; /* يأخذ العرض الكامل للحاوية */
+max-width: 120px; /* حد أقصى للعرض */
 text-align: center;
-word-wrap: break-word; /* تمكين التفاف النص */
-white-space: normal; /* للسماح بالتفاف النص */
+box-sizing: border-box; /* لاحتساب الحشوة والحدود ضمن العرض */
 }
+
+/* استجابة للشاشات الصغيرة */
+@media (max-width: 480px) {
+.price-controls {
+flex-direction: column; /* تغيير الاتجاه للعمودي عند الشاشات الصغيرة */
+align-items: stretch; /* لتمديد العناصر */
+}
+
+.price-controls:first-child,
+.price-controls:last-child {
+flex: 1; /* نفس النسبة */
+min-width: auto; /* إلغاء الحد الأدنى للعرض */
+}
+}
+      
       
 
      
@@ -458,7 +477,7 @@ border-radius: 4px; /* إضافة انحناء بسيط للحدود (اختيا
           </div>
         </div>
       </div>
-      <div class="user-guide-banner"> انقر أي صف في الجدول للتفاصيل /3/ ولتحديث
+      <div class="user-guide-banner"> انقر أي صف في الجدول للتفاصيل /4/ ولتحديث
         البيانات اضغط زر "تحديث" في الاسفل</div>
       <div class="stats-dashboard">
         <div class="stat-card">
