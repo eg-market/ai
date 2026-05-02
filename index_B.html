@@ -331,23 +331,24 @@ box-sizing: border-box;/* لضمان حساب الحشوة ضمن عرض الخ�
 .price-controls {
 display: inline-flex;
 align-items: center;
-gap: 4px;
-font-size: 50%; /* خفض حجم الخط بنسبة 50% */
+gap: 1px;
+font-size: 20%; /* خفض حجم الخط بنسبة 50% */
 }
 
 /* السعر من (أكبر قليلاً) */
 .price-controls:first-child {
-flex: 1.2;
+flex: 0.6;
 }
 
 /* السعر إلى (أصغر بنسبة ~20%) */
 .price-controls:last-child {
-flex: 0.8;
+flex: 0.4;
 }
 
 .price-controls input {
 width: 120px;
 text-align: center;
+font-size: 0.2em; /* تقليل حجم الخط بنسبة 50% */
 }
       
      
@@ -455,7 +456,7 @@ border-radius: 4px; /* إضافة انحناء بسيط للحدود (اختيا
           </div>
         </div>
       </div>
-      <div class="user-guide-banner"> انقر أي صف في الجدول للتفاصيل /3/ ولتحديث
+      <div class="user-guide-banner"> انقر أي صف في الجدول للتفاصيل /4/ ولتحديث
         البيانات اضغط زر "تحديث" في الاسفل</div>
       <div class="stats-dashboard">
         <div class="stat-card">
