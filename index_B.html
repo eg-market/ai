@@ -308,10 +308,10 @@ box-sizing: border-box;/* لضمان حساب الحشوة ضمن عرض الخ�
 /* الأعمدة بنسب محددة */
 #data-table th:nth-child(1), #data-table td:nth-child(1) { width: 9%; } /* السوبر ماركت */
 #data-table th:nth-child(2), #data-table td:nth-child(2) { width: 44%; } /* المنتج */
-#data-table th:nth-child(3), #data-table td:nth-child(3) { width: 12%; } /* السعر */
-#data-table th:nth-child(4), #data-table td:nth-child(4) { width: 8%; } /* الخصم */
-#data-table th:nth-child(5), #data-table td:nth-child(5) { width: 22%; } /* العلامة التجارية */
-#data-table th:nth-child(6), #data-table td:nth-child(6) { width: 10%; } /* الوحدة */
+#data-table th:nth-child(3), #data-table td:nth-child(3) { width: 10%; } /* السعر */
+#data-table th:nth-child(4), #data-table td:nth-child(4) { width: 6%; } /* الخصم */
+#data-table th:nth-child(5), #data-table td:nth-child(5) { width: 21%; } /* العلامة التجارية */
+#data-table th:nth-child(6), #data-table td:nth-child(6) { width: 12%; } /* الوحدة */
 #data-table th:nth-child(7), #data-table td:nth-child(7) { width: 19%; } /* ساري حتى */ 
 }
 
@@ -454,8 +454,7 @@ border-radius: 4px; /* إضافة انحناء بسيط للحدود (اختيا
           </div>
         </div>
       </div>
-      <div class="user-guide-banner"> اضغط زر "تحديث" في الاسفل لتحديث البيانات
-        // وانقر أي صف في الجدول لتفاصيل الصنف</div>
+      <div class="user-guide-banner"> انقر أي صف في الجدول للتفاصيل /1/ ولتحديث البيانات اضغط زر "تحديث" في الاسفل </div>
       <div class="stats-dashboard">
         <div class="stat-card">
           <div class="stat-icon">💰</div>
@@ -564,7 +563,7 @@ border-radius: 4px; /* إضافة انحناء بسيط للحدود (اختيا
             <tr>
               <th>السوبر ماركت</th>
               <th>المنتج</th>
-              <th>السعر الحالي </th>
+              <th>السعر = </th>
               <th>الخصم</th>
               <th>الاسم الأساسي</th>
               <th>الوحدة</th>
@@ -1362,7 +1361,7 @@ if (isMobile && validUntilHtml) {
             <tr>
                 <th>السوبر ماركت</th>
                 <th>المنتج</th>
-                <th>السعر الحالي</th>
+                <th>السعر -</th>
                 <th>الخصم</th>
                 <th>العلامة التجارية</th>
                 <th>الوحدة</th>
@@ -1374,7 +1373,7 @@ if (isMobile && validUntilHtml) {
             <tr>
                 <th>المتجر</th>
                 <th>المنتج</th>
-                <th>السعر الحالي</th>
+                <th>السعر </th>
                 <th>الخصم</th>
                 <th>الاسم الأساسي</th>
                 <th>الوحدة</th>
