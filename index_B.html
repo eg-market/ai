@@ -329,26 +329,27 @@ box-sizing: border-box;/* لضمان حساب الحشوة ضمن عرض الخ�
 }
 
 .price-controls {
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
+display: inline-flex;
+align-items: center;
+gap: 4px;
+font-size: 50%; /* خفض حجم الخط بنسبة 50% */
 }
 
 /* السعر من (أكبر قليلاً) */
 .price-controls:first-child {
-    flex: 1.2;
+flex: 1.2;
 }
 
 /* السعر إلى (أصغر بنسبة ~20%) */
 .price-controls:last-child {
-    flex: 0.8;
+flex: 0.8;
 }
 
 .price-controls input {
-    width: 120px;
-    text-align: center;
+width: 120px;
+text-align: center;
 }
-
+      
      
       /* السطر الخاص بالسوبرماركت - خفيف ومدمج */
 .mobile-row.row-supermarket {
@@ -454,7 +455,7 @@ border-radius: 4px; /* إضافة انحناء بسيط للحدود (اختيا
           </div>
         </div>
       </div>
-      <div class="user-guide-banner"> انقر أي صف في الجدول للتفاصيل /2/ ولتحديث
+      <div class="user-guide-banner"> انقر أي صف في الجدول للتفاصيل /3/ ولتحديث
         البيانات اضغط زر "تحديث" في الاسفل</div>
       <div class="stats-dashboard">
         <div class="stat-card">
@@ -758,6 +759,66 @@ function transformRows(rows) {
         if (!month) return null;
         return `${year}-${month}-${day}`;
     }
+  
+  // دالة لتحليل الوحدة واستخراج الكمية (بالكيلو، لتر، قطعة)
+function getNormalizedPricePerUnit(item) {
+    const unit = (item.unit || '').trim().toLowerCase();
+    const price = item.currentPrice || 0;
+    if (price <= 0) return Infinity;
+
+    // معالجة الكيلو / جرام
+    if (unit.includes('كيلو') || unit.includes('كجم') || unit.includes('كغ')) {
+        // إذا كانت الوحدة تحتوي على رقم مثل "2 كيلو"
+        let match = unit.match(/(\d+(?:\.\d+)?)\s*كيلو/);
+        if (match) {
+            let kg = parseFloat(match[1]);
+            return kg > 0 ? price / kg : price;
+        }
+        return price; // افتراض 1 كيلو
+    }
+    if (unit.includes('جرام') || unit.includes('غم') || unit.includes('جم')) {
+        let match = unit.match(/(\d+(?:\.\d+)?)\s*جرام/);
+        if (match) {
+            let gram = parseFloat(match[1]);
+            return gram > 0 ? (price / gram) * 1000 : price;
+        }
+        // إذا كان الرقم في بداية الوحدة مثل "500 جرام"
+        let match2 = unit.match(/^(\d+(?:\.\d+)?)\s*ج/);
+        if (match2) {
+            let gram = parseFloat(match2[1]);
+            return gram > 0 ? (price / gram) * 1000 : price;
+        }
+        return price * 1000; // افتراض 1 جرام -> سعر الكيلو = سعر ×1000 (خطير، لكن نادر)
+    }
+    // معالجة اللتر / مل
+    if (unit.includes('لتر') || unit.includes('ل')) {
+        let match = unit.match(/(\d+(?:\.\d+)?)\s*لتر/);
+        if (match) {
+            let liter = parseFloat(match[1]);
+            return liter > 0 ? price / liter : price;
+        }
+        return price;
+    }
+    if (unit.includes('مل') || unit.includes('مليلتر')) {
+        let match = unit.match(/(\d+(?:\.\d+)?)\s*مل/);
+        if (match) {
+            let ml = parseFloat(match[1]);
+            return ml > 0 ? (price / ml) * 1000 : price;
+        }
+        return price * 1000;
+    }
+    // معالجة القطع (قطعة، حبة، علبة، زجاجة، باكيت)
+    if (unit.includes('قطعة') || unit.includes('حبة') || unit.includes('علبة') || unit.includes('زجاجة') || unit.includes('باكيت') || unit.includes('piece')) {
+        let match = unit.match(/(\d+(?:\.\d+)?)\s*(قطعة|حبة|علبة|زجاجة|باكيت|piece)/);
+        if (match) {
+            let pieces = parseFloat(match[1]);
+            return pieces > 0 ? price / pieces : price;
+        }
+        return price;
+    }
+    // إذا لم نتعرف على الوحدة، نرجع السعر العادي
+    return price;
+}
 
     function normalizeDates(arr) {
         arr.forEach(i => {
@@ -1105,8 +1166,7 @@ window.goToPage = (page) => { currentPage = page; renderContent(); };
             return true;
         });
         if (bestPriceMode) filteredData = reduceBestPricePerCategory(filteredData);
-        sortData(filteredData, sort);
-        populateFilters();
+sortData(filteredData, sort, effectiveSearchTerms.length > 0);        populateFilters();
         currentPage = 1;
         renderContent();
         updateStats();
@@ -1131,18 +1191,28 @@ window.goToPage = (page) => { currentPage = page; renderContent(); };
         return Array.from(bestByCategory.values());
     }
 
-    function sortData(data, sortKey) {
-        if (!data.length) return;
-        switch (sortKey) {
-            case 'best-deals': data.sort((a,b) => (b._score || 0) - (a._score || 0)); break;
-            case 'discount-desc': data.sort((a,b) => (b._discount_pct || 0) - (a._discount_pct || 0)); break;
-            case 'saved-desc': data.sort((a,b) => (b._saved || 0) - (a._saved || 0)); break;
-            case 'price-asc': data.sort((a,b) => (a.currentPrice || 0) - (b.currentPrice || 0)); break;
-            case 'price-desc': data.sort((a,b) => (b.currentPrice || 0) - (a.currentPrice || 0)); break;
-            case 'name-asc': data.sort((a,b) => (a.product || '').localeCompare(b.product || '', 'ar')); break;
-            case 'name-desc': data.sort((a,b) => (b.product || '').localeCompare(a.product || '', 'ar')); break;
-        }
+function sortData(data, sortKey, isSearching = false) {
+    if (!data.length) return;
+    if (isSearching && sortKey === 'price-asc') {
+        // ترتيب حسب السعر الموحد
+        data.sort((a,b) => {
+            let priceA = getNormalizedPricePerUnit(a);
+            let priceB = getNormalizedPricePerUnit(b);
+            return priceA - priceB;
+        });
+        return;
     }
+    // باقي الترتيب الأصلي
+    switch (sortKey) {
+        case 'best-deals': data.sort((a,b) => (b._score || 0) - (a._score || 0)); break;
+        case 'discount-desc': data.sort((a,b) => (b._discount_pct || 0) - (a._discount_pct || 0)); break;
+        case 'saved-desc': data.sort((a,b) => (b._saved || 0) - (a._saved || 0)); break;
+        case 'price-asc': data.sort((a,b) => (a.currentPrice || 0) - (b.currentPrice || 0)); break;
+        case 'price-desc': data.sort((a,b) => (b.currentPrice || 0) - (a.currentPrice || 0)); break;
+        case 'name-asc': data.sort((a,b) => (a.product || '').localeCompare(b.product || '', 'ar')); break;
+        case 'name-desc': data.sort((a,b) => (b.product || '').localeCompare(a.product || '', 'ar')); break;
+    }
+}
 
     // ==================== Rendering ====================
     function renderContent() {
