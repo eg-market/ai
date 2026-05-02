@@ -68,10 +68,14 @@
     .ticker-item .badge { background:var(--ticker-accent); color:#000; padding:3px 6px; border-radius:4px; font-weight:700; }
 
     /* Stats Dashboard */
-    .stats-dashboard .stat-card {
-    flex: 0 0 auto;
-    min-width: 130px;
-  }
+.stats-dashboard {
+    display: flex;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    gap: 12px;
+    padding: 8px 0;
+    margin: 10px 0;
+}
     .stat-card {
       background: white;
       border-radius: 10px;
@@ -331,7 +335,7 @@ box-sizing: border-box;/* لضمان حساب الحشوة ضمن عرض الخ�
 .price-controls {
 display: inline-flex;
 align-items: center;
-gap: 2px;
+gap: 4px;
 font-size: 50%; /* خفض حجم الخط بنسبة 50% */
 }
 
@@ -348,7 +352,7 @@ flex: 0.8;
 .price-controls input {
 width: 120px;
 text-align: center;
-font-size: 1.3em; /* تقليل حجم الخط بنسبة 50% */
+font-size: 1.2em; /* تقليل حجم الخط بنسبة 50% */
 }
       
      
@@ -1047,7 +1051,7 @@ window.goToPage = (page) => { currentPage = page; renderContent(); };
 
     // ==================== Populate filters ====================
     function populateFilters() {
-        const source = filteredData.length ? filteredData : allData;
+const source = allData;
         const supermarketSet = new Set();
         const categorySet = new Set();
         const brandSet = new Set();
@@ -1841,6 +1845,17 @@ async function loadAndCropImage(item) {
     }
 
     function clearAutocomplete() { let list = document.getElementById('autocomplete-list'); if (list) list.remove(); }
+          
+          const searchInput = document.getElementById('search-input');
+searchInput.addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+        clearAutocomplete();
+    }
+});
+searchInput.addEventListener('blur', function() {
+    setTimeout(clearAutocomplete, 200);
+});
+          
           function restoreStateIfExists() {
     const saved = sessionStorage.getItem('offersPageState');
     if (!saved) return false;
