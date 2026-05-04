@@ -68,10 +68,14 @@
     .ticker-item .badge { background:var(--ticker-accent); color:#000; padding:3px 6px; border-radius:4px; font-weight:700; }
 
     /* Stats Dashboard */
-    .stats-dashboard .stat-card {
-    flex: 0 0 auto;
-    min-width: 130px;
-  }
+.stats-dashboard {
+    display: flex;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    gap: 12px;
+    padding: 8px 0;
+    margin: 10px 0;
+}
     .stat-card {
       background: white;
       border-radius: 10px;
@@ -271,41 +275,8 @@
     min-width: 100px;
   }
   
-  /* توزيع أعمدة الجدول - المنتج والخصم كبيران والباقي صغير */
-  #data-table {
-    overflow-x: auto; /* للسماح بالتمرير الأفقي إذا لزم الأمر */
-  }
-  #data-table table {
-    table-layout: fixed;
-    width: 100%;
-    min-width: 600px; /* عرض مناسب للموبايل مع إمكانية التمرير */
-  }
-  #data-table th, #data-table td {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    font-size: 12px;
-    padding: 8px 4px;
-  }
-  /* السماح لعمود المنتج بالتفاف النص إذا لزم الأمر */
-  #data-table td:nth-child(2) {
-    white-space: normal;
-    word-break: break-word;
-  }
-  /* تحديد العروض: المنتج 35%، الخصم 15%، الباقي 5-8% */
-  #data-table th:nth-child(1), #data-table td:nth-child(1) { width: 8%; }  /* سوبر ماركت */
-  #data-table th:nth-child(2), #data-table td:nth-child(2) { width: 38%; } /* المنتج */
-  #data-table th:nth-child(3), #data-table td:nth-child(3) { width: 8%; }  /* السعر */
-  #data-table th:nth-child(4), #data-table td:nth-child(4) { width: 15%; } /* الخصم */
-  #data-table th:nth-child(5), #data-table td:nth-child(5) { width: 6%; }  /* الاسم الأساسي */
-  #data-table th:nth-child(6), #data-table td:nth-child(6) { width: 5%; }  /* الوحدة */
-  #data-table th:nth-child(7), #data-table td:nth-child(7) { width: 6%; }  /* الفئة */
-  #data-table th:nth-child(8), #data-table td:nth-child(8) { width: 6%; }  /* العلامة التجارية */
-  #data-table th:nth-child(9), #data-table td:nth-child(9) { width: 8%; }  /* تاريخ التحديث */
-  #data-table th:nth-child(10), #data-table td:nth-child(10) { width: 8%; } /* ساري حتى */
-}
-   
-      
+  
+    
       /* جعل الإحصائيات صفاً أفقياً */
 .stats-dashboard {
     display: flex;
@@ -317,26 +288,37 @@
     justify-content: space-between;
 }
 
-.stats-dashboard .stat-card {
-    flex: 1 1 auto;
-    min-width: 120px;
+/* توزيع أعمدة الجدول في الموبايل */
+/* عنصر الحاوية للجدول لتمكين التمرير الأفقي */
+#data-table-container {
+overflow-x: auto; /* يسمح بالتمرير الأفقي */
+width: 100%; /* يأخذ العرض الكامل */
 }
 
-/* في الموبايل: تأكيد الصف الأفقي مع التمرير */
-@media (max-width: 768px) {
-    .stats-dashboard {
-        display: flex;
-        flex-wrap: nowrap;
-        overflow-x: auto;
-        gap: 8px;
-        justify-content: flex-start;
-    }
-    .stats-dashboard .stat-card {
-        flex: 0 0 auto;
-        min-width: 110px;
-    }
+#data-table table {
+width: 100%;
+table-layout: fixed; /* هام لتثبيت توزيع الأعمدة */
 }
-      
+
+#data-table th, #data-table td {
+white-space: nowrap; /* يمنع التفاف النص */
+overflow: hidden; /* لإخفاء النص الزائد */
+text-overflow: ellipsis; /* لإضافة "..." للنص المقطوع */
+padding: 3px 1px; /* الحشوة */
+font-size: 11px; /* حجم الخط */
+box-sizing: border-box;/* لضمان حساب الحشوة ضمن عرض الخلية */
+}
+
+/* الأعمدة بنسب محددة */
+#data-table th:nth-child(1), #data-table td:nth-child(1) { width: 9%; } /* السوبر ماركت */
+#data-table th:nth-child(2), #data-table td:nth-child(2) { width: 40%; } /* المنتج */
+#data-table th:nth-child(3), #data-table td:nth-child(3) { width: 10%; } /* السعر */
+#data-table th:nth-child(4), #data-table td:nth-child(4) { width: 9%; } /* الخصم */
+#data-table th:nth-child(5), #data-table td:nth-child(5) { width: 21%; } /* العلامة التجارية */
+#data-table th:nth-child(6), #data-table td:nth-child(6) { width: 14%; } /* الوحدة */
+#data-table th:nth-child(7), #data-table td:nth-child(7) { width: 19%; } /* ساري حتى */ 
+}
+
       /* جعل حقلي السعر في صف واحد أفقي */
 .mobile-row.row-2 {
     display: flex;
@@ -351,26 +333,28 @@
 }
 
 .price-controls {
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
+display: inline-flex;
+align-items: center;
+gap: 4px;
+font-size: 50%; /* خفض حجم الخط بنسبة 50% */
 }
 
 /* السعر من (أكبر قليلاً) */
 .price-controls:first-child {
-    flex: 1.2;
+flex: 1.2;
 }
 
 /* السعر إلى (أصغر بنسبة ~20%) */
 .price-controls:last-child {
-    flex: 0.8;
+flex: 0.8;
 }
 
 .price-controls input {
-    width: 120px;
-    text-align: center;
+width: 120px;
+text-align: center;
+font-size: 1.2em; /* تقليل حجم الخط بنسبة 50% */
 }
-
+      
      
       /* السطر الخاص بالسوبرماركت - خفيف ومدمج */
 .mobile-row.row-supermarket {
@@ -413,15 +397,58 @@
     .mobile-row.row-2 .price-controls input {
         width: 65px;
     }
+  
+  
+  /* للموبايل: جعل البحث والترتيب والبراند في سطر واحد أفقي */
+.mobile-row.row-1 {
+  width: auto;
+  overflow-x: auto;
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    gap: 6px;
+    align-items: center;
+    justify-content: space-between;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    background: white;
+    z-index: 1000;
+    padding: 6px 8px;
+    margin: 0;
+    border-radius: 0;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
 }
+
+.mobile-row.row-1 #search-input {
+    flex: 3;
+    min-width: 150;
+    font-size: 13px;
+    padding: 0 8px;
+  border: 2px solid red; /* تغيير لون الحدود إلى الأحمر وجعلها أكثر سماكة */
+border-radius: 4px; /* إضافة انحناء بسيط للحدود (اختياري) */
+}
+
+.mobile-row.row-1 #sort-by,
+.mobile-row.row-1 #brand-filter {
+    flex: 2;
+    min-width: 170px;
+    font-size: 11px;
+    padding: 0 4px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+}
+      
+      
   </style>
   </head>
   <body>
     <div class="container">
       <div class="hero-banner">
         <div class="hero-content">
-          <h1>🛒سوق مصر : أفضل محرك بحث عن منتجات وعروض السوبرماركت
-            اليومية</h1>
+          <h1>🛒سوق مصر : أفضل محرك بحث عن منتجات وعروض السوبرماركت اليومية</h1>
           <p class="hero-subtitle">قارن الأسعار بين كبرى المتاجر - وفر حتى 70%</p>
           <div class="ticker-wrap">
             <div class="ticker-label"><i class="fas fa-bolt"></i> عروض مميزة</div>
@@ -433,8 +460,8 @@
           </div>
         </div>
       </div>
-      <div class="user-guide-banner"> اضغط على زر "تحديث الان" لتحديث البيانات
-        -=- وانقر على أي صف في الجدول لصورة الصنف</div>
+      <div class="user-guide-banner"> انقر أي صف في الجدول للتفاصيل /7/ ولتحديث
+        البيانات اضغط زر "تحديث" في الاسفل</div>
       <div class="stats-dashboard">
         <div class="stat-card">
           <div class="stat-icon">💰</div>
@@ -507,15 +534,20 @@
       <div class="controls">
         <!-- ================= الصف 1 ================= -->
         <!-- ================= الصف 2 ================= -->
-<div class="mobile-row row-supermarket">
-  <select id="supermarket-filter">
-    <option value="">إختار السوبرماركت</option>
-  </select>
-</div>
-<div class="mobile-row row-2">
-  <div class="price-controls"> <button id="min-decrease">−</button> <input id="min-price" placeholder="السعر من" type="number"> <button id="min-increase">+</button> </div>
-  <div class="price-controls"> <button id="max-decrease">−</button> <input id="max-price" placeholder="السعر إلى" type="number"> <button id="max-increase">+&nbsp;</button> </div>
-</div>
+        <div class="mobile-row row-supermarket">
+          <select id="supermarket-filter">
+            <option value="">إختار السوبرماركت</option>
+          </select>
+        </div>
+        <div class="mobile-row row-2">
+          <div class="price-controls"> <button id="min-decrease">−</button>
+            <input id="min-price" placeholder="سعر من" type="number">
+            <button id="min-increase">+</button> </div>
+          <div class="price-controls"> <button id="max-decrease">−</button> <input
+
+              id="max-price" placeholder="سعر إلى" type="number"> <button id="max-increase">+&nbsp;</button>
+          </div>
+        </div>
         <!-- ================= الصف 3 ================= -->
         <div class="mobile-row row-3">
           <select id="category-filter">
@@ -537,7 +569,7 @@
             <tr>
               <th>السوبر ماركت</th>
               <th>المنتج</th>
-              <th>السعر الحالي</th>
+              <th>السعر الحالي </th>
               <th>الخصم</th>
               <th>الاسم الأساسي</th>
               <th>الوحدة</th>
@@ -732,6 +764,66 @@ function transformRows(rows) {
         if (!month) return null;
         return `${year}-${month}-${day}`;
     }
+  
+  // دالة لتحليل الوحدة واستخراج الكمية (بالكيلو، لتر، قطعة)
+function getNormalizedPricePerUnit(item) {
+    const unit = (item.unit || '').trim().toLowerCase();
+    const price = item.currentPrice || 0;
+    if (price <= 0) return Infinity;
+
+    // معالجة الكيلو / جرام
+    if (unit.includes('كيلو') || unit.includes('كجم') || unit.includes('كغ')) {
+        // إذا كانت الوحدة تحتوي على رقم مثل "2 كيلو"
+        let match = unit.match(/(\d+(?:\.\d+)?)\s*كيلو/);
+        if (match) {
+            let kg = parseFloat(match[1]);
+            return kg > 0 ? price / kg : price;
+        }
+        return price; // افتراض 1 كيلو
+    }
+    if (unit.includes('جرام') || unit.includes('غم') || unit.includes('جم')) {
+        let match = unit.match(/(\d+(?:\.\d+)?)\s*جرام/);
+        if (match) {
+            let gram = parseFloat(match[1]);
+            return gram > 0 ? (price / gram) * 1000 : price;
+        }
+        // إذا كان الرقم في بداية الوحدة مثل "500 جرام"
+        let match2 = unit.match(/^(\d+(?:\.\d+)?)\s*ج/);
+        if (match2) {
+            let gram = parseFloat(match2[1]);
+            return gram > 0 ? (price / gram) * 1000 : price;
+        }
+        return price * 1000; // افتراض 1 جرام -> سعر الكيلو = سعر ×1000 (خطير، لكن نادر)
+    }
+    // معالجة اللتر / مل
+    if (unit.includes('لتر') || unit.includes('ل')) {
+        let match = unit.match(/(\d+(?:\.\d+)?)\s*لتر/);
+        if (match) {
+            let liter = parseFloat(match[1]);
+            return liter > 0 ? price / liter : price;
+        }
+        return price;
+    }
+    if (unit.includes('مل') || unit.includes('مليلتر')) {
+        let match = unit.match(/(\d+(?:\.\d+)?)\s*مل/);
+        if (match) {
+            let ml = parseFloat(match[1]);
+            return ml > 0 ? (price / ml) * 1000 : price;
+        }
+        return price * 1000;
+    }
+    // معالجة القطع (قطعة، حبة، علبة، زجاجة، باكيت)
+    if (unit.includes('قطعة') || unit.includes('حبة') || unit.includes('علبة') || unit.includes('زجاجة') || unit.includes('باكيت') || unit.includes('piece')) {
+        let match = unit.match(/(\d+(?:\.\d+)?)\s*(قطعة|حبة|علبة|زجاجة|باكيت|piece)/);
+        if (match) {
+            let pieces = parseFloat(match[1]);
+            return pieces > 0 ? price / pieces : price;
+        }
+        return price;
+    }
+    // إذا لم نتعرف على الوحدة، نرجع السعر العادي
+    return price;
+}
 
     function normalizeDates(arr) {
         arr.forEach(i => {
@@ -959,7 +1051,7 @@ window.goToPage = (page) => { currentPage = page; renderContent(); };
 
     // ==================== Populate filters ====================
     function populateFilters() {
-        const source = filteredData.length ? filteredData : allData;
+const source = allData;
         const supermarketSet = new Set();
         const categorySet = new Set();
         const brandSet = new Set();
@@ -1015,17 +1107,26 @@ window.goToPage = (page) => { currentPage = page; renderContent(); };
 
     // ==================== Apply filters ====================
     function applyAllFilters() {
-        const searchVal = document.getElementById('search-input').value.trim().toLowerCase();
-        const supermarket = document.getElementById('supermarket-filter').value;
-        const category = document.getElementById('category-filter').value;
-        const brand = document.getElementById('brand-filter').value;
-        const minDiscount = parseFloat(document.getElementById('min-discount').value) || 0;
-        let minPrice = parseFloat(document.getElementById('min-price').value) || 0;
-        let maxPrice = parseFloat(document.getElementById('max-price').value) || Infinity;
-        if (minPrice > maxPrice) [minPrice, maxPrice] = [maxPrice, minPrice];
-        const sort = document.getElementById('sort-by').value;
-        const effectiveSearchTerms = urlSearchTerms.length ? urlSearchTerms : (searchVal ? searchVal.split(/\s+/) : []);
-        filteredData = allData.filter(item => {
+    const searchVal = document.getElementById('search-input').value.trim().toLowerCase();
+    const supermarket = document.getElementById('supermarket-filter').value;
+    const category = document.getElementById('category-filter').value;
+    const brand = document.getElementById('brand-filter').value;
+    const minDiscount = parseFloat(document.getElementById('min-discount').value) || 0;
+    let minPrice = parseFloat(document.getElementById('min-price').value) || 0;
+    let maxPrice = parseFloat(document.getElementById('max-price').value) || Infinity;
+    if (minPrice > maxPrice) [minPrice, maxPrice] = [maxPrice, minPrice];
+      
+       const effectiveSearchTerms = urlSearchTerms.length ? urlSearchTerms : (searchVal ? searchVal.split(/\s+/) : []);
+    let sort = document.getElementById('sort-by').value;
+    if (effectiveSearchTerms.length > 0) {
+        // إذا كان هناك بحث، نجبر الترتيب على السعر تصاعدي
+        sort = 'price-asc';
+        // يمكن أيضاً تحديث الـ select ليعكس الواقع (اختياري)
+        document.getElementById('sort-by').value = 'price-asc';
+    }
+      
+      
+      filteredData = allData.filter(item => {
             if (!showAllOffers && activeChipFilter !== 'all' && activeChipFilter !== 'recent') {
                 if (item.status === 'منتهي' || item.status === 'العرض منتهى') return false;
             }
@@ -1070,8 +1171,7 @@ window.goToPage = (page) => { currentPage = page; renderContent(); };
             return true;
         });
         if (bestPriceMode) filteredData = reduceBestPricePerCategory(filteredData);
-        sortData(filteredData, sort);
-        populateFilters();
+sortData(filteredData, sort, effectiveSearchTerms.length > 0);        populateFilters();
         currentPage = 1;
         renderContent();
         updateStats();
@@ -1096,18 +1196,28 @@ window.goToPage = (page) => { currentPage = page; renderContent(); };
         return Array.from(bestByCategory.values());
     }
 
-    function sortData(data, sortKey) {
-        if (!data.length) return;
-        switch (sortKey) {
-            case 'best-deals': data.sort((a,b) => (b._score || 0) - (a._score || 0)); break;
-            case 'discount-desc': data.sort((a,b) => (b._discount_pct || 0) - (a._discount_pct || 0)); break;
-            case 'saved-desc': data.sort((a,b) => (b._saved || 0) - (a._saved || 0)); break;
-            case 'price-asc': data.sort((a,b) => (a.currentPrice || 0) - (b.currentPrice || 0)); break;
-            case 'price-desc': data.sort((a,b) => (b.currentPrice || 0) - (a.currentPrice || 0)); break;
-            case 'name-asc': data.sort((a,b) => (a.product || '').localeCompare(b.product || '', 'ar')); break;
-            case 'name-desc': data.sort((a,b) => (b.product || '').localeCompare(a.product || '', 'ar')); break;
-        }
+function sortData(data, sortKey, isSearching = false) {
+    if (!data.length) return;
+    if (isSearching && sortKey === 'price-asc') {
+        // ترتيب حسب السعر الموحد
+        data.sort((a,b) => {
+            let priceA = getNormalizedPricePerUnit(a);
+            let priceB = getNormalizedPricePerUnit(b);
+            return priceA - priceB;
+        });
+        return;
     }
+    // باقي الترتيب الأصلي
+    switch (sortKey) {
+        case 'best-deals': data.sort((a,b) => (b._score || 0) - (a._score || 0)); break;
+        case 'discount-desc': data.sort((a,b) => (b._discount_pct || 0) - (a._discount_pct || 0)); break;
+        case 'saved-desc': data.sort((a,b) => (b._saved || 0) - (a._saved || 0)); break;
+        case 'price-asc': data.sort((a,b) => (a.currentPrice || 0) - (b.currentPrice || 0)); break;
+        case 'price-desc': data.sort((a,b) => (b.currentPrice || 0) - (a.currentPrice || 0)); break;
+        case 'name-asc': data.sort((a,b) => (a.product || '').localeCompare(b.product || '', 'ar')); break;
+        case 'name-desc': data.sort((a,b) => (b.product || '').localeCompare(a.product || '', 'ar')); break;
+    }
+}
 
     // ==================== Rendering ====================
     function renderContent() {
@@ -1216,45 +1326,157 @@ function renderTable() {
     const pageData = filteredData.slice(start, start + ITEMS_PER_PAGE);
     
     if (!pageData.length) {
-        tbody.innerHTML = '<tr><td colspan="10" style="text-align:center;">لا توجد عروض<\/td><\/tr>';
+        tbody.innerHTML = `<tr><td colspan="10" style="text-align:center;">لا توجد عروض<\/td><\/tr>`;
         updatePagination();
         return;
     }
+    
+    // كشف الموبايل
+    const isMobile = window.innerWidth <= 768;
+    
     tbody.innerHTML = pageData.map(item => {
         let rowClass = item._discount_pct > 20 ? 'class="highlight"' : '';
         let flyerId = item.pageNo?.match(/flyer_(\d+)/)?.[1] || item.solution_key || '';
         let url = flyerId ? `https://www.yabalashoffers.com/flyer.php?d=${encodeURIComponent(flyerId)}&c=eg` : '#';
         let pageNumber = item.pageNo?.match(/page_(\d+)/)?.[1] || '';
-        return `<tr ${rowClass} data-url="${url}" data-flyer="${flyerId}" data-page-number="${pageNumber}" data-page="${item.pageNo}" style="cursor:pointer;">
-    <td>${item.supermarket}<\/td>
-    <td><strong>${item.product}<\/strong><\/td>
-    <td>${item.currentPrice} ${item.currency}<\/td>
-    <td><span class="discount-cell">${item._discount_pct ? item._discount_pct+'%' : ''}<\/span><\/td>
-    <td><span class="primary-name-circle">${item.primaryName || ''}<\/span><\/td>
-    <td>${item.unit || ''}<\/td>
-    <td>${item.category || ''}<\/td>
-    <td>${item.brand || ''}<\/td>
-    <td>${item.updateDate ? formatDateShort(item.updateDate) : ''}<\/td>
-    <td>${item.validUntil || ''}<\/td>
-    <\/tr>`;
+        
+        // معالجة السعر الحالي (تحويل EGP → ج)
+        let currentPriceHtml = `${item.currentPrice} ${item.currency}`;
+        if (isMobile && item.currency === 'EGP') {
+            currentPriceHtml = `${item.currentPrice} ج`;
+        }
+        
+        // معالجة "ساري حتى" للموبايل: استخراج اليوم والشهر فقط
+// معالجة "ساري حتى" للموبايل: استخراج اليوم والشهر فقط
+let validUntilHtml = item.validUntil || '';
+if (isMobile && validUntilHtml) {
+    const arabicMonthsList = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+    let day = '';
+    let month = '';
+    // محاولة مطابقة الرقم ثم الشهر
+    let match = validUntilHtml.match(/(\d{1,2})\s+([أبتثجحخدذرزسشصضطظعغفقكلمنهوي]+)/);
+    if (match) {
+        let potentialMonth = match[2];
+        // البحث إذا كان مطابقاً لأحد الأشهر
+        let foundMonth = arabicMonthsList.find(m => potentialMonth.includes(m) || m.includes(potentialMonth));
+        if (foundMonth) {
+            day = match[1];
+            month = foundMonth;
+        }
+    }
+    // إذا فشل، حاول العكس (شهر ثم رقم)
+    if (!day && !month) {
+        let match2 = validUntilHtml.match(/([أبتثجحخدذرزسشصضطظعغفقكلمنهوي]+)\s+(\d{1,2})/);
+        if (match2) {
+            let potentialMonth = match2[1];
+            let foundMonth = arabicMonthsList.find(m => potentialMonth.includes(m) || m.includes(potentialMonth));
+            if (foundMonth) {
+                day = match2[2];
+                month = foundMonth;
+            }
+        }
+    }
+    if (day && month) {
+        validUntilHtml = `${day} ${month}`;
+    } else {
+        // آخر محاولة: البحث عن أي رقمين وأي كلمة من الأشهر في النص
+        for (let m of arabicMonthsList) {
+            if (validUntilHtml.includes(m)) {
+                let dayMatch = validUntilHtml.match(/(\d{1,2})/);
+                if (dayMatch) {
+                    validUntilHtml = `${dayMatch[1]} ${m}`;
+                    break;
+                }
+            }
+        }
+        // إذا فشل كل شيء، نحذف الكلمات الشائعة ونعرض ما تبقى
+        if (!day && !month) {
+            validUntilHtml = validUntilHtml.replace(/ينتهي في|الاثنين|الثلاثاء|الأربعاء|الخميس|الجمعة|السبت|الأحد|الـ|،|\./g, '').trim();
+            // إذا كان الناتج طويلاً، نأخذ أول 15 حرفاً
+            if (validUntilHtml.length > 15) validUntilHtml = validUntilHtml.substring(0, 15);
+        }
+    }
+}        
+        // بناء خلايا الجدول حسب الجهاز
+        let cells = '';
+        if (isMobile) {
+            // للموبايل: نعرض الأعمدة بالترتيب: السوبر ماركت, المنتج, السعر, الخصم, البراند, الوحدة, ساري حتى (نخفي الأساسي، الفئة، تاريخ التحديث)
+            cells = `
+                <td style="white-space: normal;">${item.supermarket}<\/td>
+                <td><strong>${item.product}<\/strong><\/td>
+                <td>${currentPriceHtml}<\/td>
+                <td><span class="discount-cell">${item._discount_pct ? item._discount_pct+'%' : ''}<\/span><\/td>
+                <td>${item.brand || ''}<\/td>
+                <td>${item.unit || ''}<\/td>
+                <td>${validUntilHtml}<\/td>
+            `;
+        } else {
+            // الوضع الاعتيادي (كمبيوتر، تابلت) نعرض كل الأعمدة
+            cells = `
+                <td>${item.supermarket}<\/td>
+                <td><strong>${item.product}<\/strong><\/td>
+                <td>${item.currentPrice} ${item.currency}<\/td>
+                <td><span class="discount-cell">${item._discount_pct ? item._discount_pct+'%' : ''}<\/span><\/td>
+                <td><span class="primary-name-circle">${item.primaryName || ''}<\/span><\/td>
+                <td>${item.unit || ''}<\/td>
+                <td>${item.category || ''}<\/td>
+                <td>${item.brand || ''}<\/td>
+                <td>${item.updateDate ? formatDateShort(item.updateDate) : ''}<\/td>
+                <td>${item.validUntil || ''}<\/td>
+            `;
+        }
+        
+        return `<tr ${rowClass} data-url="${url}" data-flyer="${flyerId}" data-page-number="${pageNumber}" data-page="${item.pageNo}" style="cursor:pointer;">${cells}<\/tr>`;
     }).join('');
     
-document.querySelectorAll('#table-body tr').forEach(tr => {
-    tr.addEventListener('click', function(e) {
-        let productName = this.cells[1]?.innerText || '';
-        let productObj = allData.find(p => p.product === productName);
-        if (productObj) {
-            saveCurrentState();  // حفظ الحالة الحالية
-            sessionStorage.setItem('selectedProduct', JSON.stringify(productObj));
-            window.open('product_details.html', '_blank');
-        } else {
-            let url = this.dataset.url;
-            if (url && url !== '#') window.open(url, '_blank');
-        }
+    // تحديث رأس الجدول (thead) للموبايل لإزالة الأعمدة المخفية وتعديل الترويسات
+    const thead = document.querySelector('#data-table thead');
+    if (isMobile) {
+        thead.innerHTML = `
+            <tr>
+                <th>المتجر</th>
+                <th>      المنتج       </th>
+                <th>السعر</th>
+                <th>الخصم</th>
+                <th>العلامة التجارية</th>
+                <th>الوحدة</th>
+                <th>ساري حتى</th>
+            </tr>
+        `;
+    } else {
+        thead.innerHTML = `
+            <tr>
+                <th>المتجر</th>
+                <th>المنتج</th>
+                <th>السعر </th>
+                <th>الخصم</th>
+                <th>الاسم الأساسي</th>
+                <th>الوحدة</th>
+                <th>الفئة</th>
+                <th>العلامة التجارية</th>
+                <th>تاريخ التحديث</th>
+                <th>ساري حتى</th>
+            </tr>
+        `;
+    }
+    
+    document.querySelectorAll('#table-body tr').forEach(tr => {
+        tr.addEventListener('click', function(e) {
+            let productName = this.cells[1]?.innerText || '';
+            let productObj = allData.find(p => p.product === productName);
+            if (productObj) {
+                saveCurrentState();
+                sessionStorage.setItem('selectedProduct', JSON.stringify(productObj));
+                window.open('product_details.html', '_blank');
+            } else {
+                let url = this.dataset.url;
+                if (url && url !== '#') window.open(url, '_blank');
+            }
+        });
     });
-});
-        updatePagination();
+    updatePagination();
 }
+
  
 
 function openWithOverlay(url, flyerFileName, pageNo, flyerIdFromAttr) {
@@ -1623,6 +1845,17 @@ async function loadAndCropImage(item) {
     }
 
     function clearAutocomplete() { let list = document.getElementById('autocomplete-list'); if (list) list.remove(); }
+          
+          const searchInput = document.getElementById('search-input');
+searchInput.addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+        clearAutocomplete();
+    }
+});
+searchInput.addEventListener('blur', function() {
+    setTimeout(clearAutocomplete, 200);
+});
+          
           function restoreStateIfExists() {
     const saved = sessionStorage.getItem('offersPageState');
     if (!saved) return false;
