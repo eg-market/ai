@@ -16,13 +16,11 @@
             height: 100vh;
             overflow: hidden;
         }
-        /* تخطيط ثنائي الأعمدة على الكمبيوتر */
         .split-layout {
             display: flex;
             height: 100vh;
             width: 100%;
         }
-        /* الجانب الأيسر (بيانات + صورة عامة) */
         .left-side {
             width: 35%;
             background: white;
@@ -32,7 +30,6 @@
             display: flex;
             flex-direction: column;
         }
-        /* الجانب الأيمن (الصورة الكبيرة) */
         .right-side {
             width: 65%;
             background: #1a1a2e;
@@ -50,7 +47,6 @@
             box-shadow: 0 8px 25px rgba(0,0,0,0.3);
             transition: 0.2s;
         }
-        /* صندوق الصورة العامة */
         .general-flyer {
             background: #f8f9fa;
             border-radius: 20px;
@@ -71,7 +67,6 @@
             color: #00539F;
             font-size: 0.9rem;
         }
-        /* الأزرار الستة */
         .actions-row {
             display: flex;
             flex-wrap: wrap;
@@ -106,7 +101,6 @@
         .btn-favorite.active { background: #c82333; color: #ffd700; }
         .btn:hover { opacity: 0.85; transform: translateY(-2px); }
         
-        /* معلومات المنتج */
         .product-info {
             flex: 1;
         }
@@ -196,7 +190,6 @@
             margin-top: 20px;
         }
         
-        /* ===== modal لتكبير الصور ===== */
         .modal {
             display: none;
             position: fixed;
@@ -232,88 +225,85 @@
             justify-content: center;
         }
         
-        /* ===== استجابة الجوال ===== */
-@media (max-width: 768px) {
-    body {
-        overflow: auto;
-        height: auto;
-    }
-    .split-layout {
-        flex-direction: column;
-        height: auto;
-        min-height: 100vh;
-    }
-    .left-side, .right-side {
-        width: 100%;
-    }
-    .right-side {
-        min-height: 35vh;
-        max-height: 35vh;
-        order: -1;
-    }
-    .right-side img {
-        max-height: 100%;
-        width: auto;
-        cursor: pointer;
-    }
-    .left-side {
-        order: 0;
-        overflow-y: auto;
-        padding: 12px;
-    }
-    /* تقليل المسافات الرأسية للعناصر */
-    .title-row {
-        order: -1;
-        margin-top: 0;
-        margin-bottom: 6px;
-        justify-content: center;
-    }
-    .product-title {
-        font-size: 1rem;
-    }
-    .supermarket-name {
-        font-size: 0.85rem;
-    }
-    .actions-row {
-        order: 0;
-        margin: 6px 0 10px;
-        gap: 6px;
-    }
-    .actions-row .btn {
-        flex: 1 0 calc(33% - 6px);
-        font-size: 0.7rem;
-        padding: 5px 3px;
-    }
-    .price-box {
-        margin: 8px 0;
-        padding: 6px 10px;
-    }
-    .current-price {
-        font-size: 1.3rem;
-    }
-    /* تقليل padding و gap للمربعات الستة */
-    .details-grid {
-        gap: 8px;
-        margin: 10px 0;
-    }
-    .detail-item {
-        padding: 6px 8px;   /* ← تم التصغير (كان 12px) */
-    }
-    .detail-value {
-        font-size: 0.85rem;
-    }
-    .general-flyer {
-        margin-bottom: 12px;
-        padding: 10px;
-    }
-    .general-flyer img {
-        max-height: 120px;
-    }
-    .back-btn {
-        padding: 10px;
-        margin-top: 12px;
-    }
-}
+        @media (max-width: 768px) {
+            body {
+                overflow: auto;
+                height: auto;
+            }
+            .split-layout {
+                flex-direction: column;
+                height: auto;
+                min-height: 100vh;
+            }
+            .left-side, .right-side {
+                width: 100%;
+            }
+            .right-side {
+                min-height: 35vh;
+                max-height: 35vh;
+                order: -1;
+            }
+            .right-side img {
+                max-height: 100%;
+                width: auto;
+                cursor: pointer;
+            }
+            .left-side {
+                order: 0;
+                overflow-y: auto;
+                padding: 12px;
+            }
+            .title-row {
+                order: -1;
+                margin-top: 0;
+                margin-bottom: 6px;
+                justify-content: center;
+            }
+            .product-title {
+                font-size: 1rem;
+            }
+            .supermarket-name {
+                font-size: 0.85rem;
+            }
+            .actions-row {
+                order: 0;
+                margin: 6px 0 10px;
+                gap: 6px;
+            }
+            .actions-row .btn {
+                flex: 1 0 calc(33% - 6px);
+                font-size: 0.7rem;
+                padding: 5px 3px;
+            }
+            .price-box {
+                margin: 8px 0;
+                padding: 6px 10px;
+            }
+            .current-price {
+                font-size: 1.3rem;
+            }
+            .details-grid {
+                gap: 8px;
+                margin: 10px 0;
+            }
+            .detail-item {
+                padding: 6px 8px;
+            }
+            .detail-value {
+                font-size: 0.85rem;
+            }
+            .general-flyer {
+                margin-bottom: 12px;
+                padding: 10px;
+            }
+            .general-flyer img {
+                max-height: 120px;
+            }
+            .back-btn {
+                padding: 10px;
+                margin-top: 12px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -321,7 +311,6 @@
     <div class="loading">جارٍ تحميل البيانات...</div>
 </div>
 
-<!-- Modal لتكبير الصور -->
 <div id="imageModal" class="modal" onclick="closeModal()">
     <div class="close">&times;</div>
     <img id="modalImage" src="" alt="صورة مكبرة">
@@ -331,11 +320,11 @@
     let productData = null;
     let supermarketData = {};
 
+    // القيم الافتراضية (لن تستخدم إلا إذا فشل تحميل ملف السوبرماركت)
     const defaultSupermarketInfo = {
-        phone: "0123456789",
-        address: "شارع التسوق، مول مصر، القاهرة",
-        website: "https://www.example.com",
-        map_link: "https://maps.google.com/?q=30.0444,31.2357"
+        phone: "غير متوفر",
+        website: "#",
+        map_link: "#"
     };
 
     function loadProductFromSession() {
@@ -356,22 +345,33 @@
     async function loadSupermarketData() {
         try {
             const response = await fetch('supermarkets.xlsx');
-            if (!response.ok) return;
+            if (!response.ok) {
+                console.warn('لم يتم العثور على ملف supermarkets.xlsx');
+                return;
+            }
             const arrayBuffer = await response.arrayBuffer();
             const workbook = XLSX.read(arrayBuffer, { type: 'array' });
             const rows = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]]);
             rows.forEach(row => {
-                const name = row['supermarket_name'] || row['اسم السوبرماركت'];
-                if (name) {
-                    supermarketData[name] = {
-                        phone: row['phone'] || row['هاتف'] || '',
-                        address: row['address'] || row['العنوان'] || '',
-                        website: row['website'] || row['موقع'] || '',
-                        map_link: row['map_link'] || row['رابط الخريطة'] || ''
-                    };
-                }
+                // البحث عن اسم السوبر ماركت (قد يكون عمود 'supermarket_name' أو 'اسم السوبرماركت')
+                let name = row['supermarket_name'] || row['اسم السوبر ماركت'] || row['اسم السوبرماركت'];
+                if (!name) return;
+
+                // البحث عن رقم الهاتف: يدعم أسماء الأعمدة: phone, hotline, هاتف, phone/hotline
+                let phone = row['phone'] || row['hotline'] || row['هاتف'] || row['phone/hotline'] || '';
+                let website = row['website'] || row['موقع'] || row['الموقع الالكتروني'] || '';
+                let map_link = row['map_link'] || row['رابط الخريطة'] || '';
+
+                supermarketData[name] = {
+                    phone: phone || 'غير متوفر',
+                    website: website || '#',
+                    map_link: map_link || '#'
+                };
             });
-        } catch(err) { console.warn('فشل تحميل بيانات السوبرماركت', err); }
+            console.log('تم تحميل بيانات السوبرماركت', Object.keys(supermarketData).length);
+        } catch(err) {
+            console.warn('فشل تحميل بيانات السوبرماركت', err);
+        }
     }
 
     function getProductImageUrl(item) {
@@ -425,21 +425,19 @@
         setTimeout(() => toast.remove(), 2000);
     }
 
-    window.showAddress = function(addr) {
-        alert(`العنوان:\n${addr}`);
-        window.open(`https://www.google.com/maps?q=${encodeURIComponent(addr)}`, '_blank');
-    };
-
     function showError(msg) {
         document.getElementById('mainContainer').innerHTML = `<div style="padding:40px;text-align:center"><i class="fas fa-exclamation-triangle" style="font-size:3rem;color:#dc3545"></i><p>${msg}</p><button class="back-btn" onclick="window.close()">إغلاق</button></div>`;
     }
 
-    // ===== دوال تكبير الصور =====
     function openModal(imgSrc) {
         const modal = document.getElementById('imageModal');
         const modalImg = document.getElementById('modalImage');
-        modal.style.display = 'flex';
-        modalImg.src = imgSrc;
+        if (imgSrc && imgSrc !== '#') {
+            modal.style.display = 'flex';
+            modalImg.src = imgSrc;
+        } else {
+            alert('لا توجد صورة لعرضها');
+        }
     }
     window.closeModal = function() {
         document.getElementById('imageModal').style.display = 'none';
@@ -450,10 +448,9 @@
         const productImageUrl = getProductImageUrl(productData);
         const generalImageUrl = getGeneralFlyerUrl(productData);
         const marketInfo = supermarketData[productData.supermarket] || defaultSupermarketInfo;
-        const phone = marketInfo.phone || defaultSupermarketInfo.phone;
-        const address = marketInfo.address || defaultSupermarketInfo.address;
-        const website = marketInfo.website || defaultSupermarketInfo.website;
-        const mapLink = marketInfo.map_link || defaultSupermarketInfo.map_link;
+        const phone = marketInfo.phone;
+        const website = marketInfo.website;
+        const mapLink = marketInfo.map_link;
 
         const html = `
             <div class="left-side">
@@ -467,9 +464,10 @@
                         <span class="discount-badge">-${productData._discount_pct}%</span>
                     </div>
                     <div class="actions-row">
-                        <a href="tel:${phone}" class="btn btn-success"><i class="fas fa-phone-alt"></i> اتصل</a>
-                        <button onclick="showAddress('${address.replace(/'/g, "\\'")}')" class="btn btn-info"><i class="fas fa-map-marker-alt"></i> العنوان</button>
-                        <a href="${website}" target="_blank" class="btn btn-primary"><i class="fas fa-globe"></i> الموقع</a>
+                        <!-- زر الاتصال برقم الهاتف الحقيقي -->
+                        <a href="tel:${phone.replace(/\s/g, '')}" class="btn btn-success"><i class="fas fa-phone-alt"></i> اتصل</a>
+                        <!-- زر الموقع الالكتروني (تم تغيير النص) -->
+                        <a href="${website}" target="_blank" class="btn btn-primary"><i class="fas fa-globe"></i> الموقع الالكتروني</a>
                         <a href="${mapLink}" target="_blank" class="btn btn-danger"><i class="fas fa-map"></i> الخريطة</a>
                         <button onclick="shareProduct()" class="btn btn-warning"><i class="fas fa-share-alt"></i> مشاركة</button>
                         <button onclick="toggleFavorite()" class="btn btn-favorite" id="favoriteBtn"><i class="fas fa-heart"></i> تفضيل</button>

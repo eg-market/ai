@@ -352,7 +352,7 @@ flex: 0.8;
 .price-controls input {
 width: 120px;
 text-align: center;
-font-size: 1.2em; /* تقليل حجم الخط بنسبة 50% */
+font-size: 1.1em; /* تقليل حجم الخط بنسبة 50% */
 }
       
      
@@ -448,7 +448,8 @@ border-radius: 4px; /* إضافة انحناء بسيط للحدود (اختيا
     <div class="container">
       <div class="hero-banner">
         <div class="hero-content">
-          <h1>🛒سوق مصر : أفضل محرك بحث عن منتجات وعروض السوبرماركت اليومية</h1>
+          <h1>🛒سوق مصر : أفضل محرك بحث عن منتجات وعروض السوبرماركت
+            اليومية</h1>
           <p class="hero-subtitle">قارن الأسعار بين كبرى المتاجر - وفر حتى 70%</p>
           <div class="ticker-wrap">
             <div class="ticker-label"><i class="fas fa-bolt"></i> عروض مميزة</div>
@@ -540,12 +541,13 @@ border-radius: 4px; /* إضافة انحناء بسيط للحدود (اختيا
           </select>
         </div>
         <div class="mobile-row row-2">
-          <div class="price-controls"> <button id="min-decrease">−</button>
-            <input id="min-price" placeholder="سعر من" type="number">
-            <button id="min-increase">+</button> </div>
+          <div class="price-controls"> <button id="min-decrease">−</button> <input
+
+              id="min-price" placeholder="سعر:من" type="number"> <button id="min-increase">+</button>
+          </div>
           <div class="price-controls"> <button id="max-decrease">−</button> <input
 
-              id="max-price" placeholder="سعر إلى" type="number"> <button id="max-increase">+&nbsp;</button>
+              id="max-price" placeholder="سعر:إلى" type="number"> <button id="max-increase">+&nbsp;</button>
           </div>
         </div>
         <!-- ================= الصف 3 ================= -->
@@ -633,6 +635,17 @@ border-radius: 4px; /* إضافة انحناء بسيط للحدود (اختيا
   
   let croppedImageCache = new Map();   // لتخزين الصور المقتطعة base64
 
+  // ========== دالة لتوحيد الحروف العربية ==========
+function normalizeArabic(str) {
+    if (!str) return '';
+    return str
+        .replace(/ة/g, 'ه')          // تاء مربوطة → هاء
+        .replace(/ى/g, 'ي')          // ألف مقصورة → ياء
+        .replace(/أ/g, 'ا')          // ألف ممدودة → ألف
+        .replace(/إ/g, 'ا')          // ألف مكسورة → ألف
+        .replace(/آ/g, 'ا');         // ألف ممدودة → ألف
+}
+  
     // ==================== IndexedDB ====================
     function openDB() {
         return new Promise((resolve, reject) => {
@@ -1116,24 +1129,23 @@ const source = allData;
     let maxPrice = parseFloat(document.getElementById('max-price').value) || Infinity;
     if (minPrice > maxPrice) [minPrice, maxPrice] = [maxPrice, minPrice];
       
-       const effectiveSearchTerms = urlSearchTerms.length ? urlSearchTerms : (searchVal ? searchVal.split(/\s+/) : []);
-    let sort = document.getElementById('sort-by').value;
-    if (effectiveSearchTerms.length > 0) {
-        // إذا كان هناك بحث، نجبر الترتيب على السعر تصاعدي
-        sort = 'price-asc';
-        // يمكن أيضاً تحديث الـ select ليعكس الواقع (اختياري)
-        document.getElementById('sort-by').value = 'price-asc';
-    }
-      
+const effectiveSearchTerms = urlSearchTerms.length ? urlSearchTerms : (searchVal ? searchVal.split(/\s+/) : []);
+let sort = document.getElementById('sort-by').value; // استخدم القيمة التي اختارها المستخدم دون فرض أي شيء      
       
       filteredData = allData.filter(item => {
             if (!showAllOffers && activeChipFilter !== 'all' && activeChipFilter !== 'recent') {
                 if (item.status === 'منتهي' || item.status === 'العرض منتهى') return false;
             }
-            if (effectiveSearchTerms.length) {
-                const hay = (item.product + ' ' + item.primaryName + ' ' + item.brand + ' ' + item.supermarket).toLowerCase();
-                if (!effectiveSearchTerms.every(t => hay.includes(t))) return false;
-            }
+           
+        if (effectiveSearchTerms.length) {
+    const rawHay = (item.product + ' ' + item.primaryName + ' ' + item.brand + ' ' + item.supermarket).toLowerCase();
+    const hay = normalizeArabic(rawHay);
+    if (!effectiveSearchTerms.every(term => {
+        const normTerm = normalizeArabic(term.toLowerCase());
+        return hay.includes(normTerm);
+    })) return false;
+}
+        
             if (urlCategories.length) {
                 const itemCat = String(item.category || '').toLowerCase();
                 if (!urlCategories.some(c => itemCat.includes(c))) return false;
@@ -1756,7 +1768,7 @@ async function loadAndCropImage(item) {
             chip.addEventListener('click', function() {
                 let filter = this.dataset.filter;
                 if (filter === 'all') {
-                    showLoading('جارٍ تحميل العروض القديمة التحميل يستغرق حوالي 10 دقائق...');
+                    showLoading('جارٍ تحميل العروض القديمة التحميل قد يستغرق عدة دقائق...');
                     fetch('https://eg-market.github.io/ai/final.xlsx')
                         .then(response => response.arrayBuffer())
                         .then(arrayBuffer => {
@@ -1826,8 +1838,12 @@ async function loadAndCropImage(item) {
             clearAutocomplete();
             if (!val) return;
             let source = filteredData.length ? filteredData : allData;
-            let suggestions = [...new Set(source.map(i => i.product).concat(source.map(i => i.primaryName).filter(Boolean)))].filter(s => s && s.toLowerCase().includes(val)).slice(0, 8);
-            if (!suggestions.length) return;
+
+          let suggestions = [...new Set(source.map(i => i.product).concat(source.map(i => i.primaryName).filter(Boolean)))]
+    .filter(s => s && normalizeArabic(s.toLowerCase()).includes(normalizeArabic(val)))
+    .slice(0, 8);
+          
+          if (!suggestions.length) return;
             let list = document.createElement('div');
             list.id = 'autocomplete-list';
             suggestions.forEach(s => {
