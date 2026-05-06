@@ -314,8 +314,7 @@
     </div>
     <div id="imageModal" class="modal" onclick="closeModal()">
       <div class="close">×</div>
-      <img id="modalImage" src="" alt="صورة مكبرة">
-    </div>
+      <img id="modalImage" src="" alt="صورة مكبرة"> </div>
     <script>
     let productData = null;
     let supermarketData = {};
@@ -361,37 +360,41 @@ function loadProductFromSession() {
     }
 }
 
-    async function loadSupermarketData() {
-        try {
-            const response = await fetch('supermarkets.xlsx');
-            if (!response.ok) {
-                console.warn('لم يتم العثور على ملف supermarkets.xlsx');
-                return;
-            }
-            const arrayBuffer = await response.arrayBuffer();
-            const workbook = XLSX.read(arrayBuffer, { type: 'array' });
-            const rows = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]]);
-            rows.forEach(row => {
-                // البحث عن اسم السوبر ماركت (قد يكون عمود 'supermarket_name' أو 'اسم السوبرماركت')
-                let name = row['supermarket_name'] || row['اسم السوبر ماركت'] || row['اسم السوبرماركت'];
-                if (!name) return;
-
-                // البحث عن رقم الهاتف: يدعم أسماء الأعمدة: phone, hotline, هاتف, phone/hotline
-                let phone = row['phone'] || row['hotline'] || row['هاتف'] || row['phone/hotline'] || '';
-                let website = row['website'] || row['موقع'] || row['الموقع الالكتروني'] || '';
-                let map_link = row['map_link'] || row['رابط الخريطة'] || '';
-
-                supermarketData[name] = {
-                    phone: phone || 'غير متوفر',
-                    website: website || '#',
-                    map_link: map_link || '#'
-                };
-            });
-            console.log('تم تحميل بيانات السوبرماركت', Object.keys(supermarketData).length);
-        } catch(err) {
-            console.warn('فشل تحميل بيانات السوبرماركت', err);
+async function loadSupermarketData() {
+    try {
+        const response = await fetch('supermarkets.xlsx');
+        if (!response.ok) {
+            console.warn('لم يتم العثور على ملف supermarkets.xlsx');
+            return;
         }
+        const arrayBuffer = await response.arrayBuffer();
+        const workbook = XLSX.read(arrayBuffer, { type: 'array' });
+        const rows = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]]);
+        rows.forEach(row => {
+            let name = row['supermarket_name'] || row['اسم السوبر ماركت'] || row['اسم السوبرماركت'];
+            if (!name) return;
+
+            // تحويل القيم إلى نصوص مع تنظيف المسافات
+            let phoneRaw = row['phone'] || row['hotline'] || row['هاتف'] || row['phone/hotline'] || '';
+            let phone = String(phoneRaw).trim();
+            if (phone === '' || phone === 'undefined' || phone === 'null') phone = 'غير متوفر';
+            
+            let websiteRaw = row['website'] || row['موقع'] || row['الموقع الالكتروني'] || '';
+            let website = String(websiteRaw).trim();
+            if (website === '' || website === 'undefined' || website === 'null' || website === '-') website = '#';
+            
+            let mapLinkRaw = row['map_link'] || row['رابط الخريطة'] || '';
+            let map_link = String(mapLinkRaw).trim();
+            if (map_link === '' || map_link === 'undefined' || map_link === 'null' || map_link === '-') map_link = '#';
+
+            supermarketData[name] = { phone, website, map_link };
+        });
+        console.log('تم تحميل بيانات السوبرماركت', Object.keys(supermarketData).length);
+    } catch(err) {
+        console.warn('فشل تحميل بيانات السوبرماركت', err);
     }
+}
+      
 
     function getProductImageUrl(item) {
         let flyerId = item.pageNo?.match(/flyer_(\d+)/)?.[1] || item.solution_key;
@@ -462,57 +465,62 @@ function loadProductFromSession() {
         document.getElementById('imageModal').style.display = 'none';
     };
 
-    function renderPage() {
-        if (!productData) return;
-        const productImageUrl = getProductImageUrl(productData);
-        const generalImageUrl = getGeneralFlyerUrl(productData);
-        const marketInfo = supermarketData[productData.supermarket] || defaultSupermarketInfo;
-        const phone = marketInfo.phone;
-        const website = marketInfo.website;
-        const mapLink = marketInfo.map_link;
-
-        const html = `
-            <div class="left-side">
-                <div class="product-info">
-                    <div class="title-row">
-                        <div class="supermarket-name"><i class="fas fa-store"></i> ${productData.supermarket}</div>
-                        <div class="product-title">${productData.product}</div>
-                    </div>
-                    <div class="price-box">
-                        <div><span class="current-price">${productData.currentPrice} ${productData.currency}</span><span class="original-price">${productData.originalPrice} ج.م</span></div>
-                        <span class="discount-badge">-${productData._discount_pct}%</span>
-                    </div>
-                    <div class="actions-row">
-                        <!-- زر الاتصال برقم الهاتف الحقيقي -->
-                        <a href="tel:${phone.replace(/\s/g, '')}" class="btn btn-success"><i class="fas fa-phone-alt"></i> اتصل</a>
-                        <!-- زر الموقع الالكتروني (تم تغيير النص) -->
-                        <a href="${website}" target="_blank" class="btn btn-primary"><i class="fas fa-globe"></i> الموقع الالكتروني</a>
-                        <a href="${mapLink}" target="_blank" class="btn btn-danger"><i class="fas fa-map"></i> الخريطة</a>
-                        <button onclick="shareProduct()" class="btn btn-warning"><i class="fas fa-share-alt"></i> مشاركة</button>
-                        <button onclick="toggleFavorite()" class="btn btn-favorite" id="favoriteBtn"><i class="fas fa-heart"></i> تفضيل</button>
-                    </div>
-                    <div class="details-grid">
-                        <div class="detail-item"><div class="detail-label">الاسم الأساسي</div><div class="detail-value">${productData.primaryName || '-'}</div></div>
-                        <div class="detail-item"><div class="detail-label">الوحدة</div><div class="detail-value">${productData.unit || '-'}</div></div>
-                        <div class="detail-item"><div class="detail-label">الفئة</div><div class="detail-value">${productData.category || '-'}</div></div>
-                        <div class="detail-item"><div class="detail-label">العلامة التجارية</div><div class="detail-value">${productData.brand || '-'}</div></div>
-                        <div class="detail-item"><div class="detail-label">ساري حتى</div><div class="detail-value">${productData.validUntil || '-'}</div></div>
-                        <div class="detail-item"><div class="detail-label">تاريخ التحديث</div><div class="detail-value">${productData.updateDate ? new Date(productData.updateDate).toLocaleDateString('ar-EG') : '-'}</div></div>
-                    </div>
+   function renderPage() {
+    if (!productData) return;
+    const productImageUrl = getProductImageUrl(productData);
+    const generalImageUrl = getGeneralFlyerUrl(productData);
+    
+    // استرجاع معلومات السوبر ماركت مع ضمان وجود قيم نصية صالحة
+    let marketInfo = supermarketData[productData.supermarket] || defaultSupermarketInfo;
+    
+    // تأكد من أن كل قيمة هي نص صالح قبل استخدامها
+    let phone = marketInfo.phone && typeof marketInfo.phone === 'string' ? marketInfo.phone : 'غير متوفر';
+    let website = marketInfo.website && typeof marketInfo.website === 'string' ? marketInfo.website : '#';
+    let mapLink = marketInfo.map_link && typeof marketInfo.map_link === 'string' ? marketInfo.map_link : '#';
+    
+    // تنظيف رقم الهاتف من المسافات والرموز غير الصالحة للرابط tel:
+    let cleanPhone = phone === 'غير متوفر' ? '' : phone.replace(/\s/g, '').replace(/[^0-9+]/g, '');
+    
+    const html = `
+        <div class="left-side">
+            <div class="product-info">
+                <div class="title-row">
+                    <div class="supermarket-name"><i class="fas fa-store"></i> ${productData.supermarket}</div>
+                    <div class="product-title">${productData.product}</div>
                 </div>
-                <div class="general-flyer" onclick="openModal('${generalImageUrl}')">
-                    <h4><i class="fas fa-info-circle"></i> الرئيسية</h4>
-                    ${generalImageUrl ? `<img src="${generalImageUrl}" alt="صفحة 1" onerror="this.src='https://via.placeholder.com/300?text=No+Image'">` : '<i class="fas fa-image" style="font-size:3rem;color:#ccc"></i><p>لا توجد صورة عامة</p>'}
+                <div class="price-box">
+                    <div><span class="current-price">${productData.currentPrice} ${productData.currency}</span><span class="original-price">${productData.originalPrice} ج.م</span></div>
+                    <span class="discount-badge">-${productData._discount_pct}%</span>
                 </div>
-                <button class="back-btn" onclick="window.close()"><i class="fas fa-arrow-right"></i> إغلاق</button>
+                <div class="actions-row">
+                    <a href="${cleanPhone ? 'tel:' + cleanPhone : '#'}" class="btn btn-success ${!cleanPhone ? 'disabled' : ''}"><i class="fas fa-phone-alt"></i> اتصل</a>
+                    <a href="${website !== '#' ? website : '#'}" target="_blank" class="btn btn-primary"><i class="fas fa-globe"></i> الموقع الالكتروني</a>
+                    <a href="${mapLink !== '#' ? mapLink : '#'}" target="_blank" class="btn btn-danger"><i class="fas fa-map"></i> الخريطة</a>
+                    <button onclick="shareProduct()" class="btn btn-warning"><i class="fas fa-share-alt"></i> مشاركة</button>
+                    <button onclick="toggleFavorite()" class="btn btn-favorite" id="favoriteBtn"><i class="fas fa-heart"></i> تفضيل</button>
+                </div>
+                <div class="details-grid">
+                    <div class="detail-item"><div class="detail-label">الاسم الأساسي</div><div class="detail-value">${productData.primaryName || '-'}</div></div>
+                    <div class="detail-item"><div class="detail-label">الوحدة</div><div class="detail-value">${productData.unit || '-'}</div></div>
+                    <div class="detail-item"><div class="detail-label">الفئة</div><div class="detail-value">${productData.category || '-'}</div></div>
+                    <div class="detail-item"><div class="detail-label">العلامة التجارية</div><div class="detail-value">${productData.brand || '-'}</div></div>
+                    <div class="detail-item"><div class="detail-label">ساري حتى</div><div class="detail-value">${productData.validUntil || '-'}</div></div>
+                    <div class="detail-item"><div class="detail-label">تاريخ التحديث</div><div class="detail-value">${productData.updateDate ? new Date(productData.updateDate).toLocaleDateString('ar-EG') : '-'}</div></div>
+                </div>
             </div>
-            <div class="right-side" onclick="openModal('${productImageUrl}')">
-                <img src="${productImageUrl || 'https://via.placeholder.com/500?text=صورة+المنتج'}" alt="المنتج" onerror="this.src='https://via.placeholder.com/500?text=Image+Not+Found'">
+            <div class="general-flyer" onclick="openModal('${generalImageUrl}')">
+                <h4><i class="fas fa-info-circle"></i> الرئيسية</h4>
+                ${generalImageUrl ? `<img src="${generalImageUrl}" alt="صفحة 1" onerror="this.src='https://via.placeholder.com/300?text=No+Image'">` : '<i class="fas fa-image" style="font-size:3rem;color:#ccc"></i><p>لا توجد صورة عامة</p>'}
             </div>
-        `;
-        document.getElementById('mainContainer').innerHTML = html;
-        updateFavoriteButtonStatus();
-    }
+            <button class="back-btn" onclick="window.close()"><i class="fas fa-arrow-right"></i> إغلاق</button>
+        </div>
+        <div class="right-side" onclick="openModal('${productImageUrl}')">
+            <img src="${productImageUrl || 'https://via.placeholder.com/500?text=صورة+المنتج'}" alt="المنتج" onerror="this.src='https://via.placeholder.com/500?text=Image+Not+Found'">
+        </div>
+    `;
+    document.getElementById('mainContainer').innerHTML = html;
+    updateFavoriteButtonStatus();
+}
 
     (async function init() {
         if (!loadProductFromSession()) return;
