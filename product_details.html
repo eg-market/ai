@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html dir="rtl" lang="ar">
-<head>
-    <meta charset="UTF-8">
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>تفاصيل المنتج - عروض السوبرماركت</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&amp;display=swap"
+
+      rel="stylesheet">
     <script src="https://cdn.sheetjs.com/xlsx-0.20.2/package/dist/xlsx.full.min.js"></script>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -305,18 +307,16 @@
             }
         }
     </style>
-</head>
-<body>
-<div class="split-layout" id="mainContainer">
-    <div class="loading">جارٍ تحميل البيانات...</div>
-</div>
-
-<div id="imageModal" class="modal" onclick="closeModal()">
-    <div class="close">&times;</div>
-    <img id="modalImage" src="" alt="صورة مكبرة">
-</div>
-
-<script>
+  </head>
+  <body>
+    <div class="split-layout" id="mainContainer">
+      <div class="loading">جارٍ تحميل البيانات...</div>
+    </div>
+    <div id="imageModal" class="modal" onclick="closeModal()">
+      <div class="close">×</div>
+      <img id="modalImage" src="" alt="صورة مكبرة">
+    </div>
+    <script>
     let productData = null;
     let supermarketData = {};
 
@@ -327,20 +327,39 @@
         map_link: "#"
     };
 
-    function loadProductFromSession() {
-        const stored = sessionStorage.getItem('selectedProduct');
-        if (!stored) {
-            showError('لم يتم العثور على بيانات المنتج.');
-            return false;
-        }
-        try {
-            productData = JSON.parse(stored);
-            return true;
-        } catch(e) {
-            showError('خطأ في قراءة بيانات المنتج');
-            return false;
-        }
+function loadProductFromSession() {
+    const stored = sessionStorage.getItem('selectedProduct');
+    if (!stored) {
+        showError('لم يتم العثور على بيانات المنتج.');
+        return false;
     }
+    try {
+        productData = JSON.parse(stored);
+        
+        // ✅ التأكد من وجود الحقول الأساسية
+        if (!productData.product || productData.product.trim() === '') {
+            showError('بيانات المنتج غير مكتملة (اسم المنتج مفقود)');
+            return false;
+        }
+        if (!productData.supermarket) productData.supermarket = 'غير معروف';
+        if (!productData.solution_key) productData.solution_key = productData.product || 'unknown';
+        if (!productData.currency) productData.currency = 'EGP';
+        if (!productData._discount_pct) productData._discount_pct = productData.discount || 0;
+        if (!productData.originalPrice) productData.originalPrice = 0;
+        if (!productData.validUntil) productData.validUntil = 'غير متاح';
+        if (!productData.updateDate) productData.updateDate = null;
+        if (!productData.primaryName) productData.primaryName = '';
+        if (!productData.unit) productData.unit = '';
+        if (!productData.category) productData.category = '';
+        if (!productData.brand) productData.brand = '';
+        
+        return true;
+    } catch(e) {
+        console.error('خطأ في تحليل بيانات المنتج', e);
+        showError('خطأ في قراءة بيانات المنتج');
+        return false;
+    }
+}
 
     async function loadSupermarketData() {
         try {
@@ -482,7 +501,7 @@
                     </div>
                 </div>
                 <div class="general-flyer" onclick="openModal('${generalImageUrl}')">
-                    <h4><i class="fas fa-info-circle"></i> معلومات عامة (صفحة 1)</h4>
+                    <h4><i class="fas fa-info-circle"></i> الرئيسية</h4>
                     ${generalImageUrl ? `<img src="${generalImageUrl}" alt="صفحة 1" onerror="this.src='https://via.placeholder.com/300?text=No+Image'">` : '<i class="fas fa-image" style="font-size:3rem;color:#ccc"></i><p>لا توجد صورة عامة</p>'}
                 </div>
                 <button class="back-btn" onclick="window.close()"><i class="fas fa-arrow-right"></i> إغلاق</button>
@@ -501,5 +520,5 @@
         renderPage();
     })();
 </script>
-</body>
+  </body>
 </html>

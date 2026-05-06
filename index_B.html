@@ -1472,21 +1472,29 @@ if (isMobile && validUntilHtml) {
         `;
     }
     
-    document.querySelectorAll('#table-body tr').forEach(tr => {
-        tr.addEventListener('click', function(e) {
-            let productName = this.cells[1]?.innerText || '';
-            let productObj = allData.find(p => p.product === productName);
-            if (productObj) {
-                saveCurrentState();
-                sessionStorage.setItem('selectedProduct', JSON.stringify(productObj));
-                window.open('product_details.html', '_blank');
-            } else {
-                let url = this.dataset.url;
-                if (url && url !== '#') window.open(url, '_blank');
-            }
-        });
+document.querySelectorAll('#table-body tr').forEach(tr => {
+    tr.addEventListener('click', function(e) {
+        let productName = this.cells[1]?.innerText || '';
+        let productObj = allData.find(p => p.product === productName);
+        if (productObj) {
+            // ✅ التأكد من وجود solution_key (إذا لم يكن موجوداً، نستخدم product كبديل)
+            if (!productObj.solution_key) productObj.solution_key = productObj.product || 'unknown';
+            if (!productObj.pageNo) productObj.pageNo = '';
+            if (!productObj.currency) productObj.currency = 'EGP';
+            if (!productObj._discount_pct) productObj._discount_pct = productObj.discount || 0;
+            if (!productObj.originalPrice) productObj.originalPrice = 0;
+            if (!productObj.validUntil) productObj.validUntil = 'غير متاح';
+            
+            saveCurrentState();
+            sessionStorage.setItem('selectedProduct', JSON.stringify(productObj));
+            window.open('product_details.html', '_blank');
+        } else {
+            let url = this.dataset.url;
+            if (url && url !== '#') window.open(url, '_blank');
+        }
     });
-    updatePagination();
+});
+        updatePagination();
 }
 
  
