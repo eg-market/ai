@@ -417,27 +417,41 @@ async function loadSupermarketData() {
         else navigator.clipboard.writeText(text + ' ' + window.location.href) && alert('تم نسخ الرابط');
     };
 
-    window.toggleFavorite = function() {
-        if (!productData) return;
-        let favorites = JSON.parse(localStorage.getItem('product_favorites') || '[]');
-        const exists = favorites.some(f => f.solution_key === productData.solution_key);
-        if (exists) favorites = favorites.filter(f => f.solution_key !== productData.solution_key);
-        else favorites.push({ solution_key: productData.solution_key, product: productData.product, supermarket: productData.supermarket, currentPrice: productData.currentPrice, imageUrl: getProductImageUrl(productData) });
-        localStorage.setItem('product_favorites', JSON.stringify(favorites));
-        updateFavoriteButtonStatus();
-        showToast(exists ? 'تم الإزالة' : 'تم الإضافة');
-    };
+   window.toggleFavorite = function() {
+    if (!productData) return;
+    let favorites = JSON.parse(localStorage.getItem('favorites') || '[]');
+    const exists = favorites.some(f => f.solution_key === productData.solution_key);
+    if (exists) 
+        favorites = favorites.filter(f => f.solution_key !== productData.solution_key);
+    else 
+        favorites.push({ 
+            solution_key: productData.solution_key, 
+            product: productData.product, 
+            supermarket: productData.supermarket, 
+            currentPrice: productData.currentPrice, 
+            imageUrl: getProductImageUrl(productData) 
+        });
+    localStorage.setItem('favorites', JSON.stringify(favorites));
+    updateFavoriteButtonStatus();
+    showToast(exists ? 'تم الإزالة من المفضلة' : 'تم الإضافة إلى المفضلة');
+};
 
-    function updateFavoriteButtonStatus() {
-        if (!productData) return;
-        const favorites = JSON.parse(localStorage.getItem('product_favorites') || '[]');
-        const exists = favorites.some(f => f.solution_key === productData.solution_key);
-        const btn = document.getElementById('favoriteBtn');
-        if (btn) {
-            btn.classList.toggle('active', exists);
-            btn.innerHTML = exists ? '<i class="fas fa-heart"></i> مفضل' : '<i class="fas fa-heart"></i> تفضيل';
-        }
+
+window.viewFavorites = function() {
+    window.location.href = 'index_B.html?filter=favorites';
+};
+
+
+function updateFavoriteButtonStatus() {
+    if (!productData) return;
+    const favorites = JSON.parse(localStorage.getItem('favorites') || '[]');
+    const exists = favorites.some(f => f.solution_key === productData.solution_key);
+    const btn = document.getElementById('favoriteBtn');
+    if (btn) {
+        btn.classList.toggle('active', exists);
+        btn.innerHTML = exists ? '<i class="fas fa-heart"></i> مفضل' : '<i class="fas fa-heart"></i> تفضيل';
     }
+}
 
     function showToast(msg) {
         let toast = document.createElement('div');
@@ -512,7 +526,9 @@ async function loadSupermarketData() {
                 <h4><i class="fas fa-info-circle"></i> الرئيسية</h4>
                 ${generalImageUrl ? `<img src="${generalImageUrl}" alt="صفحة 1" onerror="this.src='https://via.placeholder.com/300?text=No+Image'">` : '<i class="fas fa-image" style="font-size:3rem;color:#ccc"></i><p>لا توجد صورة عامة</p>'}
             </div>
-            <button class="back-btn" onclick="window.close()"><i class="fas fa-arrow-right"></i> إغلاق</button>
+           
+              <button class="back-btn" onclick="window.close()"><i class="fas fa-arrow-right"></i> إغلاق</button>
+                <button onclick="viewFavorites()" class="btn btn-info"><i class="fas fa-heart"></i> مفضلاتي</button>
         </div>
         <div class="right-side" onclick="openModal('${productImageUrl}')">
             <img src="${productImageUrl || 'https://via.placeholder.com/500?text=صورة+المنتج'}" alt="المنتج" onerror="this.src='https://via.placeholder.com/500?text=Image+Not+Found'">

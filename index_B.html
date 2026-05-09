@@ -448,8 +448,7 @@ border-radius: 4px; /* إضافة انحناء بسيط للحدود (اختيا
     <div class="container">
       <div class="hero-banner">
         <div class="hero-content">
-          <h1>🛒سوق مصر : أفضل محرك بحث عن منتجات وعروض السوبرماركت
-            اليومية</h1>
+          <h1>🛒سوق مصر : أفضل محرك بحث عن منتجات وعروض السوبرماركت اليومية</h1>
           <p class="hero-subtitle">قارن الأسعار بين كبرى المتاجر - وفر حتى 70%</p>
           <div class="ticker-wrap">
             <div class="ticker-label"><i class="fas fa-bolt"></i> عروض مميزة</div>
@@ -461,8 +460,8 @@ border-radius: 4px; /* إضافة انحناء بسيط للحدود (اختيا
           </div>
         </div>
       </div>
-      <div class="user-guide-banner"> انقر أي صف في الجدول للتفاصيل /7/ ولتحديث
-        البيانات اضغط زر "تحديث" في الاسفل</div>
+      <div class="user-guide-banner"> انقر أي صف في الجدول للتفاصيل
+        // ولتحديث البيانات اضغط زر "تحديث" في الاسفل</div>
       <div class="stats-dashboard">
         <div class="stat-card">
           <div class="stat-icon">💰</div>
@@ -501,16 +500,19 @@ border-radius: 4px; /* إضافة انحناء بسيط للحدود (اختيا
         </div>
       </div>
       <div class="filter-row">
-        <div class="filter-chips" id="filter-chips"> <button class="chip" data-filter="all">العروض
-            القديمة</button> <button class="chip active" data-filter="active">العروض
-            السارية</button> <button class="chip" data-filter="hot">عروض ساخنة</button>
-          <button class="chip" data-filter="ending">تنتهي قريباً</button> <button
-
-            class="chip" data-filter="discount">خصومات كبيرة</button> <button class="chip"
-
-            data-filter="carrefour">هايبر1</button> <button class="chip" data-filter="food">منتجات
-            غذائية</button> <button class="chip" data-filter="recent">آخر يومين</button>
-        </div>
+      
+        <div class="filter-chips" id="filter-chips">
+    <button class="chip" data-filter="all">العروض القديمة</button>
+    <button class="chip active" data-filter="active">العروض السارية</button>
+    <button class="chip" data-filter="hot">عروض ساخنة</button>
+    <button class="chip" data-filter="ending">تنتهي قريباً</button>
+    <button class="chip" data-filter="discount">خصومات كبيرة</button>
+    <button class="chip" data-filter="carrefour">هايبر1</button>
+    <button class="chip" data-filter="food">منتجات غذائية</button>
+    <button class="chip" data-filter="recent">آخر يومين</button>
+    <button class="chip" data-filter="favorites">❤️ المفضلة</button>   <!-- الزر الجديد -->
+</div>
+        
         <div class="view-toggle"> <button class="view-btn" id="view-grid-btn">
             كروت</button> <button class="view-btn active" id="view-table-btn">
             جدول</button> </div>
@@ -913,6 +915,14 @@ function getNormalizedPricePerUnit(item) {
             const catParam = params.get('category');
             urlCategories = catParam ? decodeURIComponent(catParam).split(',').map(c => c.trim().toLowerCase()).filter(Boolean) : [];
             const marketParam = params.get('market');
+          
+            const filterParam = params.get('filter');
+    if (filterParam === 'favorites') {
+        activeChipFilter = 'favorites';
+        document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+        const favChip = document.querySelector('.chip[data-filter="favorites"]');
+        if (favChip) favChip.classList.add('active');
+    }
             if (marketParam) {
                 urlMarket = decodeURIComponent(marketParam);
                 const sel = document.getElementById('supermarket-filter');
@@ -1156,24 +1166,30 @@ let sort = document.getElementById('sort-by').value; // استخدم القيم�
             if (minDiscount > 0 && (item._discount_pct || 0) < minDiscount) return false;
             const price = item.currentPrice || 0;
             if (price < minPrice || price > maxPrice) return false;
-            switch (activeChipFilter) {
-                case 'hot': if ((item._discount_pct || 0) < 30) return false; break;
-                case 'ending':
-                    if (!item.endDate) return false;
-                    const diff = (item.endDate - new Date()) / (1000 * 60 * 60 * 24);
-                    if (diff <= 0 || diff > 1) return false;
-                    break;
-                case 'discount': if ((item._discount_pct || 0) < 20) return false; break;
-                case 'carrefour': if (!item.supermarket.includes('هايبر1')) return false; break;
-                case 'food': if (!item.category || !/طعام|غذائ|مأكولات|أطعمة|غذاء/i.test(item.category)) return false; break;
-                case 'recent':
-                    if (!latestTwoDates.length) return false;
-                    const d = item.updateDate || item.endDate;
-                    if (!d) return false;
-                    const ds = d instanceof Date ? d.toISOString().split('T')[0] : null;
-                    if (!ds || !latestTwoDates.includes(ds)) return false;
-                    break;
-            }
+            
+        switch (activeChipFilter) {
+    case 'hot': if ((item._discount_pct || 0) < 30) return false; break;
+    case 'ending':
+        if (!item.endDate) return false;
+        const diff = (item.endDate - new Date()) / (1000 * 60 * 60 * 24);
+        if (diff <= 0 || diff > 1) return false;
+        break;
+    case 'discount': if ((item._discount_pct || 0) < 20) return false; break;
+    case 'carrefour': if (!item.supermarket.includes('هايبر1')) return false; break;
+    case 'food': if (!item.category || !/طعام|غذائ|مأكولات|أطعمة|غذاء/i.test(item.category)) return false; break;
+    case 'recent':
+        if (!latestTwoDates.length) return false;
+        const d = item.updateDate || item.endDate;
+        if (!d) return false;
+        const ds = d instanceof Date ? d.toISOString().split('T')[0] : null;
+        if (!ds || !latestTwoDates.includes(ds)) return false;
+        break;
+    case 'favorites':   // حالة المفضلة
+        if (!favorites.includes(item.solution_key)) return false;
+        break;
+}
+        
+            
             // NEW: one_day filter (independent from chip)
             if (oneDayFilter) {
                 if (!item.endDate) return false;
@@ -1189,24 +1205,27 @@ sortData(filteredData, sort, effectiveSearchTerms.length > 0);        populateFi
         updateStats();
     }
 
-    function reduceBestPricePerCategory(data) {
-        const bestByCategory = new Map();
-        for (const item of data) {
-            const category = String(item.category || 'other').toLowerCase();
-            const price = Number(item.currentPrice);
-            if (!price || price <= 0) continue;
-            if (!bestByCategory.has(category)) {
-                bestByCategory.set(category, item);
-                continue;
-            }
-            const best = bestByCategory.get(category);
-            const bestPrice = Number(best.currentPrice);
-            if (price < bestPrice || (price === bestPrice && (item._discount_pct || 0) > (best._discount_pct || 0))) {
-                bestByCategory.set(category, item);
-            }
-        }
-        return Array.from(bestByCategory.values());
-    }
+    function refreshApplication() {
+    window.history.replaceState({}, document.title, window.location.pathname);
+    document.getElementById('search-input').value = '';
+    document.getElementById('supermarket-filter').value = '';
+    document.getElementById('category-filter').value = '';
+    document.getElementById('brand-filter').value = '';
+    document.getElementById('min-price').value = '';
+    document.getElementById('max-price').value = '';
+    document.getElementById('min-discount').value = '';
+    document.getElementById('sort-by').value = 'best-deals';
+    showAllOffers = false;
+    activeChipFilter = 'active';
+    oneDayFilter = false;
+    // تأكد من إزالة التظليل من جميع الأزرار وتفعيل "السارية"
+    document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+    document.querySelector('.chip[data-filter="active"]').classList.add('active');
+    urlSearchTerms = [];
+    urlCategories = [];
+    bestPriceMode = false;
+    applyAllFilters();
+}
 
 function sortData(data, sortKey, isSearching = false) {
     if (!data.length) return;
