@@ -448,7 +448,8 @@ border-radius: 4px; /* إضافة انحناء بسيط للحدود (اختيا
     <div class="container">
       <div class="hero-banner">
         <div class="hero-content">
-          <h1>🛒سوق مصر : أفضل محرك بحث عن منتجات وعروض السوبرماركت اليومية</h1>
+          <h1>🛒سوق مصر : أفضل محرك بحث عن منتجات وعروض السوبرماركت
+            اليومية</h1>
           <p class="hero-subtitle">قارن الأسعار بين كبرى المتاجر - وفر حتى 70%</p>
           <div class="ticker-wrap">
             <div class="ticker-label"><i class="fas fa-bolt"></i> عروض مميزة</div>
@@ -460,8 +461,8 @@ border-radius: 4px; /* إضافة انحناء بسيط للحدود (اختيا
           </div>
         </div>
       </div>
-      <div class="user-guide-banner"> انقر أي صف في الجدول للتفاصيل
-        // ولتحديث البيانات اضغط زر "تحديث" في الاسفل</div>
+      <div class="user-guide-banner"> انقر أي صف في الجدول للتفاصيل // ولتحديث
+        البيانات اضغط زر "تحديث" في الاسفل</div>
       <div class="stats-dashboard">
         <div class="stat-card">
           <div class="stat-icon">💰</div>
@@ -500,19 +501,18 @@ border-radius: 4px; /* إضافة انحناء بسيط للحدود (اختيا
         </div>
       </div>
       <div class="filter-row">
-      
-        <div class="filter-chips" id="filter-chips">
-    <button class="chip" data-filter="all">العروض القديمة</button>
-    <button class="chip active" data-filter="active">العروض السارية</button>
-    <button class="chip" data-filter="hot">عروض ساخنة</button>
-    <button class="chip" data-filter="ending">تنتهي قريباً</button>
-    <button class="chip" data-filter="discount">خصومات كبيرة</button>
-    <button class="chip" data-filter="carrefour">هايبر1</button>
-    <button class="chip" data-filter="food">منتجات غذائية</button>
-    <button class="chip" data-filter="recent">آخر يومين</button>
-    <button class="chip" data-filter="favorites">❤️ المفضلة</button>   <!-- الزر الجديد -->
-</div>
-        
+        <div class="filter-chips" id="filter-chips"> <button class="chip" data-filter="all">العروض
+            القديمة</button> <button class="chip active" data-filter="active">العروض
+            السارية</button> <button class="chip" data-filter="hot">عروض ساخنة</button>
+          <button class="chip" data-filter="ending">تنتهي قريباً</button> <button
+
+            class="chip" data-filter="discount">خصومات كبيرة</button> <button class="chip"
+
+            data-filter="carrefour">هايبر1</button> <button class="chip" data-filter="food">منتجات
+            غذائية</button> <button class="chip" data-filter="recent">آخر يومين</button>
+          <button class="chip" data-filter="favorites">❤️ المفضلة</button>
+          <!-- الزر الجديد -->
+        </div>
         <div class="view-toggle"> <button class="view-btn" id="view-grid-btn">
             كروت</button> <button class="view-btn active" id="view-table-btn">
             جدول</button> </div>
@@ -625,6 +625,14 @@ border-radius: 4px; /* إضافة انحناء بسيط للحدود (اختيا
     let activeChipFilter = 'active';
     let showAllOffers = false;
     let favorites = JSON.parse(localStorage.getItem('favorites')) || [];
+  
+  // بعد سطر let favorites = JSON.parse(localStorage.getItem('favorites')) || [];
+if (favorites.length > 0 && typeof favorites[0] === 'object') {
+    // تحويل البيانات القديمة (كائنات) إلى مصفوفة نصوص
+    favorites = favorites.map(f => f.solution_key || f.product).filter(Boolean);
+    localStorage.setItem('favorites', JSON.stringify(favorites));
+}
+  
     let comparisonItems = JSON.parse(localStorage.getItem('comparison')) || [];
     let debounceTimer;
     let dataLoaded = false;
@@ -737,7 +745,12 @@ function transformRows(rows) {
             cropX = cropY = cropW = cropH = null;
         }
         // ================================================================
-
+       // داخل transformRows، بعد سطر solution_key الحالي، أضف:
+let rawKey = String(item['solution_key'] || '').trim();
+if (!rawKey) {
+    // توليد مفتاح افتراضي فريد باستخدام اسم المنتج والسوبرماركت
+    rawKey = btoa(unescape(encodeURIComponent(item.product + '|' + item.supermarket))).replace(/=/g, '');
+}
         return {
             supermarket: String(item['اسم السوبر ماركت'] || ''),
             product: String(item['الاسم بالعربية'] || ''),
@@ -749,7 +762,9 @@ function transformRows(rows) {
             currentPrice: parseFloat(item['السعر الحالي']) || 0,
             discount: parseFloat(item['الخصم %']) || 0,
             pageNo: String(item['اسم ملف الفلاير'] || ''),
-            solution_key: String(item['solution_key'] || ''),
+ // توليد مفتاح افتراضي فريد باستخدام اسم المنتج والسوبرماركت
+    solution_key: rawKey,
+          
             currency: 'EGP',
             endDate: d,
             validUntil: validUntil,
@@ -1958,6 +1973,15 @@ searchInput.addEventListener('blur', function() {
         await loadData();
         wireEventListeners();
         console.log("🚀 التطبيق جاهز مع دعم one_day");
+      
+      // في نهاية دالة DOMContentLoaded، أضف:
+window.addEventListener('pageshow', function(event) {
+    if (event.persisted) {
+        // الصفحة جلبت من bfcache – نحدث بيانات المفضلة
+        favorites = JSON.parse(localStorage.getItem('favorites')) || [];
+        applyAllFilters(); // يعيد تطبيق الفلتر الحالي ويحدث الواجهة
+    }
+});
     });
 })();
       
