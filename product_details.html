@@ -1,26 +1,23 @@
 <!DOCTYPE html>
 <html dir="rtl" lang="ar">
-  <head>
-    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<head>
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>تفاصيل المنتج - عروض السوبرماركت</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&amp;display=swap"
-
-      rel="stylesheet">
-    <script src="https://cdn.sheetjs.com/xlsx-0.20.2/package/dist/xlsx.full.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
     <style>
+        /* نفس الـ CSS السابق - مختصر هنا */
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { font-family: 'Cairo', sans-serif; background: #f0f2f5; direction: rtl; height: 100vh; overflow: hidden; }
         .split-layout { display: flex; height: 100vh; width: 100%; }
         .left-side { width: 35%; background: white; box-shadow: 4px 0 12px rgba(0,0,0,0.05); overflow-y: auto; padding: 20px; display: flex; flex-direction: column; }
         .right-side { width: 65%; background: #1a1a2e; display: flex; justify-content: center; align-items: center; overflow: hidden; cursor: pointer; position: relative; }
         .right-side img { max-width: 95%; max-height: 95%; object-fit: contain; border-radius: 16px; box-shadow: 0 8px 25px rgba(0,0,0,0.3); transition: 0.2s; }
-        .right-side .no-image { background: #2c3e50; width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; color: white; text-align: center; }
-        .right-side .no-image i { font-size: 4rem; margin-bottom: 15px; }
+        .right-side .no-image { background:#2c3e50; width:100%; height:100%; display:flex; flex-direction:column; align-items:center; justify-content:center; color:white; text-align:center; }
+        .right-side .no-image i { font-size:4rem; margin-bottom:15px; }
         .general-flyer { background: #f8f9fa; border-radius: 20px; padding: 15px; margin-bottom: 20px; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.1); cursor: pointer; }
         .general-flyer img { max-width: 100%; max-height: 220px; border-radius: 12px; }
-        .general-flyer h4 { margin-top: 10px; color: #00539F; font-size: 0.9rem; }
         .actions-row { display: flex; flex-wrap: wrap; gap: 8px; margin: 15px 0 20px; justify-content: center; }
         .btn { flex: 1 0 auto; min-width: 70px; padding: 8px 5px; border: none; border-radius: 12px; font-family: 'Cairo', sans-serif; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; text-decoration: none; color: white; font-size: 0.8rem; transition: 0.2s; }
         .btn-primary { background: #00539F; }
@@ -49,34 +46,31 @@
         .modal .close { position: absolute; top: 20px; left: 20px; color: white; font-size: 2rem; cursor: pointer; background: rgba(0,0,0,0.6); width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
         @media (max-width: 768px) { body { overflow: auto; height: auto; } .split-layout { flex-direction: column; height: auto; } .left-side, .right-side { width: 100%; } .right-side { min-height: 35vh; order: -1; } .left-side { order: 0; } .product-title { font-size: 1rem; } .supermarket-name { font-size: 0.85rem; } }
     </style>
-  </head>
-  <body>
-    <div class="split-layout" id="mainContainer">
-      <div class="loading">جارٍ تحميل البيانات...</div>
-    </div>
-    <div id="imageModal" class="modal" onclick="closeModal()">
-      <div class="close">×</div>
-      <img id="modalImage" src="" alt="صورة مكبرة"></div>
-    <script>
+</head>
+<body>
+<div class="split-layout" id="mainContainer"><div class="loading">جارٍ تحميل البيانات...</div></div>
+<div id="imageModal" class="modal" onclick="closeModal()"><div class="close">×</div><img id="modalImage" src="" alt="صورة مكبرة"></div>
+
+<script>
 let productData = null;
 let supermarketData = {};
 const defaultSupermarketInfo = { phone: "غير متوفر", website: "#", map_link: "#" };
 
 function loadProductFromSession() {
-      const stored = sessionStorage.getItem('selectedProduct');
-
+    const stored = sessionStorage.getItem('selectedProduct');
     if (!stored) { showError('لم يتم العثور على بيانات المنتج.'); return false; }
     try {
         productData = JSON.parse(stored);
-        console.log('FULL PRODUCT DATA:', productData);
-
         if (!productData.product || productData.product.trim() === '') { showError('بيانات المنتج غير مكتملة'); return false; }
         if (!productData.supermarket) productData.supermarket = 'غير معروف';
         
-        // توليد مفتاح فريد بنفس طريقة index_B
-        if (!productData.solution_key || productData.solution_key.length < 20) {
-            const uniqueString = `${productData.product}|${productData.supermarket}|${productData.unit || ''}|${productData.currentPrice || 0}`;
-            productData.solution_key = btoa(unescape(encodeURIComponent(uniqueString))).replace(/=/g, '');
+        // التأكد من وجود solution_key (رقم الفلاير من CSV)
+        if (!productData.solution_key) {
+            productData.solution_key = productData.product || 'unknown';
+        }
+        // مفتاح المفضلة: نستخدم اسم المنتج + اسم السوبرماركت + السعر لتجنب التعارض مع solution_key
+        if (!productData.fav_key) {
+            productData.fav_key = `${productData.product}|${productData.supermarket}|${productData.currentPrice}`;
         }
         
         if (!productData.currency) productData.currency = 'EGP';
@@ -88,7 +82,12 @@ function loadProductFromSession() {
         if (!productData.unit) productData.unit = '';
         if (!productData.category) productData.category = '';
         if (!productData.brand) productData.brand = '';
-        console.log('تم تحميل المنتج:', productData.product, 'solution_key:', productData.solution_key);
+        
+        // طباعة للتصحيح
+        console.log('منتج:', productData.product);
+        console.log('solution_key (رقم الفلاير):', productData.solution_key);
+        console.log('fav_key:', productData.fav_key);
+        console.log('pageNo:', productData.pageNo);
         return true;
     } catch(e) { showError('خطأ في قراءة بيانات المنتج'); return false; }
 }
@@ -118,77 +117,25 @@ async function loadSupermarketData() {
 }
 
 function getProductImageUrl(item) {
-
-    console.log("IMAGE DATA:", item);
-
-    // استخراج رقم الصفحة
-    let pageNumber =
-        item.pageNo?.match(/page_(\d+)/)?.[1];
-
-    // استخراج رقم الفلاير من الحقل الصحيح
-    let flyerId = '';
-
-    // إذا كان flyerFolder = flyer_10240
-    if (item.flyerFolder) {
-        flyerId =
-            item.flyerFolder.match(/flyer_(\d+)/)?.[1] || '';
-    }
-
-    // fallback إضافي
-    if (!flyerId && item.pageNo) {
-        flyerId =
-            item.pageNo.match(/flyer_(\d+)/)?.[1] || '';
-    }
-
-    console.log("flyerId:", flyerId);
-    console.log("pageNumber:", pageNumber);
-
+    // الحصول على رقم الفلاير من solution_key (الذي يحتوي على رقم المجلد مثل 10240)
+    let flyerId = item.solution_key || '';
+    // الحصول على رقم الصفحة من pageNo (مثل page_3.jpg -> 3)
+    let pageNumber = item.pageNo ? item.pageNo.match(/\d+/) : null;
+    pageNumber = pageNumber ? pageNumber[0] : '';
     if (flyerId && pageNumber) {
-
-        const url =
-            `https://www.mobappsbaker.com/catalogs/thwr/offers/${flyerId}/${pageNumber}.jpg`;
-
-        console.log("FINAL IMAGE URL:", url);
-
-        return url;
+        return `https://www.mobappsbaker.com/catalogs/thwr/offers/${flyerId}/${pageNumber}.jpg`;
     }
-
-    console.warn("NO IMAGE FOUND");
-
+    console.warn('لا يمكن تكوين رابط الصورة', {flyerId, pageNumber, pageNo: item.pageNo});
     return null;
 }
 
 function getGeneralFlyerUrl(item) {
-
-    try {
-
-        if (!item.pageNo) {
-            return null;
-        }
-
-        const pageNo =
-            String(item.pageNo);
-
-        const flyerMatch =
-            pageNo.match(/flyer_(\d+)/i);
-
-        if (!flyerMatch) {
-            return null;
-        }
-
-        const flyerId =
-            flyerMatch[1];
-
+    let flyerId = item.solution_key || '';
+    if (flyerId) {
         return `https://www.mobappsbaker.com/catalogs/thwr/offers/${flyerId}/1.jpg`;
-
-    } catch(err) {
-
-        console.error(err);
-
-        return null;
     }
+    return null;
 }
-      
 
 window.shareProduct = function() {
     if (!productData) return;
@@ -200,13 +147,14 @@ window.shareProduct = function() {
 window.toggleFavorite = function() {
     if (!productData) return;
     let favorites = JSON.parse(localStorage.getItem('favorites') || '[]');
-    const key = productData.solution_key;
+    const key = productData.fav_key;  // نستخدم fav_key وليس solution_key
     const exists = favorites.includes(key);
     if (exists) favorites = favorites.filter(k => k !== key);
     else favorites.push(key);
     localStorage.setItem('favorites', JSON.stringify(favorites));
     updateFavoriteButtonStatus();
     showToast(exists ? 'تم الإزالة من المفضلة' : 'تم الإضافة إلى المفضلة');
+    window.dispatchEvent(new StorageEvent('storage', { key: 'favorites', newValue: JSON.stringify(favorites) }));
 };
 
 window.viewFavorites = function() { window.location.href = 'index_B.html?filter=favorites'; };
@@ -214,7 +162,7 @@ window.viewFavorites = function() { window.location.href = 'index_B.html?filter=
 function updateFavoriteButtonStatus() {
     if (!productData) return;
     const favorites = JSON.parse(localStorage.getItem('favorites') || '[]');
-    const exists = favorites.includes(productData.solution_key);
+    const exists = favorites.includes(productData.fav_key);
     const btn = document.getElementById('favoriteBtn');
     if (btn) {
         btn.classList.toggle('active', exists);
@@ -237,20 +185,10 @@ function showError(msg) {
 function openModal(imgSrc) {
     const modal = document.getElementById('imageModal');
     const modalImg = document.getElementById('modalImage');
-    if (imgSrc && imgSrc !== '#') {
-        modal.style.display = 'flex';
-        modalImg.src = imgSrc;
-    } else {
-        alert('لا توجد صورة لعرضها');
-    }
+    if (imgSrc && imgSrc !== '#') { modal.style.display = 'flex'; modalImg.src = imgSrc; }
+    else alert('لا توجد صورة لعرضها');
 }
 window.closeModal = function() { document.getElementById('imageModal').style.display = 'none'; };
-
-function handleImageError(imgElement) {
-    console.warn('فشل تحميل الصورة:', imgElement.src);
-    imgElement.onerror = null;
-    imgElement.src = 'https://via.placeholder.com/500?text=صورة+غير+متوفرة';
-}
 
 function renderPage() {
     if (!productData) return;
@@ -262,39 +200,15 @@ function renderPage() {
     let mapLink = marketInfo.map_link && typeof marketInfo.map_link === 'string' ? marketInfo.map_link : '#';
     let cleanPhone = phone === 'غير متوفر' ? '' : phone.replace(/\s/g, '').replace(/[^0-9+]/g, '');
     
-let productImageHtml = '';
-
-if (
-    productImageUrl &&
-    productImageUrl !== 'null' &&
-    productImageUrl !== 'undefined'
-) {
-
-    productImageHtml = `
-        <img
-            src="${productImageUrl}"
-            alt="المنتج"
-
-            onerror="
-                this.style.display='none';
-
-                this.parentElement.innerHTML=
-                '<div class=no-image><i class=\\'fas fa-image\\'></i><p>تعذر تحميل الصورة</p></div>';
-            "
-
-            onclick="openModal('${productImageUrl}')"
-        >
-    `;
-
-} else {
-
-    productImageHtml = `
-        <div class="no-image">
-            <i class="fas fa-image"></i>
-            <p>لا توجد صورة متاحة</p>
-        </div>
-    `;
-}    
+    const noImageHtml = `<div class="no-image"><i class="fas fa-image"></i><p>لا توجد صورة</p></div>`;
+    const productImageHtml = productImageUrl
+        ? `<img src="${productImageUrl}" alt="المنتج" onerror="this.onerror=null; this.parentElement.innerHTML = '${noImageHtml.replace(/'/g, "\\'")}';">`
+        : noImageHtml;
+    
+    const generalFlyerHtml = generalImageUrl
+        ? `<img src="${generalImageUrl}" alt="صفحة 1" onerror="this.src='https://via.placeholder.com/300?text=No+Image';">`
+        : '<div class="no-image" style="height:150px;"><i class="fas fa-image"></i><p>لا توجد صورة عامة</p></div>';
+    
     const html = `
         <div class="left-side">
             <div class="product-info">
@@ -316,20 +230,20 @@ if (
                 <div class="details-grid">
                     <div class="detail-item"><div class="detail-label">الاسم الأساسي</div><div class="detail-value">${productData.primaryName || '-'}</div></div>
                     <div class="detail-item"><div class="detail-label">الوحدة</div><div class="detail-value">${productData.unit || '-'}</div></div>
-                    <div class="detail-item"><div class="detail-label">الفئة </div><div class="detail-value">${productData.category || '-'}</div></div>
+                    <div class="detail-item"><div class="detail-label">الفئة :</div><div class="detail-value">${productData.category || '-'}</div></div>
                     <div class="detail-item"><div class="detail-label">العلامة التجارية</div><div class="detail-value">${productData.brand || '-'}</div></div>
                     <div class="detail-item"><div class="detail-label">ساري حتى</div><div class="detail-value">${productData.validUntil || '-'}</div></div>
                     <div class="detail-item"><div class="detail-label">تاريخ التحديث</div><div class="detail-value">${productData.updateDate ? new Date(productData.updateDate).toLocaleDateString('ar-EG') : '-'}</div></div>
                 </div>
             </div>
-            <div class="general-flyer" onclick="${generalImageUrl ? `openModal('${generalImageUrl}')` : 'alert(\'لا توجد صورة عامة\')'}">
+            <div class="general-flyer" onclick="openModal('${generalImageUrl}')">
                 <h4><i class="fas fa-info-circle"></i> الرئيسية</h4>
-                ${generalImageUrl ? `<img src="${generalImageUrl}" alt="صفحة 1" onerror="this.onerror=null; this.src='https://via.placeholder.com/300?text=No+Image'">` : '<i class="fas fa-image" style="font-size:3rem;color:#ccc"></i><p>لا توجد صورة عامة</p>'}
+                ${generalFlyerHtml}
             </div>
             <button class="back-btn" onclick="window.close()"><i class="fas fa-arrow-right"></i> إغلاق</button>
             <button onclick="viewFavorites()" class="btn btn-info" style="margin-top:10px;"><i class="fas fa-heart"></i> مفضلاتي</button>
         </div>
-        <div class="right-side">
+        <div class="right-side" onclick="${productImageUrl ? `openModal('${productImageUrl}')` : ''}">
             ${productImageHtml}
         </div>
     `;
@@ -343,5 +257,5 @@ if (
     renderPage();
 })();
 </script>
-  </body>
+</body>
 </html>
