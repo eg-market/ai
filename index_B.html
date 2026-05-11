@@ -461,7 +461,7 @@ border-radius: 4px; /* إضافة انحناء بسيط للحدود (اختيا
           </div>
         </div>
       </div>
-      <div class="user-guide-banner"> انقر أي صف في الجدول للتفاصيل // ولتحديث
+      <div class="user-guide-banner"> انقر أي صف في الجدول للتفاصيل /1/ ولتحديث
         البيانات اضغط زر "تحديث" في الاسفل</div>
       <div class="stats-dashboard">
         <div class="stat-card">
@@ -751,21 +751,20 @@ function transformRows(rows) {
         }
 
         // ========== توليد مفتاح فريد للمنتج ==========
-// ========== توليد مفتاح فريد للمنتج (نستخدم اسم المنتج + اسم السوبرماركت + الوحدة + السعر) ==========
-let rawKey = ''; // تجاهل solution_key من CSV تمامًا
-const productName = String(item['الاسم بالعربية'] || '').trim();
-const supermarketName = String(item['اسم السوبر ماركت'] || '').trim();
-const unit = String(item['الوحدة'] || '').trim();
-const currentPrice = parseFloat(item['السعر الحالي']) || 0;
-
+// ========== الحصول على solution_key من CSV (رقم الفلاير) ==========
+let rawKey = String(item['solution_key'] || '').trim();
+if (!rawKey) {
+    // fallback: إذا لم يكن موجوداً نحاول استخراج رقم من pageNo
+    let match = String(item['اسم ملف الفلاير'] || '').match(/\d+/);
+    rawKey = match ? match[0] : '';
+}
+// مفتاح المفضلة: نستخدم اسم المنتج + اسم السوبرماركت + السعر
+let favKey = '';
 if (productName && supermarketName) {
-    // مفتاح فريد: اسم المنتج|اسم السوبرماركت|الوحدة|السعر
-    const uniqueString = `${productName}|${supermarketName}|${unit}|${currentPrice}`;
-    rawKey = btoa(unescape(encodeURIComponent(uniqueString))).replace(/=/g, '');
-} else {
-    // إذا كان الاسم ناقصًا، لا نضيف المنتج إلى قاعدة البيانات أصلاً (سنتخطاه)
-    console.warn('منتج بدون اسم أو سوبرماركت:', item);
-    return null;
+    favKey = `${productName}|${supermarketName}|${unit}|${currentPrice}`;
+    // يمكن ترميزه لكن ليس ضرورياً طالما لا يحتوي على رموز ضارة
+}
+      return null;
 }
       
 
@@ -779,8 +778,11 @@ if (productName && supermarketName) {
             originalPrice: parseFloat(item['السعر الأصلي']) || 0,
             currentPrice: parseFloat(item['السعر الحالي']) || 0,
             discount: parseFloat(item['الخصم %']) || 0,
-            pageNo: String(item['اسم ملف الفلاير'] || ''),
-            solution_key: rawKey,
+           
+               solution_key: rawKey,    // رقم الفلاير الأصلي من CSV
+    fav_key: favKey,         // مفتاح المفضلة الفريد
+    pageNo: String(item['اسم ملف الفلاير'] || ''),  // مثل "page_3.jpg"
+      
             currency: 'EGP',
             endDate: d,
             validUntil: validUntil,
@@ -1218,7 +1220,8 @@ let sort = document.getElementById('sort-by').value; // استخدم القيم�
         if (!ds || !latestTwoDates.includes(ds)) return false;
         break;
     case 'favorites':   // حالة المفضلة
-        if (!favorites.includes(item.solution_key)) return false;
+                if (!favorites.includes(item.fav_key)) return false;
+
         break;
 }
         
@@ -1301,7 +1304,7 @@ function sortData(data, sortKey, isSearching = false) {
         return;
     }
     grid.innerHTML = pageData.map(item => {
-        const isFav = favorites.includes(item.solution_key);
+        const isFav = favorites.includes(item.fav_key);
         const inComp = comparisonItems.some(c => c.product === item.product);
         let productIcon = 'fa-box';
         if (item.category) {
@@ -1480,17 +1483,6 @@ function renderTable() {
             if (solutionKey) {
                 let productObj = allData.find(p => p.solution_key === solutionKey);
                 if (productObj) {
-                  
-                  if (!productObj.pageNo) productObj.pageNo = '';
-    productObj.flyerFolder ||
-    productObj.source_file ||
-    productObj.__source_file__ ||
-    productObj['اسم المجلد الفرعي'] ||
-    '';
-                  
-                  // تمرير اسم المجلد الفرعي الحقيقي
-productObj.flyerFolder =
-              
                     saveCurrentState();
                     sessionStorage.setItem('selectedProduct', JSON.stringify(productObj));
                     window.open('product_details.html', '_blank');
