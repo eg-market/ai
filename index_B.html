@@ -1480,15 +1480,17 @@ function renderTable() {
             if (solutionKey) {
                 let productObj = allData.find(p => p.solution_key === solutionKey);
                 if (productObj) {
-                  // تمرير اسم المجلد الفرعي الحقيقي
-productObj.flyerFolder =
-              if (!productObj.pageNo) productObj.pageNo = '';
-
+                  
+                  if (!productObj.pageNo) productObj.pageNo = '';
     productObj.flyerFolder ||
     productObj.source_file ||
     productObj.__source_file__ ||
     productObj['اسم المجلد الفرعي'] ||
     '';
+                  
+                  // تمرير اسم المجلد الفرعي الحقيقي
+productObj.flyerFolder =
+              
                     saveCurrentState();
                     sessionStorage.setItem('selectedProduct', JSON.stringify(productObj));
                     window.open('product_details.html', '_blank');
