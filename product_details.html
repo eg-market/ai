@@ -116,66 +116,92 @@ async function loadSupermarketData() {
 
 function getProductImageUrl(item) {
 
-    if (!item || !item.pageNo) {
-        console.warn('pageNo غير موجود', item);
-        return null;
-    }
+    try {
 
-    const pageNo = String(item.pageNo);
+        if (!item || !item.pageNo) {
+            console.warn('pageNo مفقود', item);
+            return null;
+        }
 
-    const flyerMatch = pageNo.match(/flyer_(\d+)/i);
-    const pageMatch  = pageNo.match(/page_(\d+)/i);
+        // تحويل آمن إلى نص
+        const pageNo = String(item.pageNo);
 
-    if (!flyerMatch || !pageMatch) {
+        console.log('PAGE NO =', pageNo);
 
-        console.warn(
-            'فشل استخراج flyer/page من:',
-            pageNo
+        const flyerMatch =
+            pageNo.match(/flyer_(\d+)/i);
+
+        const pageMatch =
+            pageNo.match(/page_(\d+)/i);
+
+        if (!flyerMatch || !pageMatch) {
+
+            console.warn(
+                'فشل استخراج flyer/page:',
+                pageNo
+            );
+
+            return null;
+        }
+
+        const flyerId = flyerMatch[1];
+        const pageNumber = pageMatch[1];
+
+        const finalUrl =
+            `https://www.mobappsbaker.com/catalogs/thwr/offers/${flyerId}/${pageNumber}.jpg`;
+
+        console.log('FINAL IMAGE URL:', finalUrl);
+
+        return finalUrl;
+
+    } catch(err) {
+
+        console.error(
+            'خطأ أثناء إنشاء رابط الصورة',
+            err
         );
 
         return null;
     }
-
-    const flyerId   = flyerMatch[1];
-    const pageNoNum = pageMatch[1];
-
-    const finalUrl =
-        `https://www.mobappsbaker.com/catalogs/thwr/offers/${flyerId}/${pageNoNum}.jpg`;
-
-    console.log('PRODUCT IMAGE URL:', finalUrl);
-
-    return finalUrl;
 }
-      
 
 function getGeneralFlyerUrl(item) {
 
-    if (!item || !item.pageNo) {
+    try {
+
+        if (!item || !item.pageNo) {
+            return null;
+        }
+
+        const pageNo =
+            String(item.pageNo);
+
+        const flyerMatch =
+            pageNo.match(/flyer_(\d+)/i);
+
+        if (!flyerMatch) {
+
+            console.warn(
+                'فشل استخراج flyer:',
+                pageNo
+            );
+
+            return null;
+        }
+
+        const flyerId =
+            flyerMatch[1];
+
+        return `https://www.mobappsbaker.com/catalogs/thwr/offers/${flyerId}/1.jpg`;
+
+    } catch(err) {
+
+        console.error(err);
+
         return null;
     }
-
-    const flyerMatch =
-        String(item.pageNo).match(/flyer_(\d+)/i);
-
-    if (!flyerMatch) {
-
-        console.warn(
-            'فشل استخراج flyerId من:',
-            item.pageNo
-        );
-
-        return null;
-    }
-
-    const flyerId = flyerMatch[1];
-
-    const finalUrl =
-        `https://www.mobappsbaker.com/catalogs/thwr/offers/${flyerId}/1.jpg`;
-
-    console.log('GENERAL IMAGE URL:', finalUrl);
-
-    return finalUrl;
 }
+      
 
 window.shareProduct = function() {
     if (!productData) return;
@@ -249,10 +275,39 @@ function renderPage() {
     let mapLink = marketInfo.map_link && typeof marketInfo.map_link === 'string' ? marketInfo.map_link : '#';
     let cleanPhone = phone === 'غير متوفر' ? '' : phone.replace(/\s/g, '').replace(/[^0-9+]/g, '');
     
-    const productImageHtml = productImageUrl 
-        ? `<img src="${productImageUrl}" alt="المنتج" onerror="handleImageError(this)" style="cursor:pointer;">`
-        : `<div class="no-image"><i class="fas fa-image"></i><p>لا توجد صورة متاحة</p><p style="font-size:12px; margin-top:5px;">المنتج: ${productData.product}</p></div>`;
-    
+let productImageHtml = '';
+
+if (
+    productImageUrl &&
+    productImageUrl !== 'null' &&
+    productImageUrl !== 'undefined'
+) {
+
+    productImageHtml = `
+        <img
+            src="${productImageUrl}"
+            alt="المنتج"
+
+            onerror="
+                this.style.display='none';
+
+                this.parentElement.innerHTML=
+                '<div class=no-image><i class=\\'fas fa-image\\'></i><p>تعذر تحميل الصورة</p></div>';
+            "
+
+            onclick="openModal('${productImageUrl}')"
+        >
+    `;
+
+} else {
+
+    productImageHtml = `
+        <div class="no-image">
+            <i class="fas fa-image"></i>
+            <p>لا توجد صورة متاحة</p>
+        </div>
+    `;
+}    
     const html = `
         <div class="left-side">
             <div class="product-info">
@@ -274,7 +329,7 @@ function renderPage() {
                 <div class="details-grid">
                     <div class="detail-item"><div class="detail-label">الاسم الأساسي</div><div class="detail-value">${productData.primaryName || '-'}</div></div>
                     <div class="detail-item"><div class="detail-label">الوحدة</div><div class="detail-value">${productData.unit || '-'}</div></div>
-                    <div class="detail-item"><div class="detail-label">الفئه</div><div class="detail-value">${productData.category || '-'}</div></div>
+                    <div class="detail-item"><div class="detail-label">الفئة : </div><div class="detail-value">${productData.category || '-'}</div></div>
                     <div class="detail-item"><div class="detail-label">العلامة التجارية</div><div class="detail-value">${productData.brand || '-'}</div></div>
                     <div class="detail-item"><div class="detail-label">ساري حتى</div><div class="detail-value">${productData.validUntil || '-'}</div></div>
                     <div class="detail-item"><div class="detail-label">تاريخ التحديث</div><div class="detail-value">${productData.updateDate ? new Date(productData.updateDate).toLocaleDateString('ar-EG') : '-'}</div></div>
