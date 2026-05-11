@@ -511,8 +511,7 @@ border-radius: 4px; /* إضافة انحناء بسيط للحدود (اختيا
             data-filter="carrefour">هايبر1</button> <button class="chip" data-filter="food">منتجات
             غذائية</button> <button class="chip" data-filter="recent">آخر يومين</button>
           <button class="chip" data-filter="favorites">❤️ المفضلة</button>
-          <!-- الزر الجديد -->
-        </div>
+          <!-- الزر الجديد --> </div>
         <div class="view-toggle"> <button class="view-btn" id="view-grid-btn">
             كروت</button> <button class="view-btn active" id="view-table-btn">
             جدول</button> </div>
@@ -1481,6 +1480,15 @@ function renderTable() {
             if (solutionKey) {
                 let productObj = allData.find(p => p.solution_key === solutionKey);
                 if (productObj) {
+                  // تمرير اسم المجلد الفرعي الحقيقي
+productObj.flyerFolder =
+              if (!productObj.pageNo) productObj.pageNo = '';
+
+    productObj.flyerFolder ||
+    productObj.source_file ||
+    productObj.__source_file__ ||
+    productObj['اسم المجلد الفرعي'] ||
+    '';
                     saveCurrentState();
                     sessionStorage.setItem('selectedProduct', JSON.stringify(productObj));
                     window.open('product_details.html', '_blank');
