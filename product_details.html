@@ -63,10 +63,13 @@ let supermarketData = {};
 const defaultSupermarketInfo = { phone: "غير متوفر", website: "#", map_link: "#" };
 
 function loadProductFromSession() {
-    const stored = sessionStorage.getItem('selectedProduct');
+      const stored = sessionStorage.getItem('selectedProduct');
+
     if (!stored) { showError('لم يتم العثور على بيانات المنتج.'); return false; }
     try {
         productData = JSON.parse(stored);
+        console.log('FULL PRODUCT DATA:', productData);
+
         if (!productData.product || productData.product.trim() === '') { showError('بيانات المنتج غير مكتملة'); return false; }
         if (!productData.supermarket) productData.supermarket = 'غير معروف';
         
@@ -118,48 +121,76 @@ function getProductImageUrl(item) {
 
     try {
 
-        if (!item || !item.pageNo) {
-            console.warn('pageNo مفقود', item);
-            return null;
+        console.log('IMAGE DATA:', item);
+
+        // 1- محاولة مباشرة من image_url
+        if (
+            item.image_url &&
+            typeof item.image_url === 'string' &&
+            item.image_url.startsWith('http')
+        ) {
+
+            console.log('USING image_url');
+
+            return item.image_url;
         }
 
-        // تحويل آمن إلى نص
-        const pageNo = String(item.pageNo);
+        // 2- محاولة من image
+        if (
+            item.image &&
+            typeof item.image === 'string' &&
+            item.image.startsWith('http')
+        ) {
 
-        console.log('PAGE NO =', pageNo);
+            console.log('USING image');
 
-        const flyerMatch =
-            pageNo.match(/flyer_(\d+)/i);
-
-        const pageMatch =
-            pageNo.match(/page_(\d+)/i);
-
-        if (!flyerMatch || !pageMatch) {
-
-            console.warn(
-                'فشل استخراج flyer/page:',
-                pageNo
-            );
-
-            return null;
+            return item.image;
         }
 
-        const flyerId = flyerMatch[1];
-        const pageNumber = pageMatch[1];
+        // 3- محاولة من img
+        if (
+            item.img &&
+            typeof item.img === 'string' &&
+            item.img.startsWith('http')
+        ) {
 
-        const finalUrl =
-            `https://www.mobappsbaker.com/catalogs/thwr/offers/${flyerId}/${pageNumber}.jpg`;
+            console.log('USING img');
 
-        console.log('FINAL IMAGE URL:', finalUrl);
+            return item.img;
+        }
 
-        return finalUrl;
+        // 4- الطريقة القديمة عبر pageNo
+        if (item.pageNo) {
+
+            const pageNo = String(item.pageNo);
+
+            const flyerMatch =
+                pageNo.match(/flyer_(\d+)/i);
+
+            const pageMatch =
+                pageNo.match(/page_(\d+)/i);
+
+            if (flyerMatch && pageMatch) {
+
+                const flyerId = flyerMatch[1];
+                const pageNumber = pageMatch[1];
+
+                const finalUrl =
+                    `https://www.mobappsbaker.com/catalogs/thwr/offers/${flyerId}/${pageNumber}.jpg`;
+
+                console.log('USING pageNo URL:', finalUrl);
+
+                return finalUrl;
+            }
+        }
+
+        console.warn('NO IMAGE FOUND');
+
+        return null;
 
     } catch(err) {
 
-        console.error(
-            'خطأ أثناء إنشاء رابط الصورة',
-            err
-        );
+        console.error(err);
 
         return null;
     }
@@ -169,7 +200,7 @@ function getGeneralFlyerUrl(item) {
 
     try {
 
-        if (!item || !item.pageNo) {
+        if (!item.pageNo) {
             return null;
         }
 
@@ -180,12 +211,6 @@ function getGeneralFlyerUrl(item) {
             pageNo.match(/flyer_(\d+)/i);
 
         if (!flyerMatch) {
-
-            console.warn(
-                'فشل استخراج flyer:',
-                pageNo
-            );
-
             return null;
         }
 
@@ -329,7 +354,7 @@ if (
                 <div class="details-grid">
                     <div class="detail-item"><div class="detail-label">الاسم الأساسي</div><div class="detail-value">${productData.primaryName || '-'}</div></div>
                     <div class="detail-item"><div class="detail-label">الوحدة</div><div class="detail-value">${productData.unit || '-'}</div></div>
-                    <div class="detail-item"><div class="detail-label">الفئة : </div><div class="detail-value">${productData.category || '-'}</div></div>
+                    <div class="detail-item"><div class="detail-label">الفئة </div><div class="detail-value">${productData.category || '-'}</div></div>
                     <div class="detail-item"><div class="detail-label">العلامة التجارية</div><div class="detail-value">${productData.brand || '-'}</div></div>
                     <div class="detail-item"><div class="detail-label">ساري حتى</div><div class="detail-value">${productData.validUntil || '-'}</div></div>
                     <div class="detail-item"><div class="detail-label">تاريخ التحديث</div><div class="detail-value">${productData.updateDate ? new Date(productData.updateDate).toLocaleDateString('ar-EG') : '-'}</div></div>
