@@ -5,7 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>تفاصيل المنتج - عروض السوبرماركت</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&amp;display=swap"
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&amp;display=swap"
+
       rel="stylesheet">
     <script src="https://cdn.sheetjs.com/xlsx-0.20.2/package/dist/xlsx.full.min.js"></script>
     <style>
@@ -114,29 +115,66 @@ async function loadSupermarketData() {
 }
 
 function getProductImageUrl(item) {
-    if (!item.pageNo) {
-        console.warn('لا يوجد pageNo لهذا المنتج');
+
+    if (!item || !item.pageNo) {
+        console.warn('pageNo غير موجود', item);
         return null;
     }
-    let flyerId = item.pageNo.match(/flyer_(\d+)/)?.[1];
-    let pageNumber = item.pageNo.match(/page_(\d+)/)?.[1];
-    if (flyerId && pageNumber) {
-        const url = `https://www.mobappsbaker.com/catalogs/thwr/offers/${flyerId}/${pageNumber}.jpg`;
-        console.log('صورة المنتج:', url);
-        return url;
+
+    const pageNo = String(item.pageNo);
+
+    const flyerMatch = pageNo.match(/flyer_(\d+)/i);
+    const pageMatch  = pageNo.match(/page_(\d+)/i);
+
+    if (!flyerMatch || !pageMatch) {
+
+        console.warn(
+            'فشل استخراج flyer/page من:',
+            pageNo
+        );
+
+        return null;
     }
-    console.warn('لم يتم استخراج flyerId و pageNumber من pageNo:', item.pageNo);
-    return null;
+
+    const flyerId   = flyerMatch[1];
+    const pageNoNum = pageMatch[1];
+
+    const finalUrl =
+        `https://www.mobappsbaker.com/catalogs/thwr/offers/${flyerId}/${pageNoNum}.jpg`;
+
+    console.log('PRODUCT IMAGE URL:', finalUrl);
+
+    return finalUrl;
 }
+      
 
 function getGeneralFlyerUrl(item) {
-    let flyerId = item.pageNo?.match(/flyer_(\d+)/)?.[1];
-    if (flyerId) {
-        const url = `https://www.mobappsbaker.com/catalogs/thwr/offers/${flyerId}/1.jpg`;
-        console.log('صفحة الغلاف:', url);
-        return url;
+
+    if (!item || !item.pageNo) {
+        return null;
     }
-    return null;
+
+    const flyerMatch =
+        String(item.pageNo).match(/flyer_(\d+)/i);
+
+    if (!flyerMatch) {
+
+        console.warn(
+            'فشل استخراج flyerId من:',
+            item.pageNo
+        );
+
+        return null;
+    }
+
+    const flyerId = flyerMatch[1];
+
+    const finalUrl =
+        `https://www.mobappsbaker.com/catalogs/thwr/offers/${flyerId}/1.jpg`;
+
+    console.log('GENERAL IMAGE URL:', finalUrl);
+
+    return finalUrl;
 }
 
 window.shareProduct = function() {
@@ -212,7 +250,7 @@ function renderPage() {
     let cleanPhone = phone === 'غير متوفر' ? '' : phone.replace(/\s/g, '').replace(/[^0-9+]/g, '');
     
     const productImageHtml = productImageUrl 
-        ? `<img src="${productImageUrl}" alt="المنتج" onerror="handleImageError(this)" style="cursor:pointer;" onclick="openModal('${productImageUrl}')">`
+        ? `<img src="${productImageUrl}" alt="المنتج" onerror="handleImageError(this)" style="cursor:pointer;">`
         : `<div class="no-image"><i class="fas fa-image"></i><p>لا توجد صورة متاحة</p><p style="font-size:12px; margin-top:5px;">المنتج: ${productData.product}</p></div>`;
     
     const html = `
@@ -236,7 +274,7 @@ function renderPage() {
                 <div class="details-grid">
                     <div class="detail-item"><div class="detail-label">الاسم الأساسي</div><div class="detail-value">${productData.primaryName || '-'}</div></div>
                     <div class="detail-item"><div class="detail-label">الوحدة</div><div class="detail-value">${productData.unit || '-'}</div></div>
-                    <div class="detail-item"><div class="detail-label">الفئة</div><div class="detail-value">${productData.category || '-'}</div></div>
+                    <div class="detail-item"><div class="detail-label">الفئه</div><div class="detail-value">${productData.category || '-'}</div></div>
                     <div class="detail-item"><div class="detail-label">العلامة التجارية</div><div class="detail-value">${productData.brand || '-'}</div></div>
                     <div class="detail-item"><div class="detail-label">ساري حتى</div><div class="detail-value">${productData.validUntil || '-'}</div></div>
                     <div class="detail-item"><div class="detail-label">تاريخ التحديث</div><div class="detail-value">${productData.updateDate ? new Date(productData.updateDate).toLocaleDateString('ar-EG') : '-'}</div></div>
