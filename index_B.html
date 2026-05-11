@@ -628,6 +628,9 @@ let favorites = JSON.parse(localStorage.getItem('favorites')) || [];
 if (favorites.length > 0 && typeof favorites[0] === 'object') {
     favorites = favorites.map(f => f.solution_key || f.product).filter(Boolean);
 }
+// لا نحذف المفاتيح القصيرة لأن fav_key قد لا تكون طويلة
+localStorage.setItem('favorites', JSON.stringify(favorites));
+
 
   // حذف أي مفاتيح قديمة (مثل أرقام الفلايرات) لأنها غير صالحة الآن
 favorites = favorites.filter(key => {
@@ -728,7 +731,7 @@ function transformRows(rows) {
             if (!isNaN(d2.getTime())) updateDate = d2;
         }
 
-        // Crop coordinates (as before)
+        // إحداثيات القص (كما هي)
         let cropX = null, cropY = null, cropW = null, cropH = null;
         if (item['X'] !== undefined && item['Y'] !== undefined && item['Width'] !== undefined && item['Height'] !== undefined) {
             cropX = parseFloat(item['X']);
@@ -750,39 +753,42 @@ function transformRows(rows) {
             cropX = cropY = cropW = cropH = null;
         }
 
-        // ========== توليد مفتاح فريد للمنتج ==========
-// ========== الحصول على solution_key من CSV (رقم الفلاير) ==========
-let rawKey = String(item['solution_key'] || '').trim();
-if (!rawKey) {
-    // fallback: إذا لم يكن موجوداً نحاول استخراج رقم من pageNo
-    let match = String(item['اسم ملف الفلاير'] || '').match(/\d+/);
-    rawKey = match ? match[0] : '';
-}
-// مفتاح المفضلة: نستخدم اسم المنتج + اسم السوبرماركت + السعر
-let favKey = '';
-if (productName && supermarketName) {
-    favKey = `${productName}|${supermarketName}|${unit}|${currentPrice}`;
-    // يمكن ترميزه لكن ليس ضرورياً طالما لا يحتوي على رموز ضارة
+        // قراءة البيانات الأساسية
+        const productName = String(item['الاسم بالعربية'] || '').trim();
+        const supermarketName = String(item['اسم السوبر ماركت'] || '').trim();
+        const unit = String(item['الوحدة'] || '').trim();
+        const currentPrice = parseFloat(item['السعر الحالي']) || 0;
 
-      return null;
-}
-      
+        // مفتاح الصورة (رقم الفلاير من CSV أو من اسم الملف)
+        let solutionKey = String(item['solution_key'] || '').trim();
+        if (!solutionKey) {
+            let match = String(item['اسم ملف الفلاير'] || '').match(/\d+/);
+            solutionKey = match ? match[0] : '';
+        }
+
+        // مفتاح المفضلة (فريد لكل منتج)
+        let favKey = '';
+        if (productName && supermarketName) {
+            favKey = `${productName}|${supermarketName}|${unit}|${currentPrice}`;
+        } else {
+            // المنتج غير مكتمل – استبعاده
+            console.warn('منتج بدون اسم أو سوبرماركت:', item);
+            return null;
+        }
 
         return {
-            supermarket: String(item['اسم السوبر ماركت'] || ''),
-            product: String(item['الاسم بالعربية'] || ''),
+            supermarket: supermarketName,
+            product: productName,
             primaryName: String(item['اسم المنتج (الأساسي)'] || ''),
-            unit: String(item['الوحدة'] || ''),
+            unit: unit,
             category: String(item['الفئة'] || ''),
             brand: String(item['اسم العلامة التجارية'] || ''),
             originalPrice: parseFloat(item['السعر الأصلي']) || 0,
-            currentPrice: parseFloat(item['السعر الحالي']) || 0,
+            currentPrice: currentPrice,
             discount: parseFloat(item['الخصم %']) || 0,
-           
-               solution_key: rawKey,    // رقم الفلاير الأصلي من CSV
-    fav_key: favKey,         // مفتاح المفضلة الفريد
-    pageNo: String(item['اسم ملف الفلاير'] || ''),  // مثل "page_3.jpg"
-      
+            pageNo: String(item['اسم ملف الفلاير'] || ''),
+            solution_key: solutionKey,
+            fav_key: favKey,
             currency: 'EGP',
             endDate: d,
             validUntil: validUntil,
@@ -793,9 +799,9 @@ if (productName && supermarketName) {
             _score: 0,
             crop: (cropX !== null) ? { x: cropX, y: cropY, w: cropW, h: cropH } : null
         };
-}).filter(item => item !== null && item.product);
-
+    }).filter(item => item !== null && item.product);
 }
+  
   
 
     function convertArabicDateToISO(arabicDate) {
@@ -1325,8 +1331,8 @@ function sortData(data, sortKey, isSearching = false) {
         return `
         <div class="product-card" data-product="${item.product}">
             ${item._discount_pct > 50 ? '<div class="product-badge"><i class="fas fa-fire"></i> ساخن</div>' : ''}
-            <div class="favorite-btn ${isFav ? 'active' : ''}" data-id="${item.solution_key}"><i class="fas fa-heart"></i></div>
-            <div class="compare-btn ${inComp ? 'active' : ''}" data-id="${item.product}"><i class="fas fa-balance-scale"></i></div>
+            <div class="favorite-btn ${isFav ? 'active' : ''}" item.fav_key="${item.solution_key}"><i class="fas fa-heart"></i></div>
+            <div class="compare-btn ${inComp ? 'active' : ''}" item.fav_key="${item.product}"><i class="fas fa-balance-scale"></i></div>
             <div class="share-btn" data-product="${item.product}" data-price="${item.currentPrice}"><i class="fas fa-share-alt"></i></div>
             ${imagePlaceholder}
             <div class="product-info">
