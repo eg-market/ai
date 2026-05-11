@@ -5,7 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>تفاصيل المنتج - عروض السوبرماركت</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&amp;display=swap"
+      rel="stylesheet">
     <script src="https://cdn.sheetjs.com/xlsx-0.20.2/package/dist/xlsx.full.min.js"></script>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -54,8 +55,7 @@
     </div>
     <div id="imageModal" class="modal" onclick="closeModal()">
       <div class="close">×</div>
-      <img id="modalImage" src="" alt="صورة مكبرة">
-    </div>
+      <img id="modalImage" src="" alt="صورة مكبرة"></div>
     <script>
 let productData = null;
 let supermarketData = {};
@@ -68,10 +68,13 @@ function loadProductFromSession() {
         productData = JSON.parse(stored);
         if (!productData.product || productData.product.trim() === '') { showError('بيانات المنتج غير مكتملة'); return false; }
         if (!productData.supermarket) productData.supermarket = 'غير معروف';
+        
+        // توليد مفتاح فريد بنفس طريقة index_B
         if (!productData.solution_key || productData.solution_key.length < 20) {
             const uniqueString = `${productData.product}|${productData.supermarket}|${productData.unit || ''}|${productData.currentPrice || 0}`;
             productData.solution_key = btoa(unescape(encodeURIComponent(uniqueString))).replace(/=/g, '');
         }
+        
         if (!productData.currency) productData.currency = 'EGP';
         if (!productData._discount_pct) productData._discount_pct = productData.discount || 0;
         if (!productData.originalPrice) productData.originalPrice = 0;
@@ -81,7 +84,7 @@ function loadProductFromSession() {
         if (!productData.unit) productData.unit = '';
         if (!productData.category) productData.category = '';
         if (!productData.brand) productData.brand = '';
-        console.log('تم تحميل المنتج:', productData.product);
+        console.log('تم تحميل المنتج:', productData.product, 'solution_key:', productData.solution_key);
         return true;
     } catch(e) { showError('خطأ في قراءة بيانات المنتج'); return false; }
 }
@@ -110,39 +113,28 @@ async function loadSupermarketData() {
     } catch(err) { console.warn('فشل تحميل بيانات السوبرماركت', err); }
 }
 
-// ✅ الدالة المحسّنة
 function getProductImageUrl(item) {
-    // 1. جرب pageNo أولاً (الطريقة الأولى)
-    if (item.pageNo && item.pageNo.includes('flyer_')) {
-        let flyerId = item.pageNo.match(/flyer_(\d+)/)?.[1];
-        let pageNumber = item.pageNo.match(/page_(\d+)/)?.[1];
-        if (flyerId && pageNumber) {
-            const url = `https://www.mobappsbaker.com/catalogs/thwr/offers/${flyerId}/${pageNumber}.jpg`;
-            console.log('صورة من pageNo:', url);
-            return url;
-        }
+    if (!item.pageNo) {
+        console.warn('لا يوجد pageNo لهذا المنتج');
+        return null;
     }
-    
-    // 2. استخدم matched_image إذا كانت موجودة
-    if (item.matched_image && item.matched_image.trim() !== '') {
-        console.log('صورة من matched_image:', item.matched_image);
-        return item.matched_image;
+    let flyerId = item.pageNo.match(/flyer_(\d+)/)?.[1];
+    let pageNumber = item.pageNo.match(/page_(\d+)/)?.[1];
+    if (flyerId && pageNumber) {
+        const url = `https://www.mobappsbaker.com/catalogs/thwr/offers/${flyerId}/${pageNumber}.jpg`;
+        console.log('صورة المنتج:', url);
+        return url;
     }
-    
-    // 3. بدون صورة
-    console.warn('لا توجد صورة متاحة للمنتج');
+    console.warn('لم يتم استخراج flyerId و pageNumber من pageNo:', item.pageNo);
     return null;
 }
 
-// ✅ الدالة المحسّنة
 function getGeneralFlyerUrl(item) {
-    if (item.pageNo && item.pageNo.includes('flyer_')) {
-        let flyerId = item.pageNo.match(/flyer_(\d+)/)?.[1];
-        if (flyerId) {
-            const url = `https://www.mobappsbaker.com/catalogs/thwr/offers/${flyerId}/1.jpg`;
-            console.log('صفحة الغلاف:', url);
-            return url;
-        }
+    let flyerId = item.pageNo?.match(/flyer_(\d+)/)?.[1];
+    if (flyerId) {
+        const url = `https://www.mobappsbaker.com/catalogs/thwr/offers/${flyerId}/1.jpg`;
+        console.log('صفحة الغلاف:', url);
+        return url;
     }
     return null;
 }
@@ -165,6 +157,8 @@ window.toggleFavorite = function() {
     updateFavoriteButtonStatus();
     showToast(exists ? 'تم الإزالة من المفضلة' : 'تم الإضافة إلى المفضلة');
 };
+
+window.viewFavorites = function() { window.location.href = 'index_B.html?filter=favorites'; };
 
 function updateFavoriteButtonStatus() {
     if (!productData) return;
@@ -219,7 +213,7 @@ function renderPage() {
     
     const productImageHtml = productImageUrl 
         ? `<img src="${productImageUrl}" alt="المنتج" onerror="handleImageError(this)" style="cursor:pointer;" onclick="openModal('${productImageUrl}')">`
-        : `<div class="no-image"><i class="fas fa-image"></i><p>لا توجد صورة متاحة</p></div>`;
+        : `<div class="no-image"><i class="fas fa-image"></i><p>لا توجد صورة متاحة</p><p style="font-size:12px; margin-top:5px;">المنتج: ${productData.product}</p></div>`;
     
     const html = `
         <div class="left-side">
@@ -234,7 +228,7 @@ function renderPage() {
                 </div>
                 <div class="actions-row">
                     <a href="${cleanPhone ? 'tel:' + cleanPhone : '#'}" class="btn btn-success ${!cleanPhone ? 'disabled' : ''}"><i class="fas fa-phone-alt"></i> اتصل</a>
-                    <a href="${website !== '#' ? website : '#'}" target="_blank" class="btn btn-primary"><i class="fas fa-globe"></i> الموقع</a>
+                    <a href="${website !== '#' ? website : '#'}" target="_blank" class="btn btn-primary"><i class="fas fa-globe"></i> الموقع الالكتروني</a>
                     <a href="${mapLink !== '#' ? mapLink : '#'}" target="_blank" class="btn btn-danger"><i class="fas fa-map"></i> الخريطة</a>
                     <button onclick="shareProduct()" class="btn btn-warning"><i class="fas fa-share-alt"></i> مشاركة</button>
                     <button onclick="toggleFavorite()" class="btn btn-favorite" id="favoriteBtn"><i class="fas fa-heart"></i> تفضيل</button>
@@ -250,9 +244,10 @@ function renderPage() {
             </div>
             <div class="general-flyer" onclick="${generalImageUrl ? `openModal('${generalImageUrl}')` : 'alert(\'لا توجد صورة عامة\')'}">
                 <h4><i class="fas fa-info-circle"></i> الرئيسية</h4>
-                ${generalImageUrl ? `<img src="${generalImageUrl}" alt="صفحة 1" onerror="this.src='https://via.placeholder.com/300?text=No+Image'">` : '<i class="fas fa-image" style="font-size:3rem;color:#ccc"></i><p>لا توجد صورة عامة</p>'}
+                ${generalImageUrl ? `<img src="${generalImageUrl}" alt="صفحة 1" onerror="this.onerror=null; this.src='https://via.placeholder.com/300?text=No+Image'">` : '<i class="fas fa-image" style="font-size:3rem;color:#ccc"></i><p>لا توجد صورة عامة</p>'}
             </div>
             <button class="back-btn" onclick="window.close()"><i class="fas fa-arrow-right"></i> إغلاق</button>
+            <button onclick="viewFavorites()" class="btn btn-info" style="margin-top:10px;"><i class="fas fa-heart"></i> مفضلاتي</button>
         </div>
         <div class="right-side">
             ${productImageHtml}
@@ -267,6 +262,6 @@ function renderPage() {
     await loadSupermarketData();
     renderPage();
 })();
-    </script>
+</script>
   </body>
 </html>
