@@ -1120,34 +1120,38 @@ window.goToPage = (page) => { currentPage = page; renderContent(); };
     // supermarket options
     // =========================
 
-    const supermarketSet = new Set();
+  const supermarketMap = new Map();
 
-    allData.forEach(item => {
+allData.forEach(item => {
 
-        if (!matchesSearch(item)) return;
+    if (!matchesSearch(item)) return;
 
-        // category filter
-        if (
-            selectedCategory &&
-            (
-                !item.category ||
-                !item.category
-                    .toLowerCase()
-                    .includes(selectedCategory.toLowerCase())
-            )
-        ) return;
+    if (
+        selectedCategory &&
+        (
+            !item.category ||
+            !item.category
+                .toLowerCase()
+                .includes(selectedCategory.toLowerCase())
+        )
+    ) return;
 
-        // brand filter
-        if (
-            selectedBrand &&
-            item.brand !== selectedBrand
-        ) return;
+    if (
+        selectedBrand &&
+        item.brand !== selectedBrand
+    ) return;
 
-        if (item.supermarket) {
-            supermarketSet.add(item.supermarket);
-        }
-    });
+    if (item.supermarket) {
 
+        const count =
+            supermarketMap.get(item.supermarket) || 0;
+
+        supermarketMap.set(
+            item.supermarket,
+            count + 1
+        );
+    }
+});
     // =========================
     // category options
     // =========================
@@ -1214,21 +1218,25 @@ window.goToPage = (page) => { currentPage = page; renderContent(); };
     supermarketSelect.innerHTML =
         '<option value="">إختار السوبرماركت</option>';
 
-    Array.from(supermarketSet)
-        .sort()
-        .forEach(s => {
+Array.from(supermarketMap.entries())
+  
+  .sort()
+      .forEach(([name, count]) => {
 
-            let opt = document.createElement('option');
+    let opt = document.createElement('option');
 
-            opt.value = s;
-            opt.textContent = s;
+    opt.value = name;
 
-            if (s === selectedSupermarket) {
-                opt.selected = true;
-            }
+    opt.textContent =
+        `${name} (${count})`;
 
-            supermarketSelect.appendChild(opt);
-        });
+    if (name === selectedSupermarket) {
+        opt.selected = true;
+    }
+
+    supermarketSelect.appendChild(opt);
+});
+      
 
     // =========================
     // render category
