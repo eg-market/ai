@@ -1064,47 +1064,223 @@ window.goToPage = (page) => { currentPage = page; renderContent(); };
 
     // ==================== Populate filters ====================
     function populateFilters() {
-const source = allData;
-        const supermarketSet = new Set();
-        const categorySet = new Set();
-        const brandSet = new Set();
-        source.forEach(item => {
-            if (item.supermarket) supermarketSet.add(item.supermarket);
-            if (item.category) categorySet.add(item.category);
-            if (item.brand) brandSet.add(item.brand);
+
+    // =========================
+    // current selected values
+    // =========================
+
+    const supermarketSelect = document.getElementById('supermarket-filter');
+    const categorySelect = document.getElementById('category-filter');
+    const brandSelect = document.getElementById('brand-filter');
+
+    const selectedSupermarket =
+        (typeof urlMarket !== 'undefined' && urlMarket)
+            ? urlMarket
+            : supermarketSelect.value;
+
+    const selectedCategory = categorySelect.value;
+    const selectedBrand = brandSelect.value;
+
+    const searchVal =
+        document.getElementById('search-input')
+        .value
+        .trim()
+        .toLowerCase();
+
+    const effectiveSearchTerms =
+        urlSearchTerms.length
+            ? urlSearchTerms
+            : (searchVal ? searchVal.split(/\s+/) : []);
+
+    // =========================
+    // helper search matcher
+    // =========================
+
+    function matchesSearch(item) {
+
+        if (!effectiveSearchTerms.length) return true;
+
+        const rawHay = (
+            (item.product || '') + ' ' +
+            (item.primaryName || '') + ' ' +
+            (item.brand || '') + ' ' +
+            (item.supermarket || '')
+        ).toLowerCase();
+
+        const hay = normalizeArabic(rawHay);
+
+        return effectiveSearchTerms.every(term => {
+            return hay.includes(
+                normalizeArabic(term.toLowerCase())
+            );
         });
-        const supermarketSelect = document.getElementById('supermarket-filter');
-        const currentSupermarket = (typeof urlMarket !== 'undefined' && urlMarket) ? urlMarket : supermarketSelect.value;
-        supermarketSelect.innerHTML = '<option value="">إختار السوبرماركت</option>';
-        Array.from(supermarketSet).sort().forEach(s => {
+    }
+
+    // =========================
+    // supermarket options
+    // =========================
+
+    const supermarketSet = new Set();
+
+    allData.forEach(item => {
+
+        if (!matchesSearch(item)) return;
+
+        // category filter
+        if (
+            selectedCategory &&
+            (
+                !item.category ||
+                !item.category
+                    .toLowerCase()
+                    .includes(selectedCategory.toLowerCase())
+            )
+        ) return;
+
+        // brand filter
+        if (
+            selectedBrand &&
+            item.brand !== selectedBrand
+        ) return;
+
+        if (item.supermarket) {
+            supermarketSet.add(item.supermarket);
+        }
+    });
+
+    // =========================
+    // category options
+    // =========================
+
+    const categorySet = new Set();
+
+    allData.forEach(item => {
+
+        if (!matchesSearch(item)) return;
+
+        // supermarket filter
+        if (
+            selectedSupermarket &&
+            item.supermarket !== selectedSupermarket
+        ) return;
+
+        // brand filter
+        if (
+            selectedBrand &&
+            item.brand !== selectedBrand
+        ) return;
+
+        if (item.category) {
+            categorySet.add(item.category);
+        }
+    });
+
+    // =========================
+    // brand options
+    // =========================
+
+    const brandSet = new Set();
+
+    allData.forEach(item => {
+
+        if (!matchesSearch(item)) return;
+
+        // supermarket filter
+        if (
+            selectedSupermarket &&
+            item.supermarket !== selectedSupermarket
+        ) return;
+
+        // category filter
+        if (
+            selectedCategory &&
+            (
+                !item.category ||
+                !item.category
+                    .toLowerCase()
+                    .includes(selectedCategory.toLowerCase())
+            )
+        ) return;
+
+        if (item.brand) {
+            brandSet.add(item.brand);
+        }
+    });
+
+    // =========================
+    // render supermarket
+    // =========================
+
+    supermarketSelect.innerHTML =
+        '<option value="">إختار السوبرماركت</option>';
+
+    Array.from(supermarketSet)
+        .sort()
+        .forEach(s => {
+
             let opt = document.createElement('option');
+
             opt.value = s;
             opt.textContent = s;
-            if (s === currentSupermarket) opt.selected = true;
+
+            if (s === selectedSupermarket) {
+                opt.selected = true;
+            }
+
             supermarketSelect.appendChild(opt);
         });
-        const categorySelect = document.getElementById('category-filter');
-        const currentCategory = categorySelect.value;
-        categorySelect.innerHTML = '<option value="">إختار فئة المنتج</option>';
-        Array.from(categorySet).sort().forEach(c => {
+
+    // =========================
+    // render category
+    // =========================
+
+    categorySelect.innerHTML =
+        '<option value="">إختار فئة المنتج</option>';
+
+    Array.from(categorySet)
+        .sort()
+        .forEach(c => {
+
             let opt = document.createElement('option');
+
             opt.value = c;
             opt.textContent = c;
-            if (c === currentCategory) opt.selected = true;
+
+            if (c === selectedCategory) {
+                opt.selected = true;
+            }
+
             categorySelect.appendChild(opt);
         });
-        const brandSelect = document.getElementById('brand-filter');
-        const currentBrand = brandSelect.value;
-        brandSelect.innerHTML = '<option value="">إختار البراند</option>';
-        Array.from(brandSet).sort().forEach(b => {
+
+    // =========================
+    // render brand
+    // =========================
+
+    brandSelect.innerHTML =
+        '<option value="">إختار البراند</option>';
+
+    Array.from(brandSet)
+        .sort()
+        .forEach(b => {
+
             let opt = document.createElement('option');
+
             opt.value = b;
             opt.textContent = b;
-            if (b === currentBrand) opt.selected = true;
+
+            if (b === selectedBrand) {
+                opt.selected = true;
+            }
+
             brandSelect.appendChild(opt);
         });
-        if (typeof urlMarket !== 'undefined') urlMarket = null;
+
+    if (typeof urlMarket !== 'undefined') {
+        urlMarket = null;
     }
+}
+      
 
     function showLoading(msg) {
         const el = document.getElementById('loading');
