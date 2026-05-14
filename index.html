@@ -21,8 +21,7 @@
   <body class="bg-white text-gray-700 __className_fd82b7">
     <div id="t6-wrapper">
       <header class="header">
-        <h1>🛒 سوق مدينتي/مصر: أول محرك بحث عن عروض&nbsp;
-          السوبرماركت اليومية</h1>
+        <h1>🛒 سوق مدينتي/مصر: أول محرك بحث عن عروض&nbsp; السوبرماركت اليومية</h1>
         <p><br>
         </p>
         <p>*******<cite><b style="font-family: monospace; animation: flashing 1s infinite; white-space: nowrap; font-size: 150%;">ادخل
@@ -510,6 +509,26 @@ animation: flashing 1s infinite;
 }
           
           
+        
+        #search-bar {
+font-size: 5em; /* default font size */
+}
+
+#search-bar:valid {
+font-size: 5em; /* enlarge font size to 3 times */
+}
+
+/* Optional: keep the font size for placeholder and focus states */
+#search-bar::placeholder {
+font-size: 5em;
+}
+
+#search-bar:focus {
+font-size: 5em;
+}
+        
+        
+        
 </style> <style>#nprogress{pointer-events:none}#nprogress .bar{background:#0E5AA7;position:fixed;z-index:1600;top: 0;left:0;width:100%;height:4px}#nprogress .peg{display:block;position:absolute;right:0;width:100px;height:100%;box-shadow:0 0 10px #0E5AA7,0 0 5px #0E5AA7;opacity:1;-webkit-transform:rotate(3deg) translate(0px,-4px);-ms-transform:rotate(3deg) translate(0px,-4px);transform:rotate(3deg) translate(0px,-4px)}#nprogress .spinner{display:block;position:fixed;z-index:1600;top: 15px;right:15px}#nprogress .spinner-icon{width:18px;height:18px;box-sizing:border-box;border:2px solid transparent;border-top-color:#0E5AA7;border-left-color:#0E5AA7;border-radius:50%;-webkit-animation:nprogress-spinner 400ms linear infinite;animation:nprogress-spinner 400ms linear infinite}.nprogress-custom-parent{overflow:hidden;position:relative}.nprogress-custom-parent #nprogress .bar,.nprogress-custom-parent #nprogress .spinner{position:absolute}@-webkit-keyframes nprogress-spinner{0%{-webkit-transform:rotate(0deg)}100%{-webkit-transform:rotate(360deg)}}@keyframes nprogress-spinner{0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}</style>
       <footer class="bg-primary"><br>
       </footer>
@@ -559,11 +578,10 @@ animation: flashing 1s infinite;
 
                       required="" type="password"> <input id="signup-whatsapp"
 
-                      placeholder="رقم واتساب (اختياري)" type="tel"> 
-                    
-                  <button type="submit" style="font-size: 3rem; padding: 18px 30px;"> اضغط لإنشاء حساب </button>
-                  
-                  </form>
+                      placeholder="رقم واتساب (اختياري)" type="tel"> <button type="submit"
+
+                      style="font-size: 3rem; padding: 18px 30px;"> اضغط لإنشاء
+                      حساب </button> </form>
                   <div id="signup-message"></div>
                 </div>
               </div>
@@ -603,7 +621,9 @@ document.getElementById('signup-form').classList.add('active');
               <div class="w-full rounded-xl md:py-xs md:px-0">
                 <div class="relative flex items-start">
                   <div class="w-full">
-                    <form class="relative"> <input autocomplete="off" class="h-2xl w-full bg-white px-2xl py-[10px] outline-none focus:ring-2 rounded-lg pl-sm text-black focus:border-none md:text-md lg:text-lg text-lg"
+                    <form class="relative"> <input autocomplete="off"
+
+                        class="h-2xl w-full bg-white px-2xl py-[10px] outline-none focus:ring-2 rounded-lg pl-sm text-black focus:border-none md:text-md lg:text-lg text-lg"
 
                         id="search-bar" placeholder="" value="" style="height: 80px; border: 4px solid red;"
 
