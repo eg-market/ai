@@ -635,6 +635,11 @@ border-radius: 4px; /* إضافة انحناء بسيط للحدود (اختيا
   
   let croppedImageCache = new Map();   // لتخزين الصور المقتطعة base64
 
+  
+function formatPrice(price) {
+    return Math.floor(Number(price) || 0);
+}
+  
   // ========== دالة لتوحيد الحروف العربية ==========
 function normalizeArabic(str) {
     if (!str) return '';
@@ -1054,8 +1059,14 @@ window.goToPage = (page) => { currentPage = page; renderContent(); };
             document.querySelector('.chip[data-filter="active"]').classList.add('active');
         }
         originalAllData = [...allData];
-        populateFilters();
-        applyAllFilters();
+        
+      // إذا كان هناك urlSearchTerms، ضعها في حقل البحث قبل أي شيء
+if (urlSearchTerms.length) {
+    document.getElementById('search-input').value = urlSearchTerms.join(' ');
+}
+populateFilters();
+applyAllFilters();
+      
         populateTicker();
         dataLoaded = true;
        // ✅ استعادة الحالة المخزنة (إذا كانت موجودة)
@@ -1314,8 +1325,12 @@ Array.from(supermarketMap.entries())
     if (minPrice > maxPrice) [minPrice, maxPrice] = [maxPrice, minPrice];
       
 const effectiveSearchTerms = urlSearchTerms.length ? urlSearchTerms : (searchVal ? searchVal.split(/\s+/) : []);
-let sort = document.getElementById('sort-by').value; // استخدم القيمة التي اختارها المستخدم دون فرض أي شيء      
-      
+let sort = document.getElementById('sort-by').value;
+// إذا كان هناك بحث، نجبر الترتيب على السعر التصاعدي (مع السعر الموحد)
+if (effectiveSearchTerms.length > 0) {
+    sort = 'price-asc';
+    document.getElementById('sort-by').value = 'price-asc'; // تحديث القائمة المنسدلة
+}      
       filteredData = allData.filter(item => {
             if (!showAllOffers && activeChipFilter !== 'all' && activeChipFilter !== 'recent') {
                 if (item.status === 'منتهي' || item.status === 'العرض منتهى') return false;
@@ -1462,7 +1477,7 @@ function sortData(data, sortKey, isSearching = false) {
                 <h3 class="product-title">${item.product}</h3>
                 ${item.unit ? `<div><i class="fas fa-weight"></i> ${item.unit}</div>` : ''}
                 <div class="price-container">
-                    <span class="current-price">${item.currentPrice} ${item.currency}</span>
+                    <span class="current-price">${formatPrice(item.currentPrice)} ${item.currency}</span>
                     ${item._discount_pct ? `<span class="discount-badge">-${item._discount_pct}%</span>` : ''}
                 </div>
                 <div class="product-meta">
@@ -1537,7 +1552,7 @@ function renderTable() {
         let pageNumber = item.pageNo?.match(/page_(\d+)/)?.[1] || '';
         
         // معالجة السعر الحالي (تحويل EGP → ج)
-        let currentPriceHtml = `${item.currentPrice} ${item.currency}`;
+let currentPriceHtml = `${formatPrice(item.currentPrice)} ${item.currency}`;
         if (isMobile && item.currency === 'EGP') {
             currentPriceHtml = `${item.currentPrice} ج`;
         }
@@ -1766,14 +1781,14 @@ function openWithOverlay(url, flyerFileName, pageNo, flyerIdFromAttr) {
         top.forEach(item => {
             let span = document.createElement('div');
             span.className = 'ticker-item';
-            span.innerHTML = `<span class="badge">${item._discount_pct}%</span> ${item.product} - ${item.supermarket} (${item.currentPrice} ج.م)`;
+            span.innerHTML = `<span class="badge">${item._discount_pct}%</span> ${item.product} - ${item.supermarket} (${formatPrice(item.currentPrice)} ج.م)`;
             track.appendChild(span);
         });
         if (top.length) {
             top.forEach(item => {
                 let span = document.createElement('div');
                 span.className = 'ticker-item';
-                span.innerHTML = `<span class="badge">${item._discount_pct}%</span> ${item.product} - ${item.supermarket} (${item.currentPrice} ج.م)`;
+                span.innerHTML = `<span class="badge">${item._discount_pct}%</span> ${item.product} - ${item.supermarket} (${formatPrice(item.currentPrice)} ج.م)`;
                 track.appendChild(span);
             });
             track.classList.add('animate');
