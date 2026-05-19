@@ -5,7 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>تفاصيل المنتج - عروض السوبرماركت</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&amp;display=swap"
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&amp;display=swap"
+
       rel="stylesheet">
     <script src="https://cdn.sheetjs.com/xlsx-0.20.2/package/dist/xlsx.full.min.js"></script>
     <style>
@@ -155,28 +156,45 @@
             font-weight: 700;
             font-size: 1rem;
         }
-        .details-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 15px;
-            margin: 20px 0;
-        }
-        .detail-item {
-            background: #f8f9fa;
-            padding: 12px;
-            border-radius: 14px;
-        }
-        .detail-label {
-            font-size: 0.85rem;
-            color: #6c757d;
-            margin-bottom: 5px;
-        }
-        .detail-value {
-            font-weight: 800;
-            color: #222;
-            font-size: 1.05rem;
-            line-height: 1.4;
-        }
+      
+      
+        /* جعل شبكة التفاصيل أكثر انضغاطاً */
+.details-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;        /* تم التخفيض من 15px */
+    margin: 12px 0;  /* تم التخفيض من 20px */
+}
+.detail-item {
+    background: #f8f9fa;
+    padding: 6px 8px;  /* تم التخفيض من 12px */
+    border-radius: 12px;
+}
+.detail-label {
+    font-size: 0.7rem;   /* تم التخفيض من 0.85rem */
+    color: #6c757d;
+    margin-bottom: 3px;
+}
+.detail-value {
+    font-weight: 700;
+    color: #222;
+    font-size: 0.85rem;  /* تم التخفيض من 1.05rem */
+    line-height: 1.3;
+}
+.price-box {
+    padding: 8px 12px;   /* تم التخفيض من 12px 15px */
+    margin: 10px 0;
+}
+.actions-row {
+    gap: 6px;
+    margin: 10px 0 15px;
+}
+.btn {
+    padding: 6px 4px;    /* تم التخفيض من 8px 5px */
+    font-size: 0.7rem;
+}
+      
+      
         .back-btn {
             background: #6c757d;
             color: white;
@@ -331,9 +349,13 @@ function loadProductFromSession() {
         showError('لم يتم العثور على بيانات المنتج.');
         return false;
     }
+
     try {
         productData = JSON.parse(stored);
-        
+      
+  if (!productData.branch) productData.branch = '';
+if (!productData.promo) productData.promo = '';
+  
         // ✅ التأكد من وجود الحقول الأساسية
         if (!productData.product || productData.product.trim() === '') {
             showError('بيانات المنتج غير مكتملة (اسم المنتج مفقود)');
@@ -498,15 +520,19 @@ async function loadSupermarketData() {
                     <button onclick="shareProduct()" class="btn btn-warning"><i class="fas fa-share-alt"></i> مشاركة</button>
                     <button onclick="toggleFavorite()" class="btn btn-favorite" id="favoriteBtn"><i class="fas fa-heart"></i> تفضيل</button>
                 </div>
-                <div class="details-grid">
-                    <div class="detail-item"><div class="detail-label">الاسم الأساسي</div><div class="detail-value">${productData.primaryName || '-'}</div></div>
-                    <div class="detail-item"><div class="detail-label">الوحدة</div><div class="detail-value">${productData.unit || '-'}</div></div>
-                    <div class="detail-item"><div class="detail-label">الفئة</div><div class="detail-value">${productData.category || '-'}</div></div>
-                    <div class="detail-item"><div class="detail-label">العلامة التجارية</div><div class="detail-value">${productData.brand || '-'}</div></div>
-                    <div class="detail-item"><div class="detail-label">ساري حتى</div><div class="detail-value">${productData.validUntil || '-'}</div></div>
-                    <div class="detail-item"><div class="detail-label">تاريخ التحديث</div><div class="detail-value">${productData.updateDate ? new Date(productData.updateDate).toLocaleDateString('ar-EG') : '-'}</div></div>
-                </div>
-            </div>
+
+      <div class="details-grid">
+    <div class="detail-item"><div class="detail-label">الاسم الأساسي</div><div class="detail-value">${productData.primaryName || '-'}</div></div>
+    <div class="detail-item"><div class="detail-label">الوحدة</div><div class="detail-value">${productData.unit || '-'}</div></div>
+    <div class="detail-item"><div class="detail-label">الفئة</div><div class="detail-value">${productData.category || '-'}</div></div>
+    <div class="detail-item"><div class="detail-label">العلامة التجارية</div><div class="detail-value">${productData.brand || '-'}</div></div>
+    <div class="detail-item"><div class="detail-label">الفرع / الموقع</div><div class="detail-value">${productData.branch || '-'}</div></div>
+    <div class="detail-item"><div class="detail-label">العبارة الترويجية</div><div class="detail-value">${productData.promo || '-'}</div></div>
+    <div class="detail-item"><div class="detail-label">ساري حتى</div><div class="detail-value">${productData.validUntil || '-'}</div></div>
+    <div class="detail-item"><div class="detail-label">تاريخ التحديث</div><div class="detail-value">${productData.updateDate ? new Date(productData.updateDate).toLocaleDateString('ar-EG') : '-'}</div></div>
+</div>
+      
+      </div>
             <div class="general-flyer" onclick="openModal('${generalImageUrl}')">
                 <h4><i class="fas fa-info-circle"></i> الرئيسية</h4>
                 ${generalImageUrl ? `<img src="${generalImageUrl}" alt="صفحة 1" onerror="this.src='https://via.placeholder.com/300?text=No+Image'">` : '<i class="fas fa-image" style="font-size:3rem;color:#ccc"></i><p>لا توجد صورة عامة</p>'}
@@ -526,5 +552,6 @@ async function loadSupermarketData() {
         await loadSupermarketData();
         renderPage();
     })();
-</script> </body>
+</script>
+  </body>
 </html>

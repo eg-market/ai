@@ -742,6 +742,9 @@ function transformRows(rows) {
         // ================================================================
 
         return {
+          branch: String(item['الفرع / الموقع'] || ''),
+promo: String(item['العبارة الترويجية'] || ''),
+          
             supermarket: String(item['اسم السوبر ماركت'] || ''),
             product: String(item['الاسم بالعربية'] || ''),
             primaryName: String(item['اسم المنتج (الأساسي)'] || ''),
@@ -1553,9 +1556,9 @@ function renderTable() {
         
         // معالجة السعر الحالي (تحويل EGP → ج)
 let currentPriceHtml = `${formatPrice(item.currentPrice)} ${item.currency}`;
-        if (isMobile && item.currency === 'EGP') {
-            currentPriceHtml = `${item.currentPrice} ج`;
-        }
+if (isMobile && item.currency === 'EGP') {
+    currentPriceHtml = `${formatPrice(item.currentPrice)} ج`;
+}
         
         // معالجة "ساري حتى" للموبايل: استخراج اليوم والشهر فقط
 // معالجة "ساري حتى" للموبايل: استخراج اليوم والشهر فقط
@@ -1626,7 +1629,7 @@ if (isMobile && validUntilHtml) {
             cells = `
                 <td>${item.supermarket}<\/td>
                 <td><strong>${item.product}<\/strong><\/td>
-                <td>${item.currentPrice} ${item.currency}<\/td>
+                <td>${formatPrice(item.currentPrice)} ${item.currency}<\/td>
                 <td><span class="discount-cell">${item._discount_pct ? item._discount_pct+'%' : ''}<\/span><\/td>
                 <td><span class="primary-name-circle">${item.primaryName || ''}<\/span><\/td>
                 <td>${item.unit || ''}<\/td>
@@ -1686,6 +1689,10 @@ document.querySelectorAll('#table-body tr').forEach(tr => {
             
             saveCurrentState();
             sessionStorage.setItem('selectedProduct', JSON.stringify(productObj));
+        
+        if (!productObj.branch) productObj.branch = '';
+if (!productObj.promo) productObj.promo = '';
+        
             window.open('product_details.html', '_blank');
         } else {
             let url = this.dataset.url;
