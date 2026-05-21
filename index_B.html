@@ -1095,14 +1095,30 @@ applyAllFilters();
     const selectedCategory = categorySelect.value;
     const selectedBrand = brandSelect.value;
 
-    const searchVal =
-        document.getElementById('search-input')
-        .value
-        .trim()
-        .toLowerCase();
+const searchValRaw = document.getElementById('search-input').value;
+const hasQuotes = (searchValRaw.startsWith('"') && searchValRaw.endsWith('"')) ||
+                  (searchValRaw.startsWith("'") && searchValRaw.endsWith("'"));
+let searchProcessed;
+if (hasQuotes) {
+    searchProcessed = searchValRaw.slice(1, -1);
+} else {
+    searchProcessed = searchValRaw.trim();
+}
+const searchVal = searchProcessed.toLowerCase();
 
-    const effectiveSearchTerms =
-        urlSearchTerms.length
+let effectiveSearchTerms = [];
+if (urlSearchTerms.length) {
+    effectiveSearchTerms = urlSearchTerms;
+} else if (searchVal !== '') {
+    if (hasQuotes) {
+        effectiveSearchTerms = [searchVal];
+    } else {
+        effectiveSearchTerms = searchVal.split(/\s+/);
+    }
+}
+effectiveSearchTerms = effectiveSearchTerms.filter(term => term.trim() !== '');
+      
+      urlSearchTerms.length
             ? urlSearchTerms
             : (searchVal ? searchVal.split(/\s+/) : []);
 
@@ -1110,25 +1126,52 @@ applyAllFilters();
     // helper search matcher
     // =========================
 
-    function matchesSearch(item) {
+function matchesSearch(item) {
+    // Get raw search input value
+    const searchValRaw = document.getElementById('search-input').value;
+    let effectiveSearchTerms = [];
 
-        if (!effectiveSearchTerms.length) return true;
-
-        const rawHay = (
-            (item.product || '') + ' ' +
-            (item.primaryName || '') + ' ' +
-            (item.brand || '') + ' ' +
-            (item.supermarket || '')
-        ).toLowerCase();
-
-        const hay = normalizeArabic(rawHay);
-
-        return effectiveSearchTerms.every(term => {
-            return hay.includes(
-                normalizeArabic(term.toLowerCase())
-            );
-        });
+    // Use URL parameters if present, otherwise parse input
+    if (urlSearchTerms && urlSearchTerms.length) {
+        effectiveSearchTerms = urlSearchTerms;
+    } else if (searchValRaw.trim() !== '') {
+        // Regex: capture quoted text ("..." or '...') or any non‑space sequence
+        const regex = /"([^"]*)"|'([^']*)'|([^\s]+)/g;
+        let match;
+        while ((match = regex.exec(searchValRaw)) !== null) {
+            if (match[1] !== undefined) {
+                effectiveSearchTerms.push(match[1].toLowerCase()); // double quotes
+            } else if (match[2] !== undefined) {
+                effectiveSearchTerms.push(match[2].toLowerCase()); // single quotes
+            } else if (match[3] !== undefined) {
+                effectiveSearchTerms.push(match[3].toLowerCase()); // plain word
+            }
+        }
     }
+
+    // Remove any empty terms
+    effectiveSearchTerms = effectiveSearchTerms.filter(term => term !== '');
+
+    // No search terms → match everything
+    if (!effectiveSearchTerms.length) return true;
+
+    // Build the combined text to search in (fields separated by spaces)
+    const rawHay = (
+        (item.product || '') + ' ' +
+        (item.primaryName || '') + ' ' +
+        (item.brand || '') + ' ' +
+        (item.supermarket || '')
+    ).toLowerCase();
+
+    const hay = normalizeArabic(rawHay);
+
+    // All terms must be present (partial match using includes)
+    return effectiveSearchTerms.every(term => {
+        const normTerm = normalizeArabic(term);
+        return hay.includes(normTerm);
+    });
+}
+      
 
     // =========================
     // supermarket options
@@ -1318,78 +1361,117 @@ Array.from(supermarketMap.entries())
 
     // ==================== Apply filters ====================
     function applyAllFilters() {
-    const searchVal = document.getElementById('search-input').value.trim().toLowerCase();
+      
+          // IMPORTANT: إذا كان المستخدم قد كتب أي شيء في البحث، نمسح البارامترات العالقة
+    const searchInputValue = document.getElementById('search-input').value.trim();
+    if (searchInputValue !== '') {
+        clearUrlParamsAndUpdateLink();
+    }
+      
     const supermarket = document.getElementById('supermarket-filter').value;
     const category = document.getElementById('category-filter').value;
     const brand = document.getElementById('brand-filter').value;
+          
     const minDiscount = parseFloat(document.getElementById('min-discount').value) || 0;
     let minPrice = parseFloat(document.getElementById('min-price').value) || 0;
     let maxPrice = parseFloat(document.getElementById('max-price').value) || Infinity;
     if (minPrice > maxPrice) [minPrice, maxPrice] = [maxPrice, minPrice];
       
-const effectiveSearchTerms = urlSearchTerms.length ? urlSearchTerms : (searchVal ? searchVal.split(/\s+/) : []);
-let sort = document.getElementById('sort-by').value;
-// إذا كان هناك بحث، نجبر الترتيب على السعر التصاعدي (مع السعر الموحد)
-if (effectiveSearchTerms.length > 0) {
-    sort = 'price-asc';
-    document.getElementById('sort-by').value = 'price-asc'; // تحديث القائمة المنسدلة
-}      
-      filteredData = allData.filter(item => {
-            if (!showAllOffers && activeChipFilter !== 'all' && activeChipFilter !== 'recent') {
-                if (item.status === 'منتهي' || item.status === 'العرض منتهى') return false;
+const searchValRaw = document.getElementById('search-input').value; 
+
+    let effectiveSearchTerms = [];
+    if (urlSearchTerms && urlSearchTerms.length) {
+        effectiveSearchTerms = urlSearchTerms;
+    } else if (searchValRaw.trim() !== '') {
+        // نستخدم Regex لاستخراج الكلمات سواء كانت داخل تنصيص أو كلمات حرة
+        // هذا التعبير يقرأ ما بداخل " " أو ' ' ككتلة واحدة ويحتفظ بالمسافات، وما خارجها يقسمه بالمسافات
+        const regex = /"([^"]*)"|'([^']*)'|([^\s]+)/g;
+        let match;
+        while ((match = regex.exec(searchValRaw)) !== null) {
+            if (match[1] !== undefined) {
+                // الكلمة داخل دبل كوتس (نحتفظ بالمسافات كما هي)
+                effectiveSearchTerms.push(match[1].toLowerCase());
+            } else if (match[2] !== undefined) {
+                // الكلمة داخل سنجل كوتس (نحتفظ بالمسافات كما هي)
+                effectiveSearchTerms.push(match[2].toLowerCase());
+            } else if (match[3] !== undefined) {
+                // الكلمات العادية (تضاف ككلمة منفصلة)
+                effectiveSearchTerms.push(match[3].toLowerCase());
             }
-           
-        if (effectiveSearchTerms.length) {
+        }
+    }
+    // نقوم بفلترة المصفوفة لإزالة أي إدخالات فارغة (بدون استخدام trim لكي لا نحذف مسافاتك المتعمدة)
+    effectiveSearchTerms = effectiveSearchTerms.filter(term => term !== '');
+      
+      
+    let sort = document.getElementById('sort-by').value;
+    if (effectiveSearchTerms.length > 0) {
+        sort = 'price-asc';
+        document.getElementById('sort-by').value = 'price-asc';
+    }
+    
+    filteredData = allData.filter(item => {
+        if (!showAllOffers && activeChipFilter !== 'all' && activeChipFilter !== 'recent') {
+            if (item.status === 'منتهي' || item.status === 'العرض منتهى') return false;
+        }
+        
+if (effectiveSearchTerms.length > 0) {
     const rawHay = (item.product + ' ' + item.primaryName + ' ' + item.brand + ' ' + item.supermarket).toLowerCase();
     const hay = normalizeArabic(rawHay);
     if (!effectiveSearchTerms.every(term => {
-        const normTerm = normalizeArabic(term.toLowerCase());
+        let normTerm = normalizeArabic(term.toLowerCase());
         return hay.includes(normTerm);
     })) return false;
 }
-        
-            if (urlCategories.length) {
-                const itemCat = String(item.category || '').toLowerCase();
-                if (!urlCategories.some(c => itemCat.includes(c))) return false;
-            }
-            if (supermarket && item.supermarket !== supermarket) return false;
-            if (category && (!item.category || !item.category.toLowerCase().includes(category.toLowerCase()))) return false;
-            if (brand && item.brand !== brand) return false;
-            if (minDiscount > 0 && (item._discount_pct || 0) < minDiscount) return false;
-            const price = item.currentPrice || 0;
-            if (price < minPrice || price > maxPrice) return false;
-            switch (activeChipFilter) {
-                case 'hot': if ((item._discount_pct || 0) < 30) return false; break;
-                case 'ending':
-                    if (!item.endDate) return false;
-                    const diff = (item.endDate - new Date()) / (1000 * 60 * 60 * 24);
-                    if (diff <= 0 || diff > 1) return false;
-                    break;
-                case 'discount': if ((item._discount_pct || 0) < 20) return false; break;
-                case 'carrefour': if (!item.supermarket.includes('هايبر1')) return false; break;
-                case 'food': if (!item.category || !/طعام|غذائ|مأكولات|أطعمة|غذاء/i.test(item.category)) return false; break;
-                case 'recent':
-                    if (!latestTwoDates.length) return false;
-                    const d = item.updateDate || item.endDate;
-                    if (!d) return false;
-                    const ds = d instanceof Date ? d.toISOString().split('T')[0] : null;
-                    if (!ds || !latestTwoDates.includes(ds)) return false;
-                    break;
-            }
-            // NEW: one_day filter (independent from chip)
-            if (oneDayFilter) {
+      
+   effectiveSearchTerms = effectiveSearchTerms.filter(term => term.trim() !== '');   
+      
+        // بقية الفلاتر (urlCategories, supermarket, category, brand, minDiscount, price, activeChipFilter, oneDayFilter) كما هي...
+        // (احتفظ بالكود الأصلي هنا)
+        if (urlCategories.length) {
+            const itemCat = String(item.category || '').toLowerCase();
+            if (!urlCategories.some(c => itemCat.includes(c))) return false;
+        }
+        if (supermarket && item.supermarket !== supermarket) return false;
+        if (category && (!item.category || !item.category.toLowerCase().includes(category.toLowerCase()))) return false;
+        if (brand && item.brand !== brand) return false;
+        if (minDiscount > 0 && (item._discount_pct || 0) < minDiscount) return false;
+        const price = item.currentPrice || 0;
+        if (price < minPrice || price > maxPrice) return false;
+        switch (activeChipFilter) {
+            case 'hot': if ((item._discount_pct || 0) < 30) return false; break;
+            case 'ending':
                 if (!item.endDate) return false;
-                const diffDays = (item.endDate - new Date()) / (1000 * 60 * 60 * 24);
-                if (diffDays <= 0 || diffDays > 1) return false;
-            }
-            return true;
-        });
-        if (bestPriceMode) filteredData = reduceBestPricePerCategory(filteredData);
-sortData(filteredData, sort, effectiveSearchTerms.length > 0);        populateFilters();
-        currentPage = 1;
-        renderContent();
-        updateStats();
-    }
+                const diff = (item.endDate - new Date()) / (1000 * 60 * 60 * 24);
+                if (diff <= 0 || diff > 1) return false;
+                break;
+            case 'discount': if ((item._discount_pct || 0) < 20) return false; break;
+            case 'carrefour': if (!item.supermarket.includes('هايبر1')) return false; break;
+            case 'food': if (!item.category || !/طعام|غذائ|مأكولات|أطعمة|غذاء/i.test(item.category)) return false; break;
+            case 'recent':
+                if (!latestTwoDates.length) return false;
+                const d = item.updateDate || item.endDate;
+                if (!d) return false;
+                const ds = d instanceof Date ? d.toISOString().split('T')[0] : null;
+                if (!ds || !latestTwoDates.includes(ds)) return false;
+                break;
+        }
+        if (oneDayFilter) {
+            if (!item.endDate) return false;
+            const diffDays = (item.endDate - new Date()) / (1000 * 60 * 60 * 24);
+            if (diffDays <= 0 || diffDays > 1) return false;
+        }
+        return true;
+    });
+    if (bestPriceMode) filteredData = reduceBestPricePerCategory(filteredData);
+    sortData(filteredData, sort, effectiveSearchTerms.length > 0);
+    populateFilters();
+    currentPage = 1;
+    renderContent();
+    updateStats();
+}
+      
+      
 
     function reduceBestPricePerCategory(data) {
         const bestByCategory = new Map();
@@ -1529,6 +1611,7 @@ if (!imageContainers.length) return;
     }
     updatePagination();
 }
+    
       
 
 function renderTable() {
@@ -1947,6 +2030,8 @@ async function loadAndCropImage(item) {
     }
 
     function refreshApplication() {
+    clearUrlParamsAndUpdateLink();   // أضف هذا السطر أولاً
+        
         window.history.replaceState({}, document.title, window.location.pathname);
         document.getElementById('search-input').value = '';
         document.getElementById('supermarket-filter').value = '';
@@ -1962,14 +2047,45 @@ async function loadAndCropImage(item) {
         // remove any temporary banner
         const banner = document.getElementById('one-day-banner');
         if (banner) banner.remove();
-        document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
-        document.querySelector('.chip[data-filter="active"]').classList.add('active');
-        urlSearchTerms = [];
+
+      
+      urlSearchTerms = [];
         urlCategories = [];
         bestPriceMode = false;
-        applyAllFilters();
-    }
+      
+          showAllOffers = false;
+    activeChipFilter = 'active';
+    document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+    document.querySelector('.chip[data-filter="active"]').classList.add('active');
+    applyAllFilters();
 
+    }
+          
+          
+// دالة لمسح البارامترات العالقة وتحديث الرابط
+function clearUrlParamsAndUpdateLink() {
+    let changed = false;
+    if (urlSearchTerms.length) { urlSearchTerms = []; changed = true; }
+    if (urlCategories.length) { urlCategories = []; changed = true; }
+    if (urlMarket) { urlMarket = null; changed = true; }
+    if (oneDayFilter) { oneDayFilter = false; changed = true; }
+    if (bestPriceMode) { bestPriceMode = false; changed = true; }
+    
+    if (changed) {
+        // حذف البارامترات من الرابط
+        const url = new URL(window.location.href);
+        const paramsToRemove = ['q', 'category', 'market', 'discount', 'page', 'all', 'best_price', 'one_day'];
+        paramsToRemove.forEach(p => url.searchParams.delete(p));
+        window.history.replaceState({}, document.title, url.pathname + url.search);
+        
+        // إزالة أي بانر خاص بـ one_day
+        const banner = document.getElementById('one-day-banner');
+        if (banner) banner.remove();
+        
+        console.log('تم مسح البارامترات العالقة وتحديث الرابط');
+    }
+}
+          
     function wireEventListeners() {
         document.getElementById('view-grid-btn').addEventListener('click', () => { currentView='grid'; switchView(); });
         document.getElementById('view-table-btn').addEventListener('click', () => { currentView='table'; switchView(); });
