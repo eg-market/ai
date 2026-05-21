@@ -461,7 +461,7 @@ border-radius: 4px; /* إضافة انحناء بسيط للحدود (اختيا
           </div>
         </div>
       </div>
-      <div class="user-guide-banner"> انقر أي صف في الجدول للتفاصيل /9/ولتحديث
+      <div class="user-guide-banner"> انقر أي صف في الجدول للتفاصيل /10/ولتحديث
         البيانات اضغط زر "تحديث" في الاسفل</div>
       <div class="stats-dashboard">
         <div class="stat-card">
@@ -1444,7 +1444,7 @@ if (effectiveSearchTerms.length > 0) {
             let normTerm = normalizeArabic(term.toLowerCase());
             return hay.includes(normTerm);
         })) return false;
-    }
+    
 }
       
       
@@ -1486,7 +1486,7 @@ if (effectiveSearchTerms.length > 0) {
             if (diffDays <= 0 || diffDays > 1) return false;
         }
         return true;
-    };
+    });
     if (bestPriceMode) filteredData = reduceBestPricePerCategory(filteredData);
     sortData(filteredData, sort, effectiveSearchTerms.length > 0);
     populateFilters();
