@@ -461,7 +461,7 @@ border-radius: 4px; /* إضافة انحناء بسيط للحدود (اختيا
           </div>
         </div>
       </div>
-      <div class="user-guide-banner"> انقر أي صف في الجدول للتفاصيل /16/ولتحديث
+      <div class="user-guide-banner"> انقر أي صف في الجدول للتفاصيل /18/ولتحديث
          البيانات اضغط زر "تحديث" في الاسفل / ولاستعلام جديد اضغط زر "الرجوع للبداية"</div>
       <div class="stats-dashboard">
         <div class="stat-card">
@@ -1381,6 +1381,16 @@ Array.from(supermarketMap.entries())
         if (el) el.style.display = 'none';
     }
 
+      function escapeRegex(str) {
+    return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+function matchWholeWord(text, word) {
+    // حدود الكلمة: مسافة، بداية/نهاية النص، علامات ترقيم عربية وإنجليزية
+    const regex = new RegExp('(^|[\\s،;:,.!؟\\-])' + escapeRegex(word) + '($|[\\s،;:,.!؟\\-])', 'i');
+    return regex.test(text);
+}
+      
     // ==================== Apply filters ====================
 function applyAllFilters() {
     // IMPORTANT: إذا كان المستخدم قد كتب أي شيء في البحث (وليس من التحميل الأول)، نمسح البارامترات العالقة
@@ -1389,7 +1399,6 @@ function applyAllFilters() {
         clearUrlParamsAndUpdateLink();
     }
 
-    
     // قراءة قيم الفلاتر
     const supermarket = document.getElementById('supermarket-filter').value;
     const category = document.getElementById('category-filter').value;
@@ -1398,19 +1407,16 @@ function applyAllFilters() {
     let minPrice = parseFloat(document.getElementById('min-price').value) || 0;
     let maxPrice = parseFloat(document.getElementById('max-price').value) || Infinity;
     if (minPrice > maxPrice) [minPrice, maxPrice] = [maxPrice, minPrice];
-    
-  // تطبيق فلتر سعر تلقائي إذا كان البحث OR وقادماً من products أو فواصل
-  
-    const searchValRaw = document.getElementById('search-input').value;
-    
+
+    const rawSearch = document.getElementById('search-input').value.trim();
+
     // بناء قائمة مصطلحات البحث الفعالة
     let effectiveSearchTerms = [];
-    const rawSearch = document.getElementById('search-input').value.trim();
-    
+
     // 1) إذا كان هناك بارامتر products من الرابط (تم تخزينه مسبقاً)
     if (urlProductsTerms && urlProductsTerms.length) {
         effectiveSearchTerms = [...urlProductsTerms];
-        searchIsOr = true;   // نستخدم OR
+        searchIsOr = true;
     }
     // 2) إذا كان النص يحتوي على فواصل (مثل "فوندو,سمانه,ريب") نقسمه على الفواصل ونستخدم OR
     else if (rawSearch.includes(',')) {
@@ -1424,7 +1430,6 @@ function applyAllFilters() {
     }
     // 4) البحث العادي من حقل الإدخال (كلمات مفصولة بمسافات) – نستخدم AND
     else if (rawSearch !== '') {
-        // استخراج الكلمات المحصورة بين علامتي تنصيص أو مسافات
         const regex = /"([^"]*)"|'([^']*)'|([^\s]+)/g;
         let match;
         while ((match = regex.exec(rawSearch)) !== null) {
@@ -1436,64 +1441,67 @@ function applyAllFilters() {
     }
     effectiveSearchTerms = effectiveSearchTerms.filter(t => t !== '');
 
-  if (searchIsOr && effectiveSearchTerms.length > 0) {
-    const firstTerm = effectiveSearchTerms[0];
-    // تعريف النطاقات السعرية للمنتجات الرئيسية (أضف ما تريد)
-    const priceRanges = {
-        "فوندو": { min: 80, max: 4000 },
-        // يمكن إضافة المزيد...
-    };
-    if (priceRanges[firstTerm]) {
-        const range = priceRanges[firstTerm];
-        // نحدد النطاق النهائي كتقاطع بين ما أدخله المستخدم والنطاق التلقائي
-        let newMin = Math.max(minPrice, range.min);
-        let newMax = Math.min(maxPrice, range.max);
-        if (newMin <= newMax) {
-            minPrice = newMin;
-            maxPrice = newMax;
-            // تحديث حقول الإدخال في الواجهة ليرى المستخدم النطاق التلقائي
-            document.getElementById('min-price').value = minPrice;
-            document.getElementById('max-price').value = maxPrice;
+    // ===== فلتر السعر التلقائي بناءً على أول كلمة (إذا كان البحث OR) =====
+    if (searchIsOr && effectiveSearchTerms.length > 0) {
+        const firstTerm = effectiveSearchTerms[0];
+        const priceRanges = {
+            "فوندو": { min: 80, max: 4000 },
+            "لحم": { min: 100, max: 2000 },
+            "دجاج": { min: 60, max: 1500 },
+            "سمكة": { min: 50, max: 3000 },
+            "كبده": { min: 50, max: 500 },
+            "كلاوي": { min: 50, max: 500 }
+            // يمكنك إضافة المزيد حسب الحاجة
+        };
+        if (priceRanges[firstTerm]) {
+            const range = priceRanges[firstTerm];
+            let newMin = Math.max(minPrice, range.min);
+            let newMax = Math.min(maxPrice, range.max);
+            if (newMin <= newMax) {
+                minPrice = newMin;
+                maxPrice = newMax;
+                // تحديث حقول الإدخال ليرى المستخدم النطاق التلقائي
+                document.getElementById('min-price').value = minPrice;
+                document.getElementById('max-price').value = maxPrice;
+            }
         }
     }
-}
-  
-  
-    // تحديد خيار الترتيب (إذا كان هناك بحث، نضبط الترتيب إلى السعر تصاعدي حسب السعر الموحد)
+
+    // تحديد خيار الترتيب
     let sort = document.getElementById('sort-by').value;
     if (effectiveSearchTerms.length > 0) {
         sort = 'price-asc';
         document.getElementById('sort-by').value = 'price-asc';
     }
-    
+
     // تصفية البيانات
     filteredData = allData.filter(item => {
         // فلترة حالة العرض (سارية / منتهية)
         if (!showAllOffers && activeChipFilter !== 'all' && activeChipFilter !== 'recent') {
             if (item.status === 'منتهي' || item.status === 'العرض منتهى') return false;
         }
-        
-        // تطبيق شروط البحث (AND / OR)
+
+        // تطبيق شروط البحث (AND/OR) مع مطابقة الكلمات كاملة
         if (effectiveSearchTerms.length > 0) {
             const rawHay = (item.product + ' ' + item.primaryName + ' ' + item.brand + ' ' + item.supermarket).toLowerCase();
             const hay = normalizeArabic(rawHay);
             
             if (searchIsOr) {
-                // OR: يكفي وجود أي مصطلح واحد
+                // OR: يكفي وجود أي كلمة كاملة
                 const matches = effectiveSearchTerms.some(term => {
                     let normTerm = normalizeArabic(term.toLowerCase());
-                    return hay.includes(normTerm);
+                    return matchWholeWord(hay, normTerm);
                 });
                 if (!matches) return false;
             } else {
-                // AND: يجب وجود كل المصطلحات
+                // AND: يجب وجود كل الكلمات كاملة
                 if (!effectiveSearchTerms.every(term => {
                     let normTerm = normalizeArabic(term.toLowerCase());
-                    return hay.includes(normTerm);
+                    return matchWholeWord(hay, normTerm);
                 })) return false;
             }
         }
-        
+
         // فلاتر إضافية
         if (urlCategories.length) {
             const itemCat = String(item.category || '').toLowerCase();
@@ -1505,7 +1513,7 @@ function applyAllFilters() {
         if (minDiscount > 0 && (item._discount_pct || 0) < minDiscount) return false;
         const price = item.currentPrice || 0;
         if (price < minPrice || price > maxPrice) return false;
-        
+
         // فلترة الـ chips
         switch (activeChipFilter) {
             case 'hot': if ((item._discount_pct || 0) < 30) return false; break;
@@ -1532,21 +1540,15 @@ function applyAllFilters() {
         }
         return true;
     });
-    
-    // وضع أفضل سعر لكل فئة (إذا كان مفعلاً)
+
     if (bestPriceMode) filteredData = reduceBestPricePerCategory(filteredData);
-    
-    // ترتيب النتائج
     sortData(filteredData, sort, effectiveSearchTerms.length > 0);
-    
-    // تحديث الفلاتر الثانوية (السوبرماركت، الفئة، البراند) حسب النتائج الحالية
     populateFilters();
-    
-    // إعادة تعيين الصفحة إلى 1 وتحديث الواجهة
     currentPage = 1;
     renderContent();
     updateStats();
 }
+      
       
       
       
