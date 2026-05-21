@@ -461,7 +461,7 @@ border-radius: 4px; /* إضافة انحناء بسيط للحدود (اختيا
           </div>
         </div>
       </div>
-      <div class="user-guide-banner"> انقر أي صف في الجدول للتفاصيل /14/ولتحديث
+      <div class="user-guide-banner"> انقر أي صف في الجدول للتفاصيل /16/ولتحديث
          البيانات اضغط زر "تحديث" في الاسفل / ولاستعلام جديد اضغط زر "الرجوع للبداية"</div>
       <div class="stats-dashboard">
         <div class="stat-card">
@@ -1399,6 +1399,29 @@ function applyAllFilters() {
     let maxPrice = parseFloat(document.getElementById('max-price').value) || Infinity;
     if (minPrice > maxPrice) [minPrice, maxPrice] = [maxPrice, minPrice];
     
+  // تطبيق فلتر سعر تلقائي إذا كان البحث OR وقادماً من products أو فواصل
+if (searchIsOr && effectiveSearchTerms.length > 0) {
+    const firstTerm = effectiveSearchTerms[0];
+    // تعريف النطاقات السعرية للمنتجات الرئيسية (أضف ما تريد)
+    const priceRanges = {
+        "فوندو": { min: 80, max: 4000 },
+        // يمكن إضافة المزيد...
+    };
+    if (priceRanges[firstTerm]) {
+        const range = priceRanges[firstTerm];
+        // نحدد النطاق النهائي كتقاطع بين ما أدخله المستخدم والنطاق التلقائي
+        let newMin = Math.max(minPrice, range.min);
+        let newMax = Math.min(maxPrice, range.max);
+        if (newMin <= newMax) {
+            minPrice = newMin;
+            maxPrice = newMax;
+            // تحديث حقول الإدخال في الواجهة ليرى المستخدم النطاق التلقائي
+            document.getElementById('min-price').value = minPrice;
+            document.getElementById('max-price').value = maxPrice;
+        }
+    }
+}
+  
     const searchValRaw = document.getElementById('search-input').value;
     
     // بناء قائمة مصطلحات البحث الفعالة
