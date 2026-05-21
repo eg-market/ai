@@ -461,7 +461,7 @@ border-radius: 4px; /* إضافة انحناء بسيط للحدود (اختيا
           </div>
         </div>
       </div>
-      <div class="user-guide-banner"> انقر أي صف في الجدول للتفاصيل /13/ولتحديث
+      <div class="user-guide-banner"> انقر أي صف في الجدول للتفاصيل /14/ولتحديث
          البيانات اضغط زر "تحديث" في الاسفل / ولاستعلام جديد اضغط زر "الرجوع للبداية"</div>
       <div class="stats-dashboard">
         <div class="stat-card">
@@ -1086,6 +1086,10 @@ if (urlSearchTerms.length) {
 }
 populateFilters();
    applyAllFilters();
+      
+      if (urlProductsTerms.length) {
+    document.getElementById('search-input').value = urlProductsTerms.join(',');
+}
     initialLoadDone = true;   // <-- أضف هذا السطر
     populateTicker();
       
@@ -1399,24 +1403,38 @@ function applyAllFilters() {
     
     // بناء قائمة مصطلحات البحث الفعالة
     let effectiveSearchTerms = [];
+    const rawSearch = document.getElementById('search-input').value.trim();
     
-    if (searchIsOr && urlProductsTerms.length) {
-        effectiveSearchTerms = urlProductsTerms;
-    } else if (urlSearchTerms.length) {
-        effectiveSearchTerms = urlSearchTerms;
-        searchIsOr = false; // قادمة من q نستخدم AND
-    } else if (searchValRaw.trim() !== '') {
+    // 1) إذا كان هناك بارامتر products من الرابط (تم تخزينه مسبقاً)
+    if (urlProductsTerms && urlProductsTerms.length) {
+        effectiveSearchTerms = [...urlProductsTerms];
+        searchIsOr = true;   // نستخدم OR
+    }
+    // 2) إذا كان النص يحتوي على فواصل (مثل "فوندو,سمانه,ريب") نقسمه على الفواصل ونستخدم OR
+    else if (rawSearch.includes(',')) {
+        effectiveSearchTerms = rawSearch.split(',').map(t => t.trim().toLowerCase()).filter(t => t !== '');
+        searchIsOr = true;
+    }
+    // 3) إذا كان هناك قيم في urlSearchTerms (من بارامتر q) نستخدمها AND
+    else if (urlSearchTerms.length) {
+        effectiveSearchTerms = [...urlSearchTerms];
+        searchIsOr = false;
+    }
+    // 4) البحث العادي من حقل الإدخال (كلمات مفصولة بمسافات) – نستخدم AND
+    else if (rawSearch !== '') {
+        // استخراج الكلمات المحصورة بين علامتي تنصيص أو مسافات
         const regex = /"([^"]*)"|'([^']*)'|([^\s]+)/g;
         let match;
-        while ((match = regex.exec(searchValRaw)) !== null) {
+        while ((match = regex.exec(rawSearch)) !== null) {
             if (match[1] !== undefined) effectiveSearchTerms.push(match[1].toLowerCase());
             else if (match[2] !== undefined) effectiveSearchTerms.push(match[2].toLowerCase());
             else if (match[3] !== undefined) effectiveSearchTerms.push(match[3].toLowerCase());
         }
         searchIsOr = false;
     }
-    effectiveSearchTerms = effectiveSearchTerms.filter(term => term !== '');
-    
+    effectiveSearchTerms = effectiveSearchTerms.filter(t => t !== '');
+  
+  
     // تحديد خيار الترتيب (إذا كان هناك بحث، نضبط الترتيب إلى السعر تصاعدي حسب السعر الموحد)
     let sort = document.getElementById('sort-by').value;
     if (effectiveSearchTerms.length > 0) {
