@@ -461,7 +461,7 @@ border-radius: 4px; /* إضافة انحناء بسيط للحدود (اختيا
           </div>
         </div>
       </div>
-      <div class="user-guide-banner"> انقر أي صف في الجدول للتفاصيل /ولتحديث
+      <div class="user-guide-banner"> انقر أي صف في الجدول للتفاصيل /8/ولتحديث
         البيانات اضغط زر "تحديث" في الاسفل</div>
       <div class="stats-dashboard">
         <div class="stat-card">
@@ -614,6 +614,9 @@ border-radius: 4px; /* إضافة انحناء بسيط للحدود (اختيا
     const WEIGHT_SAVINGS = 0.4;
     const ITEMS_PER_PAGE = 20;
 
+  let urlProductsTerms = [];      // قائمة المنتجات من بارامتر products
+let searchIsOr = false;         // true = بحث OR (لـ products فقط)
+  
     let allData = [];
     let originalAllData = [];
     let filteredData = [];
@@ -918,7 +921,19 @@ function getNormalizedPricePerUnit(item) {
             bestPriceMode = params.get('best_price') === '1';
             const rawQ = params.get('q');
             urlSearchTerms = rawQ ? decodeURIComponent(rawQ).toLowerCase().split(/\s+/).map(t => t.trim()).filter(Boolean) : [];
-            const catParam = params.get('category');
+          
+          // داخل applyUrlParams()، بعد const rawQ = ...
+const productsParam = params.get('products');
+if (productsParam) {
+    urlProductsTerms = decodeURIComponent(productsParam).split(',').map(t => t.trim().toLowerCase()).filter(Boolean);
+    searchIsOr = true;
+    // إذا لم يكن هناك q، ننقل products إلى urlSearchTerms مع تعديل السلوك
+    if (urlSearchTerms.length === 0) {
+        urlSearchTerms = urlProductsTerms;
+    }
+}
+          
+          const catParam = params.get('category');
             urlCategories = catParam ? decodeURIComponent(catParam).split(',').map(c => c.trim().toLowerCase()).filter(Boolean) : [];
             const marketParam = params.get('market');
             if (marketParam) {
@@ -1379,27 +1394,29 @@ Array.from(supermarketMap.entries())
       
 const searchValRaw = document.getElementById('search-input').value; 
 
-    let effectiveSearchTerms = [];
-    if (urlSearchTerms && urlSearchTerms.length) {
-        effectiveSearchTerms = urlSearchTerms;
-    } else if (searchValRaw.trim() !== '') {
-        // نستخدم Regex لاستخراج الكلمات سواء كانت داخل تنصيص أو كلمات حرة
-        // هذا التعبير يقرأ ما بداخل " " أو ' ' ككتلة واحدة ويحتفظ بالمسافات، وما خارجها يقسمه بالمسافات
-        const regex = /"([^"]*)"|'([^']*)'|([^\s]+)/g;
-        let match;
-        while ((match = regex.exec(searchValRaw)) !== null) {
-            if (match[1] !== undefined) {
-                // الكلمة داخل دبل كوتس (نحتفظ بالمسافات كما هي)
-                effectiveSearchTerms.push(match[1].toLowerCase());
-            } else if (match[2] !== undefined) {
-                // الكلمة داخل سنجل كوتس (نحتفظ بالمسافات كما هي)
-                effectiveSearchTerms.push(match[2].toLowerCase());
-            } else if (match[3] !== undefined) {
-                // الكلمات العادية (تضاف ككلمة منفصلة)
-                effectiveSearchTerms.push(match[3].toLowerCase());
-            }
-        }
+// داخل applyAllFilters()، بعد const searchValRaw ...
+let effectiveSearchTerms = [];
+
+// تحديد المصدر: إذا كان لدينا urlProductsTerms والبحث OR نتعامل معه بشكل خاص
+if (searchIsOr && urlProductsTerms.length) {
+    effectiveSearchTerms = urlProductsTerms;
+} else if (urlSearchTerms.length) {
+    effectiveSearchTerms = urlSearchTerms;
+    searchIsOr = false;  // قادمة من q نستخدم AND
+} else if (searchValRaw.trim() !== '') {
+    // نفس الكود القديم لاستخراج الكلمات من حقل البحث
+    const regex = /"([^"]*)"|'([^']*)'|([^\s]+)/g;
+    let match;
+    while ((match = regex.exec(searchValRaw)) !== null) {
+        if (match[1] !== undefined) effectiveSearchTerms.push(match[1].toLowerCase());
+        else if (match[2] !== undefined) effectiveSearchTerms.push(match[2].toLowerCase());
+        else if (match[3] !== undefined) effectiveSearchTerms.push(match[3].toLowerCase());
     }
+    searchIsOr = false;
+}
+effectiveSearchTerms = effectiveSearchTerms.filter(term => term !== '');
+      
+      
     // نقوم بفلترة المصفوفة لإزالة أي إدخالات فارغة (بدون استخدام trim لكي لا نحذف مسافاتك المتعمدة)
     effectiveSearchTerms = effectiveSearchTerms.filter(term => term !== '');
       
@@ -1410,19 +1427,26 @@ const searchValRaw = document.getElementById('search-input').value;
         document.getElementById('sort-by').value = 'price-asc';
     }
     
-    filteredData = allData.filter(item => {
-        if (!showAllOffers && activeChipFilter !== 'all' && activeChipFilter !== 'recent') {
-            if (item.status === 'منتهي' || item.status === 'العرض منتهى') return false;
-        }
-        
 if (effectiveSearchTerms.length > 0) {
     const rawHay = (item.product + ' ' + item.primaryName + ' ' + item.brand + ' ' + item.supermarket).toLowerCase();
     const hay = normalizeArabic(rawHay);
-    if (!effectiveSearchTerms.every(term => {
-        let normTerm = normalizeArabic(term.toLowerCase());
-        return hay.includes(normTerm);
-    })) return false;
+    
+    if (searchIsOr) {
+        // OR: يكفي وجود أي مصطلح واحد
+        const matches = effectiveSearchTerms.some(term => {
+            let normTerm = normalizeArabic(term.toLowerCase());
+            return hay.includes(normTerm);
+        });
+        if (!matches) return false;
+    } else {
+        // AND: يجب وجود كل المصطلحات (السلوك الأصلي)
+        if (!effectiveSearchTerms.every(term => {
+            let normTerm = normalizeArabic(term.toLowerCase());
+            return hay.includes(normTerm);
+        })) return false;
+    }
 }
+      
       
    effectiveSearchTerms = effectiveSearchTerms.filter(term => term.trim() !== '');   
       
@@ -2032,6 +2056,9 @@ async function loadAndCropImage(item) {
     function refreshApplication() {
     clearUrlParamsAndUpdateLink();   // أضف هذا السطر أولاً
         
+      urlProductsTerms = [];
+searchIsOr = false;
+      
         window.history.replaceState({}, document.title, window.location.pathname);
         document.getElementById('search-input').value = '';
         document.getElementById('supermarket-filter').value = '';
@@ -2064,6 +2091,8 @@ async function loadAndCropImage(item) {
           
 // دالة لمسح البارامترات العالقة وتحديث الرابط
 function clearUrlParamsAndUpdateLink() {
+  const paramsToRemove = ['q', 'category', 'market', 'discount', 'page', 'all', 'best_price', 'one_day', 'products'];
+  
     let changed = false;
     if (urlSearchTerms.length) { urlSearchTerms = []; changed = true; }
     if (urlCategories.length) { urlCategories = []; changed = true; }
