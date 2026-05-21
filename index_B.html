@@ -461,7 +461,7 @@ border-radius: 4px; /* إضافة انحناء بسيط للحدود (اختيا
           </div>
         </div>
       </div>
-      <div class="user-guide-banner"> انقر أي صف في الجدول للتفاصيل /10/ولتحديث
+      <div class="user-guide-banner"> انقر أي صف في الجدول للتفاصيل /11/ولتحديث
         البيانات اضغط زر "تحديث" في الاسفل</div>
       <div class="stats-dashboard">
         <div class="stat-card">
@@ -916,6 +916,7 @@ function getNormalizedPricePerUnit(item) {
 
     // ==================== URL params ====================
     function applyUrlParams() {
+      searchIsOr = false;  // إعادة تعيين قبل قراءة البارامترات
         try {
             const params = new URLSearchParams(window.location.search);
             bestPriceMode = params.get('best_price') === '1';
@@ -1414,7 +1415,6 @@ if (searchIsOr && urlProductsTerms.length) {
     }
     searchIsOr = false;
 }
-effectiveSearchTerms = effectiveSearchTerms.filter(term => term !== '');
       
       
     // نقوم بفلترة المصفوفة لإزالة أي إدخالات فارغة (بدون استخدام trim لكي لا نحذف مسافاتك المتعمدة)
@@ -1422,36 +1422,37 @@ effectiveSearchTerms = effectiveSearchTerms.filter(term => term !== '');
       
       
     let sort = document.getElementById('sort-by').value;
-    if (effectiveSearchTerms.length > 0) {
-        sort = 'price-asc';
-        document.getElementById('sort-by').value = 'price-asc';
-    }
-    
-if (effectiveSearchTerms.length > 0) {
-    const rawHay = (item.product + ' ' + item.primaryName + ' ' + item.brand + ' ' + item.supermarket).toLowerCase();
-    const hay = normalizeArabic(rawHay);
-    
-    if (searchIsOr) {
-        // OR: يكفي وجود أي مصطلح واحد
-        const matches = effectiveSearchTerms.some(term => {
-            let normTerm = normalizeArabic(term.toLowerCase());
-            return hay.includes(normTerm);
-        });
-        if (!matches) return false;
-    } else {
-        // AND: يجب وجود كل المصطلحات (السلوك الأصلي)
-        if (!effectiveSearchTerms.every(term => {
-            let normTerm = normalizeArabic(term.toLowerCase());
-            return hay.includes(normTerm);
-        })) return false;
-    
-}
+  
+
       
-      
-   effectiveSearchTerms = effectiveSearchTerms.filter(term => term.trim() !== '');   
-      
-        // بقية الفلاتر (urlCategories, supermarket, category, brand, minDiscount, price, activeChipFilter, oneDayFilter) كما هي...
-        // (احتفظ بالكود الأصلي هنا)
+    // تصفية المنتجات بناءً على مصطلحات البحث
+    filteredData = allData.filter(item => {
+        if (!showAllOffers && activeChipFilter !== 'all' && activeChipFilter !== 'recent') {
+            if (item.status === 'منتهي' || item.status === 'العرض منتهى') return false;
+        }
+        
+        // تطبيق شروط البحث (AND/OR)
+        if (effectiveSearchTerms.length > 0) {
+            const rawHay = (item.product + ' ' + item.primaryName + ' ' + item.brand + ' ' + item.supermarket).toLowerCase();
+            const hay = normalizeArabic(rawHay);
+            
+            if (searchIsOr) {
+                // OR: يكفي وجود أي مصطلح واحد
+                const matches = effectiveSearchTerms.some(term => {
+                    let normTerm = normalizeArabic(term.toLowerCase());
+                    return hay.includes(normTerm);
+                });
+                if (!matches) return false;
+            } else {
+                // AND: يجب وجود كل المصطلحات
+                if (!effectiveSearchTerms.every(term => {
+                    let normTerm = normalizeArabic(term.toLowerCase());
+                    return hay.includes(normTerm);
+                })) return false;
+            }
+        }
+        
+        // باقي الفلاتر (supermarket, category, brand, price, discount, chips, oneDay...)
         if (urlCategories.length) {
             const itemCat = String(item.category || '').toLowerCase();
             if (!urlCategories.some(c => itemCat.includes(c))) return false;
@@ -1462,6 +1463,7 @@ if (effectiveSearchTerms.length > 0) {
         if (minDiscount > 0 && (item._discount_pct || 0) < minDiscount) return false;
         const price = item.currentPrice || 0;
         if (price < minPrice || price > maxPrice) return false;
+        
         switch (activeChipFilter) {
             case 'hot': if ((item._discount_pct || 0) < 30) return false; break;
             case 'ending':
@@ -1487,6 +1489,9 @@ if (effectiveSearchTerms.length > 0) {
         }
         return true;
     });
+      
+      
+      
     if (bestPriceMode) filteredData = reduceBestPricePerCategory(filteredData);
     sortData(filteredData, sort, effectiveSearchTerms.length > 0);
     populateFilters();
@@ -2091,23 +2096,21 @@ searchIsOr = false;
           
 // دالة لمسح البارامترات العالقة وتحديث الرابط
 function clearUrlParamsAndUpdateLink() {
-  const paramsToRemove = ['q', 'category', 'market', 'discount', 'page', 'all', 'best_price', 'one_day', 'products'];
-  
     let changed = false;
     if (urlSearchTerms.length) { urlSearchTerms = []; changed = true; }
     if (urlCategories.length) { urlCategories = []; changed = true; }
     if (urlMarket) { urlMarket = null; changed = true; }
     if (oneDayFilter) { oneDayFilter = false; changed = true; }
     if (bestPriceMode) { bestPriceMode = false; changed = true; }
+    if (urlProductsTerms.length) { urlProductsTerms = []; changed = true; }
+    if (searchIsOr) { searchIsOr = false; changed = true; }
     
     if (changed) {
-        // حذف البارامترات من الرابط
         const url = new URL(window.location.href);
-        const paramsToRemove = ['q', 'category', 'market', 'discount', 'page', 'all', 'best_price', 'one_day'];
+        const paramsToRemove = ['q', 'category', 'market', 'discount', 'page', 'all', 'best_price', 'one_day', 'products'];
         paramsToRemove.forEach(p => url.searchParams.delete(p));
         window.history.replaceState({}, document.title, url.pathname + url.search);
         
-        // إزالة أي بانر خاص بـ one_day
         const banner = document.getElementById('one-day-banner');
         if (banner) banner.remove();
         
