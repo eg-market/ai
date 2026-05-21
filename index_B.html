@@ -461,8 +461,8 @@ border-radius: 4px; /* إضافة انحناء بسيط للحدود (اختيا
           </div>
         </div>
       </div>
-      <div class="user-guide-banner"> انقر أي صف في الجدول للتفاصيل /12/ولتحديث
-        البيانات اضغط زر "تحديث" في الاسفل</div>
+      <div class="user-guide-banner"> انقر أي صف في الجدول للتفاصيل /13/ولتحديث
+         البيانات اضغط زر "تحديث" في الاسفل / ولاستعلام جديد اضغط زر "الرجوع للبداية"</div>
       <div class="stats-dashboard">
         <div class="stat-card">
           <div class="stat-icon">💰</div>
@@ -614,6 +614,7 @@ border-radius: 4px; /* إضافة انحناء بسيط للحدود (اختيا
     const WEIGHT_SAVINGS = 0.4;
     const ITEMS_PER_PAGE = 20;
 
+  let initialLoadDone = false;   // لمنع مسح البارامترات عند التحميل الأول
   let urlProductsTerms = [];      // قائمة المنتجات من بارامتر products
 let searchIsOr = false;         // true = بحث OR (لـ products فقط)
   
@@ -1084,9 +1085,10 @@ if (urlSearchTerms.length) {
     document.getElementById('search-input').value = urlSearchTerms.join(' ');
 }
 populateFilters();
-applyAllFilters();
+   applyAllFilters();
+    initialLoadDone = true;   // <-- أضف هذا السطر
+    populateTicker();
       
-        populateTicker();
         dataLoaded = true;
        // ✅ استعادة الحالة المخزنة (إذا كانت موجودة)
     restoreStateIfExists();
@@ -1377,11 +1379,12 @@ Array.from(supermarketMap.entries())
 
     // ==================== Apply filters ====================
 function applyAllFilters() {
-    // IMPORTANT: إذا كان المستخدم قد كتب أي شيء في البحث، نمسح البارامترات العالقة
+    // IMPORTANT: إذا كان المستخدم قد كتب أي شيء في البحث (وليس من التحميل الأول)، نمسح البارامترات العالقة
     const searchInputValue = document.getElementById('search-input').value.trim();
-    if (searchInputValue !== '') {
+    if (searchInputValue !== '' && initialLoadDone) {
         clearUrlParamsAndUpdateLink();
     }
+
     
     // قراءة قيم الفلاتر
     const supermarket = document.getElementById('supermarket-filter').value;
