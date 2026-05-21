@@ -461,7 +461,7 @@ border-radius: 4px; /* إضافة انحناء بسيط للحدود (اختيا
           </div>
         </div>
       </div>
-      <div class="user-guide-banner"> انقر أي صف في الجدول للتفاصيل /11/ولتحديث
+      <div class="user-guide-banner"> انقر أي صف في الجدول للتفاصيل /12/ولتحديث
         البيانات اضغط زر "تحديث" في الاسفل</div>
       <div class="stats-dashboard">
         <div class="stat-card">
@@ -1376,62 +1376,59 @@ Array.from(supermarketMap.entries())
     }
 
     // ==================== Apply filters ====================
-    function applyAllFilters() {
-      
-          // IMPORTANT: إذا كان المستخدم قد كتب أي شيء في البحث، نمسح البارامترات العالقة
+function applyAllFilters() {
+    // IMPORTANT: إذا كان المستخدم قد كتب أي شيء في البحث، نمسح البارامترات العالقة
     const searchInputValue = document.getElementById('search-input').value.trim();
     if (searchInputValue !== '') {
         clearUrlParamsAndUpdateLink();
     }
-      
+    
+    // قراءة قيم الفلاتر
     const supermarket = document.getElementById('supermarket-filter').value;
     const category = document.getElementById('category-filter').value;
     const brand = document.getElementById('brand-filter').value;
-          
     const minDiscount = parseFloat(document.getElementById('min-discount').value) || 0;
     let minPrice = parseFloat(document.getElementById('min-price').value) || 0;
     let maxPrice = parseFloat(document.getElementById('max-price').value) || Infinity;
     if (minPrice > maxPrice) [minPrice, maxPrice] = [maxPrice, minPrice];
-      
-const searchValRaw = document.getElementById('search-input').value; 
-
-// داخل applyAllFilters()، بعد const searchValRaw ...
-let effectiveSearchTerms = [];
-
-// تحديد المصدر: إذا كان لدينا urlProductsTerms والبحث OR نتعامل معه بشكل خاص
-if (searchIsOr && urlProductsTerms.length) {
-    effectiveSearchTerms = urlProductsTerms;
-} else if (urlSearchTerms.length) {
-    effectiveSearchTerms = urlSearchTerms;
-    searchIsOr = false;  // قادمة من q نستخدم AND
-} else if (searchValRaw.trim() !== '') {
-    // نفس الكود القديم لاستخراج الكلمات من حقل البحث
-    const regex = /"([^"]*)"|'([^']*)'|([^\s]+)/g;
-    let match;
-    while ((match = regex.exec(searchValRaw)) !== null) {
-        if (match[1] !== undefined) effectiveSearchTerms.push(match[1].toLowerCase());
-        else if (match[2] !== undefined) effectiveSearchTerms.push(match[2].toLowerCase());
-        else if (match[3] !== undefined) effectiveSearchTerms.push(match[3].toLowerCase());
+    
+    const searchValRaw = document.getElementById('search-input').value;
+    
+    // بناء قائمة مصطلحات البحث الفعالة
+    let effectiveSearchTerms = [];
+    
+    if (searchIsOr && urlProductsTerms.length) {
+        effectiveSearchTerms = urlProductsTerms;
+    } else if (urlSearchTerms.length) {
+        effectiveSearchTerms = urlSearchTerms;
+        searchIsOr = false; // قادمة من q نستخدم AND
+    } else if (searchValRaw.trim() !== '') {
+        const regex = /"([^"]*)"|'([^']*)'|([^\s]+)/g;
+        let match;
+        while ((match = regex.exec(searchValRaw)) !== null) {
+            if (match[1] !== undefined) effectiveSearchTerms.push(match[1].toLowerCase());
+            else if (match[2] !== undefined) effectiveSearchTerms.push(match[2].toLowerCase());
+            else if (match[3] !== undefined) effectiveSearchTerms.push(match[3].toLowerCase());
+        }
+        searchIsOr = false;
     }
-    searchIsOr = false;
-}
-      
-      
-    // نقوم بفلترة المصفوفة لإزالة أي إدخالات فارغة (بدون استخدام trim لكي لا نحذف مسافاتك المتعمدة)
     effectiveSearchTerms = effectiveSearchTerms.filter(term => term !== '');
-      
-      
+    
+    // تحديد خيار الترتيب (إذا كان هناك بحث، نضبط الترتيب إلى السعر تصاعدي حسب السعر الموحد)
     let sort = document.getElementById('sort-by').value;
-  
-
-      
-    // تصفية المنتجات بناءً على مصطلحات البحث
+    if (effectiveSearchTerms.length > 0) {
+        sort = 'price-asc';
+        document.getElementById('sort-by').value = 'price-asc';
+    }
+    
+    // تصفية البيانات
     filteredData = allData.filter(item => {
+        // فلترة حالة العرض (سارية / منتهية)
         if (!showAllOffers && activeChipFilter !== 'all' && activeChipFilter !== 'recent') {
             if (item.status === 'منتهي' || item.status === 'العرض منتهى') return false;
         }
         
-        // تطبيق شروط البحث (AND/OR)
+        // تطبيق شروط البحث (AND / OR)
         if (effectiveSearchTerms.length > 0) {
             const rawHay = (item.product + ' ' + item.primaryName + ' ' + item.brand + ' ' + item.supermarket).toLowerCase();
             const hay = normalizeArabic(rawHay);
@@ -1452,7 +1449,7 @@ if (searchIsOr && urlProductsTerms.length) {
             }
         }
         
-        // باقي الفلاتر (supermarket, category, brand, price, discount, chips, oneDay...)
+        // فلاتر إضافية
         if (urlCategories.length) {
             const itemCat = String(item.category || '').toLowerCase();
             if (!urlCategories.some(c => itemCat.includes(c))) return false;
@@ -1464,6 +1461,7 @@ if (searchIsOr && urlProductsTerms.length) {
         const price = item.currentPrice || 0;
         if (price < minPrice || price > maxPrice) return false;
         
+        // فلترة الـ chips
         switch (activeChipFilter) {
             case 'hot': if ((item._discount_pct || 0) < 30) return false; break;
             case 'ending':
@@ -1489,16 +1487,22 @@ if (searchIsOr && urlProductsTerms.length) {
         }
         return true;
     });
-      
-      
-      
+    
+    // وضع أفضل سعر لكل فئة (إذا كان مفعلاً)
     if (bestPriceMode) filteredData = reduceBestPricePerCategory(filteredData);
+    
+    // ترتيب النتائج
     sortData(filteredData, sort, effectiveSearchTerms.length > 0);
+    
+    // تحديث الفلاتر الثانوية (السوبرماركت، الفئة، البراند) حسب النتائج الحالية
     populateFilters();
+    
+    // إعادة تعيين الصفحة إلى 1 وتحديث الواجهة
     currentPage = 1;
     renderContent();
     updateStats();
 }
+      
       
       
 
