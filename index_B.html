@@ -461,8 +461,9 @@ border-radius: 4px; /* إضافة انحناء بسيط للحدود (اختيا
           </div>
         </div>
       </div>
-      <div class="user-guide-banner"> انقر أي صف في الجدول للتفاصيل /18/ولتحديث
-         البيانات اضغط زر "تحديث" في الاسفل / ولاستعلام جديد اضغط زر "الرجوع للبداية"</div>
+      <div class="user-guide-banner"> انقر أي صف في الجدول للتفاصيل /ولتحديث
+        البيانات اضغط زر "تحديث" في الاسفل / ولاستعلام جديد اضغط زر "الرجوع
+        للبداية"</div>
       <div class="stats-dashboard">
         <div class="stat-card">
           <div class="stat-icon">💰</div>
@@ -1482,25 +1483,26 @@ function applyAllFilters() {
         }
 
         // تطبيق شروط البحث (AND/OR) مع مطابقة الكلمات كاملة
-        if (effectiveSearchTerms.length > 0) {
-            const rawHay = (item.product + ' ' + item.primaryName + ' ' + item.brand + ' ' + item.supermarket).toLowerCase();
-            const hay = normalizeArabic(rawHay);
-            
-            if (searchIsOr) {
-                // OR: يكفي وجود أي كلمة كاملة
-                const matches = effectiveSearchTerms.some(term => {
-                    let normTerm = normalizeArabic(term.toLowerCase());
-                    return matchWholeWord(hay, normTerm);
-                });
-                if (!matches) return false;
-            } else {
-                // AND: يجب وجود كل الكلمات كاملة
-                if (!effectiveSearchTerms.every(term => {
-                    let normTerm = normalizeArabic(term.toLowerCase());
-                    return matchWholeWord(hay, normTerm);
-                })) return false;
-            }
-        }
+if (effectiveSearchTerms.length > 0) {
+    const rawHay = (item.product + ' ' + item.primaryName + ' ' + item.brand + ' ' + item.supermarket).toLowerCase();
+    const hay = normalizeArabic(rawHay);
+    
+    if (searchIsOr) {
+        // OR (قادم من products أو فواصل): نستخدم مطابقة الكلمة كاملة
+        const matches = effectiveSearchTerms.some(term => {
+            let normTerm = normalizeArabic(term.toLowerCase());
+            return matchWholeWord(hay, normTerm);
+        });
+        if (!matches) return false;
+    } else {
+        // AND (البحث العادي): نستخدم contains (جزء من الكلمة)
+        if (!effectiveSearchTerms.every(term => {
+            let normTerm = normalizeArabic(term.toLowerCase());
+            return hay.includes(normTerm);
+        })) return false;
+    }
+}
+      
 
         // فلاتر إضافية
         if (urlCategories.length) {
@@ -1803,7 +1805,7 @@ if (isMobile && validUntilHtml) {
             `;
         }
         
-        return `<tr ${rowClass} data-url="${url}" data-flyer="${flyerId}" data-page-number="${pageNumber}" data-page="${item.pageNo}" style="cursor:pointer;">${cells}<\/tr>`;
+        return `<tr ${rowClass} data-solution-key="${item.solution_key}" data-url="${url}" data-flyer="${flyerId}" data-page-number="${pageNumber}" data-page="${item.pageNo}" style="cursor:pointer;">${cells}<\/tr>`;
     }).join('');
     
     // تحديث رأس الجدول (thead) للموبايل لإزالة الأعمدة المخفية وتعديل الترويسات
@@ -1839,23 +1841,37 @@ if (isMobile && validUntilHtml) {
     
 document.querySelectorAll('#table-body tr').forEach(tr => {
     tr.addEventListener('click', function(e) {
-        let productName = this.cells[1]?.innerText || '';
-        let productObj = allData.find(p => p.product === productName);
+        let uniqueKey = this.getAttribute('data-solution-key');
+        let productObj = allData.find(p => p.solution_key === uniqueKey);
+        
         if (productObj) {
-            // ✅ التأكد من وجود solution_key (إذا لم يكن موجوداً، نستخدم product كبديل)
+            // التأكد من وجود الخصائص الأساسية
             if (!productObj.solution_key) productObj.solution_key = productObj.product || 'unknown';
             if (!productObj.pageNo) productObj.pageNo = '';
             if (!productObj.currency) productObj.currency = 'EGP';
             if (!productObj._discount_pct) productObj._discount_pct = productObj.discount || 0;
             if (!productObj.originalPrice) productObj.originalPrice = 0;
             if (!productObj.validUntil) productObj.validUntil = 'غير متاح';
-            
+            if (!productObj.branch) productObj.branch = '';
+            if (!productObj.promo) productObj.promo = '';
+
+            // --- إضافة الإحداثيات من crop إن وجدت ---
+            if (productObj.crop) {
+                productObj.X = productObj.crop.x;
+                productObj.Y = productObj.crop.y;
+                productObj['العرض'] = productObj.crop.w;
+                productObj['الارتفاع'] = productObj.crop.h;
+            } else {
+                // قيم افتراضية (لتجنب الأخطاء، يمكنك وضع 0 أو تجاهل)
+                productObj.X = 0;
+                productObj.Y = 0;
+                productObj['العرض'] = 0;
+                productObj['الارتفاع'] = 0;
+            }
+            // -----------------------------------------
+
             saveCurrentState();
             sessionStorage.setItem('selectedProduct', JSON.stringify(productObj));
-        
-        if (!productObj.branch) productObj.branch = '';
-if (!productObj.promo) productObj.promo = '';
-        
             window.open('product_details.html', '_blank');
         } else {
             let url = this.dataset.url;
@@ -1863,6 +1879,7 @@ if (!productObj.promo) productObj.promo = '';
         }
     });
 });
+      
         updatePagination();
 }
 
