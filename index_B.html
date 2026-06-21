@@ -725,11 +725,11 @@ function transformRows(rows) {
 
         // ========== استخراج إحداثيات الاقتصاص (تم نقلها إلى هنا) ==========
         let cropX = null, cropY = null, cropW = null, cropH = null;
-        if (item['X'] !== undefined && item['Y'] !== undefined && item['Width'] !== undefined && item['Height'] !== undefined) {
+        if (item['X'] !== undefined && item['Y'] !== undefined && item['العرض'] !== undefined && item['الارتفاع'] !== undefined) {
             cropX = parseFloat(item['X']);
             cropY = parseFloat(item['Y']);
-            cropW = parseFloat(item['Width']);
-            cropH = parseFloat(item['Height']);
+            cropW = parseFloat(item['العرض']);
+            cropH = parseFloat(item['الارتفاع']);
         } else if (item['x1'] !== undefined && item['y1'] !== undefined && item['x2'] !== undefined && item['y2'] !== undefined) {
             cropX = parseFloat(item['x1']);
             cropY = parseFloat(item['y1']);
@@ -1852,6 +1852,20 @@ document.querySelectorAll('#table-body tr').forEach(tr => {
             if (!productObj.originalPrice) productObj.originalPrice = 0;
             if (!productObj.validUntil) productObj.validUntil = 'غير متاح';
             
+         
+            // --- إضافة الإحداثيات من crop إن وجدت ---
+            if (productObj.crop) {
+                productObj.X = productObj.crop.x;
+                productObj.Y = productObj.crop.y;
+                productObj['العرض'] = productObj.crop.w;
+                productObj['الارتفاع'] = productObj.crop.h;
+            } else {
+                productObj.X = 0;
+                productObj.Y = 0;
+                productObj['العرض'] = 0;
+                productObj['الارتفاع'] = 0;
+            }
+        
             saveCurrentState();
             sessionStorage.setItem('selectedProduct', JSON.stringify(productObj));
         

@@ -356,22 +356,19 @@ function renderCroppedImage(container, item) {
     const PAD_TOP = 0.17;
     const PAD_BOTTOM = 0.05;
 
-    const canvas = document.createElement('canvas');
-    const ctx = canvas.getContext('2d');
     const img = new Image();
-    img.crossOrigin = "anonymous";
-
+    
     img.onload = function() {
         const img_w = img.naturalWidth;
         const img_h = img.naturalHeight;
 
-        // تحويل الإحداثيات النسبية (0-1) إلى بكسل — نفس منطق Python
+        // تحويل الإحداثيات النسبية إلى بكسل — نفس منطق Python
         let left_px = (x <= 1.0) ? x * img_w : x;
         let top_px = (y <= 1.0) ? y * img_h : y;
         let box_w_px = (w <= 1.0) ? w * img_w : w;
         let box_h_px = (h <= 1.0) ? h * img_h : h;
 
-        // تطبيق نفس حسابات الـ Padding من كود Python
+        // تطبيق نفس حسابات الـ Padding
         let final_left = Math.max(0, left_px - (img_w * PAD_LEFT));
         let final_right = Math.min(img_w, left_px + box_w_px + (img_w * PAD_RIGHT));
         let final_top = Math.max(0, top_px - (img_h * PAD_TOP));
@@ -385,19 +382,26 @@ function renderCroppedImage(container, item) {
         const crop_w = final_right - final_left;
         const crop_h = final_bottom - final_top;
 
-        // ضبط أبعاد Canvas على الجزء المقصوص
-        canvas.width = crop_w;
-        canvas.height = crop_h;
+        // حساب النسب المئوية للـ CSS background
+        const bgSizeW = (img_w / crop_w) * 100;
+        const bgSizeH = (img_h / crop_h) * 100;
+        const bgPosX = (final_left / (img_w - crop_w)) * 100;
+        const bgPosY = (final_top / (img_h - crop_h)) * 100;
 
-        // رسم الجزء المقصوص فقط — نفس عملية PIL.crop() في Python
-        ctx.drawImage(img, final_left, final_top, crop_w, crop_h, 0, 0, crop_w, crop_h);
-
-        // تنسيق Canvas ليتناسب مع حجم الحاوية
-        canvas.style.maxWidth = '95%';
-        canvas.style.maxHeight = '95%';
-        canvas.style.borderRadius = '16px';
-        canvas.style.boxShadow = '0 8px 25px rgba(0,0,0,0.3)';
-        canvas.style.objectFit = 'contain';
+        // إنشاء حاوية للصورة المقصوصة
+        const cropContainer = document.createElement('div');
+        cropContainer.style.cssText = `
+            width: 100%;
+            height: 100%;
+            max-width: 95%;
+            max-height: 95%;
+            background-image: url('${fullImageUrl}');
+            background-size: ${bgSizeW}% ${bgSizeH}%;
+            background-position: ${bgPosX}% ${bgPosY}%;
+            background-repeat: no-repeat;
+            border-radius: 16px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+        `;
 
         container.style.position = 'relative';
         container.style.display = 'flex';
@@ -405,7 +409,7 @@ function renderCroppedImage(container, item) {
         container.style.alignItems = 'center';
         container.style.overflow = 'hidden';
 
-        container.appendChild(canvas);
+        container.appendChild(cropContainer);
 
         // إضافة شارة "مقتصصة"
         const badge = document.createElement('span');
