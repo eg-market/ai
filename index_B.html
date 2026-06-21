@@ -461,7 +461,7 @@ border-radius: 4px; /* إضافة انحناء بسيط للحدود (اختيا
           </div>
         </div>
       </div>
-      <div class="user-guide-banner"> انقر أي صف في الجدول للتفاصيل/ولتحديث
+      <div class="user-guide-banner"> انقر أي صف في الجدول للتفاصيل /X/ولتحديث
         البيانات اضغط زر "تحديث" في الاسفل / ولاستعلام جديد اضغط زر "الرجوع
         للبداية"</div>
       <div class="stats-dashboard">
@@ -1805,7 +1805,7 @@ if (isMobile && validUntilHtml) {
             `;
         }
         
-        return `<tr ${rowClass} data-solution-key="${item.solution_key}" data-url="${url}" data-flyer="${flyerId}" data-page-number="${pageNumber}" data-page="${item.pageNo}" style="cursor:pointer;">${cells}<\/tr>`;
+        return `<tr ${rowClass} data-url="${url}" data-flyer="${flyerId}" data-page-number="${pageNumber}" data-page="${item.pageNo}" style="cursor:pointer;">${cells}<\/tr>`;
     }).join('');
     
     // تحديث رأس الجدول (thead) للموبايل لإزالة الأعمدة المخفية وتعديل الترويسات
@@ -1841,14 +1841,10 @@ if (isMobile && validUntilHtml) {
     
 document.querySelectorAll('#table-body tr').forEach(tr => {
     tr.addEventListener('click', function(e) {
-        // جلب المفتاح الفريد من الصف
-        let uniqueKey = this.getAttribute('data-solution-key');
-        
-        // البحث الدقيق بواسطة المفتاح الفريد بدلاً من الاسم
-        let productObj = allData.find(p => p.solution_key === uniqueKey);
-        
+        let productName = this.cells[1]?.innerText || '';
+        let productObj = allData.find(p => p.product === productName);
         if (productObj) {
-            // باقي الكود كما هو تماماً
+            // ✅ التأكد من وجود solution_key (إذا لم يكن موجوداً، نستخدم product كبديل)
             if (!productObj.solution_key) productObj.solution_key = productObj.product || 'unknown';
             if (!productObj.pageNo) productObj.pageNo = '';
             if (!productObj.currency) productObj.currency = 'EGP';
@@ -1859,8 +1855,8 @@ document.querySelectorAll('#table-body tr').forEach(tr => {
             saveCurrentState();
             sessionStorage.setItem('selectedProduct', JSON.stringify(productObj));
         
-            if (!productObj.branch) productObj.branch = '';
-            if (!productObj.promo) productObj.promo = '';
+        if (!productObj.branch) productObj.branch = '';
+if (!productObj.promo) productObj.promo = '';
         
             window.open('product_details.html', '_blank');
         } else {
@@ -1869,7 +1865,6 @@ document.querySelectorAll('#table-body tr').forEach(tr => {
         }
     });
 });
-      
         updatePagination();
 }
 
