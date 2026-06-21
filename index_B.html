@@ -461,7 +461,7 @@ border-radius: 4px; /* إضافة انحناء بسيط للحدود (اختيا
           </div>
         </div>
       </div>
-      <div class="user-guide-banner"> انقر أي صف في الجدول للتفاصيل //ولتحديث
+      <div class="user-guide-banner"> انقر أي صف في الجدول للتفاصيل ////ولتحديث
         البيانات اضغط زر "تحديث" في الاسفل / ولاستعلام جديد اضغط زر "الرجوع
         للبداية"</div>
       <div class="stats-dashboard">
@@ -1863,7 +1863,6 @@ document.querySelectorAll('#table-body tr').forEach(tr => {
                 productObj['العرض'] = productObj.crop.w;
                 productObj['الارتفاع'] = productObj.crop.h;
             } else {
-                // قيم افتراضية (لتجنب الأخطاء، يمكنك وضع 0 أو تجاهل)
                 productObj.X = 0;
                 productObj.Y = 0;
                 productObj['العرض'] = 0;
@@ -1871,9 +1870,14 @@ document.querySelectorAll('#table-body tr').forEach(tr => {
             }
             // -----------------------------------------
 
-            saveCurrentState();
+            // نخزن المنتج في sessionStorage دون حفظ الحالة العامة (لتجنب التداخل)
+            // saveCurrentState(); // نعلق هذه السطر
             sessionStorage.setItem('selectedProduct', JSON.stringify(productObj));
-            window.open('product_details.html', '_blank');
+            
+            // نفتح النافذة بعد تأخير بسيط لضمان التخزين
+            setTimeout(() => {
+                window.open('product_details.html', '_blank');
+            }, 50);
         } else {
             let url = this.dataset.url;
             if (url && url !== '#') window.open(url, '_blank');

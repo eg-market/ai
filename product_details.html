@@ -326,10 +326,14 @@ const defaultSupermarketInfo = {
 
 // دالة عرض الصورة المقتطعة باستخدام clip-path
 
-    function renderCroppedImage(container, item) {
+function renderCroppedImage(container, item) {
     container.innerHTML = '';
     const fullImageUrl = getProductImageUrl(item);
-    if (!fullImageUrl) {
+    const fallbackImageUrl = getGeneralFlyerUrl(item); // الصورة العامة للفلاير (صفحة 1)
+
+    // إذا لم توجد صورة محددة، استخدم البديلة
+    let imageUrl = fullImageUrl || fallbackImageUrl;
+    if (!imageUrl) {
         const placeholder = document.createElement('div');
         placeholder.style.cssText = 'display:flex; justify-content:center; align-items:center; width:100%; height:100%; color:white; font-size:1.2rem;';
         placeholder.textContent = 'لا توجد صورة';
@@ -345,8 +349,9 @@ const defaultSupermarketInfo = {
     // إذا كانت الإحداثيات كلها صفر، اعرض الصورة كاملة
     if (x === 0 && y === 0 && w === 0 && h === 0) {
         const img = document.createElement('img');
-        img.src = fullImageUrl;
+        img.src = imageUrl;
         img.style.cssText = 'max-width:100%; max-height:100%; object-fit:contain;';
+        img.onerror = function() { this.src = fallbackImageUrl || 'https://via.placeholder.com/500?text=Image+Not+Found'; };
         container.appendChild(img);
         return;
     }
@@ -365,26 +370,47 @@ const defaultSupermarketInfo = {
     const cropHeight = bottom - top;
 
     if (cropWidth <= 0 || cropHeight <= 0) {
-        // إذا كانت المنطقة غير صالحة، اعرض الصورة كاملة
+        // المنطقة غير صالحة، اعرض الصورة كاملة
         const img = document.createElement('img');
-        img.src = fullImageUrl;
+        img.src = imageUrl;
         img.style.cssText = 'max-width:100%; max-height:100%; object-fit:contain;';
+        img.onerror = function() { this.src = fallbackImageUrl || 'https://via.placeholder.com/500?text=Image+Not+Found'; };
         container.appendChild(img);
         return;
     }
 
-    // استخدام background-image مع حساب دقيق
+    // استخدام background-image مع تكبير الصورة لإظهار المنطقة المطلوبة
     const div = document.createElement('div');
+    const scaleX = 100 / cropWidth;
+    const scaleY = 100 / cropHeight;
+    const posX = (left / cropWidth) * 100;
+    const posY = (top / cropHeight) * 100;
+
     div.style.cssText = `
         width: 100%;
         height: 100%;
-        background-image: url(${fullImageUrl});
-        background-size: ${100 / cropWidth}% ${100 / cropHeight}%;
-        background-position: ${(left / cropWidth) * 100}% ${(top / cropHeight) * 100}%;
+        background-image: url(${imageUrl});
+        background-size: ${scaleX}% ${scaleY}%;
+        background-position: ${posX}% ${posY}%;
         background-repeat: no-repeat;
         background-color: #1a1a2e;
         position: relative;
     `;
+
+    // في حالة فشل تحميل الخلفية، استخدم البديلة كصورة img داخل div
+    div.onerror = function() {
+        // في حال فشل background، نعرض البديلة كصورة
+        const img = document.createElement('img');
+        img.src = fallbackImageUrl || 'https://via.placeholder.com/500?text=Image+Not+Found';
+        img.style.cssText = 'max-width:100%; max-height:100%; object-fit:contain;';
+        div.innerHTML = '';
+        div.appendChild(img);
+        // نعيد إضافة البادج
+        const badge = document.createElement('span');
+        badge.style.cssText = 'position: absolute; bottom: 15px; right: 15px; background: rgba(0,0,0,0.7); color: #fff; padding: 4px 14px; border-radius: 20px; font-size: 0.8rem; pointer-events: none; z-index: 2;';
+        badge.innerHTML = '<i class="fas fa-crop-alt"></i> مقتصصة (بديل)';
+        div.appendChild(badge);
+    };
 
     const badge = document.createElement('span');
     badge.style.cssText = 'position: absolute; bottom: 15px; right: 15px; background: rgba(0,0,0,0.7); color: #fff; padding: 4px 14px; border-radius: 20px; font-size: 0.8rem; pointer-events: none; z-index: 2;';
