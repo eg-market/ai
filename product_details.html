@@ -326,61 +326,53 @@
         map_link: "#"
     };
 
-function getCroppedBackgroundStyle(item) {
-    const fullImageUrl = getProductImageUrl(item);
-    if (!fullImageUrl) return null;
+function renderCroppedImage(container, item) {
+    // مسح المحتوى السابق
+    container.innerHTML = '';
 
-    const x = parseFloat(item.X) || 0;
-    const y = parseFloat(item.Y) || 0;
-    const w = parseFloat(item['العرض']) || 0;
-    const h = parseFloat(item['الارتفاع']) || 0;
+    const style = getCroppedBackgroundStyle(item);
+    if (!style) {
+        // في حال عدم وجود إحداثيات، نعرض الصورة كاملة
+        const img = document.createElement('img');
+        img.src = getProductImageUrl(item) || 'https://via.placeholder.com/500?text=صورة+غير+متوفرة';
+        img.style.cssText = 'max-width: 100%; max-height: 100%; object-fit: contain;';
+        container.appendChild(img);
+        return;
+    }
 
-    if (x === 0 && y === 0 && w === 0 && h === 0) return null;
+    // إنشاء div مع الخلفية
+    const div = document.createElement('div');
+    // تطبيق الأنماط
+    div.style.cssText = `
+        background-image: ${style.backgroundImage};
+        background-size: ${style.backgroundSize};
+        background-position: ${style.backgroundPosition};
+        background-repeat: ${style.backgroundRepeat};
+        background-color: ${style.backgroundColor};
+        width: ${style.width};
+        padding-bottom: ${style.paddingBottom};
+        height: ${style.height};
+        position: ${style.position};
+        overflow: ${style.overflow};
+    `;
 
-    const PAD_LEFT = 0.40, PAD_RIGHT = 0.11, PAD_TOP = 0.17, PAD_BOTTOM = 0.05;
+    // إضافة علامة "مقتصصة"
+    const badge = document.createElement('span');
+    badge.style.cssText = 'position: absolute; bottom: 15px; right: 15px; background: rgba(0,0,0,0.7); color: #fff; padding: 4px 14px; border-radius: 20px; font-size: 0.8rem; pointer-events: none; z-index: 2;';
+    badge.innerHTML = '<i class="fas fa-crop-alt"></i> مقتصصة';
+    div.appendChild(badge);
 
-    let left = Math.max(0, x - PAD_LEFT);
-    let right = Math.min(1, x + w + PAD_RIGHT);
-    let top = Math.max(0, y - PAD_TOP);
-    let bottom = Math.min(1, y + h + PAD_BOTTOM);
-
-    const cropWidth = right - left;
-    const cropHeight = bottom - top;
-
-    if (cropWidth <= 0 || cropHeight <= 0) return null;
-
-    // حساب النسب المئوية لـ background-position
-    // لاحظ أن background-position: X% Y% حيث X% تحدد النقطة الأفقية من الصورة التي تظهر في منتصف العنصر.
-    // لكننا نريد أن تكون الزاوية العلوية اليسرى للعنصر عند النقطة (left, top) من الصورة.
-    // لذا نستخدم: left% top%
-    const posX = left * 100;
-    const posY = top * 100;
-
-    // لحساب background-size، نريد أن يكون حجم الخلفية بحيث تغطي العنصر بالكامل مع الحفاظ على النسبة.
-    // لكننا نريد عرض جزء معين من الصورة، لذا نضبط background-size بحيث يكون عرض الصورة كاملاً = 100% من العنصر،
-    // ونستخدم background-position لتحديد المنطقة.
-    // الطريقة الصحيحة:
-    // background-size = 100% 100% لأننا نريد أن تغطي الخلفية العنصر بالكامل، ثم نحدد المنطقة المطلوبة عن طريق background-position و background-origin.
-    // في هذه الحالة، الخلفية ستكون مضغوطة أو ممددة حسب نسبة العنصر، لكننا نريد أن تظهر الصورة بنسبتها الطبيعية.
-    // لذا نستخدم background-size: auto، ونضبط حجم العنصر ليكون بنفس نسبة الأبعاد المقتطعة.
-    // ولكن لا نعرف أبعاد الصورة، لذا نتركها auto وتكون الصورة بحجمها الأصلي، ثم نضبط background-position لإظهار الجزء المطلوب.
-    // ومع ذلك، الخلفية ستكون أكبر من العنصر، لذا نضبط overflow:hidden.
-    // هذا الحل يعمل دون الحاجة لمعرفة أبعاد الصورة، لأننا نحدد الموضع بالنسبة المئوية.
-
-    // نعيد كائن style للعنصر (div)
-    return {
-        backgroundImage: `url(${fullImageUrl})`,
-        backgroundSize: 'auto',   // الحجم الطبيعي
-        backgroundPosition: `${posX}% ${posY}%`,
-        backgroundRepeat: 'no-repeat',
-        // العنصر يجب أن يكون بنسبة أبعاد (cropWidth:cropHeight) ولكن لا نعرف نسبة الصورة الأصلية.
-        // لذا نستخدم padding-bottom لتحديد النسبة.
-        // سنقوم بضبط نسبة العنصر في HTML باستخدام padding-bottom.
-    };
+    container.appendChild(div);
 }
+      
+      
 
 // دالة لعرض الصورة المقتطعة داخل div
 function renderCroppedImage(container, item) {
+    if (!productData) return;
+    const fullFlyerUrl = getProductImageUrl(productData);
+    const generalImageUrl = getGeneralFlyerUrl(productData);
+  
     const style = getCroppedBackgroundStyle(item);
     if (!style) {
         // عرض الصورة الكاملة
@@ -579,7 +571,7 @@ function renderPage() {
                 <div class="actions-row">
                     <a href="${cleanPhone ? 'tel:' + cleanPhone : '#'}" class="btn btn-success ${!cleanPhone ? 'disabled' : ''}"><i class="fas fa-phone-alt"></i> اتصل</a>
                     <a href="${website !== '#' ? website : '#'}" target="_blank" class="btn btn-primary"><i class="fas fa-globe"></i> الموقع الالكتروني</a>
-                    <a href="${mapLink !== '#' ? mapLink : '#'}" target="_blank" class="btn btn-danger"><i class="fas fa-map"></i> --الخريطة</a>
+                    <a href="${mapLink !== '#' ? mapLink : '#'}" target="_blank" class="btn btn-danger"><i class="fas fa-map"></i> الخريطة</a>
                     <button onclick="shareProduct()" class="btn btn-warning"><i class="fas fa-share-alt"></i> مشاركة</button>
                     <button onclick="toggleFavorite()" class="btn btn-favorite" id="favoriteBtn"><i class="fas fa-heart"></i> تفضيل</button>
                 </div>
@@ -611,24 +603,21 @@ function renderPage() {
     `;
 
 // داخل renderPage بعد بناء الـ HTML
-document.getElementById('mainContainer').innerHTML = html; // كما هو
-updateFavoriteButtonStatus();
+   document.getElementById('mainContainer').innerHTML = html;
+    updateFavoriteButtonStatus();
 
-// بعد التحميل، نقوم بمعالجة الصورة المقتطصة
-const container = document.getElementById('croppedImageContainer');
-if (container) {
-    // نمسح محتوى placeholder
-    container.innerHTML = '';
-    // نستخدم الدالة الجديدة
-    renderCroppedImage(container, productData);
-    // جعل النقر على الحاوية يعرض الفلاير الكامل
-    container.style.cursor = 'pointer';
-    container.onclick = function() {
-        openModal(getProductImageUrl(productData));
-    };
+    // بعد التحميل، نضع الصورة المقتطعة في الحاوية
+    const container = document.getElementById('croppedImageContainer');
+    if (container) {
+        renderCroppedImage(container, productData);
+        // جعل النقر على الحاوية يفتح الصورة الكاملة
+        container.style.cursor = 'pointer';
+        container.onclick = function() {
+            openModal(fullFlyerUrl);
+        };
+    }
 }
 
-}
     (async function init() {
         if (!loadProductFromSession()) return;
         await loadSupermarketData();
