@@ -8,7 +8,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&amp;display=swap" rel="stylesheet">
     <script src="https://cdn.sheetjs.com/xlsx-0.20.2/package/dist/xlsx.full.min.js"></script>
     <style>
-        /* ... (جميع الـ Styles الخاصة بك، اتركها كما هي) ... */
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body {
             font-family: 'Cairo', sans-serif;
@@ -39,6 +38,7 @@
             align-items: center;
             overflow: hidden;
             cursor: pointer;
+            position: relative;
         }
         .right-side img {
             max-width: 95%;
@@ -102,9 +102,7 @@
         .btn-favorite.active { background: #c82333; color: #ffd700; }
         .btn:hover { opacity: 0.85; transform: translateY(-2px); }
         
-        .product-info {
-            flex: 1;
-        }
+        .product-info { flex: 1; }
         .title-row {
             display: flex;
             align-items: baseline;
@@ -190,7 +188,6 @@
             font-weight: 600;
             margin-top: 20px;
         }
-        
         .modal {
             display: none;
             position: fixed;
@@ -225,85 +222,26 @@
             align-items: center;
             justify-content: center;
         }
-        
         @media (max-width: 768px) {
-            body {
-                overflow: auto;
-                height: auto;
-            }
-            .split-layout {
-                flex-direction: column;
-                height: auto;
-                min-height: 100vh;
-            }
-            .left-side, .right-side {
-                width: 100%;
-            }
-            .right-side {
-                min-height: 35vh;
-                max-height: 35vh;
-                order: -1;
-            }
-            .right-side img {
-                max-height: 100%;
-                width: auto;
-                cursor: pointer;
-            }
-            .left-side {
-                order: 0;
-                overflow-y: auto;
-                padding: 12px;
-            }
-            .title-row {
-                order: -1;
-                margin-top: 0;
-                margin-bottom: 6px;
-                justify-content: center;
-            }
-            .product-title {
-                font-size: 1rem;
-            }
-            .supermarket-name {
-                font-size: 0.85rem;
-            }
-            .actions-row {
-                order: 0;
-                margin: 6px 0 10px;
-                gap: 6px;
-            }
-            .actions-row .btn {
-                flex: 1 0 calc(33% - 6px);
-                font-size: 0.7rem;
-                padding: 5px 3px;
-            }
-            .price-box {
-                margin: 8px 0;
-                padding: 6px 10px;
-            }
-            .current-price {
-                font-size: 1.3rem;
-            }
-            .details-grid {
-                gap: 8px;
-                margin: 10px 0;
-            }
-            .detail-item {
-                padding: 6px 8px;
-            }
-            .detail-value {
-                font-size: 0.85rem;
-            }
-            .general-flyer {
-                margin-bottom: 12px;
-                padding: 10px;
-            }
-            .general-flyer img {
-                max-height: 120px;
-            }
-            .back-btn {
-                padding: 10px;
-                margin-top: 12px;
-            }
+            body { overflow: auto; height: auto; }
+            .split-layout { flex-direction: column; height: auto; min-height: 100vh; }
+            .left-side, .right-side { width: 100%; }
+            .right-side { min-height: 35vh; max-height: 35vh; order: -1; }
+            .right-side img { max-height: 100%; width: auto; cursor: pointer; }
+            .left-side { order: 0; overflow-y: auto; padding: 12px; }
+            .title-row { order: -1; margin-top: 0; margin-bottom: 6px; justify-content: center; }
+            .product-title { font-size: 1rem; }
+            .supermarket-name { font-size: 0.85rem; }
+            .actions-row { order: 0; margin: 6px 0 10px; gap: 6px; }
+            .actions-row .btn { flex: 1 0 calc(33% - 6px); font-size: 0.7rem; padding: 5px 3px; }
+            .price-box { margin: 8px 0; padding: 6px 10px; }
+            .current-price { font-size: 1.3rem; }
+            .details-grid { gap: 8px; margin: 10px 0; }
+            .detail-item { padding: 6px 8px; }
+            .detail-value { font-size: 0.85rem; }
+            .general-flyer { margin-bottom: 12px; padding: 10px; }
+            .general-flyer img { max-height: 120px; }
+            .back-btn { padding: 10px; margin-top: 12px; }
         }
     </style>
 </head>
@@ -325,70 +263,79 @@
             map_link: "#"
         };
 
-        // --- دالة عرض الصورة المقتطعة باستخدام clip-path ---
-        function renderCroppedImage(container, item) {
-            container.innerHTML = '';
-            const fullImageUrl = getProductImageUrl(item);
-            if (!fullImageUrl) {
-                container.innerHTML = '<div style="display:flex;justify-content:center;align-items:center;width:100%;height:100%;color:white;font-size:1.2rem;">لا توجد صورة</div>';
-                return;
-            }
+        // =================================================================
+        // دالة اقتصاص الصورة باستخدام Canvas (جودة عالية)
+        // =================================================================
+        function cropImageWithCanvas(item) {
+            return new Promise((resolve, reject) => {
+                const fullImageUrl = getProductImageUrl(item);
+                if (!fullImageUrl) {
+                    reject('No image URL');
+                    return;
+                }
 
-            const x = parseFloat(item.X) || 0;
-            const y = parseFloat(item.Y) || 0;
-            const w = parseFloat(item['العرض']) || 0;
-            const h = parseFloat(item['الارتفاع']) || 0;
+                const x = parseFloat(item.X) || 0;
+                const y = parseFloat(item.Y) || 0;
+                const w = parseFloat(item['العرض']) || 0;
+                const h = parseFloat(item['الارتفاع']) || 0;
 
-            // إذا كانت الإحداثيات كلها صفر، اعرض الصورة كاملة
-            if (x === 0 && y === 0 && w === 0 && h === 0) {
-                const img = document.createElement('img');
+                if (x === 0 && y === 0 && w === 0 && h === 0) {
+                    reject('No crop coordinates');
+                    return;
+                }
+
+                const img = new Image();
+                img.crossOrigin = 'anonymous';
+                img.onload = function() {
+                    try {
+                        const img_w = img.width;
+                        const img_h = img.height;
+
+                        const left_px = x <= 1.0 ? x * img_w : x;
+                        const top_px = y <= 1.0 ? y * img_h : y;
+                        const box_w_px = w <= 1.0 ? w * img_w : w;
+                        const box_h_px = h <= 1.0 ? h * img_h : h;
+
+                        const PAD_LEFT = 0.40;
+                        const PAD_RIGHT = 0.11;
+                        const PAD_TOP = 0.17;
+                        const PAD_BOTTOM = 0.05;
+
+                        let final_left = Math.max(0, left_px - (img_w * PAD_LEFT));
+                        let final_right = Math.min(img_w, left_px + box_w_px + (img_w * PAD_RIGHT));
+                        let final_top = Math.max(0, top_px - (img_h * PAD_TOP));
+                        let final_bottom = Math.min(img_h, top_px + box_h_px + (img_h * PAD_BOTTOM));
+
+                        const crop_w = final_right - final_left;
+                        const crop_h = final_bottom - final_top;
+
+                        if (crop_w <= 0 || crop_h <= 0) {
+                            reject('Invalid crop dimensions');
+                            return;
+                        }
+
+                        const canvas = document.createElement('canvas');
+                        canvas.width = crop_w;
+                        canvas.height = crop_h;
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, final_left, final_top, crop_w, crop_h, 0, 0, crop_w, crop_h);
+
+                        const dataUrl = canvas.toDataURL('image/jpeg', 0.92);
+                        resolve(dataUrl);
+                    } catch (err) {
+                        reject(err);
+                    }
+                };
+                img.onerror = function() {
+                    reject('Failed to load image');
+                };
                 img.src = fullImageUrl;
-                img.style.cssText = 'max-width:100%; max-height:100%; object-fit:contain;';
-                container.appendChild(img);
-                return;
-            }
-
-            const PAD_LEFT = 0.40;
-            const PAD_RIGHT = 0.11;
-            const PAD_TOP = 0.17;
-            const PAD_BOTTOM = 0.05;
-
-            let left = Math.max(0, x - PAD_LEFT);
-            let right = Math.min(1, x + w + PAD_RIGHT);
-            let top = Math.max(0, y - PAD_TOP);
-            let bottom = Math.min(1, y + h + PAD_BOTTOM);
-
-            const topPercent = top * 100;
-            const rightPercent = (1 - right) * 100;
-            const bottomPercent = (1 - bottom) * 100;
-            const leftPercent = left * 100;
-
-            // استخدام clip-path على عنصر img
-            const img = document.createElement('img');
-            img.src = fullImageUrl;
-            img.style.cssText = `
-                width: 100%;
-                height: 100%;
-                object-fit: none;
-                object-position: 0 0;
-                clip-path: inset(${topPercent}% ${rightPercent}% ${bottomPercent}% ${leftPercent}%);
-                -webkit-clip-path: inset(${topPercent}% ${rightPercent}% ${bottomPercent}% ${leftPercent}%);
-            `;
-            container.style.position = 'relative';
-            container.style.display = 'flex';
-            container.style.justifyContent = 'center';
-            container.style.alignItems = 'center';
-            container.style.overflow = 'hidden';
-
-            const badge = document.createElement('span');
-            badge.style.cssText = 'position: absolute; bottom: 15px; right: 15px; background: rgba(0,0,0,0.7); color: #fff; padding: 4px 14px; border-radius: 20px; font-size: 0.8rem; pointer-events: none; z-index: 2;';
-            badge.innerHTML = '<i class="fas fa-crop-alt"></i> مقتصصة';
-
-            container.appendChild(img);
-            container.appendChild(badge);
+            });
         }
 
-        // --- دالة تحميل المنتج من Session Storage ---
+        // =================================================================
+        // دوال تحميل البيانات
+        // =================================================================
         function loadProductFromSession() {
             const stored = sessionStorage.getItem('selectedProduct');
             if (!stored) {
@@ -420,7 +367,6 @@
             }
         }
 
-        // --- دالة تحميل بيانات السوبرماركت ---
         async function loadSupermarketData() {
             try {
                 const response = await fetch('supermarkets.xlsx');
@@ -451,7 +397,9 @@
             }
         }
 
-        // --- دوال مساعدة للصور ---
+        // =================================================================
+        // دوال مساعدة للصور
+        // =================================================================
         function getProductImageUrl(item) {
             let flyerId = item.pageNo?.match(/flyer_(\d+)/)?.[1] || item.solution_key;
             let pageNumber = item.pageNo?.match(/page_(\d+)/)?.[1] || '';
@@ -465,7 +413,9 @@
             return null;
         }
 
-        // --- وظائف الأزرار (المشاركة، المفضلة) ---
+        // =================================================================
+        // وظائف الأزرار
+        // =================================================================
         window.shareProduct = function() {
             if (!productData) return;
             const text = `${productData.product} - بسعر ${productData.currentPrice} جنيه - ${productData.supermarket}`;
@@ -495,7 +445,9 @@
             }
         }
 
-        // --- دوال مساعدة للـ UI ---
+        // =================================================================
+        // دوال واجهة المستخدم
+        // =================================================================
         function showToast(msg) {
             let toast = document.createElement('div');
             toast.textContent = msg;
@@ -522,10 +474,12 @@
             document.getElementById('imageModal').style.display = 'none';
         };
 
-        // --- دالة عرض الصفحة الرئيسية (المعدلة) ---
+        // =================================================================
+        // دالة عرض الصفحة (مع Canvas)
+        // =================================================================
         function renderPage() {
             if (!productData) return;
-            
+
             const fullFlyerUrl = getProductImageUrl(productData);
             const generalImageUrl = getGeneralFlyerUrl(productData);
 
@@ -535,7 +489,7 @@
             let mapLink = marketInfo.map_link && typeof marketInfo.map_link === 'string' ? marketInfo.map_link : '#';
             let cleanPhone = phone === 'غير متوفر' ? '' : phone.replace(/\s/g, '').replace(/[^0-9+]/g, '');
 
-            // استخدام template literal بشكل صحيح مع backticks
+            // بناء HTML الأساسي (الجانب الأيسر + حاوية الصورة)
             const html = `
             <div class="left-side">
                 <div class="product-info">
@@ -569,23 +523,52 @@
                 </div>
                 <button class="back-btn" onclick="window.close()"><i class="fas fa-arrow-right"></i> إغلاق</button>
             </div>
-            <div class="right-side" id="croppedImageContainer" style="background:#1a1a2e; display:flex; justify-content:center; align-items:center; overflow:hidden; position:relative;"></div>
+            <div class="right-side" id="croppedImageContainer" style="background:#1a1a2e; display:flex; justify-content:center; align-items:center; overflow:hidden; position:relative;">
+                <i class="fas fa-spinner fa-pulse" style="font-size:3rem; color:white;"></i>
+                <span style="position:absolute; bottom:30px; color:white; font-size:0.9rem;">جاري تحميل الصورة وتجهيزها...</span>
+            </div>
             `;
 
             document.getElementById('mainContainer').innerHTML = html;
             updateFavoriteButtonStatus();
 
+            // ----- بدء عملية القص باستخدام Canvas -----
             const container = document.getElementById('croppedImageContainer');
-            if (container) {
-                renderCroppedImage(container, productData);
-                container.style.cursor = 'pointer';
-                container.onclick = function() {
-                    openModal(fullFlyerUrl);
-                };
-            }
+            if (!container) return;
+
+            cropImageWithCanvas(productData)
+                .then(croppedDataUrl => {
+                    // عرض الصورة المقتطعة
+                    container.innerHTML = `
+                        <img src="${croppedDataUrl}" alt="المنتج" style="max-width:95%; max-height:95%; object-fit:contain; border-radius:16px; box-shadow:0 8px 25px rgba(0,0,0,0.3);">
+                        <span style="position:absolute; bottom:15px; right:15px; background:rgba(0,0,0,0.7); color:#fff; padding:4px 14px; border-radius:20px; font-size:0.8rem; pointer-events:none; z-index:2;">
+                            <i class="fas fa-crop-alt"></i> مقتصصة
+                        </span>
+                    `;
+                    container.style.cursor = 'pointer';
+                    container.onclick = function() {
+                        openModal(fullFlyerUrl);
+                    };
+                })
+                .catch(error => {
+                    console.warn('فشل القص، نعرض الصورة الكاملة:', error);
+                    // في حال الفشل، نعرض الصورة الكاملة
+                    container.innerHTML = `
+                        <img src="${fullFlyerUrl || 'https://via.placeholder.com/500?text=Image+Not+Found'}" alt="المنتج" style="max-width:95%; max-height:95%; object-fit:contain; border-radius:16px; box-shadow:0 8px 25px rgba(0,0,0,0.3);" onerror="this.src='https://via.placeholder.com/500?text=Image+Not+Found'">
+                        <span style="position:absolute; bottom:15px; right:15px; background:rgba(255,0,0,0.7); color:#fff; padding:4px 14px; border-radius:20px; font-size:0.8rem; pointer-events:none; z-index:2;">
+                            <i class="fas fa-image"></i> كامل (بديل)
+                        </span>
+                    `;
+                    container.style.cursor = 'pointer';
+                    container.onclick = function() {
+                        openModal(fullFlyerUrl);
+                    };
+                });
         }
 
-        // --- تشغيل التطبيق ---
+        // =================================================================
+        // تشغيل التطبيق
+        // =================================================================
         (async function init() {
             if (!loadProductFromSession()) return;
             await loadSupermarketData();
