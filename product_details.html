@@ -326,6 +326,54 @@
         map_link: "#"
     };
 
+      function getCroppedBackgroundStyle(item) {
+    const fullImageUrl = getProductImageUrl(item);
+    if (!fullImageUrl) return null;
+
+    // قراءة الإحداثيات
+    const x = parseFloat(item.X) || 0;
+    const y = parseFloat(item.Y) || 0;
+    const w = parseFloat(item['العرض']) || 0;
+    const h = parseFloat(item['الارتفاع']) || 0;
+
+    // إذا كانت كلها صفر، لا توجد منطقة محددة
+    if (x === 0 && y === 0 && w === 0 && h === 0) return null;
+
+    // الهوامش (نفس قيم البايثون)
+    const PAD_LEFT = 0.40;
+    const PAD_RIGHT = 0.11;
+    const PAD_TOP = 0.17;
+    const PAD_BOTTOM = 0.05;
+
+    // حساب المنطقة النهائية كنسب مئوية (من 0 إلى 1)
+    let left = Math.max(0, x - PAD_LEFT);
+    let right = Math.min(1, x + w + PAD_RIGHT);
+    let top = Math.max(0, y - PAD_TOP);
+    let bottom = Math.min(1, y + h + PAD_BOTTOM);
+
+    const cropWidth = right - left;
+    const cropHeight = bottom - top;
+
+    if (cropWidth <= 0 || cropHeight <= 0) return null;
+
+    // نسبة العرض إلى الارتفاع للعنصر (padding-bottom)
+    const aspectRatio = (cropHeight / cropWidth) * 100;
+
+    // إرجاع كائن الخصائص
+    return {
+        backgroundImage: `url(${fullImageUrl})`,
+        backgroundSize: '100% 100%',
+        backgroundPosition: `${left * 100}% ${top * 100}%`,
+        backgroundRepeat: 'no-repeat',
+        paddingBottom: `${aspectRatio}%`,
+        width: '100%',
+        height: 0, // مهم لتفعيل padding-bottom
+        position: 'relative',
+        overflow: 'hidden',
+        backgroundColor: '#1a1a2e'
+    };
+}
+      
 function renderCroppedImage(container, item) {
     // مسح المحتوى السابق
     container.innerHTML = '';
@@ -571,7 +619,7 @@ function renderPage() {
                 <div class="actions-row">
                     <a href="${cleanPhone ? 'tel:' + cleanPhone : '#'}" class="btn btn-success ${!cleanPhone ? 'disabled' : ''}"><i class="fas fa-phone-alt"></i> اتصل</a>
                     <a href="${website !== '#' ? website : '#'}" target="_blank" class="btn btn-primary"><i class="fas fa-globe"></i> الموقع الالكتروني</a>
-                    <a href="${mapLink !== '#' ? mapLink : '#'}" target="_blank" class="btn btn-danger"><i class="fas fa-map"></i> الخريطة</a>
+                    <a href="${mapLink !== '#' ? mapLink : '#'}" target="_blank" class="btn btn-danger"><i class="fas fa-map"></i> **الخريطة</a>
                     <button onclick="shareProduct()" class="btn btn-warning"><i class="fas fa-share-alt"></i> مشاركة</button>
                     <button onclick="toggleFavorite()" class="btn btn-favorite" id="favoriteBtn"><i class="fas fa-heart"></i> تفضيل</button>
                 </div>
