@@ -461,7 +461,7 @@ border-radius: 4px; /* إضافة انحناء بسيط للحدود (اختيا
           </div>
         </div>
       </div>
-      <div class="user-guide-banner"> انقر أي صف في الجدول للتفاصيل /-/ولتحديث
+      <div class="user-guide-banner"> انقر أي صف في الجدول للتفاصيل /18/ولتحديث
         البيانات اضغط زر "تحديث" في الاسفل / ولاستعلام جديد اضغط زر "الرجوع
         للبداية"</div>
       <div class="stats-dashboard">
@@ -723,29 +723,28 @@ function transformRows(rows) {
             if (!isNaN(d2.getTime())) updateDate = d2;
         }
 
-// ========== استخراج إحداثيات الاقتصاص (باستخدام الأعمدة العربية) ==========
-let cropX = null, cropY = null, cropW = null, cropH = null;
-// الأعمدة الموجودة في ملف الإكسل هي: X, Y, العرض, الارتفاع
-if (item['X'] !== undefined && item['Y'] !== undefined && item['العرض'] !== undefined && item['الارتفاع'] !== undefined) {
-    cropX = parseFloat(item['X']);
-    cropY = parseFloat(item['Y']);
-    cropW = parseFloat(item['العرض']);
-    cropH = parseFloat(item['الارتفاع']);
-} else if (item['x1'] !== undefined && item['y1'] !== undefined && item['x2'] !== undefined && item['y2'] !== undefined) {
-    cropX = parseFloat(item['x1']);
-    cropY = parseFloat(item['y1']);
-    cropW = parseFloat(item['x2']) - cropX;
-    cropH = parseFloat(item['y2']) - cropY;
-} else if (item['X1'] !== undefined && item['Y1'] !== undefined && item['X2'] !== undefined && item['Y2'] !== undefined) {
-    cropX = parseFloat(item['X1']);
-    cropY = parseFloat(item['Y1']);
-    cropW = parseFloat(item['X2']) - cropX;
-    cropH = parseFloat(item['Y2']) - cropY;
-}
-if (isNaN(cropX) || isNaN(cropY) || isNaN(cropW) || isNaN(cropH) || cropW <= 0 || cropH <= 0) {
-    cropX = cropY = cropW = cropH = null;
-}
-// ================================================================        // ================================================================
+        // ========== استخراج إحداثيات الاقتصاص (تم نقلها إلى هنا) ==========
+        let cropX = null, cropY = null, cropW = null, cropH = null;
+        if (item['X'] !== undefined && item['Y'] !== undefined && item['الارتفاع'] !== undefined && item['العرض'] !== undefined) {
+            cropX = parseFloat(item['X']);
+            cropY = parseFloat(item['Y']);
+            cropW = parseFloat(item['الارتفاع']);
+            cropH = parseFloat(item['العرض']);
+        } else if (item['x1'] !== undefined && item['y1'] !== undefined && item['x2'] !== undefined && item['y2'] !== undefined) {
+            cropX = parseFloat(item['x1']);
+            cropY = parseFloat(item['y1']);
+            cropW = parseFloat(item['x2']) - cropX;
+            cropH = parseFloat(item['y2']) - cropY;
+        } else if (item['X1'] !== undefined && item['Y1'] !== undefined && item['X2'] !== undefined && item['Y2'] !== undefined) {
+            cropX = parseFloat(item['X1']);
+            cropY = parseFloat(item['Y1']);
+            cropW = parseFloat(item['X2']) - cropX;
+            cropH = parseFloat(item['Y2']) - cropY;
+        }
+        if (isNaN(cropX) || isNaN(cropY) || isNaN(cropW) || isNaN(cropH) || cropW <= 0 || cropH <= 0) {
+            cropX = cropY = cropW = cropH = null;
+        }
+        // ================================================================
 
         return {
           branch: String(item['الفرع / الموقع'] || ''),
@@ -1096,10 +1095,6 @@ populateFilters();
     populateTicker();
       
         dataLoaded = true;
-      
-      // في processDataAfterLoad()، بعد تطبيق الفلاتر وقبل restoreStateIfExists
-sessionStorage.removeItem('selectedProduct');  // أضف هذا السطر
-      
        // ✅ استعادة الحالة المخزنة (إذا كانت موجودة)
     restoreStateIfExists();
     }
@@ -1846,20 +1841,22 @@ if (isMobile && validUntilHtml) {
     
 document.querySelectorAll('#table-body tr').forEach(tr => {
     tr.addEventListener('click', function(e) {
+        // جلب المفتاح الفريد من الصف
         let uniqueKey = this.getAttribute('data-solution-key');
+        
+        // البحث الدقيق بواسطة المفتاح الفريد بدلاً من الاسم
         let productObj = allData.find(p => p.solution_key === uniqueKey);
         
         if (productObj) {
-            // التأكد من وجود الخصائص الأساسية
+            // باقي الكود كما هو تماماً
             if (!productObj.solution_key) productObj.solution_key = productObj.product || 'unknown';
             if (!productObj.pageNo) productObj.pageNo = '';
             if (!productObj.currency) productObj.currency = 'EGP';
             if (!productObj._discount_pct) productObj._discount_pct = productObj.discount || 0;
             if (!productObj.originalPrice) productObj.originalPrice = 0;
             if (!productObj.validUntil) productObj.validUntil = 'غير متاح';
-            if (!productObj.branch) productObj.branch = '';
-            if (!productObj.promo) productObj.promo = '';
-
+            
+          
             // --- إضافة الإحداثيات من crop إن وجدت ---
             if (productObj.crop) {
                 productObj.X = productObj.crop.x;
@@ -1872,16 +1869,14 @@ document.querySelectorAll('#table-body tr').forEach(tr => {
                 productObj['العرض'] = 0;
                 productObj['الارتفاع'] = 0;
             }
-            // -----------------------------------------
-
-            // نخزن المنتج في sessionStorage دون حفظ الحالة العامة (لتجنب التداخل)
-            // saveCurrentState(); // نعلق هذه السطر
+          
+            saveCurrentState();
             sessionStorage.setItem('selectedProduct', JSON.stringify(productObj));
-            
-            // نفتح النافذة بعد تأخير بسيط لضمان التخزين
-            setTimeout(() => {
-                window.open('product_details.html', '_blank');
-            }, 50);
+        
+            if (!productObj.branch) productObj.branch = '';
+            if (!productObj.promo) productObj.promo = '';
+        
+            window.open('product_details.html', '_blank');
         } else {
             let url = this.dataset.url;
             if (url && url !== '#') window.open(url, '_blank');
