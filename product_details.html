@@ -326,24 +326,88 @@
         map_link: "#"
     };
 
-      function getCroppedImageUrl(item) {
-    // الحصول على رابط الفلاير الكامل
-    const fullImageUrl = getProductImageUrl(item);
-    if (!fullImageUrl) return null;
+function cropImageWithCanvas(item) {
+    return new Promise((resolve, reject) => {
+        // 1. الحصول على رابط الفلاير الكامل
+        const fullImageUrl = getProductImageUrl(item);
+        if (!fullImageUrl) {
+            reject('No image URL');
+            return;
+        }
 
-    // استخراج الإحداثيات (باستخدام المفاتيح العربية كما في الإكسل)
-    const x = parseFloat(item.X) || 0;
-    const y = parseFloat(item.Y) || 0;
-    const w = parseFloat(item['العرض']) || 0;
-    const h = parseFloat(item['الارتفاع']) || 0;
+        // 2. استخراج الإحداثيات (نفس القيم من الإكسل)
+        const x = parseFloat(item.X) || 0;
+        const y = parseFloat(item.Y) || 0;
+        const w = parseFloat(item['العرض']) || 0;
+        const h = parseFloat(item['الارتفاع']) || 0;
 
-    // إذا كانت القيم كلها صفر أو غير موجودة، نرجع null
-    if (x === 0 && y === 0 && w === 0 && h === 0) return null;
+        // إذا لم توجد إحداثيات، نرفض
+        if (x === 0 && y === 0 && w === 0 && h === 0) {
+            reject('No coordinates');
+            return;
+        }
 
-    // عنوان خدمة القص (غيّر الرابط حسب مكان تشغيل الخادم)
-    const baseUrl = 'https://eg-market.github.io/ai/crop_service.py';
-    return `${baseUrl}?image_url=${encodeURIComponent(fullImageUrl)}&x=${x}&y=${y}&w=${w}&h=${h}`;
+        // 3. تحميل الصورة في كائن Image
+        const img = new Image();
+        img.crossOrigin = 'anonymous'; // مهم لتجنب مشاكل CORS
+
+        img.onload = function() {
+            try {
+                const img_w = img.width;
+                const img_h = img.height;
+
+                // تحويل النسب المئوية إلى بكسلات (نفس منطق البايثون)
+                const left_px = x <= 1.0 ? x * img_w : x;
+                const top_px = y <= 1.0 ? y * img_h : y;
+                const box_w_px = w <= 1.0 ? w * img_w : w;
+                const box_h_px = h <= 1.0 ? h * img_h : h;
+
+                // إعدادات القص (نفس قيم PAD من البايثون)
+                const PAD_LEFT_PCT = 0.40;
+                const PAD_RIGHT_PCT = 0.11;
+                const PAD_TOP_PCT = 0.17;
+                const PAD_BOTTOM_PCT = 0.05;
+
+                // حساب الإحداثيات النهائية مع الهوامش
+                let final_left = Math.max(0, left_px - (img_w * PAD_LEFT_PCT));
+                let final_right = Math.min(img_w, left_px + box_w_px + (img_w * PAD_RIGHT_PCT));
+                let final_top = Math.max(0, top_px - (img_h * PAD_TOP_PCT));
+                let final_bottom = Math.min(img_h, top_px + box_h_px + (img_h * PAD_BOTTOM_PCT));
+
+                const crop_w = final_right - final_left;
+                const crop_h = final_bottom - final_top;
+
+                if (crop_w <= 0 || crop_h <= 0) {
+                    reject('Invalid crop dimensions');
+                    return;
+                }
+
+                // 4. رسم الجزء المقتطع على Canvas
+                const canvas = document.createElement('canvas');
+                canvas.width = crop_w;
+                canvas.height = crop_h;
+                const ctx = canvas.getContext('2d');
+
+                // رسم الصورة الأصلية مع اقتصاصها مباشرة (source x, source y, source w, source h)
+                ctx.drawImage(img, final_left, final_top, crop_w, crop_h, 0, 0, crop_w, crop_h);
+
+                // تحويل Canvas إلى رابط صورة (Data URL)
+                const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
+                resolve(dataUrl);
+            } catch (err) {
+                reject(err);
+            }
+        };
+
+        img.onerror = function() {
+            reject('Failed to load image');
+        };
+
+        // بدء تحميل الصورة
+        img.src = fullImageUrl;
+    });
 }
+      
       
       
       
@@ -486,25 +550,14 @@ async function loadSupermarketData() {
         document.getElementById('imageModal').style.display = 'none';
     };
 
-  function renderPage() {
+function renderPage() {
     if (!productData) return;
 
-    // الروابط الأساسية
-    const fullFlyerUrl = getProductImageUrl(productData);   // الصورة الكاملة للفلاير
-    const croppedUrl = getCroppedImageUrl(productData);     // رابط الصورة المقتصصة (إن وجد)
+    const fullFlyerUrl = getProductImageUrl(productData);
     const generalImageUrl = getGeneralFlyerUrl(productData);
 
-    // اختيار الصورة المعروضة: المقتصصة أولاً، ثم الكاملة كبديل
-    const displayImage = croppedUrl || fullFlyerUrl || 'https://via.placeholder.com/500?text=صورة+المنتج';
-
-    // معلومات السوبرماركت
-    let marketInfo = supermarketData[productData.supermarket] || defaultSupermarketInfo;
-    let phone = marketInfo.phone && typeof marketInfo.phone === 'string' ? marketInfo.phone : 'غير متوفر';
-    let website = marketInfo.website && typeof marketInfo.website === 'string' ? marketInfo.website : '#';
-    let mapLink = marketInfo.map_link && typeof marketInfo.map_link === 'string' ? marketInfo.map_link : '#';
-    let cleanPhone = phone === 'غير متوفر' ? '' : phone.replace(/\s/g, '').replace(/[^0-9+]/g, '');
-
-    const html = `
+    // عرض مؤقت تحميل في الجانب الأيمن
+    const loadingHtml = `
         <div class="left-side">
             <div class="product-info">
                 <div class="title-row">
@@ -516,9 +569,9 @@ async function loadSupermarketData() {
                     <span class="discount-badge">-${productData._discount_pct}%</span>
                 </div>
                 <div class="actions-row">
-                    <a href="${cleanPhone ? 'tel:' + cleanPhone : '#'}" class="btn btn-success ${!cleanPhone ? 'disabled' : ''}"><i class="fas fa-phone-alt"></i> اتصل</a>
-                    <a href="${website !== '#' ? website : '#'}" target="_blank" class="btn btn-primary"><i class="fas fa-globe"></i> الموقع الالكتروني</a>
-                    <a href="${mapLink !== '#' ? mapLink : '#'}" target="_blank" class="btn btn-danger"><i class="fas fa-map"></i> الخريطه</a>
+                    <a href="#" class="btn btn-success"><i class="fas fa-phone-alt"></i> اتصل</a>
+                    <a href="#" target="_blank" class="btn btn-primary"><i class="fas fa-globe"></i> الموقع الالكتروني</a>
+                    <a href="#" target="_blank" class="btn btn-danger"><i class="fas fa-map"></i> الخريطة--</a>
                     <button onclick="shareProduct()" class="btn btn-warning"><i class="fas fa-share-alt"></i> مشاركة</button>
                     <button onclick="toggleFavorite()" class="btn btn-favorite" id="favoriteBtn"><i class="fas fa-heart"></i> تفضيل</button>
                 </div>
@@ -537,18 +590,52 @@ async function loadSupermarketData() {
             </div>
             <button class="back-btn" onclick="window.close()"><i class="fas fa-arrow-right"></i> إغلاق</button>
         </div>
-        <div class="right-side" onclick="openModal('${fullFlyerUrl || displayImage}')">
-            <img src="${displayImage}" alt="المنتج" onerror="this.src='${fullFlyerUrl || 'https://via.placeholder.com/500?text=Image+Not+Found'}'">
-            <span style="position:absolute; bottom:15px; right:15px; background:rgba(0,0,0,0.6); color:#fff; padding:4px 12px; border-radius:20px; font-size:0.7rem; pointer-events:none;">
-                <i class="fas fa-crop-alt"></i> مقتصصة
-            </span>
+        <div class="right-side" id="croppedImageContainer" style="background: #1a1a2e; display: flex; justify-content: center; align-items: center; flex-direction: column; color: white;">
+            <i class="fas fa-spinner fa-pulse" style="font-size: 3rem; margin-bottom: 15px;"></i>
+            <p>جاري تحميل الصورة وتجهيزها...</p>
         </div>
     `;
 
-    document.getElementById('mainContainer').innerHTML = html;
+    document.getElementById('mainContainer').innerHTML = loadingHtml;
     updateFavoriteButtonStatus();
-}
 
+    // --- بدء عملية القص ---
+    cropImageWithCanvas(productData)
+        .then(croppedDataUrl => {
+            // عندما تنجح القص، نستبدل المحتوى بالصورة المقتطعة
+            const container = document.getElementById('croppedImageContainer');
+            if (container) {
+                container.innerHTML = `
+                    <img src="${croppedDataUrl}" alt="المنتج" style="max-width: 95%; max-height: 95%; object-fit: contain; border-radius: 16px; box-shadow: 0 8px 25px rgba(0,0,0,0.3);">
+                    <span style="position:absolute; bottom:15px; right:15px; background:rgba(0,0,0,0.6); color:#fff; padding:4px 12px; border-radius:20px; font-size:0.7rem; pointer-events:none;">
+                        <i class="fas fa-crop-alt"></i> مقتصصة
+                    </span>
+                `;
+                // إضافة حدث النقر لعرض الفلاير الكامل في المودال
+                container.style.cursor = 'pointer';
+                container.onclick = function() {
+                    openModal(fullFlyerUrl);
+                };
+            }
+        })
+        .catch(error => {
+            // في حال فشل القص (مشكلة في التحميل أو الإحداثيات)، نعرض الصورة الكاملة كحل احتياطي
+            console.warn('فشل القص، نعرض الصورة الكاملة:', error);
+            const container = document.getElementById('croppedImageContainer');
+            if (container) {
+                container.innerHTML = `
+                    <img src="${fullFlyerUrl || 'https://via.placeholder.com/500?text=Image+Not+Found'}" alt="المنتج" style="max-width: 95%; max-height: 95%; object-fit: contain; border-radius: 16px; box-shadow: 0 8px 25px rgba(0,0,0,0.3);" onerror="this.src='https://via.placeholder.com/500?text=Image+Not+Found'">
+                    <span style="position:absolute; bottom:15px; right:15px; background:rgba(255,0,0,0.7); color:#fff; padding:4px 12px; border-radius:20px; font-size:0.7rem; pointer-events:none;">
+                        <i class="fas fa-image"></i> كامل (بديل)
+                    </span>
+                `;
+                container.style.cursor = 'pointer';
+                container.onclick = function() {
+                    openModal(fullFlyerUrl);
+                };
+            }
+        });
+}
 
     (async function init() {
         if (!loadProductFromSession()) return;
