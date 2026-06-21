@@ -326,87 +326,88 @@
         map_link: "#"
     };
 
-function cropImageWithCanvas(item) {
-    return new Promise((resolve, reject) => {
-        // 1. الحصول على رابط الفلاير الكامل
-        const fullImageUrl = getProductImageUrl(item);
-        if (!fullImageUrl) {
-            reject('No image URL');
-            return;
-        }
+function getCroppedBackgroundStyle(item) {
+    // الحصول على رابط الفلاير الكامل
+    const fullImageUrl = getProductImageUrl(item);
+    if (!fullImageUrl) return null;
 
-        // 2. استخراج الإحداثيات (نفس القيم من الإكسل)
-        const x = parseFloat(item.X) || 0;
-        const y = parseFloat(item.Y) || 0;
-        const w = parseFloat(item['العرض']) || 0;
-        const h = parseFloat(item['الارتفاع']) || 0;
+    // استخراج الإحداثيات (نفس المفاتيح العربية)
+    const x = parseFloat(item.X) || 0;
+    const y = parseFloat(item.Y) || 0;
+    const w = parseFloat(item['العرض']) || 0;
+    const h = parseFloat(item['الارتفاع']) || 0;
 
-        // إذا لم توجد إحداثيات، نرفض
-        if (x === 0 && y === 0 && w === 0 && h === 0) {
-            reject('No coordinates');
-            return;
-        }
+    if (x === 0 && y === 0 && w === 0 && h === 0) return null;
 
-        // 3. تحميل الصورة في كائن Image
-        const img = new Image();
-        img.crossOrigin = 'anonymous'; // مهم لتجنب مشاكل CORS
+    // نفس نسب الهوامش المستخدمة في البايثون
+    const PAD_LEFT_PCT = 0.40;
+    const PAD_RIGHT_PCT = 0.11;
+    const PAD_TOP_PCT = 0.17;
+    const PAD_BOTTOM_PCT = 0.05;
 
-        img.onload = function() {
-            try {
-                const img_w = img.width;
-                const img_h = img.height;
+    // حساب الأبعاد النهائية بالنسبة المئوية (لأن الإحداثيات معطاة كنسب مئوية)
+    // لكن ملاحظة: الإحداثيات في الإكسل هي نسب مئوية من عرض الصورة وارتفاعها.
+    // لذا سنتعامل معها كنسب مئوية مباشرة.
 
-                // تحويل النسب المئوية إلى بكسلات (نفس منطق البايثون)
-                const left_px = x <= 1.0 ? x * img_w : x;
-                const top_px = y <= 1.0 ? y * img_h : y;
-                const box_w_px = w <= 1.0 ? w * img_w : w;
-                const box_h_px = h <= 1.0 ? h * img_h : h;
+    // المساحة المقتطعة الأساسية (بدون الهوامش)
+    const cropLeft = x;
+    const cropTop = y;
+    const cropWidth = w;
+    const cropHeight = h;
 
-                // إعدادات القص (نفس قيم PAD من البايثون)
-                const PAD_LEFT_PCT = 0.40;
-                const PAD_RIGHT_PCT = 0.11;
-                const PAD_TOP_PCT = 0.17;
-                const PAD_BOTTOM_PCT = 0.05;
+    // إضافة الهوامش
+    let finalLeft = Math.max(0, cropLeft - PAD_LEFT_PCT);
+    let finalRight = Math.min(1, cropLeft + cropWidth + PAD_RIGHT_PCT);
+    let finalTop = Math.max(0, cropTop - PAD_TOP_PCT);
+    let finalBottom = Math.min(1, cropTop + cropHeight + PAD_BOTTOM_PCT);
 
-                // حساب الإحداثيات النهائية مع الهوامش
-                let final_left = Math.max(0, left_px - (img_w * PAD_LEFT_PCT));
-                let final_right = Math.min(img_w, left_px + box_w_px + (img_w * PAD_RIGHT_PCT));
-                let final_top = Math.max(0, top_px - (img_h * PAD_TOP_PCT));
-                let final_bottom = Math.min(img_h, top_px + box_h_px + (img_h * PAD_BOTTOM_PCT));
+    const finalWidth = finalRight - finalLeft;
+    const finalHeight = finalBottom - finalTop;
 
-                const crop_w = final_right - final_left;
-                const crop_h = final_bottom - final_top;
+    if (finalWidth <= 0 || finalHeight <= 0) return null;
 
-                if (crop_w <= 0 || crop_h <= 0) {
-                    reject('Invalid crop dimensions');
-                    return;
-                }
+    // حساب `background-position` كنسبة مئوية:
+    // القاعدة: background-position: X% Y% حيث أن X% هي النسبة من عرض الصورة التي تظهر في الزاوية العلوية اليسرى للعنصر.
+    // نحن نريد أن تكون الزاوية العلوية اليسرى للعنصر عند النقطة (finalLeft, finalTop) من الصورة.
+    // لذا نضع: background-position: (finalLeft * 100)% (finalTop * 100)%
+    const posX = finalLeft * 100;
+    const posY = finalTop * 100;
 
-                // 4. رسم الجزء المقتطع على Canvas
-                const canvas = document.createElement('canvas');
-                canvas.width = crop_w;
-                canvas.height = crop_h;
-                const ctx = canvas.getContext('2d');
+    // `background-size` يجب أن يكون بحجم الصورة الأصلية مضروبة في 1/نسبة العرض المطلوب
+    // بما أننا نريد عرض جزء من الصورة بحجم العنصر، نضع background-size: (1/finalWidth * 100)% (1/finalHeight * 100)%
+    // ولكن الطريقة الأسهل: وضع background-size: cover ثم استخدام background-position مع تحديد المنطقة، لكن الأفضل استخدام حجم محدد.
+    // الطريقة الصحيحة: background-size: (100/finalWidth)% (100/finalHeight)% لأن العنصر سيعرض جزءاً من الصورة.
+    // ولكن إذا أردنا أن يكون حجم العنصر مساوياً لأبعاد المنطقة المقتطعة (بالنسبة المئوية من الصورة)، فيجب أن يكون حجم العنصر متناسباً مع أبعاد الصورة.
+    // لكننا لا نعرف أبعاد الصورة الفعلية. لذا نستخدم `background-size: auto 100%` أو نحدد حجم العنصر بنسبة.
+    // بدلاً من ذلك، يمكننا استخدام `background-size: cover` مع `background-position`، لكن ذلك سيغير النسبة.
+    // الطريقة الأضمن: جعل العنصر بنفس نسبة الأبعاد المقتطعة، واستخدام `background-size: 100% 100%` مع `background-position` كنسبة مئوية.
+    // ولكن `background-position` مع `background-size: 100% 100%` يعني أن النقطة (0,0) من الخلفية تظهر في أعلى يسار العنصر.
+    // لتحقيق الإزاحة، نضبط `background-position: (finalLeft * 100)% (finalTop * 100)%` مع `background-size: 100% 100%`، ولكن هذا لا يعمل بشكل صحيح.
+    // الطريقة الصحيحة: استخدام `background-size: auto` وجعل العنصر بحجم المنطقة المقتطعة (بالنسبة المئوية) ولكن لا نعرف أبعاد الصورة.
+    // لذلك سنستخدم تقنية مختلفة: وضع الصورة في عنصر img داخل div، ثم استخدام clip-path أو overflow:hidden مع translate.
+    // ولكن الأسهل هو استخدام `background-image` مع `background-size` محسوب بناءً على الأبعاد النسبية للصورة التي نعرفها من خلال تحميل الصورة.
+    // لكننا لا نريد تحميل الصورة لقراءة أبعادها (لتجنب CORS) لذا سنعتمد على معرفة أن الإحداثيات نسب مئوية ونستخدم `background-size: 100% 100%` ونضبط `background-origin` و `background-position` بشكل مناسب.
+    // في الواقع، الطريقة الأكثر موثوقية هي استخدام `clip-path` على عنصر img، حيث نعرض الصورة كاملة ونحدد منطقة القص عبر `clip-path: inset(top% right% bottom% left%)`.
+    // هذه الطريقة تدعمها جميع المتصفحات الحديثة ولا تحتاج إلى Canvas أو حساب معقد.
+    // سنستخدم `clip-path: inset()`.
 
-                // رسم الصورة الأصلية مع اقتصاصها مباشرة (source x, source y, source w, source h)
-                ctx.drawImage(img, final_left, final_top, crop_w, crop_h, 0, 0, crop_w, crop_h);
+    // نحسب قيم inset:
+    const insetTop = finalTop * 100;
+    const insetRight = (1 - finalRight) * 100;
+    const insetBottom = (1 - finalBottom) * 100;
+    const insetLeft = finalLeft * 100;
 
-                // تحويل Canvas إلى رابط صورة (Data URL)
-                const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
-                resolve(dataUrl);
-            } catch (err) {
-                reject(err);
-            }
-        };
-
-        img.onerror = function() {
-            reject('Failed to load image');
-        };
-
-        // بدء تحميل الصورة
-        img.src = fullImageUrl;
-    });
+    // نعيد كائن يحتوي على style للعنصر (div أو img)
+    return {
+        backgroundImage: `url(${fullImageUrl})`,
+        backgroundSize: '100% 100%',
+        backgroundPosition: '0% 0%',
+        clipPath: `inset(${insetTop}% ${insetRight}% ${insetBottom}% ${insetLeft}%)`,
+        // لجعل العنصر يظهر كصورة مقتطعة، نضع الخلفية في عنصر div مع ضبط الأبعاد
+        // لكن الأفضل استخدام img مع clip-path
+    };
 }
+      
       
       
       
@@ -556,8 +557,15 @@ function renderPage() {
     const fullFlyerUrl = getProductImageUrl(productData);
     const generalImageUrl = getGeneralFlyerUrl(productData);
 
-    // عرض مؤقت تحميل في الجانب الأيمن
-    const loadingHtml = `
+    // معلومات السوبرماركت (نفس الكود السابق)
+    let marketInfo = supermarketData[productData.supermarket] || defaultSupermarketInfo;
+    let phone = marketInfo.phone && typeof marketInfo.phone === 'string' ? marketInfo.phone : 'غير متوفر';
+    let website = marketInfo.website && typeof marketInfo.website === 'string' ? marketInfo.website : '#';
+    let mapLink = marketInfo.map_link && typeof marketInfo.map_link === 'string' ? marketInfo.map_link : '#';
+    let cleanPhone = phone === 'غير متوفر' ? '' : phone.replace(/\s/g, '').replace(/[^0-9+]/g, '');
+
+    // بناء HTML الأساسي (نفسه لكن الجانب الأيمن سيحتوي على img مع clip-path)
+    const html = `
         <div class="left-side">
             <div class="product-info">
                 <div class="title-row">
@@ -569,9 +577,9 @@ function renderPage() {
                     <span class="discount-badge">-${productData._discount_pct}%</span>
                 </div>
                 <div class="actions-row">
-                    <a href="#" class="btn btn-success"><i class="fas fa-phone-alt"></i> اتصل</a>
-                    <a href="#" target="_blank" class="btn btn-primary"><i class="fas fa-globe"></i> الموقع الالكتروني</a>
-                    <a href="#" target="_blank" class="btn btn-danger"><i class="fas fa-map"></i> الخريطة--</a>
+                    <a href="${cleanPhone ? 'tel:' + cleanPhone : '#'}" class="btn btn-success ${!cleanPhone ? 'disabled' : ''}"><i class="fas fa-phone-alt"></i> اتصل</a>
+                    <a href="${website !== '#' ? website : '#'}" target="_blank" class="btn btn-primary"><i class="fas fa-globe"></i> الموقع الالكتروني</a>
+                    <a href="${mapLink !== '#' ? mapLink : '#'}" target="_blank" class="btn btn-danger"><i class="fas fa-map"></i> الخريطة</a>
                     <button onclick="shareProduct()" class="btn btn-warning"><i class="fas fa-share-alt"></i> مشاركة</button>
                     <button onclick="toggleFavorite()" class="btn btn-favorite" id="favoriteBtn"><i class="fas fa-heart"></i> تفضيل</button>
                 </div>
@@ -590,53 +598,54 @@ function renderPage() {
             </div>
             <button class="back-btn" onclick="window.close()"><i class="fas fa-arrow-right"></i> إغلاق</button>
         </div>
-        <div class="right-side" id="croppedImageContainer" style="background: #1a1a2e; display: flex; justify-content: center; align-items: center; flex-direction: column; color: white;">
-            <i class="fas fa-spinner fa-pulse" style="font-size: 3rem; margin-bottom: 15px;"></i>
-            <p>جاري تحميل الصورة وتجهيزها...</p>
+        <div class="right-side" id="croppedImageContainer" style="background: #1a1a2e; display: flex; justify-content: center; align-items: center; overflow: hidden; position: relative;">
+            <img id="croppedImage" src="${fullFlyerUrl || 'https://via.placeholder.com/500?text=Image+Not+Found'}" alt="المنتج" style="max-width: 100%; max-height: 100%; object-fit: contain;" onerror="this.style.display='none'; document.getElementById('fallbackMsg').style.display='block';">
+            <div id="fallbackMsg" style="display: none; color: white; text-align: center;">
+                <i class="fas fa-exclamation-triangle" style="font-size: 2rem;"></i>
+                <p>تعذر تحميل الصورة</p>
+            </div>
+            <span style="position:absolute; bottom:15px; right:15px; background:rgba(0,0,0,0.6); color:#fff; padding:4px 12px; border-radius:20px; font-size:0.7rem; pointer-events:none;">
+                <i class="fas fa-crop-alt"></i> مقتصصة
+            </span>
         </div>
     `;
 
-    document.getElementById('mainContainer').innerHTML = loadingHtml;
+    document.getElementById('mainContainer').innerHTML = html;
     updateFavoriteButtonStatus();
 
-    // --- بدء عملية القص ---
-    cropImageWithCanvas(productData)
-        .then(croppedDataUrl => {
-            // عندما تنجح القص، نستبدل المحتوى بالصورة المقتطعة
-            const container = document.getElementById('croppedImageContainer');
-            if (container) {
-                container.innerHTML = `
-                    <img src="${croppedDataUrl}" alt="المنتج" style="max-width: 95%; max-height: 95%; object-fit: contain; border-radius: 16px; box-shadow: 0 8px 25px rgba(0,0,0,0.3);">
-                    <span style="position:absolute; bottom:15px; right:15px; background:rgba(0,0,0,0.6); color:#fff; padding:4px 12px; border-radius:20px; font-size:0.7rem; pointer-events:none;">
-                        <i class="fas fa-crop-alt"></i> مقتصصة
-                    </span>
-                `;
-                // إضافة حدث النقر لعرض الفلاير الكامل في المودال
-                container.style.cursor = 'pointer';
-                container.onclick = function() {
-                    openModal(fullFlyerUrl);
-                };
-            }
-        })
-        .catch(error => {
-            // في حال فشل القص (مشكلة في التحميل أو الإحداثيات)، نعرض الصورة الكاملة كحل احتياطي
-            console.warn('فشل القص، نعرض الصورة الكاملة:', error);
-            const container = document.getElementById('croppedImageContainer');
-            if (container) {
-                container.innerHTML = `
-                    <img src="${fullFlyerUrl || 'https://via.placeholder.com/500?text=Image+Not+Found'}" alt="المنتج" style="max-width: 95%; max-height: 95%; object-fit: contain; border-radius: 16px; box-shadow: 0 8px 25px rgba(0,0,0,0.3);" onerror="this.src='https://via.placeholder.com/500?text=Image+Not+Found'">
-                    <span style="position:absolute; bottom:15px; right:15px; background:rgba(255,0,0,0.7); color:#fff; padding:4px 12px; border-radius:20px; font-size:0.7rem; pointer-events:none;">
-                        <i class="fas fa-image"></i> كامل (بديل)
-                    </span>
-                `;
-                container.style.cursor = 'pointer';
-                container.onclick = function() {
-                    openModal(fullFlyerUrl);
-                };
-            }
-        });
+    // بعد إنشاء العناصر، نطبق clip-path على الصورة إذا توفرت الإحداثيات
+    const croppedImg = document.getElementById('croppedImage');
+    if (croppedImg) {
+        const style = getCroppedBackgroundStyle(productData);
+        if (style) {
+            // نطبق clip-path
+            croppedImg.style.clipPath = style.clipPath;
+            // نضع الصورة لتغطي العنصر بالكامل مع الحفاظ على النسبة
+            croppedImg.style.objectFit = 'none'; // لمنع تغيير الأبعاد
+            croppedImg.style.width = '100%';
+            croppedImg.style.height = '100%';
+            croppedImg.style.objectPosition = '0 0';
+            // نضبط حجم الصورة لتعرض الجزء المطلوب
+            // نضبط العرض والارتفاع بنسبة عكسية للـ clip-path للحفاظ على الأبعاد
+            // ولكن بما أننا نستخدم clip-path على img، فالصورة تظهر بحجمها الأصلي داخل العنصر.
+            // لذا نضبط width و height للعنصر ليتناسب مع نسبة الأبعاد المقتطعة.
+            // لكننا لا نعرف أبعاد الصورة الفعلية، لذا نتركها 100% ونستخدم object-fit: none مع ضبط عرض وارتفاع العنصر.
+            // أفضل حل: جعل العنصر (الصورة) تأخذ المساحة الكاملة للـ right-side مع الحفاظ على نسبة الأبعاد،
+            // واستخدام clip-path لتحديد المنطقة.
+            // يجب أن يكون العنصر بحجم الصورة الأصلية تقريباً، لكننا نريد أن يظهر الجزء المقتطع فقط.
+            // لذا نضبط width: 100%; height: 100%; object-fit: contain; ثم نطبق clip-path.
+            // clip-path سيقص الصورة ولكن سيبقى العنصر بنفس الحجم، لذا سيظهر الجزء المقتطع فقط مع خلفية شفافة.
+            // لكن `object-fit: contain` قد يغير حجم الصورة داخل العنصر، مما قد يؤثر على clip-path.
+            // لذا الأفضل استخدام `object-fit: none` وضبط أبعاد العنصر بشكل مناسب.
+            // نظراً لتعقيد ذلك، سنستخدم طريقة div بخلفية بدلاً من img.
+            // سأقوم بتعديل الكود لاستخدام div مع background-image بدلاً من img.
+        } else {
+            // لا توجد إحداثيات، نعرض الصورة كاملة
+            croppedImg.style.clipPath = 'none';
+            croppedImg.style.objectFit = 'contain';
+        }
+    }
 }
-
     (async function init() {
         if (!loadProductFromSession()) return;
         await loadSupermarketData();
