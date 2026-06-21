@@ -523,8 +523,13 @@ window.closeModal = function() {
 
 function renderPage() {
     if (!productData) return;
+    
     const fullFlyerUrl = getProductImageUrl(productData);
     const generalImageUrl = getGeneralFlyerUrl(productData);
+    
+    // تأكد من أن القيم ليست null أو undefined
+    const generalImgSrc = generalImageUrl || '';
+    const fullImgSrc = fullFlyerUrl || '';
 
     let marketInfo = supermarketData[productData.supermarket] || defaultSupermarketInfo;
     let phone = marketInfo.phone && typeof marketInfo.phone === 'string' ? marketInfo.phone : 'غير متوفر';
@@ -546,7 +551,7 @@ function renderPage() {
                 <div class="actions-row">
                     <a href="${cleanPhone ? 'tel:' + cleanPhone : '#'}" class="btn btn-success ${!cleanPhone ? 'disabled' : ''}"><i class="fas fa-phone-alt"></i> اتصل</a>
                     <a href="${website !== '#' ? website : '#'}" target="_blank" class="btn btn-primary"><i class="fas fa-globe"></i> الموقع الالكتروني</a>
-                    <a href="${mapLink !== '#' ? mapLink : '#'}" target="_blank" class="btn btn-danger"><i class="fas fa-map"></i> الخريطة=+</a>
+                    <a href="${mapLink !== '#' ? mapLink : '#'}" target="_blank" class="btn btn-danger"><i class="fas fa-map"></i> الخريطة\\</a>
                     <button onclick="shareProduct()" class="btn btn-warning"><i class="fas fa-share-alt"></i> مشاركة</button>
                     <button onclick="toggleFavorite()" class="btn btn-favorite" id="favoriteBtn"><i class="fas fa-heart"></i> تفضيل</button>
                 </div>
@@ -559,9 +564,9 @@ function renderPage() {
                     <div class="detail-item"><div class="detail-label">تاريخ التحديث</div><div class="detail-value">${productData.updateDate ? new Date(productData.updateDate).toLocaleDateString('ar-EG') : '-'}</div></div>
                 </div>
             </div>
-            <div class="general-flyer" onclick="openModal('${generalImageUrl}')">
+            <div class="general-flyer" onclick="openModal('${generalImgSrc}')">
                 <h4><i class="fas fa-info-circle"></i> الرئيسية</h4>
-                ${generalImageUrl ? `<img src="${generalImageUrl}" alt="صفحة 1" onerror="this.src='https://via.placeholder.com/300?text=No+Image'">` : '<i class="fas fa-image" style="font-size:3rem;color:#ccc"></i><p>لا توجد صورة عامة</p>'}
+                ${generalImgSrc ? `<img src="${generalImgSrc}" alt="صفحة 1" onerror="this.src='https://via.placeholder.com/300?text=No+Image'">` : '<i class="fas fa-image" style="font-size:3rem;color:#ccc"></i><p>لا توجد صورة عامة</p>'}
             </div>
             <button class="back-btn" onclick="window.close()"><i class="fas fa-arrow-right"></i> إغلاق</button>
         </div>
@@ -576,11 +581,12 @@ function renderPage() {
         renderCroppedImage(container, productData);
         container.style.cursor = 'pointer';
         container.onclick = function() {
-            openModal(fullFlyerUrl);
+            openModal(fullImgSrc);
         };
     }
 }
-
+    
+    
 (async function init() {
     if (!loadProductFromSession()) return;
     await loadSupermarketData();
