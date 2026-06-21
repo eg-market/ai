@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html dir="rtl" lang="ar">
-<head>
+  <head>
     <meta http-equiv="content-type" content="text/html; charset=UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>تفاصيل المنتج - عروض السوبرماركت</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&amp;display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&amp;display=swap"
+
+      rel="stylesheet">
     <script src="https://cdn.sheetjs.com/xlsx-0.20.2/package/dist/xlsx.full.min.js"></script>
     <style>
         /* ... (جميع الـ Styles الخاصة بك، اتركها كما هي) ... */
@@ -306,15 +308,14 @@
             }
         }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <div class="split-layout" id="mainContainer">
-        <div class="loading">جارٍ تحميل البيانات...</div>
+      <div class="loading">جارٍ تحميل البيانات...</div>
     </div>
     <div id="imageModal" class="modal" onclick="closeModal()">
-        <div class="close">×</div>
-        <img id="modalImage" src="" alt="صورة مكبرة">
-    </div>
+      <div class="close">×</div>
+      <img id="modalImage" src="" alt="صورة مكبرة"> </div>
     <script>
         let productData = null;
         let supermarketData = {};
@@ -329,6 +330,7 @@
 function renderCroppedImage(container, item) {
     container.innerHTML = '';
     const fullImageUrl = getProductImageUrl(item);
+    
     if (!fullImageUrl) {
         container.innerHTML = '<div style="display:flex;justify-content:center;align-items:center;width:100%;height:100%;color:white;font-size:1.2rem;">لا توجد صورة</div>';
         return;
@@ -343,62 +345,80 @@ function renderCroppedImage(container, item) {
     if (x === 0 && y === 0 && w === 0 && h === 0) {
         const img = document.createElement('img');
         img.src = fullImageUrl;
-        img.style.cssText = 'max-width:100%; max-height:100%; object-fit:contain;';
+        img.style.cssText = 'max-width:100%; max-height:100%; object-fit:contain; border-radius:16px; box-shadow:0 8px 25px rgba(0,0,0,0.3);';
         container.appendChild(img);
         return;
     }
 
-    // نفس قيم PAD من draw_xy.py
+    // نفس قيم الـ Padding الموجودة في كود Python
     const PAD_LEFT = 0.40;
     const PAD_RIGHT = 0.11;
     const PAD_TOP = 0.17;
     const PAD_BOTTOM = 0.05;
 
-    // حساب المنطقة النهائية كنسب مئوية (من 0 إلى 1)
-    let left = Math.max(0, x - PAD_LEFT);
-    let right = Math.min(1, x + w + PAD_RIGHT);
-    let top = Math.max(0, y - PAD_TOP);
-    let bottom = Math.min(1, y + h + PAD_BOTTOM);
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    const img = new Image();
+    img.crossOrigin = "anonymous";
 
-    const cropWidth = right - left;
-    const cropHeight = bottom - top;
+    img.onload = function() {
+        const img_w = img.naturalWidth;
+        const img_h = img.naturalHeight;
 
-    if (cropWidth <= 0 || cropHeight <= 0) {
-        const img = document.createElement('img');
-        img.src = fullImageUrl;
-        img.style.cssText = 'max-width:100%; max-height:100%; object-fit:contain;';
-        container.appendChild(img);
-        return;
-    }
+        // تحويل الإحداثيات النسبية (0-1) إلى بكسل — نفس منطق Python
+        let left_px = (x <= 1.0) ? x * img_w : x;
+        let top_px = (y <= 1.0) ? y * img_h : y;
+        let box_w_px = (w <= 1.0) ? w * img_w : w;
+        let box_h_px = (h <= 1.0) ? h * img_h : h;
 
-    // حساب نسبة التكبير (scale) لجعل المنطقة المقطوعة تملأ العنصر
-    const scaleX = 100 / cropWidth;
-    const scaleY = 100 / cropHeight;
+        // تطبيق نفس حسابات الـ Padding من كود Python
+        let final_left = Math.max(0, left_px - (img_w * PAD_LEFT));
+        let final_right = Math.min(img_w, left_px + box_w_px + (img_w * PAD_RIGHT));
+        let final_top = Math.max(0, top_px - (img_h * PAD_TOP));
+        let final_bottom = Math.min(img_h, top_px + box_h_px + (img_h * PAD_BOTTOM));
 
-    // حساب موضع الخلفية بحيث تبدأ المنطقة المقطوعة من الزاوية العلوية اليسرى للعنصر
-    const posX = (left / cropWidth) * 100;
-    const posY = (top / cropHeight) * 100;
+        if (final_right <= final_left || final_bottom <= final_top) {
+            container.innerHTML = '<div style="display:flex;justify-content:center;align-items:center;width:100%;height:100%;color:white;font-size:1.2rem;">إحداثيات غير صالحة</div>';
+            return;
+        }
 
-    // استخدام div مع background-image
-    const div = document.createElement('div');
-    div.style.cssText = `
-        width: 100%;
-        height: 100%;
-        background-image: url(${fullImageUrl});
-        background-size: ${scaleX}% ${scaleY}%;
-        background-position: ${posX}% ${posY}%;
-        background-repeat: no-repeat;
-        background-color: #1a1a2e;
-        position: relative;
-    `;
+        const crop_w = final_right - final_left;
+        const crop_h = final_bottom - final_top;
 
-    // إضافة علامة "مقتصصة"
-    const badge = document.createElement('span');
-    badge.style.cssText = 'position: absolute; bottom: 15px; right: 15px; background: rgba(0,0,0,0.7); color: #fff; padding: 4px 14px; border-radius: 20px; font-size: 0.8rem; pointer-events: none; z-index: 2;';
-    badge.innerHTML = '<i class="fas fa-crop-alt"></i> مقتصصة';
-    div.appendChild(badge);
+        // ضبط أبعاد Canvas على الجزء المقصوص
+        canvas.width = crop_w;
+        canvas.height = crop_h;
 
-    container.appendChild(div);
+        // رسم الجزء المقصوص فقط — نفس عملية PIL.crop() في Python
+        ctx.drawImage(img, final_left, final_top, crop_w, crop_h, 0, 0, crop_w, crop_h);
+
+        // تنسيق Canvas ليتناسب مع حجم الحاوية
+        canvas.style.maxWidth = '95%';
+        canvas.style.maxHeight = '95%';
+        canvas.style.borderRadius = '16px';
+        canvas.style.boxShadow = '0 8px 25px rgba(0,0,0,0.3)';
+        canvas.style.objectFit = 'contain';
+
+        container.style.position = 'relative';
+        container.style.display = 'flex';
+        container.style.justifyContent = 'center';
+        container.style.alignItems = 'center';
+        container.style.overflow = 'hidden';
+
+        container.appendChild(canvas);
+
+        // إضافة شارة "مقتصصة"
+        const badge = document.createElement('span');
+        badge.style.cssText = 'position: absolute; bottom: 15px; right: 15px; background: rgba(0,0,0,0.7); color: #fff; padding: 4px 14px; border-radius: 20px; font-size: 0.8rem; pointer-events: none; z-index: 2;';
+        badge.innerHTML = '<i class="fas fa-crop-alt"></i> مقتصصة';
+        container.appendChild(badge);
+    };
+
+    img.onerror = function() {
+        container.innerHTML = '<div style="display:flex;justify-content:center;align-items:center;width:100%;height:100%;color:white;font-size:1.2rem;">فشل تحميل الصورة</div>';
+    };
+
+    img.src = fullImageUrl;
 }
 
         // --- دالة تحميل المنتج من Session Storage ---
@@ -605,5 +625,5 @@ function renderCroppedImage(container, item) {
             renderPage();
         })();
     </script>
-</body>
+  </body>
 </html>
