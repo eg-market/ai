@@ -412,44 +412,7 @@ function renderCroppedImage(container, item) {
 
     container.appendChild(div);
 }
-      
-      
-
-// دالة لعرض الصورة المقتطعة داخل div
-function renderCroppedImage(container, item) {
-    if (!productData) return;
-    const fullFlyerUrl = getProductImageUrl(productData);
-    const generalImageUrl = getGeneralFlyerUrl(productData);
-  
-    const style = getCroppedBackgroundStyle(item);
-    if (!style) {
-        // عرض الصورة الكاملة
-        container.innerHTML = `<img src="${getProductImageUrl(item)}" style="max-width:100%;max-height:100%;object-fit:contain;">`;
-        return;
-    }
-
-    // إنشاء div
-    const div = document.createElement('div');
-    div.style.cssText = `
-        width: 100%;
-        height: 100%;
-        background-image: ${style.backgroundImage};
-        background-size: ${style.backgroundSize};
-        background-position: ${style.backgroundPosition};
-        background-repeat: no-repeat;
-        background-color: #1a1a2e;
-        position: relative;
-    `;
-    // نضيف علامة "مقتصصة"
-    const badge = document.createElement('span');
-    badge.style.cssText = 'position:absolute; bottom:15px; right:15px; background:rgba(0,0,0,0.6); color:#fff; padding:4px 12px; border-radius:20px; font-size:0.7rem; pointer-events:none;';
-    badge.innerHTML = '<i class="fas fa-crop-alt"></i> مقتصصة';
-    div.appendChild(badge);
-    container.appendChild(div);
-}
     
-      
-      
       
       
 function loadProductFromSession() {
@@ -619,7 +582,7 @@ function renderPage() {
                 <div class="actions-row">
                     <a href="${cleanPhone ? 'tel:' + cleanPhone : '#'}" class="btn btn-success ${!cleanPhone ? 'disabled' : ''}"><i class="fas fa-phone-alt"></i> اتصل</a>
                     <a href="${website !== '#' ? website : '#'}" target="_blank" class="btn btn-primary"><i class="fas fa-globe"></i> الموقع الالكتروني</a>
-                    <a href="${mapLink !== '#' ? mapLink : '#'}" target="_blank" class="btn btn-danger"><i class="fas fa-map"></i> **الخريطة</a>
+                    <a href="${mapLink !== '#' ? mapLink : '#'}" target="_blank" class="btn btn-danger"><i class="fas fa-map"></i> الخريطة</a>
                     <button onclick="shareProduct()" class="btn btn-warning"><i class="fas fa-share-alt"></i> مشاركة</button>
                     <button onclick="toggleFavorite()" class="btn btn-favorite" id="favoriteBtn"><i class="fas fa-heart"></i> تفضيل</button>
                 </div>
