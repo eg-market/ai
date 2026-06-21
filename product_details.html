@@ -327,11 +327,9 @@
     };
 
 function getCroppedBackgroundStyle(item) {
-    // الحصول على رابط الفلاير الكامل
     const fullImageUrl = getProductImageUrl(item);
     if (!fullImageUrl) return null;
 
-    // استخراج الإحداثيات (نفس المفاتيح العربية)
     const x = parseFloat(item.X) || 0;
     const y = parseFloat(item.Y) || 0;
     const w = parseFloat(item['العرض']) || 0;
@@ -339,75 +337,77 @@ function getCroppedBackgroundStyle(item) {
 
     if (x === 0 && y === 0 && w === 0 && h === 0) return null;
 
-    // نفس نسب الهوامش المستخدمة في البايثون
-    const PAD_LEFT_PCT = 0.40;
-    const PAD_RIGHT_PCT = 0.11;
-    const PAD_TOP_PCT = 0.17;
-    const PAD_BOTTOM_PCT = 0.05;
+    const PAD_LEFT = 0.40, PAD_RIGHT = 0.11, PAD_TOP = 0.17, PAD_BOTTOM = 0.05;
 
-    // حساب الأبعاد النهائية بالنسبة المئوية (لأن الإحداثيات معطاة كنسب مئوية)
-    // لكن ملاحظة: الإحداثيات في الإكسل هي نسب مئوية من عرض الصورة وارتفاعها.
-    // لذا سنتعامل معها كنسب مئوية مباشرة.
+    let left = Math.max(0, x - PAD_LEFT);
+    let right = Math.min(1, x + w + PAD_RIGHT);
+    let top = Math.max(0, y - PAD_TOP);
+    let bottom = Math.min(1, y + h + PAD_BOTTOM);
 
-    // المساحة المقتطعة الأساسية (بدون الهوامش)
-    const cropLeft = x;
-    const cropTop = y;
-    const cropWidth = w;
-    const cropHeight = h;
+    const cropWidth = right - left;
+    const cropHeight = bottom - top;
 
-    // إضافة الهوامش
-    let finalLeft = Math.max(0, cropLeft - PAD_LEFT_PCT);
-    let finalRight = Math.min(1, cropLeft + cropWidth + PAD_RIGHT_PCT);
-    let finalTop = Math.max(0, cropTop - PAD_TOP_PCT);
-    let finalBottom = Math.min(1, cropTop + cropHeight + PAD_BOTTOM_PCT);
+    if (cropWidth <= 0 || cropHeight <= 0) return null;
 
-    const finalWidth = finalRight - finalLeft;
-    const finalHeight = finalBottom - finalTop;
+    // حساب النسب المئوية لـ background-position
+    // لاحظ أن background-position: X% Y% حيث X% تحدد النقطة الأفقية من الصورة التي تظهر في منتصف العنصر.
+    // لكننا نريد أن تكون الزاوية العلوية اليسرى للعنصر عند النقطة (left, top) من الصورة.
+    // لذا نستخدم: left% top%
+    const posX = left * 100;
+    const posY = top * 100;
 
-    if (finalWidth <= 0 || finalHeight <= 0) return null;
+    // لحساب background-size، نريد أن يكون حجم الخلفية بحيث تغطي العنصر بالكامل مع الحفاظ على النسبة.
+    // لكننا نريد عرض جزء معين من الصورة، لذا نضبط background-size بحيث يكون عرض الصورة كاملاً = 100% من العنصر،
+    // ونستخدم background-position لتحديد المنطقة.
+    // الطريقة الصحيحة:
+    // background-size = 100% 100% لأننا نريد أن تغطي الخلفية العنصر بالكامل، ثم نحدد المنطقة المطلوبة عن طريق background-position و background-origin.
+    // في هذه الحالة، الخلفية ستكون مضغوطة أو ممددة حسب نسبة العنصر، لكننا نريد أن تظهر الصورة بنسبتها الطبيعية.
+    // لذا نستخدم background-size: auto، ونضبط حجم العنصر ليكون بنفس نسبة الأبعاد المقتطعة.
+    // ولكن لا نعرف أبعاد الصورة، لذا نتركها auto وتكون الصورة بحجمها الأصلي، ثم نضبط background-position لإظهار الجزء المطلوب.
+    // ومع ذلك، الخلفية ستكون أكبر من العنصر، لذا نضبط overflow:hidden.
+    // هذا الحل يعمل دون الحاجة لمعرفة أبعاد الصورة، لأننا نحدد الموضع بالنسبة المئوية.
 
-    // حساب `background-position` كنسبة مئوية:
-    // القاعدة: background-position: X% Y% حيث أن X% هي النسبة من عرض الصورة التي تظهر في الزاوية العلوية اليسرى للعنصر.
-    // نحن نريد أن تكون الزاوية العلوية اليسرى للعنصر عند النقطة (finalLeft, finalTop) من الصورة.
-    // لذا نضع: background-position: (finalLeft * 100)% (finalTop * 100)%
-    const posX = finalLeft * 100;
-    const posY = finalTop * 100;
-
-    // `background-size` يجب أن يكون بحجم الصورة الأصلية مضروبة في 1/نسبة العرض المطلوب
-    // بما أننا نريد عرض جزء من الصورة بحجم العنصر، نضع background-size: (1/finalWidth * 100)% (1/finalHeight * 100)%
-    // ولكن الطريقة الأسهل: وضع background-size: cover ثم استخدام background-position مع تحديد المنطقة، لكن الأفضل استخدام حجم محدد.
-    // الطريقة الصحيحة: background-size: (100/finalWidth)% (100/finalHeight)% لأن العنصر سيعرض جزءاً من الصورة.
-    // ولكن إذا أردنا أن يكون حجم العنصر مساوياً لأبعاد المنطقة المقتطعة (بالنسبة المئوية من الصورة)، فيجب أن يكون حجم العنصر متناسباً مع أبعاد الصورة.
-    // لكننا لا نعرف أبعاد الصورة الفعلية. لذا نستخدم `background-size: auto 100%` أو نحدد حجم العنصر بنسبة.
-    // بدلاً من ذلك، يمكننا استخدام `background-size: cover` مع `background-position`، لكن ذلك سيغير النسبة.
-    // الطريقة الأضمن: جعل العنصر بنفس نسبة الأبعاد المقتطعة، واستخدام `background-size: 100% 100%` مع `background-position` كنسبة مئوية.
-    // ولكن `background-position` مع `background-size: 100% 100%` يعني أن النقطة (0,0) من الخلفية تظهر في أعلى يسار العنصر.
-    // لتحقيق الإزاحة، نضبط `background-position: (finalLeft * 100)% (finalTop * 100)%` مع `background-size: 100% 100%`، ولكن هذا لا يعمل بشكل صحيح.
-    // الطريقة الصحيحة: استخدام `background-size: auto` وجعل العنصر بحجم المنطقة المقتطعة (بالنسبة المئوية) ولكن لا نعرف أبعاد الصورة.
-    // لذلك سنستخدم تقنية مختلفة: وضع الصورة في عنصر img داخل div، ثم استخدام clip-path أو overflow:hidden مع translate.
-    // ولكن الأسهل هو استخدام `background-image` مع `background-size` محسوب بناءً على الأبعاد النسبية للصورة التي نعرفها من خلال تحميل الصورة.
-    // لكننا لا نريد تحميل الصورة لقراءة أبعادها (لتجنب CORS) لذا سنعتمد على معرفة أن الإحداثيات نسب مئوية ونستخدم `background-size: 100% 100%` ونضبط `background-origin` و `background-position` بشكل مناسب.
-    // في الواقع، الطريقة الأكثر موثوقية هي استخدام `clip-path` على عنصر img، حيث نعرض الصورة كاملة ونحدد منطقة القص عبر `clip-path: inset(top% right% bottom% left%)`.
-    // هذه الطريقة تدعمها جميع المتصفحات الحديثة ولا تحتاج إلى Canvas أو حساب معقد.
-    // سنستخدم `clip-path: inset()`.
-
-    // نحسب قيم inset:
-    const insetTop = finalTop * 100;
-    const insetRight = (1 - finalRight) * 100;
-    const insetBottom = (1 - finalBottom) * 100;
-    const insetLeft = finalLeft * 100;
-
-    // نعيد كائن يحتوي على style للعنصر (div أو img)
+    // نعيد كائن style للعنصر (div)
     return {
         backgroundImage: `url(${fullImageUrl})`,
-        backgroundSize: '100% 100%',
-        backgroundPosition: '0% 0%',
-        clipPath: `inset(${insetTop}% ${insetRight}% ${insetBottom}% ${insetLeft}%)`,
-        // لجعل العنصر يظهر كصورة مقتطعة، نضع الخلفية في عنصر div مع ضبط الأبعاد
-        // لكن الأفضل استخدام img مع clip-path
+        backgroundSize: 'auto',   // الحجم الطبيعي
+        backgroundPosition: `${posX}% ${posY}%`,
+        backgroundRepeat: 'no-repeat',
+        // العنصر يجب أن يكون بنسبة أبعاد (cropWidth:cropHeight) ولكن لا نعرف نسبة الصورة الأصلية.
+        // لذا نستخدم padding-bottom لتحديد النسبة.
+        // سنقوم بضبط نسبة العنصر في HTML باستخدام padding-bottom.
     };
 }
-      
+
+// دالة لعرض الصورة المقتطعة داخل div
+function renderCroppedImage(container, item) {
+    const style = getCroppedBackgroundStyle(item);
+    if (!style) {
+        // عرض الصورة الكاملة
+        container.innerHTML = `<img src="${getProductImageUrl(item)}" style="max-width:100%;max-height:100%;object-fit:contain;">`;
+        return;
+    }
+
+    // إنشاء div
+    const div = document.createElement('div');
+    div.style.cssText = `
+        width: 100%;
+        height: 100%;
+        background-image: ${style.backgroundImage};
+        background-size: ${style.backgroundSize};
+        background-position: ${style.backgroundPosition};
+        background-repeat: no-repeat;
+        background-color: #1a1a2e;
+        position: relative;
+    `;
+    // نضيف علامة "مقتصصة"
+    const badge = document.createElement('span');
+    badge.style.cssText = 'position:absolute; bottom:15px; right:15px; background:rgba(0,0,0,0.6); color:#fff; padding:4px 12px; border-radius:20px; font-size:0.7rem; pointer-events:none;';
+    badge.innerHTML = '<i class="fas fa-crop-alt"></i> مقتصصة';
+    div.appendChild(badge);
+    container.appendChild(div);
+}
+    
       
       
       
@@ -579,7 +579,7 @@ function renderPage() {
                 <div class="actions-row">
                     <a href="${cleanPhone ? 'tel:' + cleanPhone : '#'}" class="btn btn-success ${!cleanPhone ? 'disabled' : ''}"><i class="fas fa-phone-alt"></i> اتصل</a>
                     <a href="${website !== '#' ? website : '#'}" target="_blank" class="btn btn-primary"><i class="fas fa-globe"></i> الموقع الالكتروني</a>
-                    <a href="${mapLink !== '#' ? mapLink : '#'}" target="_blank" class="btn btn-danger"><i class="fas fa-map"></i> الخريطة</a>
+                    <a href="${mapLink !== '#' ? mapLink : '#'}" target="_blank" class="btn btn-danger"><i class="fas fa-map"></i> --الخريطة</a>
                     <button onclick="shareProduct()" class="btn btn-warning"><i class="fas fa-share-alt"></i> مشاركة</button>
                     <button onclick="toggleFavorite()" class="btn btn-favorite" id="favoriteBtn"><i class="fas fa-heart"></i> تفضيل</button>
                 </div>
@@ -610,41 +610,24 @@ function renderPage() {
         </div>
     `;
 
-    document.getElementById('mainContainer').innerHTML = html;
-    updateFavoriteButtonStatus();
+// داخل renderPage بعد بناء الـ HTML
+document.getElementById('mainContainer').innerHTML = html; // كما هو
+updateFavoriteButtonStatus();
 
-    // بعد إنشاء العناصر، نطبق clip-path على الصورة إذا توفرت الإحداثيات
-    const croppedImg = document.getElementById('croppedImage');
-    if (croppedImg) {
-        const style = getCroppedBackgroundStyle(productData);
-        if (style) {
-            // نطبق clip-path
-            croppedImg.style.clipPath = style.clipPath;
-            // نضع الصورة لتغطي العنصر بالكامل مع الحفاظ على النسبة
-            croppedImg.style.objectFit = 'none'; // لمنع تغيير الأبعاد
-            croppedImg.style.width = '100%';
-            croppedImg.style.height = '100%';
-            croppedImg.style.objectPosition = '0 0';
-            // نضبط حجم الصورة لتعرض الجزء المطلوب
-            // نضبط العرض والارتفاع بنسبة عكسية للـ clip-path للحفاظ على الأبعاد
-            // ولكن بما أننا نستخدم clip-path على img، فالصورة تظهر بحجمها الأصلي داخل العنصر.
-            // لذا نضبط width و height للعنصر ليتناسب مع نسبة الأبعاد المقتطعة.
-            // لكننا لا نعرف أبعاد الصورة الفعلية، لذا نتركها 100% ونستخدم object-fit: none مع ضبط عرض وارتفاع العنصر.
-            // أفضل حل: جعل العنصر (الصورة) تأخذ المساحة الكاملة للـ right-side مع الحفاظ على نسبة الأبعاد،
-            // واستخدام clip-path لتحديد المنطقة.
-            // يجب أن يكون العنصر بحجم الصورة الأصلية تقريباً، لكننا نريد أن يظهر الجزء المقتطع فقط.
-            // لذا نضبط width: 100%; height: 100%; object-fit: contain; ثم نطبق clip-path.
-            // clip-path سيقص الصورة ولكن سيبقى العنصر بنفس الحجم، لذا سيظهر الجزء المقتطع فقط مع خلفية شفافة.
-            // لكن `object-fit: contain` قد يغير حجم الصورة داخل العنصر، مما قد يؤثر على clip-path.
-            // لذا الأفضل استخدام `object-fit: none` وضبط أبعاد العنصر بشكل مناسب.
-            // نظراً لتعقيد ذلك، سنستخدم طريقة div بخلفية بدلاً من img.
-            // سأقوم بتعديل الكود لاستخدام div مع background-image بدلاً من img.
-        } else {
-            // لا توجد إحداثيات، نعرض الصورة كاملة
-            croppedImg.style.clipPath = 'none';
-            croppedImg.style.objectFit = 'contain';
-        }
-    }
+// بعد التحميل، نقوم بمعالجة الصورة المقتطصة
+const container = document.getElementById('croppedImageContainer');
+if (container) {
+    // نمسح محتوى placeholder
+    container.innerHTML = '';
+    // نستخدم الدالة الجديدة
+    renderCroppedImage(container, productData);
+    // جعل النقر على الحاوية يعرض الفلاير الكامل
+    container.style.cursor = 'pointer';
+    container.onclick = function() {
+        openModal(getProductImageUrl(productData));
+    };
+}
+
 }
     (async function init() {
         if (!loadProductFromSession()) return;
