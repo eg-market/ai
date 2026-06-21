@@ -348,85 +348,58 @@ function renderCroppedImage(container, item) {
         return;
     }
 
-    // نفس قيم الهوامش المستخدمة في draw_xy.py
+    // نفس قيم PAD من draw_xy.py
     const PAD_LEFT = 0.40;
     const PAD_RIGHT = 0.11;
     const PAD_TOP = 0.17;
     const PAD_BOTTOM = 0.05;
 
-    // إنشاء Canvas لقص الصورة
-    const img = new Image();
-    img.crossOrigin = 'anonymous';
-    img.onload = function() {
-        const img_w = img.width;
-        const img_h = img.height;
+    // حساب المنطقة النهائية كنسب مئوية (من 0 إلى 1)
+    let left = Math.max(0, x - PAD_LEFT);
+    let right = Math.min(1, x + w + PAD_RIGHT);
+    let top = Math.max(0, y - PAD_TOP);
+    let bottom = Math.min(1, y + h + PAD_BOTTOM);
 
-        // تحويل الإحداثيات إلى بكسلات (إذا كانت نسب مئوية)
-        const left_px = x <= 1.0 ? x * img_w : x;
-        const top_px = y <= 1.0 ? y * img_h : y;
-        const box_w_px = w <= 1.0 ? w * img_w : w;
-        const box_h_px = h <= 1.0 ? h * img_h : h;
+    const cropWidth = right - left;
+    const cropHeight = bottom - top;
 
-        // تطبيق الهوامش (نفس منطق البايثون)
-        const final_left = Math.max(0, left_px - (img_w * PAD_LEFT));
-        const final_right = Math.min(img_w, left_px + box_w_px + (img_w * PAD_RIGHT));
-        const final_top = Math.max(0, top_px - (img_h * PAD_TOP));
-        const final_bottom = Math.min(img_h, top_px + box_h_px + (img_h * PAD_BOTTOM));
+    if (cropWidth <= 0 || cropHeight <= 0) {
+        const img = document.createElement('img');
+        img.src = fullImageUrl;
+        img.style.cssText = 'max-width:100%; max-height:100%; object-fit:contain;';
+        container.appendChild(img);
+        return;
+    }
 
-        const cropWidth = final_right - final_left;
-        const cropHeight = final_bottom - final_top;
+    // حساب نسبة التكبير (scale) لجعل المنطقة المقطوعة تملأ العنصر
+    const scaleX = 100 / cropWidth;
+    const scaleY = 100 / cropHeight;
 
-        if (cropWidth <= 0 || cropHeight <= 0) {
-            // المنطقة غير صالحة، اعرض الصورة كاملة
-            const fallbackImg = document.createElement('img');
-            fallbackImg.src = fullImageUrl;
-            fallbackImg.style.cssText = 'max-width:100%; max-height:100%; object-fit:contain;';
-            container.appendChild(fallbackImg);
-            return;
-        }
+    // حساب موضع الخلفية بحيث تبدأ المنطقة المقطوعة من الزاوية العلوية اليسرى للعنصر
+    const posX = (left / cropWidth) * 100;
+    const posY = (top / cropHeight) * 100;
 
-        // رسم الجزء المقتطع على Canvas
-        const canvas = document.createElement('canvas');
-        canvas.width = cropWidth;
-        canvas.height = cropHeight;
-        const ctx = canvas.getContext('2d');
-        ctx.drawImage(img, final_left, final_top, cropWidth, cropHeight, 0, 0, cropWidth, cropHeight);
+    // استخدام div مع background-image
+    const div = document.createElement('div');
+    div.style.cssText = `
+        width: 100%;
+        height: 100%;
+        background-image: url(${fullImageUrl});
+        background-size: ${scaleX}% ${scaleY}%;
+        background-position: ${posX}% ${posY}%;
+        background-repeat: no-repeat;
+        background-color: #1a1a2e;
+        position: relative;
+    `;
 
-        // تحويل Canvas إلى صورة
-        const croppedDataUrl = canvas.toDataURL('image/jpeg', 0.92);
+    // إضافة علامة "مقتصصة"
+    const badge = document.createElement('span');
+    badge.style.cssText = 'position: absolute; bottom: 15px; right: 15px; background: rgba(0,0,0,0.7); color: #fff; padding: 4px 14px; border-radius: 20px; font-size: 0.8rem; pointer-events: none; z-index: 2;';
+    badge.innerHTML = '<i class="fas fa-crop-alt"></i> مقتصصة';
+    div.appendChild(badge);
 
-        // عرض الصورة المقتطعة
-        const croppedImg = document.createElement('img');
-        croppedImg.src = croppedDataUrl;
-        croppedImg.style.cssText = 'max-width:100%; max-height:100%; object-fit:contain; border-radius:16px; box-shadow:0 8px 25px rgba(0,0,0,0.3);';
-        container.style.display = 'flex';
-        container.style.justifyContent = 'center';
-        container.style.alignItems = 'center';
-        container.innerHTML = '';
-        container.appendChild(croppedImg);
-
-        // إضافة علامة "مقتصصة"
-        const badge = document.createElement('span');
-        badge.style.cssText = 'position: absolute; bottom: 15px; right: 15px; background: rgba(0,0,0,0.7); color: #fff; padding: 4px 14px; border-radius: 20px; font-size: 0.8rem; pointer-events: none; z-index: 2;';
-        badge.innerHTML = '<i class="fas fa-crop-alt"></i> مقتصصة';
-        container.style.position = 'relative';
-        container.appendChild(badge);
-
-        // جعل النقر على الصورة يفتح الفلاير الكامل
-        container.style.cursor = 'pointer';
-        container.onclick = function() {
-            openModal(fullImageUrl);
-        };
-    };
-
-    img.onerror = function() {
-        // في حال فشل تحميل الصورة، اعرض رسالة خطأ
-        container.innerHTML = '<div style="display:flex;justify-content:center;align-items:center;width:100%;height:100%;color:white;font-size:1.2rem;">فشل تحميل الصورة</div>';
-    };
-
-    img.src = fullImageUrl;
+    container.appendChild(div);
 }
-      
 
         // --- دالة تحميل المنتج من Session Storage ---
         function loadProductFromSession() {
@@ -590,7 +563,7 @@ function renderCroppedImage(container, item) {
                     <div class="actions-row">
                         <a href="${cleanPhone ? 'tel:' + cleanPhone : '#'}" class="btn btn-success ${!cleanPhone ? 'disabled' : ''}"><i class="fas fa-phone-alt"></i> اتصل</a>
                         <a href="${website !== '#' ? website : '#'}" target="_blank" class="btn btn-primary"><i class="fas fa-globe"></i> الموقع الالكتروني</a>
-                        <a href="${mapLink !== '#' ? mapLink : '#'}" target="_blank" class="btn btn-danger"><i class="fas fa-map"></i> الخريطةC</a>
+                        <a href="${mapLink !== '#' ? mapLink : '#'}" target="_blank" class="btn btn-danger"><i class="fas fa-map"></i> الخريطة</a>
                         <button onclick="shareProduct()" class="btn btn-warning"><i class="fas fa-share-alt"></i> مشاركة</button>
                         <button onclick="toggleFavorite()" class="btn btn-favorite" id="favoriteBtn"><i class="fas fa-heart"></i> تفضيل</button>
                     </div>
