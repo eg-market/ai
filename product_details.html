@@ -325,12 +325,13 @@ const defaultSupermarketInfo = {
 };
 
 // دالة عرض الصورة المقتطعة باستخدام clip-path
-function renderCroppedImage(container, item) {
+
+    function renderCroppedImage(container, item) {
     container.innerHTML = '';
     const fullImageUrl = getProductImageUrl(item);
     if (!fullImageUrl) {
         const placeholder = document.createElement('div');
-        placeholder.style.cssText = 'display:flex; justify-content:center; align-items:center; width:100%; height:100%; color:white;';
+        placeholder.style.cssText = 'display:flex; justify-content:center; align-items:center; width:100%; height:100%; color:white; font-size:1.2rem;';
         placeholder.textContent = 'لا توجد صورة';
         container.appendChild(placeholder);
         return;
@@ -341,7 +342,7 @@ function renderCroppedImage(container, item) {
     const w = parseFloat(item['العرض']) || 0;
     const h = parseFloat(item['الارتفاع']) || 0;
 
-    // إذا لم توجد إحداثيات أو كانت صفراً، اعرض الصورة كاملة
+    // إذا كانت الإحداثيات كلها صفر، اعرض الصورة كاملة
     if (x === 0 && y === 0 && w === 0 && h === 0) {
         const img = document.createElement('img');
         img.src = fullImageUrl;
@@ -360,36 +361,40 @@ function renderCroppedImage(container, item) {
     let top = Math.max(0, y - PAD_TOP);
     let bottom = Math.min(1, y + h + PAD_BOTTOM);
 
-    const topPercent = top * 100;
-    const rightPercent = (1 - right) * 100;
-    const bottomPercent = (1 - bottom) * 100;
-    const leftPercent = left * 100;
+    const cropWidth = right - left;
+    const cropHeight = bottom - top;
 
-    const img = document.createElement('img');
-    img.src = fullImageUrl;
-    img.style.cssText = `
+    if (cropWidth <= 0 || cropHeight <= 0) {
+        // إذا كانت المنطقة غير صالحة، اعرض الصورة كاملة
+        const img = document.createElement('img');
+        img.src = fullImageUrl;
+        img.style.cssText = 'max-width:100%; max-height:100%; object-fit:contain;';
+        container.appendChild(img);
+        return;
+    }
+
+    // استخدام background-image مع حساب دقيق
+    const div = document.createElement('div');
+    div.style.cssText = `
         width: 100%;
         height: 100%;
-        object-fit: none;
-        object-position: 0 0;
-        clip-path: inset(${topPercent}% ${rightPercent}% ${bottomPercent}% ${leftPercent}%);
-        -webkit-clip-path: inset(${topPercent}% ${rightPercent}% ${bottomPercent}% ${leftPercent}%);
+        background-image: url(${fullImageUrl});
+        background-size: ${100 / cropWidth}% ${100 / cropHeight}%;
+        background-position: ${(left / cropWidth) * 100}% ${(top / cropHeight) * 100}%;
+        background-repeat: no-repeat;
+        background-color: #1a1a2e;
+        position: relative;
     `;
-    container.style.position = 'relative';
-    container.style.display = 'flex';
-    container.style.justifyContent = 'center';
-    container.style.alignItems = 'center';
-    container.style.overflow = 'hidden';
 
     const badge = document.createElement('span');
     badge.style.cssText = 'position: absolute; bottom: 15px; right: 15px; background: rgba(0,0,0,0.7); color: #fff; padding: 4px 14px; border-radius: 20px; font-size: 0.8rem; pointer-events: none; z-index: 2;';
     badge.innerHTML = '<i class="fas fa-crop-alt"></i> مقتصصة';
 
-    container.appendChild(img);
-    container.appendChild(badge);
+    div.appendChild(badge);
+    container.appendChild(div);
 }
-
-function loadProductFromSession() {
+    
+    function loadProductFromSession() {
     const stored = sessionStorage.getItem('selectedProduct');
     if (!stored) {
         showError('لم يتم العثور على بيانات المنتج.');
@@ -543,7 +548,7 @@ function renderPage() {
                 <div class="actions-row">
                     <a href="${cleanPhone ? 'tel:' + cleanPhone : '#'}" class="btn btn-success ${!cleanPhone ? 'disabled' : ''}"><i class="fas fa-phone-alt"></i> اتصل</a>
                     <a href="${website !== '#' ? website : '#'}" target="_blank" class="btn btn-primary"><i class="fas fa-globe"></i> الموقع الالكتروني</a>
-                    <a href="${mapLink !== '#' ? mapLink : '#'}" target="_blank" class="btn btn-danger"><i class="fas fa-map"></i> الخريطة=</a>
+                    <a href="${mapLink !== '#' ? mapLink : '#'}" target="_blank" class="btn btn-danger"><i class="fas fa-map"></i> الخريطة+</a>
                     <button onclick="shareProduct()" class="btn btn-warning"><i class="fas fa-share-alt"></i> مشاركة</button>
                     <button onclick="toggleFavorite()" class="btn btn-favorite" id="favoriteBtn"><i class="fas fa-heart"></i> تفضيل</button>
                 </div>
