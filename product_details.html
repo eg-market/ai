@@ -341,7 +341,7 @@
     if (x === 0 && y === 0 && w === 0 && h === 0) return null;
 
     // عنوان خدمة القص (غيّر الرابط حسب مكان تشغيل الخادم)
-    const baseUrl = 'http://localhost:5000/crop';
+    const baseUrl = 'https://eg-market.github.io/ai/crop_service.py';
     return `${baseUrl}?image_url=${encodeURIComponent(fullImageUrl)}&x=${x}&y=${y}&w=${w}&h=${h}`;
 }
       
