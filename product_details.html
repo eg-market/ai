@@ -6,6 +6,7 @@
     <title>تفاصيل المنتج - عروض السوبرماركت</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&amp;display=swap"
+
       rel="stylesheet">
     <script src="https://cdn.sheetjs.com/xlsx-0.20.2/package/dist/xlsx.full.min.js"></script>
     <style>
@@ -444,6 +445,722 @@
 
             img.onerror = function() {
                 container.innerHTML = '<div style="display:flex;justify-content:center;align-items:center;width:100%;height:100%;color:white;font-size:1.2rem;">فشل تحميل الصورة</div>';
+            };
+
+            img.src = fullImageUrl;
+        }
+
+        function normalizeProductData(rawData) {
+            const data = { ...rawData };
+            
+            if (data.promotion === undefined || data.promotion === null || data.promotion === '') {
+                data.promotion = data.promo || data['العبارة الترويجية'] || data['promotion_phrase'] || data['promotionPhrase'] || '';
+            }
+            
+            if (data.offerRestrictions === undefined || data.offerRestrictions === null || data.offerRestrictions === '') {
+                data.offerRestrictions = data.assumptions || data['قيود العرض'] || data['offer_restrictions'] || data['offerRestrictionsText'] || '';
+            }
+            
+            if (!data.primaryName) data.primaryName = data['اسم المنتج (الأساسي)'] || data['product_name'] || '';
+            if (!data.unit) data.unit = data['الوحدة'] || data['unit'] || '';
+            if (!data.category) data.category = data['الفئة'] || data['category'] || '';
+            if (!data.brand) data.brand = data['اسم العلامة التجارية'] || data['brand_name'] || '';
+            if (!data.currentPrice) data.currentPrice = data['السعر الحالي'] || data['current_price'] || data['price'] || 0;
+            if (!data.originalPrice) data.originalPrice = data['السعر الأصلي'] || data['original_price'] || data['old_price'] || 0;
+            if (!data._discount_pct) data._discount_pct = data['الخصم %'] || data['discount_pct'] || data['discount'] || 0;
+            if (!data.currency) data.currency = data['العملة'] || data['currency'] || 'EGP';
+            if (!data.validUntil) data.validUntil = data['تاريخ انتهاء العرض'] || data['valid_until'] || data['expiry_date'] || 'غير متاح';
+            if (!data.supermarket) data.supermarket = data['اسم السوبر ماركت'] || data['supermarket_name'] || 'غير معروف';
+            if (!data.pageNo) data.pageNo = data['اسم ملف الفلاير'] || data['page_file'] || '';
+            if (!data.solution_key) data.solution_key = data['File ID'] || data['file_id'] || data['flyer_id'] || data.product || 'unknown';
+            
+            if (data.X === undefined) data.X = data['X'] || 0;
+            if (data.Y === undefined) data.Y = data['Y'] || 0;
+            if (data['العرض'] === undefined) data['العرض'] = data['width'] || 0;
+            if (data['الارتفاع'] === undefined) data['الارتفاع'] = data['height'] || 0;
+            
+            return data;
+        }
+
+        function loadProductFromSession() {
+            const stored = sessionStorage.getItem('selectedProduct');
+            if (!stored) {
+                showError('لم يتم العثور على بيانات المنتج.');
+                return false;
+            }
+            try {
+                let rawData = JSON.parse(stored);
+                if (!rawData.product || rawData.product.trim() === '') {
+                    showError('بيانات المنتج غير مكتملة (اسم المنتج مفقود)');
+                    return false;
+                }
+                
+                productData = normalizeProductData(rawData);
+                
+                if (!productData.updateDate) productData.updateDate = null;
+                
+                return true;
+            } catch(e) {
+                console.error('خطأ في تحليل بيانات المنتج', e);
+                showError('خطأ في قراءة بيانات المنتج');
+                return false;
+            }
+        }
+
+        async function loadSupermarketData() {
+            try {
+                const response = await fetch('supermarkets.xlsx');
+                if (!response.ok) {
+                    console.warn('لم يتم العثور على ملف supermarkets.xlsx');
+                    return;
+                }
+                const arrayBuffer = await response.arrayBuffer();
+                const workbook = XLSX.read(arrayBuffer, { type: 'array' });
+                const rows = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]]);
+                rows.forEach(row => {
+                    let name = row['supermarket_name'] || row['اسم السوبر ماركت'] || row['اسم السوبرماركت'];
+                    if (!name) return;
+                    let phoneRaw = row['phone'] || row['hotline'] || row['هاتف'] || row['phone/hotline'] || '';
+                    let phone = String(phoneRaw).trim();
+                    if (phone === '' || phone === 'undefined' || phone === 'null') phone = 'غير متوفر';
+                    let websiteRaw = row['website'] || row['موقع'] || row['الموقع الالكتروني'] || '';
+                    let website = String(websiteRaw).trim();
+                    if (website === '' || website === 'undefined' || website === 'null' || website === '-') website = '#';
+                    let mapLinkRaw = row['map_link'] || row['رابط الخريطة'] || '';
+                    let map_link = String(mapLinkRaw).trim();
+                    if (map_link === '' || map_link === 'undefined' || map_link === 'null' || map_link === '-') map_link = '#';
+                    supermarketData[name] = { phone, website, map_link };
+                });
+                console.log('تم تحميل بيانات السوبرماركت', Object.keys(supermarketData).length);
+            } catch(err) {
+                console.warn('فشل تحميل بيانات السوبرماركت', err);
+            }
+        }
+
+        function getProductImageUrl(item) {
+            let flyerId = item.pageNo?.match(/flyer_(\d+)/)?.[1] || item.solution_key;
+            let pageNumber = item.pageNo?.match(/page_(\d+)/)?.[1] || '';
+            if (flyerId && pageNumber) return `https://www.mobappsbaker.com/catalogs/thwr/offers/${flyerId}/${pageNumber}.jpg`;
+            return null;
+        }
+
+        function getGeneralFlyerUrl(item) {
+            let flyerId = item.pageNo?.match(/flyer_(\d+)/)?.[1] || item.solution_key;
+            if (flyerId) return `https://www.mobappsbaker.com/catalogs/thwr/offers/${flyerId}/1.jpg`;
+            return null;
+        }
+
+        window.shareProduct = function() {
+            if (!productData) return;
+            const text = `${productData.product} - بسعر ${productData.currentPrice} جنيه - ${productData.supermarket}`;
+            if (navigator.share) navigator.share({ title: productData.product, text: text });
+            else navigator.clipboard.writeText(text + ' ' + window.location.href) && alert('تم نسخ الرابط');
+        };
+
+        window.toggleFavorite = function() {
+            if (!productData) return;
+            let favorites = JSON.parse(localStorage.getItem('product_favorites') || '[]');
+            const exists = favorites.some(f => f.solution_key === productData.solution_key);
+            if (exists) favorites = favorites.filter(f => f.solution_key !== productData.solution_key);
+            else favorites.push({ solution_key: productData.solution_key, product: productData.product, supermarket: productData.supermarket, currentPrice: productData.currentPrice, imageUrl: getProductImageUrl(productData) });
+            localStorage.setItem('product_favorites', JSON.stringify(favorites));
+            updateFavoriteButtonStatus();
+            showToast(exists ? 'تم الإزالة' : 'تم الإضافة');
+        };
+
+        function updateFavoriteButtonStatus() {
+            if (!productData) return;
+            const favorites = JSON.parse(localStorage.getItem('product_favorites') || '[]');
+            const exists = favorites.some(f => f.solution_key === productData.solution_key);
+            const btn = document.getElementById('favoriteBtn');
+            if (btn) {
+                btn.classList.toggle('active', exists);
+                btn.innerHTML = exists ? '<i class="fas fa-heart"></i> مفضل' : '<i class="fas fa-heart"></i> تفضيل';
+            }
+        }
+
+        function showToast(msg) {
+            let toast = document.createElement('div');
+            toast.textContent = msg;
+            toast.style.cssText = 'position:fixed; bottom:20px; left:50%; transform:translateX(-50%); background:#333; color:white; padding:8px 20px; border-radius:30px; z-index:1000; font-family:Cairo;';
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 2000);
+        }
+
+        function showError(msg) {
+            document.getElementById('mainContainer').innerHTML = `<div style="padding:40px;text-align:center"><i class="fas fa-exclamation-triangle" style="font-size:3rem;color:#dc3545"></i><p>${msg}</p><button class="back-btn" onclick="window.close()">إغلاق</button></div>`;
+        }
+
+        function openModal(imgSrc) {
+            const modal = document.getElementById('imageModal');
+            const modalImg = document.getElementById('modalImage');
+            if (imgSrc && imgSrc !== '#') {
+                modal.style.display = 'flex';
+                modalImg.src = imgSrc;
+            } else {
+                alert('لا توجد صورة لعرضها');
+            }
+        }
+        window.closeModal = function() {
+            document.getElementById('imageModal').style.display = 'none';
+        };
+
+        function renderPage() {
+            if (!productData) return;
+            
+            const fullFlyerUrl = getProductImageUrl(productData);
+            const generalImageUrl = getGeneralFlyerUrl(productData);
+
+            let marketInfo = supermarketData[productData.supermarket] || defaultSupermarketInfo;
+            let phone = marketInfo.phone && typeof marketInfo.phone === 'string' ? marketInfo.phone : 'غير متوفر';
+            let website = marketInfo.website && typeof marketInfo.website === 'string' ? marketInfo.website : '#';
+            let mapLink = marketInfo.map_link && typeof marketInfo.map_link === 'string' ? marketInfo.map_link : '#';
+            let cleanPhone = phone === 'غير متوفر' ? '' : phone.replace(/\s/g, '').replace(/[^0-9+]/g, '');
+
+            const html = `
+            <div class="left-side">
+                <div class="product-info">
+                    <div class="title-row">
+                        <div class="supermarket-name"><i class="fas fa-store"></i> ${productData.supermarket}</div>
+                        <div class="product-title">${productData.product}</div>
+                    </div>
+                    <div class="price-box">
+                        <div><span class="current-price">${productData.currentPrice} ${productData.currency}</span><span class="original-price">${productData.originalPrice} ج.م</span></div>
+                        <span class="discount-badge">-${productData._discount_pct}%</span>
+                    </div>
+                    <div class="actions-row">
+                        <a href="${cleanPhone ? 'tel:' + cleanPhone : '#'}" class="btn btn-success ${!cleanPhone ? 'disabled' : ''}"><i class="fas fa-phone-alt"></i> اتصل</a>
+                        <a href="${website !== '#' ? website : '#'}" target="_blank" class="btn btn-primary"><i class="fas fa-globe"></i> الموقع الالكتروني</a>
+                        <a href="${mapLink !== '#' ? mapLink : '#'}" target="_blank" class="btn btn-danger"><i class="fas fa-map"></i> الخريطة</a>
+                        <button onclick="shareProduct()" class="btn btn-warning"><i class="fas fa-share-alt"></i> مشاركة</button>
+                        <button onclick="toggleFavorite()" class="btn btn-favorite" id="favoriteBtn"><i class="fas fa-heart"></i> تفضيل</button>
+                    </div>
+                    <div class="details-grid">
+                        <div class="detail-item"><div class="detail-label">الاسم الأساسي</div><div class="detail-value">${productData.primaryName || '-'}</div></div>
+                        <div class="detail-item"><div class="detail-label">الوحدة</div><div class="detail-value">${productData.unit || '-'}</div></div>
+                        <div class="detail-item"><div class="detail-label">الفئة</div><div class="detail-value">${productData.category || '-'}</div></div>
+                        <div class="detail-item"><div class="detail-label">العلامة التجارية</div><div class="detail-value">${productData.brand || '-'}</div></div>
+                        <div class="detail-item"><div class="detail-label">ساري حتى</div><div class="detail-value">${productData.validUntil || '-'}</div></div>
+                        <div class="detail-item"><div class="detail-label">تاريخ التحديث</div><div class="detail-value">${productData.updateDate ? new Date(productData.updateDate).toLocaleDateString('ar-EG') : '-'}</div></div>
+                        <div class="detail-item"><div class="detail-label">العبارة الترويجية</div><div class="detail-value">${productData.promotion || '-'}</div></div>
+                        <div class="detail-item"><div class="detail-label">قيود العرض</div><div class="detail-value">${productData.offerRestrictions || '-'}</div></div>
+                    </div>
+                </div>
+                <div class="flyer-images-row">
+                    <div class="flyer-image-box" onclick="openModal('${fullFlyerUrl || ''}')">
+                        <h4><i class="fas fa-file-image"></i> الصفحة الحالية</h4>
+                        ${fullFlyerUrl ? `<img src="${fullFlyerUrl}" alt="الصفحة الحالية" onerror="this.src='https://via.placeholder.com/300?text=No+Image'">` : '<i class="fas fa-image" style="font-size:3rem;color:#ccc"></i><p>لا توجد صورة</p>'}
+                    </div>
+                    <div class="flyer-image-box" onclick="openModal('${generalImageUrl || ''}')">
+                        <h4><i class="fas fa-book-open"></i> غلاف الفلاير</h4>
+                        ${generalImageUrl ? `<img src="${generalImageUrl}" alt="غلاف الفلاير" onerror="this.src='https://via.placeholder.com/300?text=No+Cover'">` : '<i class="fas fa-image" style="font-size:3rem;color:#ccc"></i><p>لا توجد صورة</p>'}
+                    </div>
+                </div>
+                <button class="back-btn" onclick="window.close()"><i class="fas fa-arrow-right"></i> إغلاق</button>
+            </div>
+            <div class="right-side" id="croppedImageContainer" style="background:#1a1a2e; display:flex; justify-content:center; align-items:center; overflow:hidden; position:relative;"></div>
+            `;
+
+            document.getElementById('mainContainer').innerHTML = html;
+            updateFavoriteButtonStatus();
+
+            const container = document.getElementById('croppedImageContainer');
+            if (container) {
+                renderCroppedImage(container, productData);
+                container.style.cursor = 'pointer';
+                container.onclick = function() {
+                    openModal(fullFlyerUrl);
+                };
+            }
+        }
+
+        (async function init() {
+            if (!loadProductFromSession()) return;
+            await loadSupermarketData();
+            renderPage();
+        })();
+    </script>
+  </body>
+</html>
+<!DOCTYPE html>
+<html dir="rtl" lang="ar">
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>تفاصيل المنتج - عروض السوبرماركت</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&amp;display=swap"
+      rel="stylesheet">
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.2/package/dist/xlsx.full.min.js"></script>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Cairo', sans-serif;
+            background: #f0f2f5;
+            direction: rtl;
+            height: 100vh;
+            overflow: hidden;
+        }
+        .split-layout {
+            display: flex;
+            height: 100vh;
+            width: 100%;
+        }
+        .left-side {
+            width: 35%;
+            background: white;
+            box-shadow: 4px 0 12px rgba(0,0,0,0.05);
+            overflow-y: auto;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+        }
+        .right-side {
+            width: 65%;
+            background: #1a1a2e;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            cursor: pointer;
+        }
+        .right-side img {
+            max-width: 95%;
+            max-height: 95%;
+            object-fit: contain;
+            border-radius: 16px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+            transition: 0.2s;
+        }
+        .general-flyer {
+            background: #f8f9fa;
+            border-radius: 20px;
+            padding: 15px;
+            margin-bottom: 20px;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            cursor: pointer;
+        }
+        .general-flyer img {
+            max-width: 100%;
+            max-height: 220px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        .general-flyer h4 {
+            margin-top: 10px;
+            color: #00539F;
+            font-size: 0.9rem;
+        }
+        .flyer-images-row {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .flyer-image-box {
+            flex: 1;
+            background: #f8f9fa;
+            border-radius: 16px;
+            padding: 10px;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .flyer-image-box:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        .flyer-image-box img {
+            max-width: 100%;
+            max-height: 160px;
+            border-radius: 10px;
+            object-fit: contain;
+        }
+        .flyer-image-box h4 {
+            margin-top: 8px;
+            color: #00539F;
+            font-size: 0.85rem;
+            font-weight: 700;
+        }
+        .actions-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin: 15px 0 20px;
+            justify-content: center;
+        }
+        .btn {
+            flex: 1 0 auto;
+            min-width: 70px;
+            padding: 8px 5px;
+            border: none;
+            border-radius: 12px;
+            font-family: 'Cairo', sans-serif;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            text-decoration: none;
+            color: white;
+            font-size: 0.8rem;
+            transition: 0.2s;
+        }
+        .btn-primary { background: #00539F; }
+        .btn-success { background: #28A745; }
+        .btn-info { background: #17a2b8; }
+        .btn-danger { background: #DC3545; }
+        .btn-warning { background: #ffc107; color: #000; }
+        .btn-favorite { background: #dc3545; color: white; }
+        .btn-favorite.active { background: #c82333; color: #ffd700; }
+        .btn:hover { opacity: 0.85; transform: translateY(-2px); }
+        
+        .product-info {
+            flex: 1;
+        }
+        .title-row {
+            display: flex;
+            align-items: baseline;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 15px;
+        }
+        .product-title {
+            font-size: 2rem;
+            font-weight: 800;
+            color: #00539F;
+            margin: 0;
+        }
+        .supermarket-name {
+            font-size: 1.6rem;
+            color: #FF6B00;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .price-box {
+            background: #e9ecef;
+            border-radius: 16px;
+            padding: 12px 15px;
+            margin: 15px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            flex-wrap: wrap;
+        }
+        .current-price {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: #00539F;
+        }
+        .original-price {
+            text-decoration: line-through;
+            color: #6c757d;
+            margin-left: 10px;
+            font-size: 1rem;
+        }
+        .discount-badge {
+            background: #DC3545;
+            color: white;
+            padding: 5px 12px;
+            border-radius: 30px;
+            font-weight: 700;
+            font-size: 1rem;
+        }
+        .details-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .detail-item {
+            background: #f8f9fa;
+            padding: 12px;
+            border-radius: 14px;
+        }
+        .detail-label {
+            font-size: 0.85rem;
+            color: #6c757d;
+            margin-bottom: 5px;
+        }
+        .detail-value {
+            font-weight: 800;
+            color: #222;
+            font-size: 1.05rem;
+            line-height: 1.4;
+        }
+        .back-btn {
+            background: #6c757d;
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 30px;
+            cursor: pointer;
+            width: 100%;
+            font-family: 'Cairo', sans-serif;
+            font-size: 1rem;
+            font-weight: 600;
+            margin-top: 20px;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.95);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+        }
+        .modal img {
+            max-width: 95%;
+            max-height: 95%;
+            object-fit: contain;
+            border-radius: 8px;
+        }
+        .modal .close {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            color: white;
+            font-size: 2rem;
+            cursor: pointer;
+            background: rgba(0,0,0,0.6);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        @media (max-width: 768px) {
+            body {
+                overflow: auto;
+                height: auto;
+            }
+            .split-layout {
+                flex-direction: column;
+                height: auto;
+                min-height: 100vh;
+            }
+            .left-side, .right-side {
+                width: 100%;
+            }
+            .right-side {
+                min-height: 35vh;
+                height: 35vh;
+                max-height: 35vh;
+                order: -1;
+                position: relative;
+            }
+            .right-side img {
+                max-height: 100%;
+                width: auto;
+                cursor: pointer;
+            }
+            .left-side {
+                order: 0;
+                overflow-y: auto;
+                padding: 12px;
+            }
+            .flyer-images-row {
+                flex-direction: column;
+            }
+            .title-row {
+                order: -1;
+                margin-top: 0;
+                margin-bottom: 6px;
+                justify-content: center;
+            }
+            .product-title {
+                font-size: 1rem;
+            }
+            .supermarket-name {
+                font-size: 0.85rem;
+            }
+            .actions-row {
+                order: 0;
+                margin: 6px 0 10px;
+                gap: 6px;
+            }
+            .actions-row .btn {
+                flex: 1 0 calc(33% - 6px);
+                font-size: 0.7rem;
+                padding: 5px 3px;
+            }
+            .price-box {
+                margin: 8px 0;
+                padding: 6px 10px;
+            }
+            .current-price {
+                font-size: 1.3rem;
+            }
+            .details-grid {
+                gap: 8px;
+                margin: 10px 0;
+            }
+            .detail-item {
+                padding: 6px 8px;
+            }
+            .detail-value {
+                font-size: 0.85rem;
+            }
+            .general-flyer {
+                margin-bottom: 12px;
+                padding: 10px;
+            }
+            .general-flyer img {
+                max-height: 120px;
+            }
+            .back-btn {
+                padding: 10px;
+                margin-top: 12px;
+            }
+        }
+    </style>
+  </head>
+  <body>
+    <div class="split-layout" id="mainContainer">
+      <div class="loading">جارٍ تحميل البيانات...</div>
+    </div>
+    <div id="imageModal" class="modal" onclick="closeModal()">
+      <div class="close">×</div>
+      <img id="modalImage" src="" alt="صورة مكبرة"> </div>
+    <script>
+        let productData = null;
+        let supermarketData = {};
+
+        const defaultSupermarketInfo = {
+            phone: "غير متوفر",
+            website: "#",
+            map_link: "#"
+        };
+
+        function renderCroppedImage(container, item) {
+            container.innerHTML = '';
+            const fullImageUrl = getProductImageUrl(item);
+            
+            if (!fullImageUrl) {
+                container.innerHTML = '<div style="display:flex;justify-content:center;align-items:center;width:100%;height:100%;color:white;font-size:1.2rem;">لا توجد صورة</div>';
+                return;
+            }
+
+            const x = parseFloat(item.X) || 0;
+            const y = parseFloat(item.Y) || 0;
+            const w = parseFloat(item['العرض']) || 0;
+            const h = parseFloat(item['الارتفاع']) || 0;
+
+            // الوضع البسيط: لا إحداثيات → صورة كاملة
+            if (x === 0 && y === 0 && w === 0 && h === 0) {
+                const img = document.createElement('img');
+                img.src = fullImageUrl;
+                img.style.cssText = 'max-width:100%; max-height:100%; object-fit:contain; border-radius:16px; box-shadow:0 8px 25px rgba(0,0,0,0.3);';
+                container.appendChild(img);
+                return;
+            }
+
+            const PAD_LEFT   = 0.40;
+            const PAD_RIGHT  = 0.11;
+            const PAD_TOP    = 0.17;
+            const PAD_BOTTOM = 0.05;
+
+            // نستخدم Image() لمعرفة الأبعاد الحقيقية للصورة، ثم نرسم على Canvas
+            // هذا هو الحل الوحيد الموثوق عبر Desktop + Mobile بدون مشاكل height:100%
+            const img = new Image();
+            img.crossOrigin = 'anonymous';
+
+            img.onload = function() {
+                const img_w = img.naturalWidth;
+                const img_h = img.naturalHeight;
+
+                let left_px = (x <= 1.0) ? x * img_w : x;
+                let top_px  = (y <= 1.0) ? y * img_h : y;
+                let box_w_px = (w <= 1.0) ? w * img_w : w;
+                let box_h_px = (h <= 1.0) ? h * img_h : h;
+
+                let final_left   = Math.max(0, left_px - (img_w * PAD_LEFT));
+                let final_right  = Math.min(img_w, left_px + box_w_px + (img_w * PAD_RIGHT));
+                let final_top    = Math.max(0, top_px - (img_h * PAD_TOP));
+                let final_bottom = Math.min(img_h, top_px + box_h_px + (img_h * PAD_BOTTOM));
+
+                if (final_right <= final_left || final_bottom <= final_top) {
+                    container.innerHTML = '<div style="display:flex;justify-content:center;align-items:center;width:100%;height:100%;color:white;font-size:1.2rem;">إحداثيات غير صالحة</div>';
+                    return;
+                }
+
+                const crop_w = final_right - final_left;
+                const crop_h = final_bottom - final_top;
+
+                // ──────────────────────────────────────────────────────────────
+                // الحل الأساسي: Canvas
+                // يعمل على الموبايل والكمبيوتر بدون مشاكل height/background-image
+                // ──────────────────────────────────────────────────────────────
+                const canvas = document.createElement('canvas');
+
+                // اقرأ الأبعاد الفعلية لـ container AFTER layout
+                const cW = container.clientWidth  || window.innerWidth;
+                const cH = container.clientHeight || Math.round(window.innerHeight * 0.35);
+
+                // حجم الـ canvas = حجم الجزء المقتص مع scale للملاءمة
+                const scaleX = cW / crop_w;
+                const scaleY = cH / crop_h;
+                const scale  = Math.min(scaleX, scaleY, 1.5); // لا نكبّر أكثر من 150%
+
+                canvas.width  = Math.round(crop_w * scale);
+                canvas.height = Math.round(crop_h * scale);
+                canvas.style.cssText = 'border-radius:16px; box-shadow:0 8px 25px rgba(0,0,0,0.3); max-width:100%; max-height:100%; display:block;';
+
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(
+                    img,
+                    final_left, final_top, crop_w, crop_h,  // source
+                    0, 0, canvas.width, canvas.height         // destination
+                );
+
+                container.style.cssText += '; display:flex; justify-content:center; align-items:center; position:relative;';
+                container.innerHTML = '';
+                container.appendChild(canvas);
+
+                const badge = document.createElement('span');
+                badge.style.cssText = 'position:absolute; bottom:15px; right:15px; background:rgba(0,0,0,0.7); color:#fff; padding:4px 14px; border-radius:20px; font-size:0.8rem; pointer-events:none; z-index:2;';
+                badge.innerHTML = '<i class="fas fa-crop-alt"></i> مقتصصة';
+                container.appendChild(badge);
+            };
+
+            img.onerror = function() {
+                // فالباك: background-image عادي لو فشل Canvas (CORS)
+                container.innerHTML = '';
+                const crop_w_rel = final_right - final_left || 1;
+                const crop_h_rel = final_bottom - final_top || 1;
+                const bgSizeW = ((img.naturalWidth || 1000) / (crop_w_rel || 1)) * 100;
+                const bgSizeH = ((img.naturalHeight || 1000) / (crop_h_rel || 1)) * 100;
+                const bgPosX  = ((final_left || 0) / (((img.naturalWidth || 1000) - crop_w_rel) || 1)) * 100;
+                const bgPosY  = ((final_top || 0)  / (((img.naturalHeight || 1000) - crop_h_rel) || 1)) * 100;
+
+                const cH = container.clientHeight || Math.round(window.innerHeight * 0.35);
+                const cW = container.clientWidth  || window.innerWidth;
+
+                const cropDiv = document.createElement('div');
+                cropDiv.style.cssText = `
+                    width: ${cW}px;
+                    height: ${cH}px;
+                    background-image: url('${fullImageUrl}');
+                    background-size: ${bgSizeW}% ${bgSizeH}%;
+                    background-position: ${bgPosX}% ${bgPosY}%;
+                    background-repeat: no-repeat;
+                    border-radius: 16px;
+                    box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+                `;
+                container.style.cssText += '; display:flex; justify-content:center; align-items:center; position:relative;';
+                container.appendChild(cropDiv);
             };
 
             img.src = fullImageUrl;
