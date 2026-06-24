@@ -1604,338 +1604,432 @@ function sortData(data, sortKey, isSearching = false) {
         else renderTable();
     }
 
-    function renderGrid() {
-    const grid = document.getElementById('products-grid');
-    grid.style.display = 'grid';
-    document.getElementById('data-table').style.display = 'none';
-    const start = (currentPage - 1) * ITEMS_PER_PAGE;
-    const pageData = filteredData.slice(start, start + ITEMS_PER_PAGE);
-    if (!pageData.length) {
-        grid.innerHTML = '<div style="grid-column:1/-1; text-align:center; padding:40px;">لا توجد عروض مطابقة</div>';
-        updatePagination();
-        return;
-    }
-    grid.innerHTML = pageData.map(item => {
-        const isFav = favorites.includes(item.solution_key);
-        const inComp = comparisonItems.some(c => c.product === item.product);
-        let productIcon = 'fa-box';
-        if (item.category) {
-            if (item.category.includes('غذائي')) productIcon = 'fa-utensils';
-            else if (item.category.includes('مشروب')) productIcon = 'fa-wine-bottle';
+
+      function renderTable() {
+        document.getElementById('products-grid').style.display = 'none';
+        const tableDiv = document.getElementById('data-table');
+        tableDiv.style.display = 'block';
+        const tbody = document.getElementById('table-body');
+        const start = (currentPage - 1) * ITEMS_PER_PAGE;
+        const pageData = filteredData.slice(start, start + ITEMS_PER_PAGE);
+        if (!pageData.length) {
+            tbody.innerHTML = `<tr><td colspan="10" style="text-align:center;">لا توجد عروض<\/td><\/tr>`;
+            updatePagination();
+            return;
         }
-        let marketIcon = item.supermarket?.includes('هايبر1') ? 'fa-shopping-cart' : 'fa-store';
-        let countdown = '';
-        if (item.endDate) {
-            let diff = Math.ceil((item.endDate - new Date()) / (1000*60*60*24));
-            if (diff <= 1 && diff >= 0) countdown = `<div class="countdown"><i class="fas fa-clock"></i> ${diff} يوم</div>`;
-        }
-        const hasCrop = item.crop && item.crop.w > 0 && item.crop.h > 0;
-        const imagePlaceholder = hasCrop ? 
-              
-            `<div class="product-image" data-product-key="${item.solution_key}" data-flyer="${item.pageNo?.match(/flyer_(\d+)/)?.[1] || item.solution_key}" data-crop='${JSON.stringify(item.crop)}' style="background:#f0f2f5;"><i class="fas fa-spinner fa-pulse"></i></div>` :
-            `<div class="product-image"><i class="fas ${productIcon}"></i></div>`;
-        return `
-        <div class="product-card" data-product="${item.product}">
-            ${item._discount_pct > 50 ? '<div class="product-badge"><i class="fas fa-fire"></i> ساخن</div>' : ''}
-            <div class="favorite-btn ${isFav ? 'active' : ''}" data-id="${item.solution_key}"><i class="fas fa-heart"></i></div>
-            <div class="compare-btn ${inComp ? 'active' : ''}" data-id="${item.product}"><i class="fas fa-balance-scale"></i></div>
-            <div class="share-btn" data-product="${item.product}" data-price="${item.currentPrice}"><i class="fas fa-share-alt"></i></div>
-            ${imagePlaceholder}
-            <div class="product-info">
-                <h3 class="product-title">${item.product}</h3>
-                ${item.unit ? `<div><i class="fas fa-weight"></i> ${item.unit}</div>` : ''}
-                <div class="price-container">
-                    <span class="current-price">${formatPrice(item.currentPrice)} ${item.currency}</span>
-                    ${item._discount_pct ? `<span class="discount-badge">-${item._discount_pct}%</span>` : ''}
-                </div>
-                <div class="product-meta">
-                    <span><i class="fas ${marketIcon}"></i> ${item.supermarket}</span>
-                    ${countdown}
-                </div>
-                <div class="action-buttons">
-                    <button class="btn btn-primary buy-now-btn" data-page="${item.pageNo}" data-solution="${item.solution_key}"><i class="fas fa-image"></i> صورة</button>
-                    <button class="btn btn-secondary view-details-btn" data-id="${item.product}"><i class="fas fa-info-circle"></i> تفاصيل</button>
-                </div>
-            </div>
-        </div>`;
-    }).join('');
-    attachCardEvents();
-    // تحميل الصور المقتطعة عند الظهور
-    const imageContainers = document.querySelectorAll('.product-image[data-product-key]');
-      
-      // إذا لم تكن الصور مدعومة، نمنع الـ Observer
-if (!imageContainers.length) return;
-      
-    if (imageContainers.length) {
-        const observer = new IntersectionObserver((entries, obs) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    const container = entry.target;
-                    const productKey = container.dataset.productKey;
-                    const item = allData.find(i => i.solution_key === productKey);
-                    if (item && item.crop) {
-                        loadAndCropImage(item).then(dataUrl => {
-                            if (dataUrl) {
-                                container.innerHTML = `<img src="${dataUrl}" alt="صورة المنتج" style="width:100%; height:100%; object-fit:cover;">`;
-                            } else {
-                                container.innerHTML = '<i class="fas fa-image"></i>';
-                            }
-                        }).catch(() => {
-                            container.innerHTML = '<i class="fas fa-image"></i>';
-                        });
-                    } else {
-                        container.innerHTML = '<i class="fas fa-image"></i>';
+        const isMobile = window.innerWidth <= 768;
+        tbody.innerHTML = pageData.map(item => {
+            let rowClass = item._discount_pct > 20 ? 'class="highlight"' : '';
+            let flyerId = item.pageNo?.match(/flyer_(\d+)/)?.[1] || item.solution_key || '';
+            let url = flyerId ? `https://www.yabalashoffers.com/flyer.php?d=${encodeURIComponent(flyerId)}&c=eg` : '#';
+            let pageNumber = item.pageNo?.match(/page_(\d+)/)?.[1] || '';
+            let currentPriceHtml = `${formatPrice(item.currentPrice)} ${item.currency}`;
+            if (isMobile && item.currency === 'EGP') {
+                currentPriceHtml = `${formatPrice(item.currentPrice)} ج`;
+            }
+            let validUntilHtml = item.validUntil || '';
+            if (isMobile && validUntilHtml) {
+                const arabicMonthsList = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+                let day = '', month = '';
+                let match = validUntilHtml.match(/(\d{1,2})\s+([أبتثجحخدذرزسشصضطظعغفقكلمنهوي]+)/);
+                if (match) {
+                    let potentialMonth = match[2];
+                    let foundMonth = arabicMonthsList.find(m => potentialMonth.includes(m) || m.includes(potentialMonth));
+                    if (foundMonth) { day = match[1]; month = foundMonth; }
+                }
+                if (!day && !month) {
+                    let match2 = validUntilHtml.match(/([أبتثجحخدذرزسشصضطظعغفقكلمنهوي]+)\s+(\d{1,2})/);
+                    if (match2) {
+                        let potentialMonth = match2[1];
+                        let foundMonth = arabicMonthsList.find(m => potentialMonth.includes(m) || m.includes(potentialMonth));
+                        if (foundMonth) { day = match2[2]; month = foundMonth; }
                     }
-                    obs.unobserve(container);
+                }
+                if (day && month) {
+                    validUntilHtml = `${day} ${month}`;
+                } else {
+                    for (let m of arabicMonthsList) {
+                        if (validUntilHtml.includes(m)) {
+                            let dayMatch = validUntilHtml.match(/(\d{1,2})/);
+                            if (dayMatch) { validUntilHtml = `${dayMatch[1]} ${m}`; break; }
+                        }
+                    }
+                    if (!day && !month) {
+                        validUntilHtml = validUntilHtml.replace(/ينتهي في|الاثنين|الثلاثاء|الأربعاء|الخميس|الجمعة|السبت|الأحد|الـ|،|\./g, '').trim();
+                        if (validUntilHtml.length > 15) validUntilHtml = validUntilHtml.substring(0, 15);
+                    }
+                }
+            }
+            let cells = '';
+            if (isMobile) {
+                cells = `
+                    <td style="white-space: normal;">${item.supermarket}<\/td>
+                    <td><strong>${item.product}<\/strong><\/td>
+                    <td>${currentPriceHtml}<\/td>
+                    <td><span class="discount-cell">${item._discount_pct ? item._discount_pct+'%' : ''}<\/span><\/td>
+                    <td>${item.brand || ''}<\/td>
+                    <td>${item.unit || ''}<\/td>
+                    <td>${validUntilHtml}<\/td>
+                `;
+            } else {
+                cells = `
+                    <td>${item.supermarket}<\/td>
+                    <td><strong>${item.product}<\/strong><\/td>
+                    <td>${formatPrice(item.currentPrice)} ${item.currency}<\/td>
+                    <td><span class="discount-cell">${item._discount_pct ? item._discount_pct+'%' : ''}<\/span><\/td>
+                    <td><span class="primary-name-circle">${item.primaryName || ''}<\/span><\/td>
+                    <td>${item.unit || ''}<\/td>
+                    <td>${item.category || ''}<\/td>
+                    <td>${item.brand || ''}<\/td>
+                    <td>${item.updateDate ? formatDateShort(item.updateDate) : ''}<\/td>
+                    <td>${item.validUntil || ''}<\/td>
+                `;
+            }
+            return `<tr ${rowClass} data-url="${url}" data-flyer="${flyerId}" data-page-number="${pageNumber}" data-page="${item.pageNo}" style="cursor:pointer;">${cells}<\/tr>`;
+        }).join('');
+        const thead = document.querySelector('#data-table thead');
+        if (isMobile) {
+            thead.innerHTML = `
+                <tr>
+                    <th>المتجر</th>
+                    <th>      المنتج       </th>
+                    <th>السعر</th>
+                    <th>الخصم</th>
+                    <th>العلامة التجارية</th>
+                    <th>الوحدة</th>
+                    <th>ساري حتى</th>
+                </tr>
+            `;
+        } else {
+            thead.innerHTML = `
+                <tr>
+                    <th>المتجر</th>
+                    <th>المنتج</th>
+                    <th>السعر </th>
+                    <th>الخصم</th>
+                    <th>الاسم الأساسي</th>
+                    <th>الوحدة</th>
+                    <th>الفئة</th>
+                    <th>العلامة التجارية</th>
+                    <th>تاريخ التحديث</th>
+                    <th>ساري حتى</th>
+                </tr>
+            `;
+        }
+        document.querySelectorAll('#table-body tr').forEach(tr => {
+            tr.addEventListener('click', function(e) {
+                let productName = this.cells[1]?.innerText || '';
+                let productObj = allData.find(p => p.product === productName);
+                if (productObj) {
+                    if (!productObj.solution_key) productObj.solution_key = productObj.product || 'unknown';
+                    if (!productObj.pageNo) productObj.pageNo = '';
+                    if (!productObj.currency) productObj.currency = 'EGP';
+                    if (!productObj._discount_pct) productObj._discount_pct = productObj.discount || 0;
+                    if (!productObj.originalPrice) productObj.originalPrice = 0;
+                    if (!productObj.validUntil) productObj.validUntil = 'غير متاح';
+                    if (productObj.crop) {
+                        productObj.X = productObj.crop.x;
+                        productObj.Y = productObj.crop.y;
+                        productObj['العرض'] = productObj.crop.w;
+                        productObj['الارتفاع'] = productObj.crop.h;
+                    } else {
+                        productObj.X = 0; productObj.Y = 0;
+                        productObj['العرض'] = 0; productObj['الارتفاع'] = 0;
+                    }
+                    saveCurrentState();
+                    sessionStorage.setItem('selectedProduct', JSON.stringify(productObj));
+                    if (!productObj.branch) productObj.branch = '';
+                    if (!productObj.promo) productObj.promo = '';
+                    window.open('product_details.html', '_blank');
+                } else {
+                    let url = this.dataset.url;
+                    if (url && url !== '#') window.open(url, '_blank');
                 }
             });
-        }, { rootMargin: '0px 0px 200px 0px' });
-        imageContainers.forEach(container => observer.observe(container));
-    }
-    updatePagination();
-}
-    
-      
-
-function renderTable() {
-    document.getElementById('products-grid').style.display = 'none';
-    const tableDiv = document.getElementById('data-table');
-    tableDiv.style.display = 'block';
-    const tbody = document.getElementById('table-body');
-    const start = (currentPage - 1) * ITEMS_PER_PAGE;
-    const pageData = filteredData.slice(start, start + ITEMS_PER_PAGE);
-    
-    if (!pageData.length) {
-        tbody.innerHTML = `<tr><td colspan="10" style="text-align:center;">لا توجد عروض<\/td><\/tr>`;
+        });
         updatePagination();
-        return;
     }
-    
-    // كشف الموبايل
-    const isMobile = window.innerWidth <= 768;
-    
-    tbody.innerHTML = pageData.map(item => {
-        let rowClass = item._discount_pct > 20 ? 'class="highlight"' : '';
-        let flyerId = item.pageNo?.match(/flyer_(\d+)/)?.[1] || item.solution_key || '';
-        let url = flyerId ? `https://www.yabalashoffers.com/flyer.php?d=${encodeURIComponent(flyerId)}&c=eg` : '#';
-        let pageNumber = item.pageNo?.match(/page_(\d+)/)?.[1] || '';
-        
-        // معالجة السعر الحالي (تحويل EGP → ج)
-let currentPriceHtml = `${formatPrice(item.currentPrice)} ${item.currency}`;
-if (isMobile && item.currency === 'EGP') {
-    currentPriceHtml = `${formatPrice(item.currentPrice)} ج`;
-}
-        
-        // معالجة "ساري حتى" للموبايل: استخراج اليوم والشهر فقط
-// معالجة "ساري حتى" للموبايل: استخراج اليوم والشهر فقط
-let validUntilHtml = item.validUntil || '';
-if (isMobile && validUntilHtml) {
-    const arabicMonthsList = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
-    let day = '';
-    let month = '';
-    // محاولة مطابقة الرقم ثم الشهر
-    let match = validUntilHtml.match(/(\d{1,2})\s+([أبتثجحخدذرزسشصضطظعغفقكلمنهوي]+)/);
-    if (match) {
-        let potentialMonth = match[2];
-        // البحث إذا كان مطابقاً لأحد الأشهر
-        let foundMonth = arabicMonthsList.find(m => potentialMonth.includes(m) || m.includes(potentialMonth));
-        if (foundMonth) {
-            day = match[1];
-            month = foundMonth;
+
+    function renderGrid() {
+        const grid = document.getElementById('products-grid');
+        grid.style.display = 'grid';
+        document.getElementById('data-table').style.display = 'none';
+        const start = (currentPage - 1) * ITEMS_PER_PAGE;
+        const pageData = filteredData.slice(start, start + ITEMS_PER_PAGE);
+        if (!pageData.length) {
+            grid.innerHTML = '<div style="grid-column:1/-1; text-align:center; padding:40px;">لا توجد عروض مطابقة</div>';
+            updatePagination();
+            return;
         }
-    }
-    // إذا فشل، حاول العكس (شهر ثم رقم)
-    if (!day && !month) {
-        let match2 = validUntilHtml.match(/([أبتثجحخدذرزسشصضطظعغفقكلمنهوي]+)\s+(\d{1,2})/);
-        if (match2) {
-            let potentialMonth = match2[1];
-            let foundMonth = arabicMonthsList.find(m => potentialMonth.includes(m) || m.includes(potentialMonth));
-            if (foundMonth) {
-                day = match2[2];
-                month = foundMonth;
+        grid.innerHTML = pageData.map(item => {
+            const isFav = favorites.includes(item.solution_key);
+            const inComp = comparisonItems.some(c => c.product === item.product);
+            let productIcon = 'fa-box';
+            if (item.category) {
+                if (item.category.includes('غذائي')) productIcon = 'fa-utensils';
+                else if (item.category.includes('مشروب')) productIcon = 'fa-wine-bottle';
             }
-        }
-    }
-    if (day && month) {
-        validUntilHtml = `${day} ${month}`;
-    } else {
-        // آخر محاولة: البحث عن أي رقمين وأي كلمة من الأشهر في النص
-        for (let m of arabicMonthsList) {
-            if (validUntilHtml.includes(m)) {
-                let dayMatch = validUntilHtml.match(/(\d{1,2})/);
-                if (dayMatch) {
-                    validUntilHtml = `${dayMatch[1]} ${m}`;
-                    break;
+            let marketIcon = item.supermarket?.includes('هايبر1') ? 'fa-shopping-cart' : 'fa-store';
+            let countdown = '';
+            if (item.endDate) {
+                let diff = Math.ceil((item.endDate - new Date()) / (1000*60*60*24));
+                if (diff <= 1 && diff >= 0) countdown = `<div class="countdown"><i class="fas fa-clock"></i> ${diff} يوم</div>`;
+            }
+            const imagePlaceholder = `<div class="product-image" data-product-key="${item.solution_key}" style="background:#f0f2f5;"><i class="fas fa-spinner fa-pulse"></i></div>`;
+            return `
+            <div class="product-card" data-product="${item.product}">
+                ${item._discount_pct > 50 ? '<div class="product-badge"><i class="fas fa-fire"></i> ساخن</div>' : ''}
+                <div class="favorite-btn ${isFav ? 'active' : ''}" data-id="${item.solution_key}"><i class="fas fa-heart"></i></div>
+                <div class="compare-btn ${inComp ? 'active' : ''}" data-id="${item.product}"><i class="fas fa-balance-scale"></i></div>
+                <div class="share-btn" data-product="${item.product}" data-price="${item.currentPrice}"><i class="fas fa-share-alt"></i></div>
+                ${imagePlaceholder}
+                <div class="product-info">
+                    <h3 class="product-title">${item.product}</h3>
+                    ${item.unit ? `<div><i class="fas fa-weight"></i> ${item.unit}</div>` : ''}
+                    <div class="price-container">
+                        <span class="current-price">${formatPrice(item.currentPrice)} ${item.currency}</span>
+                        ${item._discount_pct ? `<span class="discount-badge">-${item._discount_pct}%</span>` : ''}
+                    </div>
+                    <div class="product-meta">
+                        <span><i class="fas ${marketIcon}"></i> ${item.supermarket}</span>
+                        ${countdown}
+                    </div>
+                    <div class="action-buttons">
+                        <button class="btn btn-primary buy-now-btn" data-page="${item.pageNo}" data-solution="${item.solution_key}" data-crop="${item.crop ? JSON.stringify(item.crop).replace(/"/g, '&quot;') : ''}"><i class="fas fa-image"></i> صورة</button>
+                        <button class="btn btn-secondary view-details-btn" data-id="${item.product}"><i class="fas fa-info-circle"></i> تفاصيل</button>
+                    </div>
+                </div>
+            </div>`;
+        }).join('');
+        attachCardEvents();
+        
+const imageContainers = document.querySelectorAll('.product-image[data-product-key]');
+if (imageContainers.length) {
+    const observer = new IntersectionObserver((entries, obs) => {
+        entries.forEach(entry => {
+            if (!entry.isIntersecting) return;
+            const container = entry.target;
+            obs.unobserve(container);
+
+            const productKey = container.dataset.productKey;
+            const item = allData.find(i => i.solution_key === productKey);
+
+            // Determine fallback icon PER item (fixes out-of-scope bug)
+            let icon = 'fa-box';
+            if (item?.category) {
+                if (item.category.includes('غذائي')) icon = 'fa-utensils';
+                else if (item.category.includes('مشروب')) icon = 'fa-wine-bottle';
+            }
+            const fallback = `<i class="fas ${icon}" style="font-size:3rem;color:rgba(0,0,0,0.15);"></i>`;
+
+            if (!item) { container.innerHTML = fallback; return; }
+
+            const flyerId   = item.pageNo?.match(/flyer_(\d+)/)?.[1] || item.solution_key;
+            const pageNumber = item.pageNo?.match(/page_(\d+)/)?.[1] || '';
+
+            if (!flyerId || !pageNumber) { container.innerHTML = fallback; return; }
+
+            const imageUrl = `https://www.mobappsbaker.com/catalogs/thwr/offers/${flyerId}/${pageNumber}.jpg`;
+
+            const img = new Image();
+            img.crossOrigin = 'anonymous';
+
+            img.onerror = () => { container.innerHTML = fallback; };
+
+            img.onload = function () {
+                const iw = img.naturalWidth, ih = img.naturalHeight;
+
+                // No crop data → show full page image
+                if (!item.crop || item.crop.w <= 0 || item.crop.h <= 0) {
+                    container.innerHTML = `<img src="${imageUrl}" alt="صورة المنتج" 
+                        style="width:100%;height:100%;object-fit:cover;border-radius:12px;">`;
+                    return;
                 }
-            }
-        }
-        // إذا فشل كل شيء، نحذف الكلمات الشائعة ونعرض ما تبقى
-        if (!day && !month) {
-            validUntilHtml = validUntilHtml.replace(/ينتهي في|الاثنين|الثلاثاء|الأربعاء|الخميس|الجمعة|السبت|الأحد|الـ|،|\./g, '').trim();
-            // إذا كان الناتج طويلاً، نأخذ أول 15 حرفاً
-            if (validUntilHtml.length > 15) validUntilHtml = validUntilHtml.substring(0, 15);
-        }
-    }
-}        
-        // بناء خلايا الجدول حسب الجهاز
-        let cells = '';
-        if (isMobile) {
-            // للموبايل: نعرض الأعمدة بالترتيب: السوبر ماركت, المنتج, السعر, الخصم, البراند, الوحدة, ساري حتى (نخفي الأساسي، الفئة، تاريخ التحديث)
-            cells = `
-                <td style="white-space: normal;">${item.supermarket}<\/td>
-                <td><strong>${item.product}<\/strong><\/td>
-                <td>${currentPriceHtml}<\/td>
-                <td><span class="discount-cell">${item._discount_pct ? item._discount_pct+'%' : ''}<\/span><\/td>
-                <td>${item.brand || ''}<\/td>
-                <td>${item.unit || ''}<\/td>
-                <td>${validUntilHtml}<\/td>
-            `;
-        } else {
-            // الوضع الاعتيادي (كمبيوتر، تابلت) نعرض كل الأعمدة
-            cells = `
-                <td>${item.supermarket}<\/td>
-                <td><strong>${item.product}<\/strong><\/td>
-                <td>${formatPrice(item.currentPrice)} ${item.currency}<\/td>
-                <td><span class="discount-cell">${item._discount_pct ? item._discount_pct+'%' : ''}<\/span><\/td>
-                <td><span class="primary-name-circle">${item.primaryName || ''}<\/span><\/td>
-                <td>${item.unit || ''}<\/td>
-                <td>${item.category || ''}<\/td>
-                <td>${item.brand || ''}<\/td>
-                <td>${item.updateDate ? formatDateShort(item.updateDate) : ''}<\/td>
-                <td>${item.validUntil || ''}<\/td>
-            `;
-        }
-        
-        return `<tr ${rowClass} data-url="${url}" data-flyer="${flyerId}" data-page-number="${pageNumber}" data-page="${item.pageNo}" style="cursor:pointer;">${cells}<\/tr>`;
-    }).join('');
-    
-    // تحديث رأس الجدول (thead) للموبايل لإزالة الأعمدة المخفية وتعديل الترويسات
-    const thead = document.querySelector('#data-table thead');
-    if (isMobile) {
-        thead.innerHTML = `
-            <tr>
-                <th>المتجر</th>
-                <th>      المنتج       </th>
-                <th>السعر</th>
-                <th>الخصم</th>
-                <th>العلامة التجارية</th>
-                <th>الوحدة</th>
-                <th>ساري حتى</th>
-            </tr>
-        `;
-    } else {
-        thead.innerHTML = `
-            <tr>
-                <th>المتجر</th>
-                <th>المنتج</th>
-                <th>السعر </th>
-                <th>الخصم</th>
-                <th>الاسم الأساسي</th>
-                <th>الوحدة</th>
-                <th>الفئة</th>
-                <th>العلامة التجارية</th>
-                <th>تاريخ التحديث</th>
-                <th>ساري حتى</th>
-            </tr>
-        `;
-    }
-    
-document.querySelectorAll('#table-body tr').forEach(tr => {
-    tr.addEventListener('click', function(e) {
-        let productName = this.cells[1]?.innerText || '';
-        let productObj = allData.find(p => p.product === productName);
-        if (productObj) {
-            // ✅ التأكد من وجود solution_key (إذا لم يكن موجوداً، نستخدم product كبديل)
-            if (!productObj.solution_key) productObj.solution_key = productObj.product || 'unknown';
-            if (!productObj.pageNo) productObj.pageNo = '';
-            if (!productObj.currency) productObj.currency = 'EGP';
-            if (!productObj._discount_pct) productObj._discount_pct = productObj.discount || 0;
-            if (!productObj.originalPrice) productObj.originalPrice = 0;
-            if (!productObj.validUntil) productObj.validUntil = 'غير متاح';
-            
-         
-            // --- إضافة الإحداثيات من crop إن وجدت ---
-            if (productObj.crop) {
-                productObj.X = productObj.crop.x;
-                productObj.Y = productObj.crop.y;
-                productObj['العرض'] = productObj.crop.w;
-                productObj['الارتفاع'] = productObj.crop.h;
-            } else {
-                productObj.X = 0;
-                productObj.Y = 0;
-                productObj['العرض'] = 0;
-                productObj['الارتفاع'] = 0;
-            }
-        
-            saveCurrentState();
-            sessionStorage.setItem('selectedProduct', JSON.stringify(productObj));
-        
-        if (!productObj.branch) productObj.branch = '';
-if (!productObj.promo) productObj.promo = '';
-        
-            window.open('product_details.html', '_blank');
-        } else {
-            let url = this.dataset.url;
-            if (url && url !== '#') window.open(url, '_blank');
-        }
-    });
-});
+
+                // Convert relative (0–1) or absolute coords
+                const lx = item.crop.x <= 1 ? item.crop.x * iw : item.crop.x;
+                const ty = item.crop.y <= 1 ? item.crop.y * ih : item.crop.y;
+                const bw = item.crop.w <= 1 ? item.crop.w * iw : item.crop.w;
+                const bh = item.crop.h <= 1 ? item.crop.h * ih : item.crop.h;
+
+                // Tighter padding — old 0.40 left was pulling wrong product into frame
+                const PAD_L = 0.08, PAD_R = 0.08, PAD_T = 0.08, PAD_B = 0.08;
+                const fl = Math.max(0,  lx - iw * PAD_L);
+                const fr = Math.min(iw, lx + bw + iw * PAD_R);
+                const ft = Math.max(0,  ty - ih * PAD_T);
+                const fb = Math.min(ih, ty + bh + ih * PAD_B);
+
+                if (fr <= fl || fb <= ft) {
+                    container.innerHTML = `<img src="${imageUrl}" alt="صورة المنتج" 
+                        style="width:100%;height:100%;object-fit:cover;border-radius:12px;">`;
+                    return;
+                }
+
+                const cw = fr - fl, ch = fb - ft;
+                const bsw = (iw / cw) * 100;
+                const bsh = (ih / ch) * 100;
+                const bpx = iw - cw > 0.5 ? (fl / (iw - cw)) * 100 : 0;
+                const bpy = ih - ch > 0.5 ? (ft / (ih - ch)) * 100 : 0;
+
+                container.innerHTML = '';
+                container.style.cssText = 'position:relative;display:flex;justify-content:center;align-items:center;overflow:hidden;';
+
+                const cropDiv = document.createElement('div');
+                cropDiv.style.cssText = `
+                    width:100%;height:100%;
+                    background-image:url(${imageUrl});
+                    background-size:${bsw}% ${bsh}%;
+                    background-position:${bpx}% ${bpy}%;
+                    background-repeat:no-repeat;
+                    border-radius:12px;
+                `;
+                container.appendChild(cropDiv);
+            };
+
+            img.src = imageUrl;
+        });
+    }, { rootMargin: '0px 0px 300px 0px' });
+
+    imageContainers.forEach(c => observer.observe(c));
+}
+
         updatePagination();
-}
+    }
 
- 
+function openWithOverlay(url, flyerFileName, pageNo, flyerIdFromAttr, cropData) {
+        let flyerId = flyerIdFromAttr;
+        if (!flyerId) {
+            const match = url.match(/d=([^&]+)/);
+            flyerId = match ? match[1] : '';
+        }
+        
+        let pageNumber = pageNo;
+        if (pageNumber && pageNumber.toString().match(/page_(\d+)/)) {
+            pageNumber = pageNumber.toString().match(/page_(\d+)/)[1];
+        }
+        if (!pageNumber && flyerFileName) {
+            let m = flyerFileName.toString().match(/\d+/);
+            if (m) pageNumber = m[0];
+        }
+        
+        if (!flyerId || !pageNumber) {
+            window.open(url, '_blank');
+            return;
+        }
+        
+        const imageUrl = 'https://www.mobappsbaker.com/catalogs/thwr/offers/' + flyerId + '/' + pageNumber + '.jpg';
+        const coverUrl = 'https://www.mobappsbaker.com/catalogs/thwr/offers/' + flyerId + '/1.jpg';
+        
+        const newWin = window.open('', '_blank');
+        if (newWin) {
 
-function openWithOverlay(url, flyerFileName, pageNo, flyerIdFromAttr) {
-    let flyerId = flyerIdFromAttr;
-    if (!flyerId) {
-        const match = url.match(/d=([^&]+)/);
-        flyerId = match ? match[1] : '';
+            function getHtmlContent(imgUrl, covUrl, cropObj) {
+                var cropStr = JSON.stringify(cropObj || null);
+                
+                // Using an array to build the string avoids all quotation/backtick errors
+                return [
+                    '<!DOCTYPE html>',
+                    '<html dir="rtl">',
+                    '<head>',
+                    '    <meta charset="UTF-8">',
+                    '    <meta name="viewport" content="width=device-width, initial-scale=1.0">',
+                    '    <title>صورة المنتج</title>',
+                    '    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">',
+                    '    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">',
+                    '    <style>',
+                    '        *{box-sizing:border-box;margin:0;padding:0}',
+                    '        body{margin:0;padding:0;background:#1a1a2e;font-family:"Cairo",sans-serif;height:100vh;overflow:hidden}',
+                    '        .split-layout{display:flex;height:100vh;width:100%}',
+                    '        .left-side{width:35%;background:white;box-shadow:4px 0 12px rgba(0,0,0,0.05);overflow-y:auto;padding:20px;display:flex;flex-direction:column}',
+                    '        .right-side{width:65%;background:#1a1a2e;display:flex;flex-direction:column;overflow:hidden}',
+                    '        .right-side-top{height:60%;display:flex;justify-content:center;align-items:center;overflow:hidden;position:relative}',
+                    '        .right-side-bottom{height:40%;display:flex;justify-content:center;align-items:center;overflow:hidden;background:#16162a;border-top:2px solid #333;position:relative}',
+                    '        .right-side img,.right-side-bottom img{max-width:95%;max-height:95%;object-fit:contain;border-radius:16px;box-shadow:0 8px 25px rgba(0,0,0,0.3);transition:.2s}',
+                    '        .image-label{position:absolute;top:10px;right:15px;background:rgba(0,83,159,0.9);color:white;padding:4px 14px;border-radius:20px;font-size:.85rem;font-weight:700;pointer-events:none;z-index:2}',
+                    '        .flyer-images-row{display:flex;gap:10px;margin-bottom:15px}',
+                    '        .flyer-image-box{flex:1;background:#f8f9fa;border-radius:12px;padding:8px;text-align:center;box-shadow:0 2px 8px rgba(0,0,0,0.08);cursor:pointer;transition:.2s}',
+                    '        .flyer-image-box:hover{transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,0.15)}',
+                    '        .flyer-image-box img{max-width:100%;max-height:100px;border-radius:8px;object-fit:contain}',
+                    '        .flyer-image-box h4{margin-top:6px;color:#00539F;font-size:.75rem;font-weight:700}',
+                    '        .back-btn{background:#6c757d;color:white;border:none;padding:10px;border-radius:30px;cursor:pointer;width:100%;font-family:"Cairo",sans-serif;font-size:.9rem;font-weight:600;margin-top:10px}',
+                    '        @media(max-width:768px){.split-layout{flex-direction:column;height:auto;min-height:100vh}.left-side,.right-side{width:100%}.right-side{min-height:40vh;order:-1}.right-side-top{height:40vh}.right-side-bottom{height:30vh}.flyer-images-row{flex-direction:column}}',
+                    '    </style>',
+                    '</head>',
+                    '<body>',
+                    '    <div class="split-layout">',
+                    '        <div class="left-side">',
+                    '            <div class="flyer-images-row">',
+                    '                <div class="flyer-image-box" onclick="showFull(\'' + imgUrl + '\')"><h4><i class="fas fa-file-image"></i> الصفحة الحالية</h4><img src="' + imgUrl + '" onerror="this.src=\'https://via.placeholder.com/300?text=No+Image\'"></div>',
+                    '                <div class="flyer-image-box" onclick="showFull(\'' + covUrl + '\')"><h4><i class="fas fa-book-open"></i> غلاف الفلاير</h4><img src="' + covUrl + '" onerror="this.src=\'https://via.placeholder.com/300?text=No+Cover\'"></div>',
+                    '            </div>',
+                    '            <button class="back-btn" onclick="window.close()"><i class="fas fa-arrow-right"></i> إغلاق</button>',
+                    '        </div>',
+                    '        <div class="right-side">',
+                    '            <div class="right-side-top" id="cropContainer" style="position:relative"></div>',
+                    '            <div class="right-side-bottom" id="coverContainer" style="position:relative" onclick="showFull(\'' + covUrl + '\')">',
+                    '                <span class="image-label"><i class="fas fa-book-open"></i> غلاف الفلاير</span>',
+                    '                <img src="' + covUrl + '" style="cursor:pointer" onerror="this.parentElement.innerHTML=\'<div style=display:flex;justify-content:center;align-items:center;width:100%;height:100%;color:#aaa;font-size:1.2rem>لا توجد صورة للغلاف</div>\'">',
+                    '            </div>',
+                    '        </div>',
+                    '    </div>',
+                    '    <scr' + 'ipt>', // <-- Splits the script tag so the main document parser ignores it
+                    '        function renderCrop(c,imgUrl,crop){',
+                    '            c.innerHTML="";',
+                    '            if(!imgUrl){c.innerHTML=\'<div style=display:flex;justify-content:center;align-items:center;width:100%;height:100%;color:white;font-size:1.2rem>لا توجد صورة</div>\';return}',
+                    '            if(!crop||crop.w<=0||crop.h<=0){var img=document.createElement("img");img.src=imgUrl;img.style.cssText="max-width:100%;max-height:100%;object-fit:contain;border-radius:16px;box-shadow:0 8px 25px rgba(0,0,0,0.3)";c.appendChild(img);return}',
+                    '            var PAD_L=0.40,PAD_R=0.11,PAD_T=0.17,PAD_B=0.05;',
+                    '            var im=new Image();',
+                    '            im.onload=function(){',
+                    '                var iw=im.naturalWidth,ih=im.naturalHeight;',
+                    '                var lx=(crop.x<=1.0)?crop.x*iw:crop.x;',
+                    '                var ty=(crop.y<=1.0)?crop.y*ih:crop.y;',
+                    '                var bw=(crop.w<=1.0)?crop.w*iw:crop.w;',
+                    '                var bh=(crop.h<=1.0)?crop.h*ih:crop.h;',
+                    '                var fl=Math.max(0,lx-(iw*PAD_L));',
+                    '                var fr=Math.min(iw,lx+bw+(iw*PAD_R));',
+                    '                var ft=Math.max(0,ty-(ih*PAD_T));',
+                    '                var fb=Math.min(ih,ty+bh+(ih*PAD_B));',
+                    '                if(fr<=fl||fb<=ft){c.innerHTML=\'<div style=display:flex;justify-content:center;align-items:center;width:100%;height:100%;color:white;font-size:1.2rem>إحداثيات غير صالحة</div>\';return}',
+                    '                var cw=fr-fl,ch=fb-ft;',
+                    '                var bsw=(iw/cw)*100,bsh=(ih/ch)*100;',
+                    '                var bpx=(fl/(iw-cw))*100,bpy=(ft/(ih-ch))*100;',
+                    '                var cc=document.createElement("div");',
+                    '                cc.style.cssText="width:100%;height:100%;max-width:95%;max-height:95%;background-image:url("+imgUrl+");background-size:"+bsw+"% "+bsh+"%;background-position:"+bpx+"% "+bpy+"%;background-repeat:no-repeat;border-radius:16px;box-shadow:0 8px 25px rgba(0,0,0,0.3)";',
+                    '                c.style.position="relative";c.style.display="flex";c.style.justifyContent="center";c.style.alignItems="center";c.style.overflow="hidden";',
+                    '                c.appendChild(cc);',
+                    '                var bd=document.createElement("span");',
+                    '                bd.style.cssText="position:absolute;bottom:15px;right:15px;background:rgba(0,0,0,0.7);color:#fff;padding:4px 14px;border-radius:20px;font-size:0.8rem;pointer-events:none;z-index:2";',
+                    '                bd.innerHTML=\'<i class="fas fa-crop-alt"></i> مقتصصة\';c.appendChild(bd)',
+                    '            };',
+                    '            im.onerror=function(){c.innerHTML=\'<div style=display:flex;justify-content:center;align-items:center;width:100%;height:100%;color:white;font-size:1.2rem>فشل تحميل الصورة</div>\'};',
+                    '            im.src=imgUrl',
+                    '        }',
+                    '        function showFull(src){',
+                    '            var m=document.createElement("div");',
+                    '            m.style.cssText="position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.95);z-index:2000;display:flex;justify-content:center;align-items:center;cursor:pointer";',
+                    '            m.innerHTML=\'<div style="position:absolute;top:20px;left:20px;color:white;font-size:2rem;cursor:pointer;background:rgba(0,0,0,0.6);width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center">×</div><img src="\'+src+\'" style="max-width:95%;max-height:95%;object-fit:contain;border-radius:8px">\';',
+                    '            m.onclick=function(){m.remove()};',
+                    '            document.body.appendChild(m)',
+                    '        }',
+                    '        var cropData=' + cropStr + ';',
+                    '        renderCrop(document.getElementById("cropContainer"),"' + imgUrl + '",cropData);',
+                    '        document.getElementById("cropContainer").onclick=function(){showFull("' + imgUrl + '")}',
+                    '    </scr' + 'ipt>', // <-- Safe closing tag
+                    '</body>',
+                    '</html>'
+                ].join('\n');
+            }
+
+            var htmlContent = getHtmlContent(imageUrl, coverUrl, cropData);
+            newWin.document.open();
+            newWin.document.write(htmlContent);
+            newWin.document.close();
+            
+        } else {
+            window.open(url, '_blank');
+        }
     }
-    
-    let pageNumber = pageNo;
-    if (pageNumber && pageNumber.toString().match(/page_(\d+)/)) {
-        pageNumber = pageNumber.toString().match(/page_(\d+)/)[1];
-    }
-    if (!pageNumber && flyerFileName) {
-        let m = flyerFileName.toString().match(/\d+/);
-        if (m) pageNumber = m[0];
-    }
-    
-    if (!flyerId || !pageNumber) {
-        window.open(url, '_blank');
-        return;
-    }
-    
-    // المسار الصحيح كما في tg.html
-    const imageUrl = `https://www.mobappsbaker.com/catalogs/thwr/offers/${flyerId}/${pageNumber}.jpg`;
-    
-    // فتح نافذة جديدة وعرض الصورة
-    const newWin = window.open('', '_blank');
-    if (newWin) {
-        newWin.document.write(`
-            <!DOCTYPE html>
-            <html dir="rtl">
-            <head>
-                <meta charset="UTF-8">
-                <title>صورة الفلاير</title>
-                <style>
-                    body { margin: 0; padding: 20px; background: #333; display: flex; justify-content: center; align-items: center; min-height: 100vh; font-family: Cairo, sans-serif; }
-                    img { max-width: 90vw; max-height: 90vh; box-shadow: 0 4px 20px rgba(0,0,0,0.5); border-radius: 8px; }
-                    .info { position: fixed; bottom: 10px; left: 10px; background: rgba(0,0,0,0.7); color: white; padding: 5px 10px; border-radius: 5px; font-size: 12px; }
-                </style>
-            </head>
-            <body>
-                <img src="${imageUrl}" alt="صفحة الفلاير ${pageNumber}" onerror="this.onerror=null; alert('تعذر تحميل الصورة'); window.location.href='${url}';">
-                <div class="info">رقم الصفحة: ${pageNumber} | معرف الفلاير: ${flyerId}</div>
-            </body>
-            </html>
-        `);
-        newWin.document.close();
-    } else {
-        window.open(url, '_blank');
-    }
-}
-     
+      
 
     function updateStats() {
         document.getElementById('total-offers').textContent = filteredData.length;
@@ -1984,25 +2078,25 @@ function openWithOverlay(url, flyerFileName, pageNo, flyerIdFromAttr) {
         }
     }
 
-  function saveCurrentState() {
-    const state = {
-        currentView: currentView,
-        activeChipFilter: activeChipFilter,
-        currentPage: currentPage,
-        search: document.getElementById('search-input').value,
-        supermarket: document.getElementById('supermarket-filter').value,
-        category: document.getElementById('category-filter').value,
-        brand: document.getElementById('brand-filter').value,
-        minDiscount: document.getElementById('min-discount').value,
-        minPrice: document.getElementById('min-price').value,
-        maxPrice: document.getElementById('max-price').value,
-        sort: document.getElementById('sort-by').value,
-        showAllOffers: showAllOffers,
-        oneDayFilter: oneDayFilter,
-        bestPriceMode: bestPriceMode
-    };
-    sessionStorage.setItem('offersPageState', JSON.stringify(state));
-}
+    function saveCurrentState() {
+        const state = {
+            currentView: currentView,
+            activeChipFilter: activeChipFilter,
+            currentPage: currentPage,
+            search: document.getElementById('search-input').value,
+            supermarket: document.getElementById('supermarket-filter').value,
+            category: document.getElementById('category-filter').value,
+            brand: document.getElementById('brand-filter').value,
+            minDiscount: document.getElementById('min-discount').value,
+            minPrice: document.getElementById('min-price').value,
+            maxPrice: document.getElementById('max-price').value,
+            sort: document.getElementById('sort-by').value,
+            showAllOffers: showAllOffers,
+            oneDayFilter: oneDayFilter,
+            bestPriceMode: bestPriceMode
+        };
+        sessionStorage.setItem('offersPageState', JSON.stringify(state));
+    }
   
     function attachCardEvents() {
         document.querySelectorAll('.favorite-btn').forEach(btn => {
@@ -2028,10 +2122,7 @@ function openWithOverlay(url, flyerFileName, pageNo, flyerIdFromAttr) {
                 if (comparisonItems.some(c => c.product === productId)) {
                     comparisonItems = comparisonItems.filter(c => c.product !== productId);
                 } else {
-                    if (comparisonItems.length >= 4) {
-                        alert('يمكن مقارنة 4 منتجات كحد أقصى');
-                        return;
-                    }
+                    if (comparisonItems.length >= 4) { alert('يمكن مقارنة 4 منتجات كحد أقصى'); return; }
                     comparisonItems.push(item);
                 }
                 localStorage.setItem('comparison', JSON.stringify(comparisonItems));
@@ -2052,18 +2143,23 @@ function openWithOverlay(url, flyerFileName, pageNo, flyerIdFromAttr) {
                 }
             });
         });
+
         document.querySelectorAll('.buy-now-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 e.stopPropagation();
                 let page = btn.dataset.page;
                 let sol = btn.dataset.solution;
+                let cropData = null;
+                try { cropData = JSON.parse(btn.dataset.crop || 'null'); } catch(err) {}
                 let flyerId = page?.match(/flyer_(\d+)/)?.[1] || sol || '';
                 let url = flyerId ? `https://www.yabalashoffers.com/flyer.php?d=${encodeURIComponent(flyerId)}&c=eg` : '#';
                 if (url !== '#') {
                     let pageNumber = page?.match(/page_(\d+)/)?.[1] || '';
-openWithOverlay(url, pageNumber, flyerId);                }
+                    openWithOverlay(url, pageNumber, flyerId, flyerId, cropData);
+                }
             });
         });
+            
         document.querySelectorAll('.view-details-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 e.stopPropagation();
@@ -2076,25 +2172,82 @@ openWithOverlay(url, pageNumber, flyerId);                }
         });
     }
 
-function getFlyerImageUrl(flyerId) {
-    // الخيار 1: إذا كان هناك رابط مباشر للصورة (مثال افتراضي)
-    // return `https://www.yabalashoffers.com/images/flyers/${flyerId}.jpg`;
-    
-    // الخيار 2: استخدام خدمة تحويل الصفحة إلى صورة (غير موثوقة)
-    // return `https://api.screenshotmachine.com/?key=YOUR_KEY&url=https://www.yabalashoffers.com/flyer.php?d=${flyerId}&c=eg&dimension=1024x768`;
-    
-    // الخيار 3: تجاوز الـ iframe واستخدام الـ PDF إن وجد
-    console.warn('لا يوجد رابط صورة مباشر للفلاير', flyerId);
-    return null; // سيعود إلى الأيقونة الافتراضية
-}
-                                 
-
+    function getFlyerImageUrl(flyerId) { return null; }
 async function loadAndCropImage(item) {
-    // حالياً لا توجد صور حقيقية متاحة، نعيد null لعرض الأيقونة
-    return null;
+    // Build the flyer image URL
+    let flyerId = item.pageNo?.match(/flyer_(\d+)/)?.[1] || item.solution_key;
+    let pageNumber = item.pageNo?.match(/page_(\d+)/)?.[1] || '';
+    if (!flyerId || !pageNumber) return null;
+    
+    const imageUrl = `https://www.mobappsbaker.com/catalogs/thwr/offers/${flyerId}/${pageNumber}.jpg`;
+    
+    // If no crop data, return the full image URL
+    if (!item.crop || item.crop.w <= 0 || item.crop.h <= 0) {
+        return imageUrl;
+    }
+    
+    // Try to use cached cropped image
+    const cacheKey = item.solution_key + '_' + flyerId + '_' + pageNumber;
+    if (croppedImageCache.has(cacheKey)) {
+        return croppedImageCache.get(cacheKey);
+    }
+    
+    // Generate cropped image using canvas
+    return new Promise((resolve) => {
+        const img = new Image();
+        img.crossOrigin = "anonymous";
+        
+        img.onload = function() {
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            
+            const iw = img.naturalWidth;
+            const ih = img.naturalHeight;
+            
+            const PAD_LEFT = 0.40;
+            const PAD_RIGHT = 0.11;
+            const PAD_TOP = 0.17;
+            const PAD_BOTTOM = 0.05;
+            
+            let lx = (item.crop.x <= 1.0) ? item.crop.x * iw : item.crop.x;
+            let ty = (item.crop.y <= 1.0) ? item.crop.y * ih : item.crop.y;
+            let bw = (item.crop.w <= 1.0) ? item.crop.w * iw : item.crop.w;
+            let bh = (item.crop.h <= 1.0) ? item.crop.h * ih : item.crop.h;
+            
+            let fl = Math.max(0, lx - (iw * PAD_LEFT));
+            let fr = Math.min(iw, lx + bw + (iw * PAD_RIGHT));
+            let ft = Math.max(0, ty - (ih * PAD_TOP));
+            let fb = Math.min(ih, ty + bh + (ih * PAD_BOTTOM));
+            
+            if (fr <= fl || fb <= ft) {
+                resolve(imageUrl); // fallback to full image
+                return;
+            }
+            
+            const cw = fr - fl;
+            const ch = fb - ft;
+            
+            canvas.width = cw;
+            canvas.height = ch;
+            
+            ctx.drawImage(img, fl, ft, cw, ch, 0, 0, cw, ch);
+            
+            try {
+                const dataUrl = canvas.toDataURL('image/jpeg', 0.92);
+                croppedImageCache.set(cacheKey, dataUrl);
+                resolve(dataUrl);
+            } catch(e) {
+                resolve(imageUrl); // fallback if canvas tainted
+            }
+        };
+        
+        img.onerror = function() {
+            resolve(null);
+        };
+        
+        img.src = imageUrl;
+    });
 }
-
-
     function updateComparisonPanel() {
         const panel = document.getElementById('comparison-panel');
         const container = document.getElementById('comparison-items');
@@ -2127,11 +2280,9 @@ async function loadAndCropImage(item) {
     }
 
     function refreshApplication() {
-    clearUrlParamsAndUpdateLink();   // أضف هذا السطر أولاً
-        
-      urlProductsTerms = [];
-searchIsOr = false;
-      
+        clearUrlParamsAndUpdateLink();
+        urlProductsTerms = [];
+        searchIsOr = false;
         window.history.replaceState({}, document.title, window.location.pathname);
         document.getElementById('search-input').value = '';
         document.getElementById('supermarket-filter').value = '';
@@ -2143,48 +2294,41 @@ searchIsOr = false;
         document.getElementById('sort-by').value = 'best-deals';
         showAllOffers = false;
         activeChipFilter = 'active';
-        oneDayFilter = false;      // reset one_day mode
-        // remove any temporary banner
+        oneDayFilter = false; 
         const banner = document.getElementById('one-day-banner');
         if (banner) banner.remove();
-
-      
-      urlSearchTerms = [];
+        urlSearchTerms = [];
         urlCategories = [];
         bestPriceMode = false;
-      
-          showAllOffers = false;
-    activeChipFilter = 'active';
-    document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
-    document.querySelector('.chip[data-filter="active"]').classList.add('active');
-    applyAllFilters();
-
+        showAllOffers = false;
+        activeChipFilter = 'active';
+        document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+        document.querySelector('.chip[data-filter="active"]').classList.add('active');
+        applyAllFilters();
     }
           
-          
-// دالة لمسح البارامترات العالقة وتحديث الرابط
-function clearUrlParamsAndUpdateLink() {
-    let changed = false;
-    if (urlSearchTerms.length) { urlSearchTerms = []; changed = true; }
-    if (urlCategories.length) { urlCategories = []; changed = true; }
-    if (urlMarket) { urlMarket = null; changed = true; }
-    if (oneDayFilter) { oneDayFilter = false; changed = true; }
-    if (bestPriceMode) { bestPriceMode = false; changed = true; }
-    if (urlProductsTerms.length) { urlProductsTerms = []; changed = true; }
-    if (searchIsOr) { searchIsOr = false; changed = true; }
-    
-    if (changed) {
-        const url = new URL(window.location.href);
-        const paramsToRemove = ['q', 'category', 'market', 'discount', 'page', 'all', 'best_price', 'one_day', 'products'];
-        paramsToRemove.forEach(p => url.searchParams.delete(p));
-        window.history.replaceState({}, document.title, url.pathname + url.search);
+    function clearUrlParamsAndUpdateLink() {
+        let changed = false;
+        if (urlSearchTerms.length) { urlSearchTerms = []; changed = true; }
+        if (urlCategories.length) { urlCategories = []; changed = true; }
+        if (urlMarket) { urlMarket = null; changed = true; }
+        if (oneDayFilter) { oneDayFilter = false; changed = true; }
+        if (bestPriceMode) { bestPriceMode = false; changed = true; }
+        if (urlProductsTerms.length) { urlProductsTerms = []; changed = true; }
+        if (searchIsOr) { searchIsOr = false; changed = true; }
         
-        const banner = document.getElementById('one-day-banner');
-        if (banner) banner.remove();
-        
-        console.log('تم مسح البارامترات العالقة وتحديث الرابط');
+        if (changed) {
+            const url = new URL(window.location.href);
+            const paramsToRemove = ['q', 'category', 'market', 'discount', 'page', 'all', 'best_price', 'one_day', 'products'];
+            paramsToRemove.forEach(p => url.searchParams.delete(p));
+            window.history.replaceState({}, document.title, url.pathname + url.search);
+            
+            const banner = document.getElementById('one-day-banner');
+            if (banner) banner.remove();
+            
+            console.log('تم مسح البارامترات العالقة وتحديث الرابط');
+        }
     }
-}
           
     function wireEventListeners() {
         document.getElementById('view-grid-btn').addEventListener('click', () => { currentView='grid'; switchView(); });
@@ -2269,11 +2413,11 @@ function clearUrlParamsAndUpdateLink() {
             if (!val) return;
             let source = filteredData.length ? filteredData : allData;
 
-          let suggestions = [...new Set(source.map(i => i.product).concat(source.map(i => i.primaryName).filter(Boolean)))]
-    .filter(s => s && normalizeArabic(s.toLowerCase()).includes(normalizeArabic(val)))
-    .slice(0, 8);
+            let suggestions = [...new Set(source.map(i => i.product).concat(source.map(i => i.primaryName).filter(Boolean)))]
+                .filter(s => s && normalizeArabic(s.toLowerCase()).includes(normalizeArabic(val)))
+                .slice(0, 8);
           
-          if (!suggestions.length) return;
+            if (!suggestions.length) return;
             let list = document.createElement('div');
             list.id = 'autocomplete-list';
             suggestions.forEach(s => {
@@ -2292,80 +2436,68 @@ function clearUrlParamsAndUpdateLink() {
 
     function clearAutocomplete() { let list = document.getElementById('autocomplete-list'); if (list) list.remove(); }
           
-          const searchInput = document.getElementById('search-input');
-searchInput.addEventListener('keypress', function(e) {
-    if (e.key === 'Enter') {
-        clearAutocomplete();
-    }
-});
-searchInput.addEventListener('blur', function() {
-    setTimeout(clearAutocomplete, 200);
-});
+    const searchInput = document.getElementById('search-input');
+    searchInput.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') clearAutocomplete();
+    });
+    searchInput.addEventListener('blur', function() {
+        setTimeout(clearAutocomplete, 200);
+    });
           
-          function restoreStateIfExists() {
-    const saved = sessionStorage.getItem('offersPageState');
-    if (!saved) return false;
-    
-    try {
-        const state = JSON.parse(saved);
+    function restoreStateIfExists() {
+        const saved = sessionStorage.getItem('offersPageState');
+        if (!saved) return false;
         
-        currentView = state.currentView;
-        activeChipFilter = state.activeChipFilter;
-        currentPage = state.currentPage;
-        showAllOffers = state.showAllOffers;
-        oneDayFilter = state.oneDayFilter;
-        bestPriceMode = state.bestPriceMode;
-        
-        document.getElementById('search-input').value = state.search;
-        document.getElementById('supermarket-filter').value = state.supermarket;
-        document.getElementById('category-filter').value = state.category;
-        document.getElementById('brand-filter').value = state.brand;
-        document.getElementById('min-discount').value = state.minDiscount;
-        document.getElementById('min-price').value = state.minPrice;
-        document.getElementById('max-price').value = state.maxPrice;
-        document.getElementById('sort-by').value = state.sort;
-        
-        // تفعيل الـ chip المناسب
-        document.querySelectorAll('.chip').forEach(chip => {
-            chip.classList.remove('active');
-            if (chip.dataset.filter === state.activeChipFilter) {
-                chip.classList.add('active');
+        try {
+            const state = JSON.parse(saved);
+            
+            currentView = state.currentView;
+            activeChipFilter = state.activeChipFilter;
+            currentPage = state.currentPage;
+            showAllOffers = state.showAllOffers;
+            oneDayFilter = state.oneDayFilter;
+            bestPriceMode = state.bestPriceMode;
+            
+            document.getElementById('search-input').value = state.search;
+            document.getElementById('supermarket-filter').value = state.supermarket;
+            document.getElementById('category-filter').value = state.category;
+            document.getElementById('brand-filter').value = state.brand;
+            document.getElementById('min-discount').value = state.minDiscount;
+            document.getElementById('min-price').value = state.minPrice;
+            document.getElementById('max-price').value = state.maxPrice;
+            document.getElementById('sort-by').value = state.sort;
+            
+            document.querySelectorAll('.chip').forEach(chip => {
+                chip.classList.remove('active');
+                if (chip.dataset.filter === state.activeChipFilter) chip.classList.add('active');
+            });
+            
+            applyAllFilters();
+            
+            if (currentView === 'grid') {
+                document.getElementById('view-grid-btn').classList.add('active');
+                document.getElementById('view-table-btn').classList.remove('active');
+            } else {
+                document.getElementById('view-grid-btn').classList.remove('active');
+                document.getElementById('view-table-btn').classList.add('active');
             }
-        });
-        
-        // تطبيق الفلاتر وإعادة التصيير بعد تحميل البيانات
-        applyAllFilters();
-        
-        // تحديث عرض الأزرار (grid/table)
-        if (currentView === 'grid') {
-            document.getElementById('view-grid-btn').classList.add('active');
-            document.getElementById('view-table-btn').classList.remove('active');
-        } else {
-            document.getElementById('view-grid-btn').classList.remove('active');
-            document.getElementById('view-table-btn').classList.add('active');
+            
+            sessionStorage.removeItem('offersPageState');
+            return true;
+        } catch(e) {
+            console.warn('خطأ في استعادة الحالة', e);
+            sessionStorage.removeItem('offersPageState');
+            return false;
         }
-        
-        // حذف الحالة من sessionStorage بعد استعادتها (لمنع استعادتها مجدداً عند تحديث الصفحة)
-        sessionStorage.removeItem('offersPageState');
-        return true;
-    } catch(e) {
-        console.warn('خطأ في استعادة الحالة', e);
-        sessionStorage.removeItem('offersPageState');
-        return false;
     }
-}
     function debounce(fn, delay) { return function(...args) { clearTimeout(debounceTimer); debounceTimer = setTimeout(() => fn.apply(this, args), delay); }; }
 
-    // Start application
     document.addEventListener('DOMContentLoaded', async () => {
         await loadData();
         wireEventListeners();
         console.log("🚀 التطبيق جاهز مع دعم one_day");
     });
 })();
-      
- // ===== إعادة ترتيب العناصر للموبايل (نقل الإحصائيات والفلاتر والأزرار إلى الأسفل) =====
-
 </script>
   </body>
 </html>
