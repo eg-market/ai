@@ -517,6 +517,8 @@ border-radius: 4px; /* إضافة انحناء بسيط للحدود (اختيا
             جدول</button> </div>
       </div>
       <div class="products-grid" id="products-grid"></div>
+      
+      
       <div class="mobile-row row-1"> <input id="search-input" placeholder="ابحث عن منتج..."
 
           type="text">
@@ -585,6 +587,16 @@ border-radius: 4px; /* إضافة انحناء بسيط للحدود (اختيا
           <tbody id="table-body">
           </tbody>
         </table>
+    
+         <div class="pagination" id="pagination"></div>
+</div>
+
+<div class="products-grid" id="products-grid"></div>
+
+<div id="grid-pagination"></div>
+      
+        
+        
         <div class="pagination" id="pagination"></div>
       </div>
     </div>
@@ -614,6 +626,9 @@ border-radius: 4px; /* إضافة انحناء بسيط للحدود (اختيا
     const WEIGHT_DISCOUNT = 0.6;
     const WEIGHT_SAVINGS = 0.4;
     const ITEMS_PER_PAGE = 20;
+  
+  let gridCurrentPage = 1;
+const GRID_ITEMS_PER_PAGE = 50;
 
   let initialLoadDone = false;   // لمنع مسح البارامترات عند التحميل الأول
   let urlProductsTerms = [];      // قائمة المنتجات من بارامتر products
@@ -708,6 +723,8 @@ function normalizeArabic(str) {
 
     // ==================== Data transformation ====================
 function transformRows(rows) {
+  
+  
     return rows.map(item => {
         let rawEndDate = String(item['end_date'] || '').trim();
         let isoDate = convertArabicDateToISO(rawEndDate);
@@ -761,6 +778,9 @@ assumptions : String(item['قيود العرض'] || ''),
             currentPrice: parseFloat(item['السعر الحالي']) || 0,
             discount: parseFloat(item['الخصم %']) || 0,
             pageNo: String(item['اسم ملف الفلاير'] || ''),
+          
+          uid: String(item['Product UID'] || ''),
+          
             solution_key: String(item['solution_key'] || ''),
             currency: 'EGP',
             endDate: d,
@@ -1037,8 +1057,12 @@ if (productsParam) {
     }
     pagination.innerHTML = html;
 }
-window.goToPage = (page) => { currentPage = page; renderContent(); };
-    
+window.goToPage = (page) => {
+    console.log('PAGE CLICKED', page);
+
+    currentPage = page;
+    renderContent();
+};    
       
     async function loadData() {
         let stored = await loadFromDB();
@@ -1620,9 +1644,9 @@ function sortData(data, sortKey, isSearching = false) {
         const isMobile = window.innerWidth <= 768;
         tbody.innerHTML = pageData.map(item => {
             let rowClass = item._discount_pct > 20 ? 'class="highlight"' : '';
-            let flyerId = item.pageNo?.match(/flyer_(\d+)/)?.[1] || item.solution_key || '';
+            let flyerId = item.solution_key || '';
+            let pageNumber = item.pageNo?.match(/page_(\d+)/)?.[1] || item.pageNo?.replace(/[^0-9]/g, '') || '';
             let url = flyerId ? `https://www.yabalashoffers.com/flyer.php?d=${encodeURIComponent(flyerId)}&c=eg` : '#';
-            let pageNumber = item.pageNo?.match(/page_(\d+)/)?.[1] || '';
             let currentPriceHtml = `${formatPrice(item.currentPrice)} ${item.currency}`;
             if (isMobile && item.currency === 'EGP') {
                 currentPriceHtml = `${formatPrice(item.currentPrice)} ج`;
@@ -1747,18 +1771,140 @@ function sortData(data, sortKey, isSearching = false) {
                 }
             });
         });
+                
+updateGridPagination();
+                
         updatePagination();
     }
 
+                function updateGridPagination() {
+
+    const totalPages =
+        Math.ceil(
+            filteredData.length /
+            GRID_ITEMS_PER_PAGE
+        );
+
+    const container =
+        document.getElementById('grid-pagination');
+
+    if (!container) return;
+
+    if (totalPages <= 1) {
+        container.innerHTML = '';
+        return;
+    }
+
+    let html = '';
+
+    html += `
+    <button onclick="goGridPage(1)">
+        الأولى
+    </button>`;
+
+    html += `
+    <button onclick="goGridPage(${Math.max(1, gridCurrentPage - 1)})">
+        السابقة
+    </button>`;
+
+    html += `
+    <span style="padding:0 15px">
+        صفحة ${gridCurrentPage}
+        من
+        ${totalPages}
+    </span>`;
+
+    html += `
+    <button onclick="goGridPage(${Math.min(totalPages, gridCurrentPage + 1)})">
+        التالية
+    </button>`;
+
+    html += `
+    <button onclick="goGridPage(${totalPages})">
+        الأخيرة
+    </button>`;
+
+    container.innerHTML = html;
+}
+                
+function updateGridPagination() {
+
+    const pagination =
+        document.getElementById('grid-pagination');
+
+    const totalPages =
+        Math.ceil(filteredData.length / GRID_ITEMS_PER_PAGE);
+
+    if (totalPages <= 1) {
+        pagination.innerHTML = '';
+        return;
+    }
+
+    let html = '';
+
+    if (gridCurrentPage > 1) {
+        html += `<button onclick="goGridPage(1)">الأولى</button>`;
+        html += `<button onclick="goGridPage(${gridCurrentPage-1})">السابق</button>`;
+    }
+
+    for(let i=1;i<=totalPages;i++) {
+
+        if(i === gridCurrentPage)
+            html += `<button class="active">${i}</button>`;
+        else
+            html += `<button onclick="goGridPage(${i})">${i}</button>`;
+    }
+
+    if(gridCurrentPage < totalPages) {
+        html += `<button onclick="goGridPage(${gridCurrentPage+1})">التالي</button>`;
+        html += `<button onclick="goGridPage(${totalPages})">الأخيرة</button>`;
+    }
+
+    pagination.innerHTML = html;
+}
+
+window.goGridPage = function(page){
+    gridCurrentPage = page;
+    renderGrid();
+};
+                
+                
+                function goGridPage(page) {
+    gridCurrentPage = page;
+    renderGrid();
+
+    window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+    });
+}
+                
     function renderGrid() {
         const grid = document.getElementById('products-grid');
         grid.style.display = 'grid';
         document.getElementById('data-table').style.display = 'none';
-        const start = (currentPage - 1) * ITEMS_PER_PAGE;
-        const pageData = filteredData.slice(start, start + ITEMS_PER_PAGE);
-        if (!pageData.length) {
+
+const start = (gridCurrentPage - 1) * GRID_ITEMS_PER_PAGE;
+
+const pageData =
+    filteredData.slice(
+        start,
+        start + GRID_ITEMS_PER_PAGE
+    );                
+                
+                if (!pageData.length) {
             grid.innerHTML = '<div style="grid-column:1/-1; text-align:center; padding:40px;">لا توجد عروض مطابقة</div>';
+                  
+                  const oldPager = document.getElementById('pagination');
+const gridPager = document.getElementById('grid-pagination');
+
+if (oldPager && gridPager) {
+    gridPager.innerHTML = oldPager.innerHTML;
+}
+                  
             updatePagination();
+                  
+          
             return;
         }
         grid.innerHTML = pageData.map(item => {
@@ -1775,7 +1921,7 @@ function sortData(data, sortKey, isSearching = false) {
                 let diff = Math.ceil((item.endDate - new Date()) / (1000*60*60*24));
                 if (diff <= 1 && diff >= 0) countdown = `<div class="countdown"><i class="fas fa-clock"></i> ${diff} يوم</div>`;
             }
-            const imagePlaceholder = `<div class="product-image" data-product-key="${item.solution_key}" style="background:#f0f2f5;"><i class="fas fa-spinner fa-pulse"></i></div>`;
+            const imagePlaceholder = `<div class="product-image" data-product-key="${item.uid}"  style="background:#f0f2f5;"><i class="fas fa-spinner fa-pulse"></i></div>`;
             return `
             <div class="product-card" data-product="${item.product}">
                 ${item._discount_pct > 50 ? '<div class="product-badge"><i class="fas fa-fire"></i> ساخن</div>' : ''}
@@ -1794,29 +1940,45 @@ function sortData(data, sortKey, isSearching = false) {
                         <span><i class="fas ${marketIcon}"></i> ${item.supermarket}</span>
                         ${countdown}
                     </div>
-                    <div class="action-buttons">
-                        <button class="btn btn-primary buy-now-btn" data-page="${item.pageNo}" data-solution="${item.solution_key}" data-crop="${item.crop ? JSON.stringify(item.crop).replace(/"/g, '&quot;') : ''}"><i class="fas fa-image"></i> صورة</button>
-                        <button class="btn btn-secondary view-details-btn" data-id="${item.product}"><i class="fas fa-info-circle"></i> تفاصيل</button>
-                    </div>
-                </div>
+
+<div class="action-buttons">
+<button class="btn btn-primary buy-now-btn" data-page="${item.pageNo}" data-solution="${item.solution_key}" data-crop="${item.crop ? JSON.stringify(item.crop).replace(/"/g, '&quot;') : ''}">
+<i class="fas fa-image"></i> صورة
+</button>
+<button class="btn btn-secondary view-details-btn" data-id="${item.product}">
+<i class="fas fa-info-circle"></i> تفاصيل
+</button>
+</div>
+      
+      </div>
             </div>`;
         }).join('');
         attachCardEvents();
         
 const imageContainers = document.querySelectorAll('.product-image[data-product-key]');
 if (imageContainers.length) {
-    const observer = new IntersectionObserver((entries, obs) => {
-        entries.forEach(entry => {
-            if (!entry.isIntersecting) return;
-            const container = entry.target;
-            obs.unobserve(container);
+const observer = new IntersectionObserver((entries, obs) => {
+    entries.forEach(entry => {
+        if (!entry.isIntersecting) return;
+        const container = entry.target;
+        obs.unobserve(container);
 
-            const productKey = container.dataset.productKey;
-            const item = allData.find(i => i.solution_key === productKey);
+        const productKey = container.dataset.productKey;
+const item = allData.find(
+    i => i.uid === productKey
+);
+      
+        // 🔍 DEBUG — open Console to see real values
+        if (item) {
+            console.log('🔍 pageNo:', JSON.stringify(item.pageNo), 
+                        '| solution_key:', JSON.stringify(item.solution_key),
+                        '| crop:', JSON.stringify(item.crop));
+        }
 
-            // Determine fallback icon PER item (fixes out-of-scope bug)
-            let icon = 'fa-box';
-            if (item?.category) {
+        let icon = 'fa-box';
+        // ... rest of your code unchanged
+      
+      if (item?.category) {
                 if (item.category.includes('غذائي')) icon = 'fa-utensils';
                 else if (item.category.includes('مشروب')) icon = 'fa-wine-bottle';
             }
@@ -1824,75 +1986,95 @@ if (imageContainers.length) {
 
             if (!item) { container.innerHTML = fallback; return; }
 
-            const flyerId   = item.pageNo?.match(/flyer_(\d+)/)?.[1] || item.solution_key;
-            const pageNumber = item.pageNo?.match(/page_(\d+)/)?.[1] || '';
+const flyerId    = item.solution_key || '';
+const pageNumber = item.pageNo?.match(/page_(\d+)/)?.[1] || 
+                   item.pageNo?.replace(/[^0-9]/g, '') || '';
 
             if (!flyerId || !pageNumber) { container.innerHTML = fallback; return; }
 
             const imageUrl = `https://www.mobappsbaker.com/catalogs/thwr/offers/${flyerId}/${pageNumber}.jpg`;
 
+            // ✅ NO crossOrigin — use CSS background-size trick for cropping
             const img = new Image();
-            img.crossOrigin = 'anonymous';
+            // ❌ removed: img.crossOrigin = 'anonymous';
 
             img.onerror = () => { container.innerHTML = fallback; };
 
             img.onload = function () {
-                const iw = img.naturalWidth, ih = img.naturalHeight;
+                const iw = img.naturalWidth;
+                const ih = img.naturalHeight;
 
-                // No crop data → show full page image
+                container.innerHTML = '';
+                container.style.cssText = 'overflow:hidden;display:flex;align-items:center;justify-content:center;';
+
+                // No crop → plain img tag
                 if (!item.crop || item.crop.w <= 0 || item.crop.h <= 0) {
-                    container.innerHTML = `<img src="${imageUrl}" alt="صورة المنتج" 
-                        style="width:100%;height:100%;object-fit:cover;border-radius:12px;">`;
+                    const el = document.createElement('img');
+                    el.src = imageUrl;
+                    el.alt = item.product;
+                    el.style.cssText = 'width:100%;height:100%;object-fit:cover;border-radius:12px;';
+                    container.appendChild(el);
                     return;
                 }
 
-                // Convert relative (0–1) or absolute coords
+                // Convert coords (relative 0-1 or absolute pixels)
                 const lx = item.crop.x <= 1 ? item.crop.x * iw : item.crop.x;
                 const ty = item.crop.y <= 1 ? item.crop.y * ih : item.crop.y;
                 const bw = item.crop.w <= 1 ? item.crop.w * iw : item.crop.w;
                 const bh = item.crop.h <= 1 ? item.crop.h * ih : item.crop.h;
 
-                // Tighter padding — old 0.40 left was pulling wrong product into frame
-                const PAD_L = 0.08, PAD_R = 0.08, PAD_T = 0.08, PAD_B = 0.08;
-                const fl = Math.max(0,  lx - iw * PAD_L);
-                const fr = Math.min(iw, lx + bw + iw * PAD_R);
-                const ft = Math.max(0,  ty - ih * PAD_T);
-                const fb = Math.min(ih, ty + bh + ih * PAD_B);
+                // Small padding around the product box
+const PAD_LEFT   = 0.40;
+const PAD_RIGHT  = 0.11;
+const PAD_TOP    = 0.17;
+const PAD_BOTTOM = 0.05;
 
+const fl = Math.max(0, lx - (iw * PAD_LEFT));
+const fr = Math.min(iw, lx + bw + (iw * PAD_RIGHT));
+
+const ft = Math.max(0, ty - (ih * PAD_TOP));
+const fb = Math.min(ih, ty + bh + (ih * PAD_BOTTOM));
+      
                 if (fr <= fl || fb <= ft) {
-                    container.innerHTML = `<img src="${imageUrl}" alt="صورة المنتج" 
-                        style="width:100%;height:100%;object-fit:cover;border-radius:12px;">`;
+                    const el = document.createElement('img');
+                    el.src = imageUrl;
+                    el.style.cssText = 'width:100%;height:100%;object-fit:cover;border-radius:12px;';
+                    container.appendChild(el);
                     return;
                 }
 
-                const cw = fr - fl, ch = fb - ft;
-                const bsw = (iw / cw) * 100;
-                const bsh = (ih / ch) * 100;
-                const bpx = iw - cw > 0.5 ? (fl / (iw - cw)) * 100 : 0;
-                const bpy = ih - ch > 0.5 ? (ft / (ih - ch)) * 100 : 0;
+                const cw = fr - fl;
+                const ch = fb - ft;
+const ZOOM_OUT = 1.20;   // 10%
+      
+                // CSS background approach — no canvas, no CORS needed
 
-                container.innerHTML = '';
-                container.style.cssText = 'position:relative;display:flex;justify-content:center;align-items:center;overflow:hidden;';
+      const bsw = (iw / cw) * 100 / ZOOM_OUT;
+const bsh = (ih / ch) * 100 / ZOOM_OUT;
+      
+      const bpx = (iw - cw) > 0.5 ? (fl / (iw - cw)) * 100 : 0;
+                const bpy = (ih - ch) > 0.5 ? (ft / (ih - ch)) * 100 : 0;
 
                 const cropDiv = document.createElement('div');
-                cropDiv.style.cssText = `
-                    width:100%;height:100%;
-                    background-image:url(${imageUrl});
-                    background-size:${bsw}% ${bsh}%;
-                    background-position:${bpx}% ${bpy}%;
-                    background-repeat:no-repeat;
-                    border-radius:12px;
-                `;
+                cropDiv.style.cssText = [
+                    'width:100%',
+                    'height:100%',
+                    `background-image:url(${imageUrl})`,
+                    `background-size:${bsw.toFixed(2)}% ${bsh.toFixed(2)}%`,
+                    `background-position:${bpx.toFixed(2)}% ${bpy.toFixed(2)}%`,
+                    'background-repeat:no-repeat',
+                    'border-radius:12px'
+                ].join(';');
+
                 container.appendChild(cropDiv);
             };
 
-            img.src = imageUrl;
+            img.src = imageUrl;  // load WITHOUT crossOrigin
         });
-    }, { rootMargin: '0px 0px 300px 0px' });
+    }, { rootMargin: '0px 0px 400px 0px' });
 
     imageContainers.forEach(c => observer.observe(c));
 }
-
         updatePagination();
     }
 
@@ -2029,7 +2211,6 @@ function openWithOverlay(url, flyerFileName, pageNo, flyerIdFromAttr, cropData) 
             window.open(url, '_blank');
         }
     }
-      
 
     function updateStats() {
         document.getElementById('total-offers').textContent = filteredData.length;
@@ -2144,40 +2325,47 @@ function openWithOverlay(url, flyerFileName, pageNo, flyerIdFromAttr, cropData) 
             });
         });
 
-        document.querySelectorAll('.buy-now-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                e.stopPropagation();
-                let page = btn.dataset.page;
-                let sol = btn.dataset.solution;
-                let cropData = null;
-                try { cropData = JSON.parse(btn.dataset.crop || 'null'); } catch(err) {}
-                let flyerId = page?.match(/flyer_(\d+)/)?.[1] || sol || '';
-                let url = flyerId ? `https://www.yabalashoffers.com/flyer.php?d=${encodeURIComponent(flyerId)}&c=eg` : '#';
-                if (url !== '#') {
-                    let pageNumber = page?.match(/page_(\d+)/)?.[1] || '';
-                    openWithOverlay(url, pageNumber, flyerId, flyerId, cropData);
-                }
-            });
-        });
-            
-        document.querySelectorAll('.view-details-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                e.stopPropagation();
-                let prodId = btn.dataset.id;
-                let item = allData.find(i => i.product === prodId);
-                if (item) {
-                    alert(`المنتج: ${item.product}\nالسوبرماركت: ${item.supermarket}\nالسعر: ${item.currentPrice}\nالخصم: ${item._discount_pct}%\nساري حتى: ${item.validUntil}`);
-                }
-            });
-        });
+document.querySelectorAll('.view-details-btn').forEach(button => {
+button.addEventListener('click', function() {
+const productId = this.getAttribute('data-id'); // Get product ID from the button
+const productObj = allData.find(p => p.product === productId); // Find the product object
+
+if (productObj) {
+// Populate properties if necessary
+if (!productObj.solution_key) productObj.solution_key = productObj.product || 'unknown';
+if (!productObj.pageNo) productObj.pageNo = '';
+if (!productObj.currency) productObj.currency = 'EGP';
+if (!productObj._discount_pct) productObj._discount_pct = productObj.discount || 0;
+if (!productObj.originalPrice) productObj.originalPrice = 0;
+if (!productObj.validUntil) productObj.validUntil = 'غير متاح';
+if (productObj.crop) {
+productObj.X = productObj.crop.x;
+productObj.Y = productObj.crop.y;
+productObj['العرض'] = productObj.crop.w;
+productObj['الارتفاع'] = productObj.crop.h;
+} else {
+productObj.X = 0; productObj.Y = 0;
+productObj['العرض'] = 0; productObj['الارتفاع'] = 0;
+}
+
+// Save product details to session storage
+sessionStorage.setItem('selectedProduct', JSON.stringify(productObj));
+window.open('product_details.html', '_blank');
+} else {
+alert("لم يتم العثور على بيانات المنتج."); // Show alert if product data is not found
+}
+});
+});
     }
 
     function getFlyerImageUrl(flyerId) { return null; }
 async function loadAndCropImage(item) {
     // Build the flyer image URL
-    let flyerId = item.pageNo?.match(/flyer_(\d+)/)?.[1] || item.solution_key;
-    let pageNumber = item.pageNo?.match(/page_(\d+)/)?.[1] || '';
-    if (!flyerId || !pageNumber) return null;
+
+let flyerId = item.solution_key || '';
+let pageNumber = item.pageNo?.match(/page_(\d+)/)?.[1] || item.pageNo?.replace(/[^0-9]/g, '') || '';
+
+if (!flyerId || !pageNumber) return null;
     
     const imageUrl = `https://www.mobappsbaker.com/catalogs/thwr/offers/${flyerId}/${pageNumber}.jpg`;
     
@@ -2227,11 +2415,23 @@ async function loadAndCropImage(item) {
             const cw = fr - fl;
             const ch = fb - ft;
             
-            canvas.width = cw;
-            canvas.height = ch;
-            
-            ctx.drawImage(img, fl, ft, cw, ch, 0, 0, cw, ch);
-            
+canvas.width = fr - fl;
+canvas.height = fb - ft;
+
+ctx.drawImage(
+    img,
+    fl,
+    ft,
+    fr - fl,
+    fb - ft,
+    0,
+    0,
+    canvas.width,
+    canvas.height
+);
+  const thumb = document.createElement('img');
+thumb.src = canvas.toDataURL('image/jpeg');
+  
             try {
                 const dataUrl = canvas.toDataURL('image/jpeg', 0.92);
                 croppedImageCache.set(cacheKey, dataUrl);
