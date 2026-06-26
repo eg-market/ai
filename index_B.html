@@ -628,7 +628,7 @@ border-radius: 4px; /* إضافة انحناء بسيط للحدود (اختيا
     const ITEMS_PER_PAGE = 20;
   
   let gridCurrentPage = 1;
-const GRID_ITEMS_PER_PAGE = 50;
+const GRID_ITEMS_PER_PAGE = 20;
 
   let initialLoadDone = false;   // لمنع مسح البارامترات عند التحميل الأول
   let urlProductsTerms = [];      // قائمة المنتجات من بارامتر products
@@ -1631,6 +1631,10 @@ function sortData(data, sortKey, isSearching = false) {
 
       function renderTable() {
         document.getElementById('products-grid').style.display = 'none';
+        
+        document.getElementById('pagination').style.display = 'flex';
+document.getElementById('grid-pagination').style.display = 'none';
+        
         const tableDiv = document.getElementById('data-table');
         tableDiv.style.display = 'block';
         const tbody = document.getElementById('table-body');
@@ -1884,6 +1888,9 @@ window.goGridPage = function(page){
         grid.style.display = 'grid';
         document.getElementById('data-table').style.display = 'none';
 
+          document.getElementById('grid-pagination').style.display = 'flex';
+document.getElementById('pagination').style.display = 'none';
+          
 const start = (gridCurrentPage - 1) * GRID_ITEMS_PER_PAGE;
 
 const pageData =
