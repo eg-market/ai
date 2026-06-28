@@ -37,7 +37,7 @@
     body {
       margin: 0;
       font-family: 'Cairo', sans-serif;
-      background: var(--light-bg);
+      background: #e8edf4;
       color: var(--text);
       -webkit-font-smoothing: antialiased;
       line-height: 1.6;
@@ -119,27 +119,7 @@
     .view-btn { padding:6px 12px; border:1px solid #e0e0e0; background:white; font-family:'Cairo',sans-serif; font-weight:600; font-size:0.85rem; cursor:pointer; border-radius:5px; display:flex; align-items:center; gap:4px; color:var(--primary-blue); }
 
     /* Products Grid */
-    .products-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(280px,1fr)); gap:24px; margin:25px 0; }
-    .product-card { background:white; border-radius:var(--border-radius); overflow:hidden; box-shadow:var(--card-shadow); transition:var(--transition); position:relative; }
-    .product-badge { position:absolute; top:15px; right:15px; background:var(--danger-red); color:white; padding:5px 12px; border-radius:20px; font-size:0.8rem; font-weight:700; z-index:2; }
-    .product-image { height:180px; background:linear-gradient(135deg,#f5f7fa 0%,#c3cfe2 100%); display:flex; align-items:center; justify-content:center; }
-    .product-image i { font-size:4rem; color:rgba(0,0,0,0.1); }
-    .product-info { padding:20px; }
-    .product-title { font-size:1.1rem; font-weight:700; margin:0 0 10px; color:#333; height:52px; overflow:hidden; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; }
-    .price-container { display:flex; align-items:center; justify-content:space-between; margin:15px 0; }
-    .current-price { font-size:1.5rem; font-weight:800; color:var(--primary-blue); }
-    .discount-badge { background:var(--danger-red); color:white; padding:5px 12px; border-radius:20px; font-size:0.9rem; font-weight:700; }
-    .product-meta { display:flex; justify-content:space-between; align-items:center; margin-top:15px; padding-top:15px; border-top:1px solid #eee; }
-    .countdown { background:rgba(255,107,0,0.1); color:var(--accent-orange); padding:5px 10px; border-radius:8px; font-size:0.85rem; font-weight:600; display:flex; align-items:center; gap:5px; }
-    .action-buttons { display:flex; gap:10px; margin-top:15px; }
-    .btn { padding:10px 15px; border-radius:8px; border:none; font-family:'Cairo',sans-serif; font-weight:600; cursor:pointer; transition:var(--transition); flex:1; display:flex; align-items:center; justify-content:center; gap:8px; color:white; }
-    .btn-secondary { background:#6c757d; color:white; }
-    .favorite-btn, .compare-btn, .share-btn { position:absolute; background:white; width:40px; height:40px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:1.2rem; color:#666; cursor:pointer; z-index:2; box-shadow:0 4px 12px rgba(0,0,0,0.1); }
-    .favorite-btn { top:15px; left:15px; }
-    .compare-btn { top:65px; left:15px; }
-    .share-btn { bottom:15px; left:15px; }
-    .favorite-btn.active { color:var(--danger-red); }
-    .compare-btn.active { color:var(--success-green); }
+    .products-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(220px,1fr)); gap:18px; margin:20px 0; }
 
     /* Controls - original two rows */
     .controls {
@@ -440,8 +420,167 @@ border-radius: 4px; /* إضافة انحناء بسيط للحدود (اختيا
     white-space: nowrap;
 }
 }
+     
       
-      
+      /* ===== إطار الشبكة (Grid) الجديد - فقط تحسين الشكل ===== */
+.products-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 20px;
+    margin: 25px 0;
+    padding: 0;
+    width: 100%;
+}
+
+/* ═══════════════ PRODUCT CARD ═══════════════ */
+.product-card {
+    background: #fff;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.15), 0 0 0 3px #0053a020;
+    border: 3px solid #00539F;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease;
+}
+.product-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 14px 36px rgba(0,83,159,0.25), 0 0 0 3px #00539F40;
+    border-color: #003f7a;
+}
+.product-image {
+    height: 185px;
+    background: #f4f7fc;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+    border-bottom: none;
+    flex-shrink: 0;
+}
+.product-image i { font-size:3rem; color:rgba(0,83,159,0.10); }
+.card-icon-bar {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 10px;
+    background: #f4f7fc;
+    border-top: 2px solid #00539F;
+    border-bottom: 1px solid #dde8f5;
+}
+.card-icon-bar .favorite-btn,
+.card-icon-bar .compare-btn {
+    position: static;
+    width: 30px;
+    height: 30px;
+    font-size: 0.8rem;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.10);
+}
+.product-info {
+    padding: 12px 14px 14px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+.product-title {
+    font-size: 0.97rem;
+    font-weight: 700;
+    margin: 0 0 4px;
+    color: #1a1a2e;
+    line-height: 1.4;
+    min-height: 44px;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+.product-title + div { font-size: 0.78rem; color: #868e96; margin-bottom: 6px; }
+.price-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin: 8px 0 4px;
+    flex-wrap: wrap;
+    gap: 4px;
+}
+.current-price { font-size: 1.45rem; font-weight: 800; color: #00539F; letter-spacing: -0.5px; }
+.discount-badge { background: #dc3545; color: #fff; padding: 3px 10px; border-radius: 20px; font-size: 0.8rem; font-weight: 700; }
+.product-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px solid #f0f2f5;
+    font-size: 0.80rem;
+    color: #6c757d;
+}
+.product-meta i { margin-left: 3px; color: #00539F; }
+.countdown { background: #fff3e0; color: #e65100; padding: 2px 8px; border-radius: 20px; font-size: 0.72rem; font-weight: 700; }
+.action-buttons { display: flex; gap: 8px; margin-top: 10px; }
+.action-buttons .btn {
+    flex: 1;
+    padding: 8px 0;
+    border-radius: 8px;
+    font-size: 0.80rem;
+    font-weight: 700;
+    border: none;
+    cursor: pointer;
+    transition: 0.18s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    font-family: 'Cairo', sans-serif;
+}
+.btn-primary  { background: #00539F; color: #fff; }
+.btn-primary:hover  { background: #003f7a; }
+.btn-secondary { background: #f1f3f5; color: #212529; }
+.btn-secondary:hover { background: #dee2e6; }
+.btn { color: white; }
+.favorite-btn, .compare-btn, .share-btn {
+    position: absolute;
+    background: rgba(255,255,255,0.92);
+    backdrop-filter: blur(3px);
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.85rem;
+    color: #6c757d;
+    cursor: pointer;
+    z-index: 3;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.10);
+    border: 1px solid rgba(255,255,255,0.6);
+    transition: 0.18s;
+}
+.favorite-btn { top: 10px; left: 10px; }
+.compare-btn  { top: 48px; left: 10px; }
+.favorite-btn:hover, .compare-btn:hover, .share-btn:hover { background: #fff; transform: scale(1.08); }
+.favorite-btn.active { color: #dc3545; background: #fff0f0; }
+.compare-btn.active  { color: #28a745; background: #f0fff4; }
+.product-badge {
+    background: linear-gradient(135deg, #ff4757, #c0392b);
+    color: #fff;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 0.72rem;
+    font-weight: 700;
+}
+@media (max-width: 600px) {
+    .products-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+    .product-image { height: 145px; }
+    .product-title { font-size: 0.85rem; min-height: 38px; }
+    .current-price { font-size: 1.15rem; }
+    .product-info  { padding: 9px 10px 11px; }
+    .action-buttons .btn { font-size: 0.72rem; padding: 7px 0; }
+    .favorite-btn, .compare-btn, .share-btn { width: 28px; height: 28px; font-size: 0.75rem; }
+    .compare-btn { top: 43px; }
+}
   </style>
   </head>
   <body>
@@ -517,8 +656,6 @@ border-radius: 4px; /* إضافة انحناء بسيط للحدود (اختيا
             جدول</button> </div>
       </div>
       <div class="products-grid" id="products-grid"></div>
-      
-      
       <div class="mobile-row row-1"> <input id="search-input" placeholder="ابحث عن منتج..."
 
           type="text">
@@ -587,18 +724,11 @@ border-radius: 4px; /* إضافة انحناء بسيط للحدود (اختيا
           <tbody id="table-body">
           </tbody>
         </table>
-    
-         <div class="pagination" id="pagination"></div>
-</div>
-
-<div class="products-grid" id="products-grid"></div>
-
-<div id="grid-pagination"></div>
-      
-        
-        
         <div class="pagination" id="pagination"></div>
       </div>
+      <div class="products-grid" id="products-grid"></div>
+      <div id="grid-pagination"></div>
+      <div class="pagination" id="pagination"></div>
     </div>
     <div class="comparison-panel" id="comparison-panel" style="display:none; position:fixed; bottom:0; left:0; right:0; background:white; box-shadow:0 -4px 20px rgba(0,0,0,0.15); padding:20px; border-top:3px solid var(--primary-blue); z-index:1001;">
       <div class="comparison-header" style="display:flex; justify-content:space-between; align-items:center;">
@@ -1931,33 +2061,46 @@ if (oldPager && gridPager) {
             const imagePlaceholder = `<div class="product-image" data-product-key="${item.uid}"  style="background:#f0f2f5;"><i class="fas fa-spinner fa-pulse"></i></div>`;
             return `
             <div class="product-card" data-product="${item.product}">
-                ${item._discount_pct > 50 ? '<div class="product-badge"><i class="fas fa-fire"></i> ساخن</div>' : ''}
-                <div class="favorite-btn ${isFav ? 'active' : ''}" data-id="${item.solution_key}"><i class="fas fa-heart"></i></div>
-                <div class="compare-btn ${inComp ? 'active' : ''}" data-id="${item.product}"><i class="fas fa-balance-scale"></i></div>
-                <div class="share-btn" data-product="${item.product}" data-price="${item.currentPrice}"><i class="fas fa-share-alt"></i></div>
+
                 ${imagePlaceholder}
+
+                <div class="card-icon-bar">
+                    <div class="favorite-btn ${isFav ? 'active' : ''}" data-id="${item.solution_key}" title="مفضلة"><i class="fas fa-heart"></i></div>
+                    <div class="compare-btn ${inComp ? 'active' : ''}" data-id="${item.product}" title="مقارنة"><i class="fas fa-balance-scale"></i></div>
+                    ${item._discount_pct > 50 ? '<span class="product-badge" style="position:static;box-shadow:none;margin:0 2px;"><i class="fas fa-fire"></i> ساخن</span>' : ''}
+                    <span style="margin-right:auto;font-size:0.72rem;color:#6c757d;">${item.supermarket}</span>
+                </div>
+
                 <div class="product-info">
                     <h3 class="product-title">${item.product}</h3>
-                    ${item.unit ? `<div><i class="fas fa-weight"></i> ${item.unit}</div>` : ''}
+                    ${item.unit ? '<div><i class="fas fa-ruler-horizontal" style="font-size:0.7rem"></i> ' + item.unit + '</div>' : ''}
+
                     <div class="price-container">
-                        <span class="current-price">${formatPrice(item.currentPrice)} ${item.currency}</span>
+                        <span class="current-price">${formatPrice(item.currentPrice)} <small style="font-size:0.65em;font-weight:500;color:#6c757d">${item.currency}</small></span>
                         ${item._discount_pct ? `<span class="discount-badge">-${item._discount_pct}%</span>` : ''}
                     </div>
+
                     <div class="product-meta">
-                        <span><i class="fas ${marketIcon}"></i> ${item.supermarket}</span>
-                        ${countdown}
+                        ${countdown ? countdown : '<span></span>'}
                     </div>
 
-<div class="action-buttons">
-<button class="btn btn-primary buy-now-btn" data-page="${item.pageNo}" data-solution="${item.solution_key}" data-crop="${item.crop ? JSON.stringify(item.crop).replace(/"/g, '&quot;') : ''}">
-<i class="fas fa-image"></i> صورة
-</button>
-<button class="btn btn-secondary view-details-btn" data-id="${item.product}">
-<i class="fas fa-info-circle"></i> تفاصيل
-</button>
-</div>
-      
-      </div>
+                    <div class="action-buttons">
+                        <button class="btn btn-primary buy-now-btn"
+                            data-page="${item.pageNo}"
+                            data-solution="${item.solution_key}"
+                            data-crop="${item.crop ? JSON.stringify(item.crop).replace(/"/g, '&quot;') : ''}">
+                            <i class="fas fa-image"></i> صورة
+                        </button>
+                        <button class="btn btn-secondary view-details-btn" data-id="${item.product}">
+                            <i class="fas fa-info-circle"></i> تفاصيل
+                        </button>
+                        <button class="btn btn-secondary share-btn-inline" style="flex:0 0 36px;padding:0;"
+                            data-product="${item.product}" data-price="${item.currentPrice}" title="مشاركة">
+                            <i class="fas fa-share-alt"></i>
+                        </button>
+                    </div>
+                </div>
+
             </div>`;
         }).join('');
         attachCardEvents();
@@ -2286,6 +2429,67 @@ function openWithOverlay(url, flyerFileName, pageNo, flyerIdFromAttr, cropData) 
         sessionStorage.setItem('offersPageState', JSON.stringify(state));
     }
   
+    function showImageLightbox(flyerId, pageNumber, productName) {
+        // Remove any existing lightbox
+        const existing = document.getElementById('img-lightbox');
+        if (existing) existing.remove();
+
+        const imageUrl = flyerId && pageNumber
+            ? `https://www.mobappsbaker.com/catalogs/thwr/offers/${flyerId}/${pageNumber}.jpg`
+            : null;
+
+        const overlay = document.createElement('div');
+        overlay.id = 'img-lightbox';
+        overlay.style.cssText = [
+            'position:fixed','top:0','left:0','width:100%','height:100%',
+            'background:rgba(0,0,0,0.92)','z-index:9999',
+            'display:flex','flex-direction:column',
+            'align-items:center','justify-content:center','gap:12px',
+            'cursor:zoom-out','padding:16px','box-sizing:border-box'
+        ].join(';');
+
+        // Close on backdrop click
+        overlay.addEventListener('click', () => overlay.remove());
+
+        // Header bar
+        const header = document.createElement('div');
+        header.style.cssText = 'color:#fff;font-family:Cairo,sans-serif;font-size:1rem;font-weight:700;max-width:90%;text-align:center;line-height:1.4;';
+        header.textContent = productName || '';
+        overlay.appendChild(header);
+
+        if (imageUrl) {
+            const img = document.createElement('img');
+            img.src = imageUrl;
+            img.alt = productName || 'صورة المنتج';
+            img.style.cssText = [
+                'max-width:95vw','max-height:80vh',
+                'object-fit:contain','border-radius:12px',
+                'box-shadow:0 8px 40px rgba(0,0,0,0.5)',
+                'display:block'
+            ].join(';');
+            img.addEventListener('click', e => e.stopPropagation());
+            overlay.appendChild(img);
+        } else {
+            const msg = document.createElement('div');
+            msg.style.cssText = 'color:#aaa;font-family:Cairo,sans-serif;font-size:1.1rem;';
+            msg.textContent = 'لا توجد صورة متاحة';
+            overlay.appendChild(msg);
+        }
+
+        // Close button
+        const closeBtn = document.createElement('button');
+        closeBtn.innerHTML = '<i class="fas fa-times"></i> إغلاق';
+        closeBtn.style.cssText = [
+            'background:#fff','color:#333','border:none','padding:8px 24px',
+            'border-radius:30px','font-family:Cairo,sans-serif','font-size:0.9rem',
+            'font-weight:700','cursor:pointer','margin-top:4px'
+        ].join(';');
+        closeBtn.addEventListener('click', e => { e.stopPropagation(); overlay.remove(); });
+        overlay.appendChild(closeBtn);
+
+        document.body.appendChild(overlay);
+    }
+
     function attachCardEvents() {
         document.querySelectorAll('.favorite-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
@@ -2318,7 +2522,20 @@ function openWithOverlay(url, flyerFileName, pageNo, flyerIdFromAttr, cropData) 
                 btn.classList.toggle('active');
             });
         });
-        document.querySelectorAll('.share-btn').forEach(btn => {
+        document.querySelectorAll('.buy-now-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const sol  = btn.dataset.solution || '';
+                const page = btn.dataset.page    || '';
+                const flyerId    = sol;
+                const pageNumber = page.match(/page_(\d+)/)?.[1] || page.replace(/[^0-9]/g, '') || '';
+                const card = btn.closest('.product-card');
+                const productName = card?.querySelector('.product-title')?.textContent || '';
+                showImageLightbox(flyerId, pageNumber, productName);
+            });
+        });
+
+        document.querySelectorAll('.share-btn-inline').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 e.stopPropagation();
                 let product = btn.dataset.product;
