@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>📷 قارئ الباركود الذكي — مجاني</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/quagga/0.12.1/quagga.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, sans-serif;
+            background: #0f0f1a;
+            color: #fff;
+            min-height: 100vh;
+            padding: 15px;
+        }
+        .container { max-width: 650px; margin: 0 auto; }
+        h1 { text-align: center; color: #00d4ff; margin-bottom: 5px; font-size: 22px; }
+        .subtitle { text-align: center; color: #888; margin-bottom: 15px; font-size: 13px; }
+        .badge {
+            display: inline-block;
+            background: #00ff88;
+            color: #0f0f1a;
+            padding: 3px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+        
+        /* كاميرا */
+        #camera-section {
+            background: #1a1a2e;
+            border-radius: 15px;
+            padding: 15px;
+            margin-bottom: 15px;
+            border: 1px solid #0f3460;
+        }
+        #camera-container {
+            width: 100%;
+            height: 250px;
+            background: #000;
+            border-radius: 10px;
+            overflow: hidden;
+            position: relative;
+            border: 2px solid #00d4ff;
+        }
+        #camera-container video, #camera-container canvas {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .scan-line {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 3px;
+            background: #00ff88;
+            box-shadow: 0 0 15px #00ff88;
+            animation: scan 2s linear infinite;
+            z-index: 10;
+        }
+        @keyframes scan {
+            0% { top: 0; opacity: 1; }
+            50% { top: 100%; opacity: 1; }
+            100% { top: 0; opacity: 1; }
+        }
+        .camera-placeholder {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            color: #555;
+            font-size: 48px;
+        }
+        
+        /* أزرار */
+        .btn-group { display: flex; gap: 10px; margin-top: 15px; }
+        button {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .btn-primary {
+            background: #00d4ff;
+            color: #0f0f1a;
+        }
+        .btn-primary:hover { background: #00a8cc; transform: scale(1.02); }
+        .btn-secondary {
+            background: #16213e;
+            color: #00d4ff;
+            border: 1px solid #00d4ff;
+        }
+        .btn-secondary:hover { background: #1a2a4a; }
+        .btn-stop {
+            background: #ff4444;
+            color: #fff;
+        }
+        .btn-stop:hover { background: #cc3333; }
+        
+        /* الإدخال اليدوي */
+        .manual-input {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        .manual-input input {
+            flex: 1;
+            padding: 12px;
+            border-radius: 10px;
+            border: 1px solid #0f3460;
+            background: #16213e;
+            color: #fff;
+            font-size: 16px;
+            text-align: center;
+        }
+        .manual-input input::placeholder { color: #666; }
+        
+        /* حالة */
+        .status {
+            text-align: center;
+            padding: 12px;
+            border-radius: 10px;
+            margin-top: 15px;
+            font-size: 14px;
+        }
+        .status.waiting { background: #1a1a2e; color: #888; border: 1px solid #333; }
+        .status.scanning { background: #0f3d0f; color: #00ff88; border: 1px solid #00ff88; }
+        .status.loading { background: #1a2a4a; color: #00d4ff; border: 1px solid #00d4ff; }
+        .status.success { background: #0f3d0f; color: #00ff88; border: 1px solid #00ff88; }
+        .status.error { background: #3d0f0f; color: #ff4444; border: 1px solid #ff4444; }
+        .status.info { background: #1a2a4a; color: #ffd700; border: 1px solid #ffd700; }
+        
+        /* بيانات المنتج */
+        #product-section {
+            background: #1a1a2e;
+            border-radius: 15px;
+            padding: 20px;
+            border: 1px solid #0f3460;
+            display: none;
+        }
+        #product-section.visible { display: block; animation: fadeIn 0.5s; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        #product-section h2 {
+            color: #00d4ff;
+            margin-bottom: 15px;
+            font-size: 18px;
+            text-align: center;
+        }
+        .product-image-container {
+            text-align: center;
+            margin-bottom: 15px;
+        }
+        .product-image {
+            max-width: 200px;
+            max-height: 200px;
+            object-fit: contain;
+            border-radius: 10px;
+            background: #0f0f1a;
+            padding: 10px;
+        }
+        .no-image {
+            width: 200px; height: 200px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: #0f0f1a;
+            border-radius: 10px;
+            color: #555;
+            font-size: 48px;
+        }
+        .data-grid {
+            display: grid;
+            gap: 8px;
+        }
+        .data-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            padding: 10px 12px;
+            background: #0f0f1a;
+            border-radius: 8px;
+            border-right: 3px solid #00d4ff;
+        }
+        .data-row .label {
+            color: #888;
+            font-size: 12px;
+            min-width: 100px;
+        }
+        .data-row .value {
+            color: #fff;
+            font-weight: bold;
+            font-size: 13px;
+            text-align: left;
+            flex: 1;
+            word-break: break-word;
+            margin-right: 10px;
+        }
+        .data-row .value.highlight {
+            color: #00ff88;
+            font-size: 15px;
+        }
+        .nutrition-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: bold;
+            margin-left: 5px;
+        }
+        .nutrition-a { background: #008000; color: #fff; }
+        .nutrition-b { background: #85bb2f; color: #fff; }
+        .nutrition-c { background: #fecb02; color: #000; }
+        .nutrition-d { background: #ee8100; color: #fff; }
+        .nutrition-e { background: #e63e11; color: #fff; }
+        
+        /* تذييل */
+        .footer {
+            text-align: center;
+            margin-top: 20px;
+            color: #555;
+            font-size: 11px;
+        }
+        .footer a { color: #00d4ff; text-decoration: none; }
+        
+        /* Spinner */
+        .spinner {
+            display: inline-block;
+            width: 16px; height: 16px;
+            border: 2px solid #00d4ff;
+            border-top-color: transparent;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin-left: 8px;
+            vertical-align: middle;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        
+        /* مصدر البيانات */
+        .source-tag {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 15px;
+            font-size: 11px;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+        .source-openfoodfacts { background: #ff6b00; color: #fff; }
+        .source-barcodefinder { background: #4a90d9; color: #fff; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📷 قارئ الباركود الذكي</h1>
+        <p class="subtitle">اقرأ أي باركود واحصل على بيانات المنتج كاملة</p>
+        <div style="text-align:center;">
+            <span class="badge">✅ مجاني 100% — لا يحتاج تسجيل</span>
+        </div>
+        
+        <!-- قسم الكاميرا -->
+        <div id="camera-section">
+            <div id="camera-container">
+                <div class="camera-placeholder">📷</div>
+            </div>
+            <div class="btn-group">
+                <button class="btn-primary" id="start-btn" onclick="startScanner()">▶️ تشغيل الكاميرا</button>
+                <button class="btn-stop" id="stop-btn" onclick="stopScanner()" style="display:none;">⏹️ إيقاف</button>
+            </div>
+            
+            <!-- إدخال يدوي -->
+            <div class="manual-input">
+                <input type="text" id="manual-barcode" placeholder="أو أدخل رقم الباركود يدوياً..." maxlength="14">
+                <button class="btn-secondary" onclick="lookupManual()">🔍 بحث</button>
+            </div>
+            
+            <div id="status" class="status waiting">⏳ اضغط "تشغيل الكاميرا" أو أدخل رقم الباركود يدوياً</div>
+        </div>
+        
+        <!-- بيانات المنتج -->
+        <div id="product-section">
+            <h2>📋 بيانات المنتج</h2>
+            <div class="product-image-container" id="image-container">
+                <div class="no-image">🖼️</div>
+            </div>
+            <div class="data-grid" id="product-data"></div>
+            <div style="text-align:center;">
+                <span class="source-tag" id="source-tag">المصدر: ---</span>
+            </div>
+        </div>
+        
+        <p class="footer">
+            البيانات من <a href="https://world.openfoodfacts.org" target="_blank">Open Food Facts</a> (مجاني) |
+            <a href="https://www.barcodefinder.info" target="_blank">BarcodeFinder</a> (احتياطي)
+        </p>
+    </div>
+
+    <script>
+        let isScanning = false;
+        let lastScannedCode = null;
+        let scanCooldown = false;
+
+        // ═══════════════════════════════════════════════════════
+        // تشغيل الكاميرا وقراءة الباركود
+        // ═══════════════════════════════════════════════════════
+        function startScanner() {
+            if (isScanning) return;
+            
+            const container = document.querySelector('#camera-container');
+            container.innerHTML = '<div class="scan-line"></div>';
+            
+            updateStatus('scanning', '⏳ جاري تشغيل الكاميرا...');
+            
+            Quagga.init({
+                inputStream: {
+                    name: "Live",
+                    type: "LiveStream",
+                    target: container,
+                    constraints: {
+                        facingMode: "environment",
+                        width: { ideal: 1280 },
+                        height: { ideal: 720 }
+                    }
+                },
+                decoder: {
+                    readers: [
+                        "code_128_reader",
+                        "ean_reader",
+                        "ean_8_reader",
+                        "code_39_reader",
+                        "upc_reader",
+                        "upc_e_reader",
+                        "codabar_reader"
+                    ],
+                    multiple: false
+                },
+                locate: true,
+                numOfWorkers: navigator.hardwareConcurrency || 4
+            }, function(err) {
+                if (err) {
+                    console.error(err);
+                    updateStatus('error', '❌ خطأ في الكاميرا: ' + err.message);
+                    return;
+                }
+                
+                Quagga.start();
+                isScanning = true;
+                document.getElementById('start-btn').style.display = 'none';
+                document.getElementById('stop-btn').style.display = 'block';
+                updateStatus('scanning', '✅ الكاميرا تعمل! وجه الباركود نحو الكاميرا');
+            });
+
+            Quagga.onDetected(function(result) {
+                if (scanCooldown) return;
+                
+                const code = result.codeResult.code;
+                
+                if (code === lastScannedCode) return;
+                lastScannedCode = code;
+                scanCooldown = true;
+                
+                if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
+                
+                updateStatus('loading', '📡 تم قراءة الباركود: ' + code + ' — جاري البحث...');
+                lookupProduct(code);
+                
+                setTimeout(() => { scanCooldown = false; }, 3000);
+            });
+        }
+
+        function stopScanner() {
+            if (!isScanning) return;
+            Quagga.stop();
+            isScanning = false;
+            lastScannedCode = null;
+            document.getElementById('start-btn').style.display = 'block';
+            document.getElementById('stop-btn').style.display = 'none';
+            document.querySelector('#camera-container').innerHTML = '<div class="camera-placeholder">📷</div>';
+            updateStatus('waiting', '⏳ تم إيقاف الكاميرا');
+        }
+
+        // ═══════════════════════════════════════════════════════
+        // البحث اليدوي
+        // ═══════════════════════════════════════════════════════
+        function lookupManual() {
+            const code = document.getElementById('manual-barcode').value.trim();
+            if (!code) {
+                updateStatus('error', '❌ الرجاء إدخال رقم الباركود');
+                return;
+            }
+            if (!/^\d{8,14}$/.test(code)) {
+                updateStatus('error', '❌ رقم الباركود يجب أن يكون 8-14 رقماً');
+                return;
+            }
+            updateStatus('loading', '🔍 جاري البحث عن: ' + code + '...');
+            lookupProduct(code);
+        }
+
+        // ═══════════════════════════════════════════════════════
+        // البحث عن المنتج — Open Food Facts أولاً ثم BarcodeFinder
+        // ═══════════════════════════════════════════════════════
+        async function lookupProduct(barcode) {
+            hideProductSection();
+            
+            // المحاولة الأولى: Open Food Facts (مجاني تماماً)
+            try {
+                const response = await fetch(`https://world.openfoodfacts.org/api/v2/product/${barcode}.json`);
+                const data = await response.json();
+                
+                if (data.status === 1 && data.product) {
+                    displayOpenFoodFactsData(data.product, barcode);
+                    updateStatus('success', '✅ تم العثور على بيانات المنتج!');
+                    return;
+                }
+            } catch (e) {
+                console.log('Open Food Facts failed, trying BarcodeFinder...');
+            }
+            
+            // المحاولة الثانية: BarcodeFinder
+            try {
+                const response = await fetch(`https://api.barcodespider.com/v1/lookup?token=free&upc=${barcode}`);
+                const data = await response.json();
+                
+                if (data.item_response && data.item_response.code === 200 && data.item_attributes) {
+                    displayBarcodeFinderData(data.item_attributes, barcode);
+                    updateStatus('success', '✅ تم العثور على بيانات المنتج!');
+                    return;
+                }
+            } catch (e) {
+                console.log('BarcodeFinder also failed');
+            }
+            
+            // المحاولة الثالثة: UPC Item DB (CORS proxy)
+            try {
+                const response = await fetch(`https://api.allorigins.win/raw?url=https://api.upcitemdb.com/prod/trial/lookup?upc=${barcode}`);
+                const data = await response.json();
+                
+                if (data.items && data.items.length > 0) {
+                    displayUPCItemDBData(data.items[0], barcode);
+                    updateStatus('success', '✅ تم العثور على بيانات المنتج!');
+                    return;
+                }
+            } catch (e) {
+                console.log('UPC Item DB failed');
+            }
+            
+            updateStatus('error', '❌ المنتج غير موجود في قواعد البيانات المجانية');
+        }
+
+        // ═══════════════════════════════════════════════════════
+        // عرض بيانات Open Food Facts
+        // ═══════════════════════════════════════════════════════
+        function displayOpenFoodFactsData(product, barcode) {
+            const section = document.getElementById('product-section');
+            const dataGrid = document.getElementById('product-data');
+            const imgContainer = document.getElementById('image-container');
+            const sourceTag = document.getElementById('source-tag');
+            
+            // صورة المنتج
+            const imageUrl = product.image_url || product.image_front_url || '';
+            if (imageUrl) {
+                imgContainer.innerHTML = `<img class="product-image" src="${imageUrl}" alt="صورة المنتج" onerror="this.style.display='none'; this.parentElement.innerHTML='<div class=\\'no-image\\'>🖼️</div>';">`;
+            } else {
+                imgContainer.innerHTML = '<div class="no-image">🖼️</div>';
+            }
+            
+            // Nutri-Score
+            let nutriScoreHtml = '';
+            if (product.nutrition_grades) {
+                const grade = product.nutrition_grades.toUpperCase();
+                nutriScoreHtml = `<span class="nutrition-badge nutrition-${grade.toLowerCase()}">Nutri-Score: ${grade}</span>`;
+            }
+            
+            // Nova Group
+            let novaHtml = '';
+            if (product.nova_group) {
+                novaHtml = `<span class="nutrition-badge" style="background:#666;color:#fff;">NOVA: ${product.nova_group}</span>`;
+            }
+            
+            // Eco-Score
+            let ecoHtml = '';
+            if (product.ecoscore_grade) {
+                const eco = product.ecoscore_grade.toUpperCase();
+                ecoHtml = `<span class="nutrition-badge nutrition-${eco.toLowerCase()}">Eco-Score: ${eco}</span>`;
+            }
+            
+            const fields = [
+                { label: 'رقم الباركود', value: barcode, highlight: true },
+                { label: 'اسم المنتج', value: product.product_name || 'غير متوفر' },
+                { label: 'العلامة التجارية', value: product.brands || 'غير متوفر' },
+                { label: 'التصنيف', value: (product.categories || '').split(',').pop()?.trim() || 'غير متوفر' },
+                { label: 'الكمية', value: product.quantity || 'غير متوفر' },
+                { label: 'بلد التصنيع', value: (product.countries_tags || []).map(c => c.replace('en:', '')).join(', ') || 'غير متوفر' },
+                { label: 'المكونات', value: product.ingredients_text || 'غير متوفر' },
+                { label: 'السعرات الحرارية', value: product.nutriments?.['energy-kcal_100g'] ? product.nutriments['energy-kcal_100g'] + ' kcal/100g' : 'غير متوفر' },
+                { label: 'التقييمات', value: `${nutriScoreHtml} ${novaHtml} ${ecoHtml}` || 'غير متوفر' }
+            ];
+            
+            dataGrid.innerHTML = fields.map(field => `
+                <div class="data-row">
+                    <span class="label">${field.label}</span>
+                    <span class="value ${field.highlight ? 'highlight' : ''}">${field.value}</span>
+                </div>
+            `).join('');
+            
+            sourceTag.className = 'source-tag source-openfoodfacts';
+            sourceTag.textContent = '🍊 Open Food Facts (مجاني)';
+            
+            section.classList.add('visible');
+            section.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // ═══════════════════════════════════════════════════════
+        // عرض بيانات BarcodeFinder
+        // ═══════════════════════════════════════════════════════
+        function displayBarcodeFinderData(item, barcode) {
+            const section = document.getElementById('product-section');
+            const dataGrid = document.getElementById('product-data');
+            const imgContainer = document.getElementById('image-container');
+            const sourceTag = document.getElementById('source-tag');
+            
+            const imageUrl = item.image || '';
+            if (imageUrl) {
+                imgContainer.innerHTML = `<img class="product-image" src="${imageUrl}" alt="صورة المنتج" onerror="this.style.display='none'; this.parentElement.innerHTML='<div class=\\'no-image\\'>🖼️</div>';">`;
+            } else {
+                imgContainer.innerHTML = '<div class="no-image">🖼️</div>';
+            }
+            
+            const fields = [
+                { label: 'رقم الباركود', value: barcode, highlight: true },
+                { label: 'اسم المنتج', value: item.title || 'غير متوفر' },
+                { label: 'العلامة التجارية', value: item.brand || 'غير متوفر' },
+                { label: 'الوصف', value: item.description || 'غير متوفر' },
+                { label: 'التصنيف', value: item.category || 'غير متوفر' },
+                { label: 'الشركة المصنعة', value: item.manufacturer || 'غير متوفر' },
+                { label: 'البلد', value: item.country || 'غير متوفر' }
+            ];
+            
+            dataGrid.innerHTML = fields.map(field => `
+                <div class="data-row">
+                    <span class="label">${field.label}</span>
+                    <span class="value ${field.highlight ? 'highlight' : ''}">${field.value}</span>
+                </div>
+            `).join('');
+            
+            sourceTag.className = 'source-tag source-barcodefinder';
+            sourceTag.textContent = '🔍 BarcodeFinder';
+            
+            section.classList.add('visible');
+            section.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // ═══════════════════════════════════════════════════════
+        // عرض بيانات UPC Item DB
+        // ═══════════════════════════════════════════════════════
+        function displayUPCItemDBData(item, barcode) {
+            const section = document.getElementById('product-section');
+            const dataGrid = document.getElementById('product-data');
+            const imgContainer = document.getElementById('image-container');
+            const sourceTag = document.getElementById('source-tag');
+            
+            const imageUrl = item.images?.[0] || '';
+            if (imageUrl) {
+                imgContainer.innerHTML = `<img class="product-image" src="${imageUrl}" alt="صورة المنتج" onerror="this.style.display='none'; this.parentElement.innerHTML='<div class=\\'no-image\\'>🖼️</div>';">`;
+            } else {
+                imgContainer.innerHTML = '<div class="no-image">🖼️</div>';
+            }
+            
+            const fields = [
+                { label: 'رقم الباركود', value: barcode, highlight: true },
+                { label: 'اسم المنتج', value: item.title || 'غير متوفر' },
+                { label: 'العلامة التجارية', value: item.brand || 'غير متوفر' },
+                { label: 'الوصف', value: item.description || 'غير متوفر' },
+                { label: 'اللون', value: item.color || 'غير متوفر' },
+                { label: 'الحجم', value: item.size || 'غير متوفر' },
+                { label: 'الوزن', value: item.weight || 'غير متوفر' }
+            ];
+            
+            dataGrid.innerHTML = fields.map(field => `
+                <div class="data-row">
+                    <span class="label">${field.label}</span>
+                    <span class="value ${field.highlight ? 'highlight' : ''}">${field.value}</span>
+                </div>
+            `).join('');
+            
+            sourceTag.className = 'source-tag source-barcodefinder';
+            sourceTag.textContent = '📦 UPC Item DB';
+            
+            section.classList.add('visible');
+            section.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function hideProductSection() {
+            document.getElementById('product-section').classList.remove('visible');
+        }
+
+        function updateStatus(type, message) {
+            const status = document.getElementById('status');
+            status.className = 'status ' + type;
+            status.innerHTML = type === 'loading' ? message + '<span class="spinner"></span>' : message;
+        }
+
+        // إدخال يدوي بالضغط على Enter
+        document.getElementById('manual-barcode').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') lookupManual();
+        });
+    </script>
+</body>
+</html>
