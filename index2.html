@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width,initial-scale=1">
+
+<title>Barcode Scanner</title>
+
+<link rel="stylesheet" href="style.css">
+
+<script src="https://unpkg.com/html5-qrcode"></script>
+
+<script src="https://unpkg.com/@zxing/library@latest"></script>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>Barcode Scanner</h1>
+
+<div class="buttons">
+
+<button id="startCamera">
+📷 Scan From Camera
+</button>
+
+<button id="stopCamera">
+Stop Camera
+</button>
+
+<label class="upload">
+
+🖼 Scan Image
+
+<input
+type="file"
+id="imageFile"
+accept="image/*">
+
+</label>
+
+</div>
+
+<div id="reader"></div>
+
+<div id="status"></div>
+
+<hr>
+
+<div id="product"></div>
+
+</div>
+
+<script src="app.js"></script>
+
+</body>
+
+</html>
