@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>📷 قارئ الباركود الذكي — Pro v4</title>
+    <title>📷 قارئ الباركود الذكي — v5 Pro</title>
     <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -12,144 +12,124 @@
             background: #0a0a1a;
             color: #fff;
             min-height: 100vh;
-            padding: 12px;
+            padding: 10px;
             -webkit-tap-highlight-color: transparent;
         }
-        .container { max-width: 700px; margin: 0 auto; }
-        h1 { text-align: center; color: #00d4ff; margin-bottom: 4px; font-size: 22px; }
-        .subtitle { text-align: center; color: #888; margin-bottom: 8px; font-size: 12px; }
-        .badge-group { text-align: center; margin-bottom: 12px; }
+        .container { max-width: 680px; margin: 0 auto; }
+        h1 { text-align: center; color: #00d4ff; margin-bottom: 3px; font-size: 20px; }
+        .subtitle { text-align: center; color: #888; margin-bottom: 8px; font-size: 11px; }
+        .badge-group { text-align: center; margin-bottom: 10px; }
         .badge {
             display: inline-block;
-            padding: 3px 10px;
+            padding: 3px 8px;
             border-radius: 20px;
-            font-size: 11px;
+            font-size: 10px;
             font-weight: bold;
             margin: 2px;
         }
         .badge.green { background: #00ff88; color: #0a0a1a; }
         .badge.blue { background: #00d4ff; color: #0a0a1a; }
-        .badge.purple { background: #9b59b6; color: #fff; }
+        .badge.orange { background: #ff9800; color: #000; }
         
-        /* منطقة الكاميرا — حجم أكبر */
+        /* كاميرا */
         #camera-section {
             background: #12122a;
-            border-radius: 16px;
+            border-radius: 14px;
             padding: 12px;
             margin-bottom: 12px;
             border: 1px solid #1a1a4a;
         }
-        
-        /* html5-qrcode يضع الفيديو هنا */
         #reader {
             width: 100%;
-            border-radius: 12px;
+            border-radius: 10px;
             overflow: hidden;
             border: 2px solid #00d4ff;
         }
-        
-        /* تخصيص واجهة html5-qrcode */
         #reader video {
             width: 100% !important;
             height: auto !important;
-            max-height: 450px !important;
+            max-height: 400px !important;
             object-fit: cover !important;
         }
-        #reader__dashboard_section_csr span {
-            color: #00d4ff !important;
-        }
-        #reader__dashboard_section_swaplink {
-            color: #00ff88 !important;
-            font-weight: bold !important;
-        }
-        #reader__scan_region {
-            background: rgba(0, 212, 255, 0.05) !important;
-        }
-        #reader__scan_region img {
-            filter: brightness(0) saturate(100%) invert(77%) sepia(52%) saturate(538%) hue-rotate(105deg) brightness(103%) contrast(101%) !important;
-        }
         
-        /* أزرار التحكم */
+        /* أزرار */
         .controls {
             display: flex;
-            gap: 8px;
-            margin-top: 12px;
+            gap: 6px;
+            margin-top: 10px;
             flex-wrap: wrap;
         }
         .controls button {
             flex: 1;
-            min-width: 100px;
-            padding: 12px 8px;
+            min-width: 90px;
+            padding: 12px 6px;
             border: none;
-            border-radius: 10px;
-            font-size: 14px;
+            border-radius: 8px;
+            font-size: 13px;
             font-weight: bold;
             cursor: pointer;
             transition: 0.2s;
         }
-        .btn-start {
-            background: #00d4ff;
-            color: #0a0a1a;
-        }
+        .btn-start { background: #00d4ff; color: #0a0a1a; }
         .btn-start:hover { background: #00a8cc; }
-        .btn-stop {
-            background: #ff4444;
-            color: #fff;
-        }
+        .btn-stop { background: #ff4444; color: #fff; }
         .btn-stop:hover { background: #cc3333; }
-        .btn-torch {
-            background: #ffd700;
-            color: #0a0a1a;
-        }
-        .btn-torch:hover { background: #e6c200; }
-        .btn-torch.off {
-            background: #444;
-            color: #888;
-        }
-        .btn-file {
-            background: #9b59b6;
-            color: #fff;
-        }
-        .btn-file:hover { background: #8e44ad; }
+        .btn-torch { background: #ffd700; color: #0a0a1a; }
+        .btn-torch.off { background: #444; color: #888; }
+        .btn-file { background: #9b59b6; color: #fff; }
         
-        /* الإدخال اليدوي */
-        .manual-input {
-            display: flex;
+        /* إعدادات الكاميرا */
+        .camera-settings {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
             gap: 8px;
-            margin-top: 12px;
+            margin-top: 10px;
         }
-        .manual-input input {
-            flex: 1;
-            padding: 14px;
-            border-radius: 10px;
+        .camera-settings select, .camera-settings input {
+            padding: 10px;
+            border-radius: 8px;
             border: 1px solid #1a1a4a;
             background: #0a0a1a;
             color: #fff;
-            font-size: 16px;
+            font-size: 12px;
+        }
+        
+        /* إدخال يدوي */
+        .manual-input {
+            display: flex;
+            gap: 6px;
+            margin-top: 10px;
+        }
+        .manual-input input {
+            flex: 1;
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid #1a1a4a;
+            background: #0a0a1a;
+            color: #fff;
+            font-size: 15px;
             text-align: center;
         }
-        .manual-input input::placeholder { color: #555; }
         .manual-input button {
-            padding: 14px 20px;
+            padding: 12px 16px;
             border: none;
-            border-radius: 10px;
+            border-radius: 8px;
             background: #1a1a4a;
             color: #00d4ff;
             border: 1px solid #00d4ff;
-            font-size: 14px;
+            font-size: 13px;
             font-weight: bold;
             cursor: pointer;
         }
-        .manual-input button:hover { background: #252560; }
         
         /* حالة */
         .status {
             text-align: center;
-            padding: 12px;
-            border-radius: 10px;
-            margin-top: 12px;
-            font-size: 13px;
-            line-height: 1.6;
+            padding: 10px;
+            border-radius: 8px;
+            margin-top: 10px;
+            font-size: 12px;
+            line-height: 1.5;
             white-space: pre-line;
         }
         .status.waiting { background: #12122a; color: #888; border: 1px solid #1a1a4a; }
@@ -162,253 +142,109 @@
         /* بيانات المنتج */
         #product-section {
             background: #12122a;
-            border-radius: 16px;
-            padding: 18px;
+            border-radius: 14px;
+            padding: 16px;
             border: 1px solid #1a1a4a;
             display: none;
         }
         #product-section.visible { display: block; animation: fadeIn 0.5s; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         
-        #product-section h2 {
-            color: #00d4ff;
-            margin-bottom: 12px;
-            font-size: 18px;
-            text-align: center;
-        }
-        .product-image-container {
-            text-align: center;
-            margin-bottom: 12px;
-        }
-        .product-image {
-            max-width: 180px;
-            max-height: 180px;
-            object-fit: contain;
-            border-radius: 10px;
-            background: #0a0a1a;
-            padding: 8px;
-        }
-        .no-image {
-            width: 180px; height: 180px;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            background: #0a0a1a;
-            border-radius: 10px;
-            color: #444;
-            font-size: 48px;
-        }
-        .data-grid {
-            display: grid;
-            gap: 6px;
-        }
-        .data-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            padding: 10px 12px;
-            background: #0a0a1a;
-            border-radius: 8px;
-            border-right: 3px solid #00d4ff;
-        }
-        .data-row .label {
-            color: #888;
-            font-size: 12px;
-            min-width: 100px;
-        }
-        .data-row .value {
-            color: #fff;
-            font-weight: bold;
-            font-size: 13px;
-            text-align: left;
-            flex: 1;
-            word-break: break-word;
-            margin-right: 8px;
-        }
-        .data-row .value.highlight {
-            color: #00ff88;
-            font-size: 15px;
-        }
-        .nutrition-badge {
-            display: inline-block;
-            padding: 2px 8px;
-            border-radius: 4px;
-            font-size: 11px;
-            font-weight: bold;
-            margin-left: 3px;
-        }
-        .nutrition-a { background: #008000; color: #fff; }
-        .nutrition-b { background: #85bb2f; color: #fff; }
-        .nutrition-c { background: #fecb02; color: #000; }
-        .nutrition-d { background: #ee8100; color: #fff; }
+        #product-section h2 { color: #00d4ff; margin-bottom: 12px; font-size: 16px; text-align: center; }
+        .product-image-container { text-align: center; margin-bottom: 12px; }
+        .product-image { max-width: 160px; max-height: 160px; object-fit: contain; border-radius: 8px; background: #0a0a1a; padding: 6px; }
+        .no-image { width: 160px; height: 160px; display: inline-flex; align-items: center; justify-content: center; background: #0a0a1a; border-radius: 8px; color: #444; font-size: 40px; }
+        .data-grid { display: grid; gap: 5px; }
+        .data-row { display: flex; justify-content: space-between; align-items: flex-start; padding: 8px 10px; background: #0a0a1a; border-radius: 6px; border-right: 3px solid #00d4ff; }
+        .data-row .label { color: #888; font-size: 11px; min-width: 90px; }
+        .data-row .value { color: #fff; font-weight: bold; font-size: 12px; text-align: left; flex: 1; word-break: break-word; margin-right: 6px; }
+        .data-row .value.highlight { color: #00ff88; font-size: 14px; }
+        .nutrition-badge { display: inline-block; padding: 2px 6px; border-radius: 3px; font-size: 10px; font-weight: bold; margin-left: 3px; }
+        .nutrition-a { background: #008000; color: #fff; } .nutrition-b { background: #85bb2f; color: #fff; }
+        .nutrition-c { background: #fecb02; color: #000; } .nutrition-d { background: #ee8100; color: #fff; }
         .nutrition-e { background: #e63e11; color: #fff; }
         
-        /* مصدر البيانات */
-        .source-tag {
-            display: inline-block;
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 11px;
-            font-weight: bold;
-            margin-top: 10px;
-        }
+        .source-tag { display: inline-block; padding: 3px 10px; border-radius: 15px; font-size: 10px; font-weight: bold; margin-top: 8px; }
         .source-off { background: #ff6b00; color: #fff; }
         .source-obf { background: #ff69b4; color: #fff; }
         .source-upc { background: #4a90d9; color: #fff; }
         .source-brocade { background: #9b59b6; color: #fff; }
         .source-barcodespider { background: #2ecc71; color: #fff; }
         
-        /* مصادر */
-        .sources-list {
-            background: #12122a;
-            border-radius: 12px;
-            padding: 12px;
-            margin-bottom: 12px;
-            border: 1px solid #1a1a4a;
-        }
-        .sources-list h3 {
-            color: #00d4ff;
-            font-size: 13px;
-            margin-bottom: 10px;
-            text-align: center;
-        }
-        .source-item {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            padding: 6px 0;
-            font-size: 12px;
-            border-bottom: 1px solid #1a1a4a;
-        }
+        .sources-list { background: #12122a; border-radius: 10px; padding: 10px; margin-bottom: 10px; border: 1px solid #1a1a4a; }
+        .sources-list h3 { color: #00d4ff; font-size: 12px; margin-bottom: 8px; text-align: center; }
+        .source-item { display: flex; align-items: center; gap: 6px; padding: 5px 0; font-size: 11px; border-bottom: 1px solid #1a1a4a; }
         .source-item:last-child { border-bottom: none; }
-        .source-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+        .source-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
         .source-name { flex: 1; color: #bbb; }
-        .source-status { color: #00ff88; font-size: 11px; flex-shrink: 0; }
+        .source-status { color: #00ff88; font-size: 10px; flex-shrink: 0; }
         
-        /* تذييل */
-        .footer {
-            text-align: center;
-            margin-top: 15px;
-            color: #555;
-            font-size: 11px;
-            line-height: 1.8;
-        }
+        .footer { text-align: center; margin-top: 12px; color: #555; font-size: 10px; line-height: 1.6; }
         .footer a { color: #00d4ff; text-decoration: none; }
         
-        /* Spinner */
-        .spinner {
-            display: inline-block;
-            width: 16px; height: 16px;
-            border: 2px solid #00d4ff;
-            border-top-color: transparent;
-            border-radius: 50%;
-            animation: spin 0.8s linear infinite;
-            margin-left: 6px;
-            vertical-align: middle;
-        }
+        .spinner { display: inline-block; width: 14px; height: 14px; border: 2px solid #00d4ff; border-top-color: transparent; border-radius: 50%; animation: spin 0.8s linear infinite; margin-left: 5px; vertical-align: middle; }
         @keyframes spin { to { transform: rotate(360deg); } }
         
-        /* نصائح */
-        .tips {
-            background: #1a1a4a;
-            border-radius: 8px;
-            padding: 10px 12px;
-            margin-top: 10px;
-            font-size: 12px;
-            color: #888;
-        }
+        .tips { background: #1a1a4a; border-radius: 6px; padding: 8px 10px; margin-top: 8px; font-size: 11px; color: #888; }
         .tips strong { color: #ffd700; }
         
-        /* تحذير */
-        .warning-box {
-            background: #3d3000;
-            border: 1px solid #ffcc00;
-            border-radius: 10px;
-            padding: 10px;
-            margin-bottom: 12px;
-            font-size: 12px;
-            color: #ffcc00;
-            display: none;
-        }
+        .warning-box { background: #3d3000; border: 1px solid #ffcc00; border-radius: 8px; padding: 8px; margin-bottom: 10px; font-size: 11px; color: #ffcc00; display: none; }
         .warning-box.visible { display: block; }
         
-        /* ملف */
-        .file-section {
-            margin-top: 10px;
-            text-align: center;
-        }
+        .file-section { margin-top: 8px; text-align: center; }
         .file-section input { display: none; }
-        .file-label {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            padding: 10px 18px;
-            background: #1a1a4a;
-            color: #9b59b6;
-            border: 1px dashed #9b59b6;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 13px;
-            transition: 0.3s;
-        }
-        .file-label:hover {
-            background: #252560;
-            border-style: solid;
-        }
+        .file-label { display: inline-flex; align-items: center; gap: 5px; padding: 8px 14px; background: #1a1a4a; color: #9b59b6; border: 1px dashed #9b59b6; border-radius: 6px; cursor: pointer; font-size: 12px; }
+        
+        /* شريط التقدم */
+        .progress-bar { width: 100%; height: 3px; background: #1a1a4a; border-radius: 2px; margin-top: 8px; overflow: hidden; display: none; }
+        .progress-bar.active { display: block; }
+        .progress-fill { height: 100%; background: #00d4ff; width: 0%; animation: progress 2s ease-in-out infinite; border-radius: 2px; }
+        @keyframes progress { 0% { width: 0%; margin-left: 0%; } 50% { width: 50%; margin-left: 25%; } 100% { width: 0%; margin-left: 100%; } }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>📷 قارئ الباركود الذكي</h1>
-        <p class="subtitle">html5-qrcode Pro + 5 مصادر مجانية + فلاش + زوم</p>
+        <p class="subtitle">v5 Pro — تركيز تلقائي + فلاش + ROI</p>
         <div class="badge-group">
             <span class="badge green">✅ مجاني</span>
             <span class="badge blue">🔦 فلاش</span>
-            <span class="badge purple">🔍 زوم</span>
+            <span class="badge orange">🎯 ROI</span>
         </div>
         
-        <!-- تحذير -->
         <div class="warning-box" id="warning-box">
-            ⚠️ <strong>تنبيه:</strong> الكاميرا تحتاج HTTPS أو localhost.<br>
-            للتشغيل المحلي استخدم VS Code Live Server أو اكتب: <code>npx serve</code>
+            ⚠️ الكاميرا تحتاج HTTPS أو localhost.<br>
+            استخدم VS Code Live Server أو: <code>npx serve</code>
         </div>
         
-        <!-- قائمة المصادر -->
         <div class="sources-list">
-            <h3>🔌 مصادر البحث (يبحث تلقائياً)</h3>
-            <div class="source-item">
-                <div class="source-dot" style="background:#ff6b00;"></div>
-                <span class="source-name">🍊 Open Food Facts</span>
-                <span class="source-status">3M+ أغذية</span>
-            </div>
-            <div class="source-item">
-                <div class="source-dot" style="background:#ff69b4;"></div>
-                <span class="source-name">💄 Open Beauty Facts</span>
-                <span class="source-status">مستحضرات</span>
-            </div>
-            <div class="source-item">
-                <div class="source-dot" style="background:#4a90d9;"></div>
-                <span class="source-name">📦 UPCitemdb</span>
-                <span class="source-status">100/يوم</span>
-            </div>
-            <div class="source-item">
-                <div class="source-dot" style="background:#9b59b6;"></div>
-                <span class="source-name">🌐 Brocade.io</span>
-                <span class="source-status">GTIN</span>
-            </div>
-            <div class="source-item">
-                <div class="source-dot" style="background:#2ecc71;"></div>
-                <span class="source-name">🕷️ BarcodeSpider</span>
-                <span class="source-status">احتياطي</span>
-            </div>
+            <h3>🔌 مصادر البحث</h3>
+            <div class="source-item"><div class="source-dot" style="background:#ff6b00;"></div><span class="source-name">🍊 Open Food Facts</span><span class="source-status">3M+</span></div>
+            <div class="source-item"><div class="source-dot" style="background:#ff69b4;"></div><span class="source-name">💄 Open Beauty Facts</span><span class="source-status">مستحضرات</span></div>
+            <div class="source-item"><div class="source-dot" style="background:#4a90d9;"></div><span class="source-name">📦 UPCitemdb</span><span class="source-status">100/يوم</span></div>
+            <div class="source-item"><div class="source-dot" style="background:#9b59b6;"></div><span class="source-name">🌐 Brocade.io</span><span class="source-status">GTIN</span></div>
+            <div class="source-item"><div class="source-dot" style="background:#2ecc71;"></div><span class="source-name">🕷️ BarcodeSpider</span><span class="source-status">احتياطي</span></div>
         </div>
         
-        <!-- قسم الكاميرا -->
         <div id="camera-section">
             <div id="reader"></div>
+            <div class="progress-bar" id="progress-bar"><div class="progress-fill"></div></div>
+            
+            <div class="camera-settings">
+                <select id="resolution-select">
+                    <option value="hd">🎯 دقة عالية (1280x720)</option>
+                    <option value="sd" selected>⚡ دقة قياسية (640x480) — أسرع</option>
+                    <option value="full">🔥 دقة كاملة (1920x1080)</option>
+                </select>
+                <select id="fps-select">
+                    <option value="10">🐢 10 إطار/ثانية</option>
+                    <option value="15" selected>⚡ 15 إطار/ثانية</option>
+                    <option value="30">🔥 30 إطار/ثانية</option>
+                </select>
+            </div>
             
             <div class="controls">
-                <button class="btn-start" id="start-btn" onclick="startScanner()">▶️ تشغيل الكاميرا</button>
+                <button class="btn-start" id="start-btn" onclick="startScanner()">▶️ تشغيل</button>
                 <button class="btn-stop" id="stop-btn" onclick="stopScanner()" style="display:none;">⏹️ إيقاف</button>
                 <button class="btn-torch off" id="torch-btn" onclick="toggleTorch()" style="display:none;">🔦 فلاش</button>
                 <button class="btn-file" onclick="document.getElementById('file-input').click()">📁 صورة</button>
@@ -417,33 +253,26 @@
             <input type="file" id="file-input" accept="image/*" onchange="handleFileSelect(event)">
             
             <div class="manual-input">
-                <input type="text" id="manual-barcode" placeholder="أو أدخل رقم الباركود يدوياً..." maxlength="14">
+                <input type="text" id="manual-barcode" placeholder="أدخل رقم الباركود يدوياً..." maxlength="14">
                 <button onclick="lookupManual()">🔍 بحث</button>
             </div>
             
             <div class="tips">
-                <strong>💡 نصائح للقراءة السريعة:</strong><br>
+                <strong>💡 نصائح مهمة:</strong><br>
+                • اختر <strong>"دقة قياسية"</strong> إذا كانت الكاميرا بطيئة<br>
+                • ابعد الباركود <strong>15-20 سم</strong> عن الكاميرا<br>
                 • اضغط <strong>🔦 فلاش</strong> إذا كانت الإضاءة ضعيفة<br>
-                • ضع الباركود في <strong>وسط الشاشة</strong><br>
-                • لا تحرك الجهاز بسرعة — دعه يستقر<br>
-                • للصعبة: استخدم <strong>رفع صورة</strong> أو <strong>اليدوي</strong>
+                • لا تحرك الجهاز — دعه يستقر ثوانٍ
             </div>
             
-            <div id="status" class="status waiting">
-                ⏳ اضغط "تشغيل الكاميرا" أو اختر صورة أو أدخل الرقم يدوياً
-            </div>
+            <div id="status" class="status waiting">⏳ اضغط "تشغيل" للبدء</div>
         </div>
         
-        <!-- بيانات المنتج -->
         <div id="product-section">
             <h2>📋 بيانات المنتج</h2>
-            <div class="product-image-container" id="image-container">
-                <div class="no-image">🖼️</div>
-            </div>
+            <div class="product-image-container" id="image-container"><div class="no-image">🖼️</div></div>
             <div class="data-grid" id="product-data"></div>
-            <div style="text-align:center;">
-                <span class="source-tag" id="source-tag">المصدر: ---</span>
-            </div>
+            <div style="text-align:center;"><span class="source-tag" id="source-tag">المصدر: ---</span></div>
         </div>
         
         <p class="footer">
@@ -456,20 +285,34 @@
     </div>
 
     <script>
-        // ═══════════════════════════════════════════════════════════════
-        // المتغيرات
-        // ═══════════════════════════════════════════════════════════════
         let html5QrCode = null;
         let isScanning = false;
         let torchOn = false;
-        let currentCameraId = null;
         let scanCooldown = false;
         let lastCode = null;
+        let currentTrack = null;
         
         const CORS_PROXY = 'https://api.allorigins.win/raw?url=';
         
         // ═══════════════════════════════════════════════════════════════
-        // بدء الماسح — html5-qrcode مع إعدادات محسّنة
+        // الحصول على إعدادات الكاميرا من القوائم
+        // ═══════════════════════════════════════════════════════════════
+        function getResolutionConfig() {
+            const res = document.getElementById('resolution-select').value;
+            switch(res) {
+                case 'sd': return { width: 640, height: 480 };
+                case 'hd': return { width: 1280, height: 720 };
+                case 'full': return { width: 1920, height: 1080 };
+                default: return { width: 640, height: 480 };
+            }
+        }
+        
+        function getFpsConfig() {
+            return parseInt(document.getElementById('fps-select').value) || 15;
+        }
+        
+        // ═══════════════════════════════════════════════════════════════
+        // بدء الماسح — مع تطبيق التركيز AFTER بدء الكاميرا
         // ═══════════════════════════════════════════════════════════════
         async function startScanner() {
             if (isScanning) return;
@@ -478,77 +321,112 @@
                 document.getElementById('warning-box').classList.add('visible');
             }
             
-            updateStatus('scanning', '⏳ جاري تشغيل الكاميرا...\nجاري اختيار أفضل إعدادات...');
+            updateStatus('scanning', '⏳ جاري تشغيل الكاميرا...\nجاري تطبيق أفضل إعدادات...');
+            document.getElementById('progress-bar').classList.add('active');
             
             try {
+                const res = getResolutionConfig();
+                const fps = getFpsConfig();
+                
                 html5QrCode = new Html5Qrcode("reader");
                 
-                // الحصول على الكاميرات
-                const devices = await Html5Qrcode.getCameras();
+                const devices = await Html5QrCode.getCameras();
                 if (!devices || devices.length === 0) {
                     throw new Error('لم يتم العثور على كاميرا');
                 }
                 
-                // اختيار الكاميرا الخلفية (أفضل للباركود)
+                // اختيار الكاميرا الخلفية
                 const rearCamera = devices.find(d => 
                     d.label.toLowerCase().includes('back') || 
                     d.label.toLowerCase().includes('rear') ||
                     d.label.toLowerCase().includes('environment')
                 );
-                currentCameraId = rearCamera ? rearCamera.id : devices[devices.length - 1].id;
+                const cameraId = rearCamera ? rearCamera.id : devices[devices.length - 1].id;
                 
-                // إعدادات الكاميرا المحسّنة جداً
+                // إعدادات html5-qrcode
                 const config = {
-                    fps: 15,                    // 15 إطار/ثانية (توازن بين السرعة والأداء)
-                    qrbox: {                    // منطقة المسح — أكبر وأوضح
-                        width: 280,
-                        height: 180
+                    fps: fps,
+                    qrbox: function(viewfinderWidth, viewfinderHeight) {
+                        // منطقة مسح أصغر = أسرع
+                        const minEdge = Math.min(viewfinderWidth, viewfinderHeight);
+                        const qrboxSize = Math.floor(minEdge * 0.6);
+                        return {
+                            width: qrboxSize,
+                            height: Math.floor(qrboxSize * 0.5)
+                        };
                     },
-                    aspectRatio: 1.777,         // 16:9 — أعرض وأوضح
-                    disableFlip: false,         // السماح بالقلب
-                    formatsToSupport: [         // أنواع الباركود المدعومة
+                    aspectRatio: 1.333,
+                    disableFlip: false,
+                    formatsToSupport: [
                         Html5QrcodeSupportedFormats.EAN_13,
                         Html5QrcodeSupportedFormats.EAN_8,
                         Html5QrcodeSupportedFormats.UPC_A,
                         Html5QrcodeSupportedFormats.UPC_E,
                         Html5QrcodeSupportedFormats.CODE_128,
                         Html5QrcodeSupportedFormats.CODE_39,
-                        Html5QrcodeSupportedFormats.CODABAR,
-                        Html5QrcodeSupportedFormats.QR_CODE
+                        Html5QrcodeSupportedFormats.CODABAR
                     ],
-                    videoConstraints: {         // قيود الفيديو لجودة أعلى
-                        width: { min: 640, ideal: 1920, max: 1920 },
-                        height: { min: 480, ideal: 1080, max: 1080 },
-                        facingMode: "environment",
-                        advanced: [
-                            { focusMode: "continuous" },      // تركيز مستمر
-                            { exposureMode: "continuous" }, // تعريض مستمر
-                            { whiteBalanceMode: "continuous" }
-                        ]
+                    videoConstraints: {
+                        width: { min: 320, ideal: res.width, max: res.width },
+                        height: { min: 240, ideal: res.height, max: res.height },
+                        facingMode: "environment"
                     }
                 };
                 
-                await html5QrCode.start(
-                    currentCameraId,
-                    config,
-                    onScanSuccess,
-                    onScanFailure
-                );
+                await html5QrCode.start(cameraId, config, onScanSuccess, onScanFailure);
+                
+                // ═══════════════════════════════════════════════════════
+                // ✅ الإصلاح الرئيسي: تطبيق التركيز AFTER بدء الكاميرا
+                // ═══════════════════════════════════════════════════════
+                try {
+                    const videoElem = document.querySelector('#reader video');
+                    if (videoElem && videoElem.srcObject) {
+                        const tracks = videoElem.srcObject.getVideoTracks();
+                        if (tracks.length > 0) {
+                            currentTrack = tracks[0];
+                            const capabilities = currentTrack.getCapabilities();
+                            console.log('📷 Camera capabilities:', capabilities);
+                            
+                            // تطبيق التركيز المستمر
+                            const constraints = {};
+                            
+                            if (capabilities.focusMode && capabilities.focusMode.includes('continuous')) {
+                                constraints.focusMode = 'continuous';
+                            }
+                            if (capabilities.exposureMode && capabilities.exposureMode.includes('continuous')) {
+                                constraints.exposureMode = 'continuous';
+                            }
+                            if (capabilities.whiteBalanceMode && capabilities.whiteBalanceMode.includes('continuous')) {
+                                constraints.whiteBalanceMode = 'continuous';
+                            }
+                            
+                            if (Object.keys(constraints).length > 0) {
+                                await currentTrack.applyConstraints({ advanced: [constraints] });
+                                console.log('✅ Focus applied:', constraints);
+                            }
+                        }
+                    }
+                } catch (focusErr) {
+                    console.warn('⚠️ Could not apply focus:', focusErr.message);
+                }
                 
                 isScanning = true;
                 document.getElementById('start-btn').style.display = 'none';
                 document.getElementById('stop-btn').style.display = 'block';
                 document.getElementById('torch-btn').style.display = 'block';
+                document.getElementById('progress-bar').classList.remove('active');
                 
                 updateStatus('scanning', '✅ الكاميرا تعمل!\n📱 ضع الباركود في المربع الأخضر\n💡 اضغط 🔦 إذا كانت الإضاءة ضعيفة');
                 
             } catch (err) {
                 console.error(err);
+                document.getElementById('progress-bar').classList.remove('active');
+                
                 let msg = err.message || 'خطأ غير معروف';
                 if (msg.includes('Permission') || msg.includes('denied')) {
                     msg = '❌ تم رفض إذن الكاميرا.\nالرجاء السماح بالوصول من إعدادات المتصفح.';
                 } else if (msg.includes('NotFound')) {
-                    msg = '❌ لم يتم العثور على كاميرا.\nتأكد من توصيل كاميرا أو استخدم رفع صورة.';
+                    msg = '❌ لم يتم العثور على كاميرا.';
                 } else if (window.location.protocol === 'file:') {
                     msg = '❌ الكاميرا تحتاج HTTPS أو localhost.\n\nالحلول:\n1. VS Code → "Go Live"\n2. Terminal: npx serve\n3. افتح http://localhost:3000';
                 }
@@ -562,20 +440,16 @@
             html5QrCode.stop().then(() => {
                 isScanning = false;
                 torchOn = false;
+                currentTrack = null;
                 document.getElementById('start-btn').style.display = 'block';
                 document.getElementById('stop-btn').style.display = 'none';
                 document.getElementById('torch-btn').style.display = 'none';
                 document.getElementById('torch-btn').classList.add('off');
                 document.getElementById('torch-btn').textContent = '🔦 فلاش';
                 updateStatus('waiting', '⏳ تم إيقاف الكاميرا');
-            }).catch(err => {
-                console.error(err);
-            });
+            }).catch(console.error);
         }
         
-        // ═══════════════════════════════════════════════════════════════
-        // نجاح المسح
-        // ═══════════════════════════════════════════════════════════════
         function onScanSuccess(decodedText, decodedResult) {
             if (scanCooldown) return;
             if (decodedText === lastCode) return;
@@ -585,29 +459,29 @@
             
             if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
             
-            updateStatus('loading', '📡 تم قراءة الباركود: ' + decodedText + '\nجاري البحث في جميع المصادر...');
+            updateStatus('loading', '📡 تم قراءة الباركود: ' + decodedText + '\nجاري البحث...');
             lookupProduct(decodedText);
             
             setTimeout(() => { scanCooldown = false; }, 3000);
         }
         
         function onScanFailure(error) {
-            // أخطاء المسح الطبيعية — نتجاهلها
+            // أخطاء طبيعية — نتجاهلها
         }
         
         // ═══════════════════════════════════════════════════════════════
         // تبديل الفلاش
         // ═══════════════════════════════════════════════════════════════
         async function toggleTorch() {
-            if (!isScanning || !html5QrCode) return;
+            if (!isScanning || !currentTrack) return;
             
             try {
+                const capabilities = currentTrack.getCapabilities();
                 const btn = document.getElementById('torch-btn');
-                const track = html5QrCode.getRunningTrackCapabilities();
                 
-                if (track && track.torch) {
+                if (capabilities.torch) {
                     torchOn = !torchOn;
-                    await html5QrCode.applyVideoConstraints({
+                    await currentTrack.applyConstraints({
                         advanced: [{ torch: torchOn }]
                     });
                     
@@ -623,7 +497,7 @@
                 }
             } catch (err) {
                 console.error('Torch error:', err);
-                updateStatus('warning', '⚠️ لا يمكن تفعيل الفلاش في هذا المتصفح');
+                updateStatus('warning', '⚠️ لا يمكن تفعيل الفلاش');
             }
         }
         
@@ -637,110 +511,92 @@
             updateStatus('loading', '📁 جاري قراءة الباركود من الصورة...');
             
             try {
-                if (!html5QrCode) {
-                    html5QrCode = new Html5Qrcode("reader");
-                }
-                
+                if (!html5QrCode) html5QrCode = new Html5Qrcode("reader");
                 const result = await html5QrCode.scanFile(file, true);
                 onScanSuccess(result, null);
-                
             } catch (err) {
-                updateStatus('error', '❌ لم يتم العثور على باركود في الصورة.\nحاول صورة أوضح أو أدخل الرقم يدوياً.');
+                updateStatus('error', '❌ لم يتم العثور على باركود في الصورة.\nحاول صورة أوضح.');
             }
             
             event.target.value = '';
         }
         
-        // ═══════════════════════════════════════════════════════════════
-        // البحث اليدوي
-        // ═══════════════════════════════════════════════════════════════
         function lookupManual() {
             const code = document.getElementById('manual-barcode').value.trim();
-            if (!code) {
-                updateStatus('error', '❌ الرجاء إدخال رقم الباركود');
-                return;
-            }
-            if (!/^\d{8,14}$/.test(code)) {
-                updateStatus('error', '❌ رقم الباركود يجب أن يكون 8-14 رقماً');
-                return;
-            }
-            updateStatus('loading', '🔍 جاري البحث عن: ' + code + '\nجاري البحث في جميع المصادر...');
+            if (!code) { updateStatus('error', '❌ الرجاء إدخال رقم الباركود'); return; }
+            if (!/^\d{8,14}$/.test(code)) { updateStatus('error', '❌ رقم الباركود يجب أن يكون 8-14 رقماً'); return; }
+            updateStatus('loading', '🔍 جاري البحث عن: ' + code + '...');
             lookupProduct(code);
         }
         
         // ═══════════════════════════════════════════════════════════════
-        // البحث المتسلسل في 5 مصادر
+        // البحث في 5 مصادر
         // ═══════════════════════════════════════════════════════════════
         async function lookupProduct(barcode) {
             hideProductSection();
             let attempts = [];
             
-            // 1️⃣ Open Food Facts
             try {
-                updateStatus('loading', '🍊 المحاولة 1/5: Open Food Facts...');
+                updateStatus('loading', '🍊 1/5: Open Food Facts...');
                 const res = await fetch(`https://world.openfoodfacts.org/api/v2/product/${barcode}.json`);
                 const data = await res.json();
                 if (data.status === 1 && data.product) {
                     displayOpenFoodFactsData(data.product, barcode);
-                    updateStatus('success', '✅ تم العثور على البيانات! (Open Food Facts)');
+                    updateStatus('success', '✅ تم العثور! (Open Food Facts)');
                     return;
                 }
                 attempts.push('Open Food Facts: غير موجود');
             } catch (e) { attempts.push('Open Food Facts: خطأ'); }
             
-            // 2️⃣ Open Beauty Facts
             try {
-                updateStatus('loading', '💄 المحاولة 2/5: Open Beauty Facts...');
+                updateStatus('loading', '💄 2/5: Open Beauty Facts...');
                 const res = await fetch(`https://world.openbeautyfacts.org/api/v2/product/${barcode}.json`);
                 const data = await res.json();
                 if (data.status === 1 && data.product) {
                     displayOpenBeautyFactsData(data.product, barcode);
-                    updateStatus('success', '✅ تم العثور على البيانات! (Open Beauty Facts)');
+                    updateStatus('success', '✅ تم العثور! (Open Beauty Facts)');
                     return;
                 }
                 attempts.push('Open Beauty Facts: غير موجود');
             } catch (e) { attempts.push('Open Beauty Facts: خطأ'); }
             
-            // 3️⃣ UPCitemdb (CORS Proxy)
             try {
-                updateStatus('loading', '📦 المحاولة 3/5: UPCitemdb...');
+                updateStatus('loading', '📦 3/5: UPCitemdb...');
                 const res = await fetch(`${CORS_PROXY}https://api.upcitemdb.com/prod/trial/lookup?upc=${barcode}`);
                 const data = await res.json();
                 if (data.items && data.items.length > 0) {
                     displayUPCItemDBData(data.items[0], barcode);
-                    updateStatus('success', '✅ تم العثور على البيانات! (UPCitemdb)');
+                    updateStatus('success', '✅ تم العثور! (UPCitemdb)');
                     return;
                 }
                 attempts.push('UPCitemdb: غير موجود');
             } catch (e) { attempts.push('UPCitemdb: خطأ'); }
             
-            // 4️⃣ Brocade.io (CORS Proxy)
             try {
-                updateStatus('loading', '🌐 المحاولة 4/5: Brocade.io...');
+                updateStatus('loading', '🌐 4/5: Brocade.io...');
                 const res = await fetch(`${CORS_PROXY}https://brocade.io/api/v1/products/${barcode}`);
                 const data = await res.json();
                 if (data && data.title) {
                     displayBrocadeData(data, barcode);
-                    updateStatus('success', '✅ تم العثور على البيانات! (Brocade.io)');
+                    updateStatus('success', '✅ تم العثور! (Brocade.io)');
                     return;
                 }
                 attempts.push('Brocade.io: غير موجود');
             } catch (e) { attempts.push('Brocade.io: خطأ'); }
             
-            // 5️⃣ BarcodeSpider (CORS Proxy)
             try {
-                updateStatus('loading', '🕷️ المحاولة 5/5: BarcodeSpider...');
+                updateStatus('loading', '🕷️ 5/5: BarcodeSpider...');
                 const res = await fetch(`${CORS_PROXY}https://api.barcodespider.com/v1/lookup?token=free&upc=${barcode}`);
                 const data = await res.json();
                 if (data.item_response && data.item_response.code === 200 && data.item_attributes) {
                     displayBarcodeSpiderData(data.item_attributes, barcode);
-                    updateStatus('success', '✅ تم العثور على البيانات! (BarcodeSpider)');
+                    updateStatus('success', '✅ تم العثور! (BarcodeSpider)');
                     return;
                 }
                 attempts.push('BarcodeSpider: غير موجود');
             } catch (e) { attempts.push('BarcodeSpider: خطأ'); }
             
-            updateStatus('error', '❌ المنتج غير موجود في أي قاعدة بيانات\n\nالتفاصيل:\n' + attempts.join('\n'));
+            updateStatus('error', '❌ المنتج غير موجود\n\n' + attempts.join('\n'));
         }
         
         // ═══════════════════════════════════════════════════════════════
@@ -748,14 +604,11 @@
         // ═══════════════════════════════════════════════════════════════
         function displayOpenFoodFactsData(product, barcode) {
             setImage(product.image_url || product.image_front_url || '');
-            
-            let nutriScore = product.nutrition_grades ? 
-                `<span class="nutrition-badge nutrition-${product.nutrition_grades.toLowerCase()}">Nutri-Score: ${product.nutrition_grades.toUpperCase()}</span>` : '';
+            let nutriScore = product.nutrition_grades ? `<span class="nutrition-badge nutrition-${product.nutrition_grades.toLowerCase()}">Nutri-Score: ${product.nutrition_grades.toUpperCase()}</span>` : '';
             let nova = product.nova_group ? `<span class="nutrition-badge" style="background:#666;color:#fff;">NOVA: ${product.nova_group}</span>` : '';
-            let eco = product.ecoscore_grade ? 
-                `<span class="nutrition-badge nutrition-${product.ecoscore_grade.toLowerCase()}">Eco-Score: ${product.ecoscore_grade.toUpperCase()}</span>` : '';
+            let eco = product.ecoscore_grade ? `<span class="nutrition-badge nutrition-${product.ecoscore_grade.toLowerCase()}">Eco-Score: ${product.ecoscore_grade.toUpperCase()}</span>` : '';
             
-            const fields = [
+            renderFields([
                 { label: 'رقم الباركود', value: barcode, highlight: true },
                 { label: 'اسم المنتج', value: product.product_name || 'غير متوفر' },
                 { label: 'العلامة التجارية', value: product.brands || 'غير متوفر' },
@@ -765,17 +618,14 @@
                 { label: 'المكونات', value: product.ingredients_text || 'غير متوفر' },
                 { label: 'السعرات', value: product.nutriments?.['energy-kcal_100g'] ? product.nutriments['energy-kcal_100g'] + ' kcal/100g' : 'غير متوفر' },
                 { label: 'التقييمات', value: `${nutriScore} ${nova} ${eco}` || 'غير متوفر' }
-            ];
-            
-            renderFields(fields);
-            setSource('source-off', '🍊 Open Food Facts (3M+ منتج)');
+            ]);
+            setSource('source-off', '🍊 Open Food Facts');
             showSection();
         }
         
         function displayOpenBeautyFactsData(product, barcode) {
             setImage(product.image_url || product.image_front_url || '');
-            
-            const fields = [
+            renderFields([
                 { label: 'رقم الباركود', value: barcode, highlight: true },
                 { label: 'اسم المنتج', value: product.product_name || 'غير متوفر' },
                 { label: 'العلامة التجارية', value: product.brands || 'غير متوفر' },
@@ -783,17 +633,14 @@
                 { label: 'الكمية', value: product.quantity || 'غير متوفر' },
                 { label: 'المكونات', value: product.ingredients_text || 'غير متوفر' },
                 { label: 'بلد التصنيع', value: (product.countries_tags || []).map(c => c.replace('en:', '')).join(', ') || 'غير متوفر' }
-            ];
-            
-            renderFields(fields);
-            setSource('source-obf', '💄 Open Beauty Facts (مستحضرات)');
+            ]);
+            setSource('source-obf', '💄 Open Beauty Facts');
             showSection();
         }
         
         function displayUPCItemDBData(item, barcode) {
             setImage(item.images?.[0] || '');
-            
-            const fields = [
+            renderFields([
                 { label: 'رقم الباركود', value: barcode, highlight: true },
                 { label: 'اسم المنتج', value: item.title || 'غير متوفر' },
                 { label: 'العلامة التجارية', value: item.brand || 'غير متوفر' },
@@ -802,78 +649,67 @@
                 { label: 'الحجم', value: item.size || 'غير متوفر' },
                 { label: 'الوزن', value: item.weight || 'غير متوفر' },
                 { label: 'أقل سعر', value: item.lowest_recorded_price ? '$' + item.lowest_recorded_price : 'غير متوفر' }
-            ];
-            
-            renderFields(fields);
-            setSource('source-upc', '📦 UPCitemdb (100 طلب/يوم)');
+            ]);
+            setSource('source-upc', '📦 UPCitemdb');
             showSection();
         }
         
         function displayBrocadeData(item, barcode) {
             setImage('');
-            
-            const fields = [
+            renderFields([
                 { label: 'رقم الباركود', value: barcode, highlight: true },
                 { label: 'اسم المنتج', value: item.title || 'غير متوفر' },
                 { label: 'الوصف', value: item.description || 'غير متوفر' },
                 { label: 'العلامة التجارية', value: item.brand || 'غير متوفر' },
                 { label: 'التصنيف', value: item.category || 'غير متوفر' },
                 { label: 'الشركة المصنعة', value: item.manufacturer || 'غير متوفر' }
-            ];
-            
-            renderFields(fields);
-            setSource('source-brocade', '🌐 Brocade.io (مفتوح المصدر)');
+            ]);
+            setSource('source-brocade', '🌐 Brocade.io');
             showSection();
         }
         
         function displayBarcodeSpiderData(item, barcode) {
             setImage(item.image || '');
-            
-            const fields = [
+            renderFields([
                 { label: 'رقم الباركود', value: barcode, highlight: true },
                 { label: 'اسم المنتج', value: item.title || 'غير متوفر' },
                 { label: 'العلامة التجارية', value: item.brand || 'غير متوفر' },
                 { label: 'الوصف', value: item.description || 'غير متوفر' },
                 { label: 'التصنيف', value: item.category || 'غير متوفر' },
                 { label: 'الشركة المصنعة', value: item.manufacturer || 'غير متوفر' }
-            ];
-            
-            renderFields(fields);
-            setSource('source-barcodespider', '🕷️ BarcodeSpider (مجاني)');
+            ]);
+            setSource('source-barcodespider', '🕷️ BarcodeSpider');
             showSection();
         }
         
-        // ═══════════════════════════════════════════════════════════════
-        // مساعدات
-        // ═══════════════════════════════════════════════════════════════
         function setImage(url) {
             const container = document.getElementById('image-container');
             if (url) {
-                container.innerHTML = `<img class="product-image" src="${url}" alt="صورة المنتج" onerror="this.style.display='none'; this.parentElement.innerHTML='<div class=\\'no-image\\'>🖼️</div>';">`;
+                container.innerHTML = `<img class="product-image" src="${url}" alt="صورة" onerror="this.style.display='none'; this.parentElement.innerHTML='<div class=\\'no-image\\'>🖼️</div>';">`;
             } else {
                 container.innerHTML = '<div class="no-image">🖼️</div>';
             }
         }
         
         function renderFields(fields) {
-            document.getElementById('product-data').innerHTML = fields.map(field => `
+            document.getElementById('product-data').innerHTML = fields.map(f => `
                 <div class="data-row">
-                    <span class="label">${field.label}</span>
-                    <span class="value ${field.highlight ? 'highlight' : ''}">${field.value}</span>
+                    <span class="label">${f.label}</span>
+                    <span class="value ${f.highlight ? 'highlight' : ''}">${f.value}</span>
                 </div>
             `).join('');
         }
         
-        function setSource(className, text) {
+        function setSource(cls, text) {
             const tag = document.getElementById('source-tag');
-            tag.className = 'source-tag ' + className;
+            tag.className = 'source-tag ' + cls;
             tag.textContent = text;
         }
         
         function showSection() {
-            const section = document.getElementById('product-section');
-            section.classList.add('visible');
-            section.scrollIntoView({ behavior: 'smooth' });
+            const s = document.getElementById('product-section');
+            s.classList.add('visible');
+            s.scrollIntoView({ behavior: 'smooth' });
         }
         
         function hideProductSection() {
@@ -886,7 +722,7 @@
             status.innerHTML = type === 'loading' ? message + '<span class="spinner"></span>' : message.replace(/\n/g, '<br>');
         }
         
-        document.getElementById('manual-barcode').addEventListener('keypress', function(e) {
+        document.getElementById('manual-barcode').addEventListener('keypress', e => {
             if (e.key === 'Enter') lookupManual();
         });
     </script>
