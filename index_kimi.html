@@ -3,8 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>📷 قارئ الباركود الذكي — v5 Pro</title>
-    <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+    <title>📷 قارئ الباركود الذكي — v5 Fixed</title>
+    <!-- html5-qrcode الإصدار المستقر 2.3.4 -->
+    <script src="https://unpkg.com/html5-qrcode@2.3.4/html5-qrcode.min.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
@@ -31,7 +32,6 @@
         .badge.blue { background: #00d4ff; color: #0a0a1a; }
         .badge.orange { background: #ff9800; color: #000; }
         
-        /* كاميرا */
         #camera-section {
             background: #12122a;
             border-radius: 14px;
@@ -52,7 +52,6 @@
             object-fit: cover !important;
         }
         
-        /* أزرار */
         .controls {
             display: flex;
             gap: 6px;
@@ -78,14 +77,13 @@
         .btn-torch.off { background: #444; color: #888; }
         .btn-file { background: #9b59b6; color: #fff; }
         
-        /* إعدادات الكاميرا */
         .camera-settings {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 8px;
             margin-top: 10px;
         }
-        .camera-settings select, .camera-settings input {
+        .camera-settings select {
             padding: 10px;
             border-radius: 8px;
             border: 1px solid #1a1a4a;
@@ -94,7 +92,6 @@
             font-size: 12px;
         }
         
-        /* إدخال يدوي */
         .manual-input {
             display: flex;
             gap: 6px;
@@ -122,7 +119,6 @@
             cursor: pointer;
         }
         
-        /* حالة */
         .status {
             text-align: center;
             padding: 10px;
@@ -139,7 +135,6 @@
         .status.error { background: #3d0f0f; color: #ff4444; border: 1px solid #ff4444; }
         .status.warning { background: #3d3000; color: #ffcc00; border: 1px solid #ffcc00; }
         
-        /* بيانات المنتج */
         #product-section {
             background: #12122a;
             border-radius: 14px;
@@ -195,7 +190,6 @@
         .file-section input { display: none; }
         .file-label { display: inline-flex; align-items: center; gap: 5px; padding: 8px 14px; background: #1a1a4a; color: #9b59b6; border: 1px dashed #9b59b6; border-radius: 6px; cursor: pointer; font-size: 12px; }
         
-        /* شريط التقدم */
         .progress-bar { width: 100%; height: 3px; background: #1a1a4a; border-radius: 2px; margin-top: 8px; overflow: hidden; display: none; }
         .progress-bar.active { display: block; }
         .progress-fill { height: 100%; background: #00d4ff; width: 0%; animation: progress 2s ease-in-out infinite; border-radius: 2px; }
@@ -205,7 +199,7 @@
 <body>
     <div class="container">
         <h1>📷 قارئ الباركود الذكي</h1>
-        <p class="subtitle">v5 Pro — تركيز تلقائي + فلاش + ROI</p>
+        <p class="subtitle">v5 Fixed — html5-qrcode 2.3.4</p>
         <div class="badge-group">
             <span class="badge green">✅ مجاني</span>
             <span class="badge blue">🔦 فلاش</span>
@@ -232,14 +226,14 @@
             
             <div class="camera-settings">
                 <select id="resolution-select">
-                    <option value="hd">🎯 دقة عالية (1280x720)</option>
-                    <option value="sd" selected>⚡ دقة قياسية (640x480) — أسرع</option>
-                    <option value="full">🔥 دقة كاملة (1920x1080)</option>
+                    <option value="sd" selected>⚡ قياسية (640x480)</option>
+                    <option value="hd">🎯 عالية (1280x720)</option>
+                    <option value="full">🔥 كاملة (1920x1080)</option>
                 </select>
                 <select id="fps-select">
-                    <option value="10">🐢 10 إطار/ثانية</option>
-                    <option value="15" selected>⚡ 15 إطار/ثانية</option>
-                    <option value="30">🔥 30 إطار/ثانية</option>
+                    <option value="10">🐢 10 إطار/ث</option>
+                    <option value="15" selected>⚡ 15 إطار/ث</option>
+                    <option value="30">🔥 30 إطار/ث</option>
                 </select>
             </div>
             
@@ -258,11 +252,10 @@
             </div>
             
             <div class="tips">
-                <strong>💡 نصائح مهمة:</strong><br>
-                • اختر <strong>"دقة قياسية"</strong> إذا كانت الكاميرا بطيئة<br>
+                <strong>💡 نصائح:</strong><br>
+                • اختر <strong>"قياسية"</strong> إذا كانت الكاميرا بطيئة<br>
                 • ابعد الباركود <strong>15-20 سم</strong> عن الكاميرا<br>
-                • اضغط <strong>🔦 فلاش</strong> إذا كانت الإضاءة ضعيفة<br>
-                • لا تحرك الجهاز — دعه يستقر ثوانٍ
+                • اضغط <strong>🔦 فلاش</strong> إذا كانت الإضاءة ضعيفة
             </div>
             
             <div id="status" class="status waiting">⏳ اضغط "تشغيل" للبدء</div>
@@ -285,6 +278,13 @@
     </div>
 
     <script>
+        // ═══════════════════════════════════════════════════════════════
+        // فحص تحميل المكتبة
+        // ═══════════════════════════════════════════════════════════════
+        console.log('🔍 Checking html5-qrcode...');
+        console.log('typeof Html5Qrcode:', typeof Html5Qrcode);
+        console.log('typeof Html5QrcodeScanner:', typeof Html5QrcodeScanner);
+        
         let html5QrCode = null;
         let isScanning = false;
         let torchOn = false;
@@ -295,33 +295,22 @@
         const CORS_PROXY = 'https://api.allorigins.win/raw?url=';
         
         // ═══════════════════════════════════════════════════════════════
-        // الحصول على إعدادات الكاميرا من القوائم
-        // ═══════════════════════════════════════════════════════════════
-        function getResolutionConfig() {
-            const res = document.getElementById('resolution-select').value;
-            switch(res) {
-                case 'sd': return { width: 640, height: 480 };
-                case 'hd': return { width: 1280, height: 720 };
-                case 'full': return { width: 1920, height: 1080 };
-                default: return { width: 640, height: 480 };
-            }
-        }
-        
-        function getFpsConfig() {
-            return parseInt(document.getElementById('fps-select').value) || 15;
-        }
-        
-        // ═══════════════════════════════════════════════════════════════
-        // بدء الماسح — مع تطبيق التركيز AFTER بدء الكاميرا
+        // بدء الماسح
         // ═══════════════════════════════════════════════════════════════
         async function startScanner() {
             if (isScanning) return;
+            
+            // فحص أن المكتبة محملة
+            if (typeof Html5Qrcode === 'undefined') {
+                updateStatus('error', '❌ مكتبة html5-qrcode لم تُحمّل.\nتحقق من اتصال الإنترنت وأعد تحميل الصفحة.');
+                return;
+            }
             
             if (window.location.protocol === 'file:') {
                 document.getElementById('warning-box').classList.add('visible');
             }
             
-            updateStatus('scanning', '⏳ جاري تشغيل الكاميرا...\nجاري تطبيق أفضل إعدادات...');
+            updateStatus('scanning', '⏳ جاري تشغيل الكاميرا...');
             document.getElementById('progress-bar').classList.add('active');
             
             try {
@@ -330,7 +319,7 @@
                 
                 html5QrCode = new Html5Qrcode("reader");
                 
-                const devices = await Html5QrCode.getCameras();
+                const devices = await Html5Qrcode.getCameras();
                 if (!devices || devices.length === 0) {
                     throw new Error('لم يتم العثور على كاميرا');
                 }
@@ -343,11 +332,9 @@
                 );
                 const cameraId = rearCamera ? rearCamera.id : devices[devices.length - 1].id;
                 
-                // إعدادات html5-qrcode
                 const config = {
                     fps: fps,
                     qrbox: function(viewfinderWidth, viewfinderHeight) {
-                        // منطقة مسح أصغر = أسرع
                         const minEdge = Math.min(viewfinderWidth, viewfinderHeight);
                         const qrboxSize = Math.floor(minEdge * 0.6);
                         return {
@@ -375,9 +362,7 @@
                 
                 await html5QrCode.start(cameraId, config, onScanSuccess, onScanFailure);
                 
-                // ═══════════════════════════════════════════════════════
-                // ✅ الإصلاح الرئيسي: تطبيق التركيز AFTER بدء الكاميرا
-                // ═══════════════════════════════════════════════════════
+                // تطبيق التركيز بعد البدء
                 try {
                     const videoElem = document.querySelector('#reader video');
                     if (videoElem && videoElem.srcObject) {
@@ -385,11 +370,9 @@
                         if (tracks.length > 0) {
                             currentTrack = tracks[0];
                             const capabilities = currentTrack.getCapabilities();
-                            console.log('📷 Camera capabilities:', capabilities);
+                            console.log('📷 Capabilities:', capabilities);
                             
-                            // تطبيق التركيز المستمر
                             const constraints = {};
-                            
                             if (capabilities.focusMode && capabilities.focusMode.includes('continuous')) {
                                 constraints.focusMode = 'continuous';
                             }
@@ -407,7 +390,7 @@
                         }
                     }
                 } catch (focusErr) {
-                    console.warn('⚠️ Could not apply focus:', focusErr.message);
+                    console.warn('⚠️ Focus error:', focusErr.message);
                 }
                 
                 isScanning = true;
@@ -466,12 +449,9 @@
         }
         
         function onScanFailure(error) {
-            // أخطاء طبيعية — نتجاهلها
+            // أخطاء طبيعية
         }
         
-        // ═══════════════════════════════════════════════════════════════
-        // تبديل الفلاش
-        // ═══════════════════════════════════════════════════════════════
         async function toggleTorch() {
             if (!isScanning || !currentTrack) return;
             
@@ -501,12 +481,14 @@
             }
         }
         
-        // ═══════════════════════════════════════════════════════════════
-        // قراءة من صورة
-        // ═══════════════════════════════════════════════════════════════
         async function handleFileSelect(event) {
             const file = event.target.files[0];
             if (!file) return;
+            
+            if (typeof Html5Qrcode === 'undefined') {
+                updateStatus('error', '❌ المكتبة لم تُحمّل');
+                return;
+            }
             
             updateStatus('loading', '📁 جاري قراءة الباركود من الصورة...');
             
@@ -519,6 +501,20 @@
             }
             
             event.target.value = '';
+        }
+        
+        function getResolutionConfig() {
+            const res = document.getElementById('resolution-select').value;
+            switch(res) {
+                case 'sd': return { width: 640, height: 480 };
+                case 'hd': return { width: 1280, height: 720 };
+                case 'full': return { width: 1920, height: 1080 };
+                default: return { width: 640, height: 480 };
+            }
+        }
+        
+        function getFpsConfig() {
+            return parseInt(document.getElementById('fps-select').value) || 15;
         }
         
         function lookupManual() {
