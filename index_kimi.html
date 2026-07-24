@@ -2,8 +2,9 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>📷 قارئ الباركود الذكي — v3</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>📷 قارئ الباركود الذكي — Pro v4</title>
+    <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
@@ -11,12 +12,13 @@
             background: #0a0a1a;
             color: #fff;
             min-height: 100vh;
-            padding: 15px;
+            padding: 12px;
+            -webkit-tap-highlight-color: transparent;
         }
-        .container { max-width: 680px; margin: 0 auto; }
-        h1 { text-align: center; color: #00d4ff; margin-bottom: 5px; font-size: 20px; }
-        .subtitle { text-align: center; color: #888; margin-bottom: 10px; font-size: 12px; }
-        .badge-group { text-align: center; margin-bottom: 15px; }
+        .container { max-width: 700px; margin: 0 auto; }
+        h1 { text-align: center; color: #00d4ff; margin-bottom: 4px; font-size: 22px; }
+        .subtitle { text-align: center; color: #888; margin-bottom: 8px; font-size: 12px; }
+        .badge-group { text-align: center; margin-bottom: 12px; }
         .badge {
             display: inline-block;
             padding: 3px 10px;
@@ -28,162 +30,124 @@
         .badge.green { background: #00ff88; color: #0a0a1a; }
         .badge.blue { background: #00d4ff; color: #0a0a1a; }
         .badge.purple { background: #9b59b6; color: #fff; }
-        .badge.orange { background: #ff9800; color: #000; }
         
-        /* كاميرا */
+        /* منطقة الكاميرا — حجم أكبر */
         #camera-section {
             background: #12122a;
-            border-radius: 15px;
-            padding: 15px;
-            margin-bottom: 15px;
+            border-radius: 16px;
+            padding: 12px;
+            margin-bottom: 12px;
             border: 1px solid #1a1a4a;
         }
-        .camera-wrapper {
-            position: relative;
+        
+        /* html5-qrcode يضع الفيديو هنا */
+        #reader {
             width: 100%;
-            height: 300px;
-            background: #000;
             border-radius: 12px;
             overflow: hidden;
             border: 2px solid #00d4ff;
         }
-        #video {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            display: none;
-        }
-        #video.active { display: block; }
         
-        .scan-overlay {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 85%;
-            height: 35%;
-            border: 3px solid #00ff88;
-            border-radius: 10px;
-            box-shadow: 0 0 20px rgba(0, 255, 136, 0.3), inset 0 0 20px rgba(0, 255, 136, 0.1);
-            pointer-events: none;
-            z-index: 10;
-            display: none;
+        /* تخصيص واجهة html5-qrcode */
+        #reader video {
+            width: 100% !important;
+            height: auto !important;
+            max-height: 450px !important;
+            object-fit: cover !important;
         }
-        .scan-overlay.active { display: block; }
+        #reader__dashboard_section_csr span {
+            color: #00d4ff !important;
+        }
+        #reader__dashboard_section_swaplink {
+            color: #00ff88 !important;
+            font-weight: bold !important;
+        }
+        #reader__scan_region {
+            background: rgba(0, 212, 255, 0.05) !important;
+        }
+        #reader__scan_region img {
+            filter: brightness(0) saturate(100%) invert(77%) sepia(52%) saturate(538%) hue-rotate(105deg) brightness(103%) contrast(101%) !important;
+        }
         
-        .scan-line {
-            position: absolute;
-            top: 0; left: 0;
-            width: 100%; height: 3px;
-            background: #00ff88;
-            box-shadow: 0 0 15px #00ff88, 0 0 30px #00ff88;
-            animation: scanMove 2s ease-in-out infinite;
-            z-index: 11;
-        }
-        @keyframes scanMove {
-            0% { top: 0; opacity: 0; }
-            10% { opacity: 1; }
-            90% { opacity: 1; }
-            100% { top: 100%; opacity: 0; }
-        }
-        .camera-placeholder {
+        /* أزرار التحكم */
+        .controls {
             display: flex;
-            align-items: center;
-            justify-content: center;
-            height: 100%;
-            color: #444;
-            font-size: 48px;
-            flex-direction: column;
-            gap: 10px;
+            gap: 8px;
+            margin-top: 12px;
+            flex-wrap: wrap;
         }
-        .camera-placeholder span {
-            font-size: 14px;
-            color: #666;
-        }
-        
-        /* أزرار */
-        .btn-group { display: flex; gap: 10px; margin-top: 15px; flex-wrap: wrap; }
-        button {
+        .controls button {
             flex: 1;
-            min-width: 120px;
-            padding: 14px;
+            min-width: 100px;
+            padding: 12px 8px;
             border: none;
             border-radius: 10px;
-            font-size: 15px;
+            font-size: 14px;
             font-weight: bold;
             cursor: pointer;
-            transition: 0.3s;
+            transition: 0.2s;
         }
-        .btn-primary {
+        .btn-start {
             background: #00d4ff;
             color: #0a0a1a;
         }
-        .btn-primary:hover { background: #00a8cc; transform: scale(1.02); }
-        .btn-secondary {
-            background: #1a1a4a;
-            color: #00d4ff;
-            border: 1px solid #00d4ff;
-        }
-        .btn-secondary:hover { background: #252560; }
+        .btn-start:hover { background: #00a8cc; }
         .btn-stop {
             background: #ff4444;
             color: #fff;
         }
         .btn-stop:hover { background: #cc3333; }
+        .btn-torch {
+            background: #ffd700;
+            color: #0a0a1a;
+        }
+        .btn-torch:hover { background: #e6c200; }
+        .btn-torch.off {
+            background: #444;
+            color: #888;
+        }
         .btn-file {
             background: #9b59b6;
             color: #fff;
         }
         .btn-file:hover { background: #8e44ad; }
         
-        /* رفع صورة */
-        .file-input-wrapper {
-            margin-top: 10px;
-            text-align: center;
-        }
-        .file-input-wrapper input[type="file"] {
-            display: none;
-        }
-        .file-label {
-            display: inline-block;
-            padding: 10px 20px;
-            background: #1a1a4a;
-            color: #9b59b6;
-            border: 1px dashed #9b59b6;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 13px;
-            transition: 0.3s;
-        }
-        .file-label:hover {
-            background: #252560;
-            border-style: solid;
-        }
-        
         /* الإدخال اليدوي */
         .manual-input {
             display: flex;
-            gap: 10px;
-            margin-top: 15px;
+            gap: 8px;
+            margin-top: 12px;
         }
         .manual-input input {
             flex: 1;
             padding: 14px;
             border-radius: 10px;
             border: 1px solid #1a1a4a;
-            background: #12122a;
+            background: #0a0a1a;
             color: #fff;
             font-size: 16px;
             text-align: center;
         }
         .manual-input input::placeholder { color: #555; }
+        .manual-input button {
+            padding: 14px 20px;
+            border: none;
+            border-radius: 10px;
+            background: #1a1a4a;
+            color: #00d4ff;
+            border: 1px solid #00d4ff;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .manual-input button:hover { background: #252560; }
         
         /* حالة */
         .status {
             text-align: center;
-            padding: 14px;
+            padding: 12px;
             border-radius: 10px;
-            margin-top: 15px;
+            margin-top: 12px;
             font-size: 13px;
             line-height: 1.6;
             white-space: pre-line;
@@ -193,14 +157,13 @@
         .status.loading { background: #1a2a4a; color: #00d4ff; border: 1px solid #00d4ff; }
         .status.success { background: #0f3d0f; color: #00ff88; border: 1px solid #00ff88; }
         .status.error { background: #3d0f0f; color: #ff4444; border: 1px solid #ff4444; }
-        .status.info { background: #1a2a4a; color: #ffd700; border: 1px solid #ffd700; }
         .status.warning { background: #3d3000; color: #ffcc00; border: 1px solid #ffcc00; }
         
         /* بيانات المنتج */
         #product-section {
             background: #12122a;
-            border-radius: 15px;
-            padding: 20px;
+            border-radius: 16px;
+            padding: 18px;
             border: 1px solid #1a1a4a;
             display: none;
         }
@@ -209,24 +172,24 @@
         
         #product-section h2 {
             color: #00d4ff;
-            margin-bottom: 15px;
+            margin-bottom: 12px;
             font-size: 18px;
             text-align: center;
         }
         .product-image-container {
             text-align: center;
-            margin-bottom: 15px;
+            margin-bottom: 12px;
         }
         .product-image {
-            max-width: 200px;
-            max-height: 200px;
+            max-width: 180px;
+            max-height: 180px;
             object-fit: contain;
             border-radius: 10px;
             background: #0a0a1a;
-            padding: 10px;
+            padding: 8px;
         }
         .no-image {
-            width: 200px; height: 200px;
+            width: 180px; height: 180px;
             display: inline-flex;
             align-items: center;
             justify-content: center;
@@ -237,13 +200,13 @@
         }
         .data-grid {
             display: grid;
-            gap: 8px;
+            gap: 6px;
         }
         .data-row {
             display: flex;
             justify-content: space-between;
             align-items: flex-start;
-            padding: 12px 14px;
+            padding: 10px 12px;
             background: #0a0a1a;
             border-radius: 8px;
             border-right: 3px solid #00d4ff;
@@ -251,7 +214,7 @@
         .data-row .label {
             color: #888;
             font-size: 12px;
-            min-width: 110px;
+            min-width: 100px;
         }
         .data-row .value {
             color: #fff;
@@ -260,7 +223,7 @@
             text-align: left;
             flex: 1;
             word-break: break-word;
-            margin-right: 10px;
+            margin-right: 8px;
         }
         .data-row .value.highlight {
             color: #00ff88;
@@ -272,7 +235,7 @@
             border-radius: 4px;
             font-size: 11px;
             font-weight: bold;
-            margin-left: 4px;
+            margin-left: 3px;
         }
         .nutrition-a { background: #008000; color: #fff; }
         .nutrition-b { background: #85bb2f; color: #fff; }
@@ -283,11 +246,11 @@
         /* مصدر البيانات */
         .source-tag {
             display: inline-block;
-            padding: 5px 14px;
+            padding: 4px 12px;
             border-radius: 20px;
-            font-size: 12px;
+            font-size: 11px;
             font-weight: bold;
-            margin-top: 12px;
+            margin-top: 10px;
         }
         .source-off { background: #ff6b00; color: #fff; }
         .source-obf { background: #ff69b4; color: #fff; }
@@ -299,33 +262,33 @@
         .sources-list {
             background: #12122a;
             border-radius: 12px;
-            padding: 15px;
-            margin-bottom: 15px;
+            padding: 12px;
+            margin-bottom: 12px;
             border: 1px solid #1a1a4a;
         }
         .sources-list h3 {
             color: #00d4ff;
-            font-size: 14px;
-            margin-bottom: 12px;
+            font-size: 13px;
+            margin-bottom: 10px;
             text-align: center;
         }
         .source-item {
             display: flex;
             align-items: center;
-            gap: 10px;
-            padding: 8px 0;
+            gap: 8px;
+            padding: 6px 0;
             font-size: 12px;
             border-bottom: 1px solid #1a1a4a;
         }
         .source-item:last-child { border-bottom: none; }
-        .source-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
-        .source-name { flex: 1; color: #ccc; }
+        .source-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+        .source-name { flex: 1; color: #bbb; }
         .source-status { color: #00ff88; font-size: 11px; flex-shrink: 0; }
         
         /* تذييل */
         .footer {
             text-align: center;
-            margin-top: 20px;
+            margin-top: 15px;
             color: #555;
             font-size: 11px;
             line-height: 1.8;
@@ -340,7 +303,7 @@
             border-top-color: transparent;
             border-radius: 50%;
             animation: spin 0.8s linear infinite;
-            margin-left: 8px;
+            margin-left: 6px;
             vertical-align: middle;
         }
         @keyframes spin { to { transform: rotate(360deg); } }
@@ -349,41 +312,65 @@
         .tips {
             background: #1a1a4a;
             border-radius: 8px;
-            padding: 10px 15px;
+            padding: 10px 12px;
             margin-top: 10px;
             font-size: 12px;
             color: #888;
         }
         .tips strong { color: #ffd700; }
         
-        /* تحذير أمان */
-        .security-warning {
+        /* تحذير */
+        .warning-box {
             background: #3d3000;
             border: 1px solid #ffcc00;
             border-radius: 10px;
-            padding: 12px;
-            margin-bottom: 15px;
+            padding: 10px;
+            margin-bottom: 12px;
             font-size: 12px;
             color: #ffcc00;
             display: none;
         }
-        .security-warning.visible { display: block; }
+        .warning-box.visible { display: block; }
+        
+        /* ملف */
+        .file-section {
+            margin-top: 10px;
+            text-align: center;
+        }
+        .file-section input { display: none; }
+        .file-label {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 10px 18px;
+            background: #1a1a4a;
+            color: #9b59b6;
+            border: 1px dashed #9b59b6;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 13px;
+            transition: 0.3s;
+        }
+        .file-label:hover {
+            background: #252560;
+            border-style: solid;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>📷 قارئ الباركود الذكي</h1>
-        <p class="subtitle">BarcodeDetector API + ZXing + 5 مصادر مجانية</p>
+        <p class="subtitle">html5-qrcode Pro + 5 مصادر مجانية + فلاش + زوم</p>
         <div class="badge-group">
-            <span class="badge green">✅ مجاني 100%</span>
-            <span class="badge blue">🔍 لا يحتاج تسجيل</span>
-            <span class="badge orange">⚡ BarcodeDetector API</span>
+            <span class="badge green">✅ مجاني</span>
+            <span class="badge blue">🔦 فلاش</span>
+            <span class="badge purple">🔍 زوم</span>
         </div>
         
-        <!-- تحذير أمان -->
-        <div class="security-warning" id="security-warning">
+        <!-- تحذير -->
+        <div class="warning-box" id="warning-box">
             ⚠️ <strong>تنبيه:</strong> الكاميرا تحتاج HTTPS أو localhost.<br>
-            للتشغيل المحلي: استخدم <code>npx serve</code> أو افتح في VS Code بـ Live Server.
+            للتشغيل المحلي استخدم VS Code Live Server أو اكتب: <code>npx serve</code>
         </div>
         
         <!-- قائمة المصادر -->
@@ -391,63 +378,55 @@
             <h3>🔌 مصادر البحث (يبحث تلقائياً)</h3>
             <div class="source-item">
                 <div class="source-dot" style="background:#ff6b00;"></div>
-                <span class="source-name">🍊 Open Food Facts (أغذية)</span>
-                <span class="source-status">3M+ منتج</span>
+                <span class="source-name">🍊 Open Food Facts</span>
+                <span class="source-status">3M+ أغذية</span>
             </div>
             <div class="source-item">
                 <div class="source-dot" style="background:#ff69b4;"></div>
-                <span class="source-name">💄 Open Beauty Facts (مستحضرات)</span>
+                <span class="source-name">💄 Open Beauty Facts</span>
                 <span class="source-status">مستحضرات</span>
             </div>
             <div class="source-item">
                 <div class="source-dot" style="background:#4a90d9;"></div>
-                <span class="source-name">📦 UPCitemdb (كل المنتجات)</span>
+                <span class="source-name">📦 UPCitemdb</span>
                 <span class="source-status">100/يوم</span>
             </div>
             <div class="source-item">
                 <div class="source-dot" style="background:#9b59b6;"></div>
-                <span class="source-name">🌐 Brocade.io (مفتوح المصدر)</span>
+                <span class="source-name">🌐 Brocade.io</span>
                 <span class="source-status">GTIN</span>
             </div>
             <div class="source-item">
                 <div class="source-dot" style="background:#2ecc71;"></div>
-                <span class="source-name">🕷️ BarcodeSpider (احتياطي)</span>
-                <span class="source-status">مجاني</span>
+                <span class="source-name">🕷️ BarcodeSpider</span>
+                <span class="source-status">احتياطي</span>
             </div>
         </div>
         
         <!-- قسم الكاميرا -->
         <div id="camera-section">
-            <div class="camera-wrapper" id="camera-wrapper">
-                <div class="camera-placeholder" id="camera-placeholder">
-                    📷
-                    <span>اضغط "تشغيل الكاميرا" للبدء</span>
-                </div>
-                <video id="video" autoplay playsinline muted></video>
-                <div class="scan-overlay" id="scan-overlay">
-                    <div class="scan-line"></div>
-                </div>
-            </div>
+            <div id="reader"></div>
             
-            <div class="btn-group">
-                <button class="btn-primary" id="start-btn" onclick="startScanner()">▶️ تشغيل الكاميرا</button>
+            <div class="controls">
+                <button class="btn-start" id="start-btn" onclick="startScanner()">▶️ تشغيل الكاميرا</button>
                 <button class="btn-stop" id="stop-btn" onclick="stopScanner()" style="display:none;">⏹️ إيقاف</button>
-                <button class="btn-file" onclick="document.getElementById('file-input').click()">📁 رفع صورة</button>
+                <button class="btn-torch off" id="torch-btn" onclick="toggleTorch()" style="display:none;">🔦 فلاش</button>
+                <button class="btn-file" onclick="document.getElementById('file-input').click()">📁 صورة</button>
             </div>
             
-            <input type="file" id="file-input" accept="image/*" onchange="handleFileSelect(event)" style="display:none;">
+            <input type="file" id="file-input" accept="image/*" onchange="handleFileSelect(event)">
             
-            <!-- إدخال يدوي -->
             <div class="manual-input">
                 <input type="text" id="manual-barcode" placeholder="أو أدخل رقم الباركود يدوياً..." maxlength="14">
-                <button class="btn-secondary" onclick="lookupManual()">🔍 بحث</button>
+                <button onclick="lookupManual()">🔍 بحث</button>
             </div>
             
             <div class="tips">
-                <strong>💡 نصائح:</strong><br>
-                • ضع الباركود في <strong>وسط الإطار الأخضر</strong><br>
-                • حافظ على <strong>إضاءة جيدة</strong> وتجنب الظلال<br>
-                • للباركودات الصعبة: استخدم <strong>رفع صورة</strong> أو <strong>الإدخال اليدوي</strong>
+                <strong>💡 نصائح للقراءة السريعة:</strong><br>
+                • اضغط <strong>🔦 فلاش</strong> إذا كانت الإضاءة ضعيفة<br>
+                • ضع الباركود في <strong>وسط الشاشة</strong><br>
+                • لا تحرك الجهاز بسرعة — دعه يستقر<br>
+                • للصعبة: استخدم <strong>رفع صورة</strong> أو <strong>اليدوي</strong>
             </div>
             
             <div id="status" class="status waiting">
@@ -478,236 +457,174 @@
 
     <script>
         // ═══════════════════════════════════════════════════════════════
-        // المتغيرات العامة
+        // المتغيرات
         // ═══════════════════════════════════════════════════════════════
+        let html5QrCode = null;
         let isScanning = false;
-        let lastScannedCode = null;
+        let torchOn = false;
+        let currentCameraId = null;
         let scanCooldown = false;
-        let videoStream = null;
-        let scanInterval = null;
-        let barcodeDetector = null;
+        let lastCode = null;
         
         const CORS_PROXY = 'https://api.allorigins.win/raw?url=';
         
         // ═══════════════════════════════════════════════════════════════
-        // فحص دعم BarcodeDetector API
-        // ═══════════════════════════════════════════════════════════════
-        function checkBarcodeDetectorSupport() {
-            if ('BarcodeDetector' in window) {
-                console.log('✅ BarcodeDetector API مدعوم!');
-                return true;
-            }
-            console.log('❌ BarcodeDetector API غير مدعوم في هذا المتصفح');
-            return false;
-        }
-        
-        // ═══════════════════════════════════════════════════════════════
-        // فحص دعم getUserMedia
-        // ═══════════════════════════════════════════════════════════════
-        function checkGetUserMediaSupport() {
-            if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-                return true;
-            }
-            // فحص البادئات القديمة
-            if (navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia) {
-                return true;
-            }
-            return false;
-        }
-        
-        // ═══════════════════════════════════════════════════════════════
-        // الحصول على getUserMedia (مع البادئات القديمة)
-        // ═══════════════════════════════════════════════════════════════
-        function getUserMedia(constraints) {
-            if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-                return navigator.mediaDevices.getUserMedia(constraints);
-            }
-            const legacyGetUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
-            if (legacyGetUserMedia) {
-                return new Promise((resolve, reject) => {
-                    legacyGetUserMedia.call(navigator, constraints, resolve, reject);
-                });
-            }
-            return Promise.reject(new Error('getUserMedia غير مدعوم'));
-        }
-        
-        // ═══════════════════════════════════════════════════════════════
-        // بدء الماسح الضوئي
+        // بدء الماسح — html5-qrcode مع إعدادات محسّنة
         // ═══════════════════════════════════════════════════════════════
         async function startScanner() {
             if (isScanning) return;
             
-            // فحص دعم الكاميرا
-            if (!checkGetUserMediaSupport()) {
-                updateStatus('error', '❌ المتصفح لا يدعم الوصول للكاميرا.\nجرب متصفح Chrome أو Edge أحدث.');
-                return;
-            }
-            
-            // فحص السياق الآمن
             if (window.location.protocol === 'file:') {
-                document.getElementById('security-warning').classList.add('visible');
-                updateStatus('warning', '⚠️ الملف مفتوح مباشرة (file://).\nالكاميرا قد لا تعمل. جرب:\n1. افتح بـ VS Code Live Server\n2. أو اكتب في Terminal: npx serve\n3. ثم افتح http://localhost:3000');
-                // نستمر على أي حال — قد يعمل في بعض المتصفحات
+                document.getElementById('warning-box').classList.add('visible');
             }
             
-            updateStatus('scanning', '⏳ جاري تشغيل الكاميرا...');
+            updateStatus('scanning', '⏳ جاري تشغيل الكاميرا...\nجاري اختيار أفضل إعدادات...');
             
             try {
-                // طلب الكاميرا
-                const constraints = {
-                    video: {
-                        facingMode: { ideal: 'environment' },
-                        width: { ideal: 1280 },
-                        height: { ideal: 720 }
+                html5QrCode = new Html5Qrcode("reader");
+                
+                // الحصول على الكاميرات
+                const devices = await Html5Qrcode.getCameras();
+                if (!devices || devices.length === 0) {
+                    throw new Error('لم يتم العثور على كاميرا');
+                }
+                
+                // اختيار الكاميرا الخلفية (أفضل للباركود)
+                const rearCamera = devices.find(d => 
+                    d.label.toLowerCase().includes('back') || 
+                    d.label.toLowerCase().includes('rear') ||
+                    d.label.toLowerCase().includes('environment')
+                );
+                currentCameraId = rearCamera ? rearCamera.id : devices[devices.length - 1].id;
+                
+                // إعدادات الكاميرا المحسّنة جداً
+                const config = {
+                    fps: 15,                    // 15 إطار/ثانية (توازن بين السرعة والأداء)
+                    qrbox: {                    // منطقة المسح — أكبر وأوضح
+                        width: 280,
+                        height: 180
+                    },
+                    aspectRatio: 1.777,         // 16:9 — أعرض وأوضح
+                    disableFlip: false,         // السماح بالقلب
+                    formatsToSupport: [         // أنواع الباركود المدعومة
+                        Html5QrcodeSupportedFormats.EAN_13,
+                        Html5QrcodeSupportedFormats.EAN_8,
+                        Html5QrcodeSupportedFormats.UPC_A,
+                        Html5QrcodeSupportedFormats.UPC_E,
+                        Html5QrcodeSupportedFormats.CODE_128,
+                        Html5QrcodeSupportedFormats.CODE_39,
+                        Html5QrcodeSupportedFormats.CODABAR,
+                        Html5QrcodeSupportedFormats.QR_CODE
+                    ],
+                    videoConstraints: {         // قيود الفيديو لجودة أعلى
+                        width: { min: 640, ideal: 1920, max: 1920 },
+                        height: { min: 480, ideal: 1080, max: 1080 },
+                        facingMode: "environment",
+                        advanced: [
+                            { focusMode: "continuous" },      // تركيز مستمر
+                            { exposureMode: "continuous" }, // تعريض مستمر
+                            { whiteBalanceMode: "continuous" }
+                        ]
                     }
                 };
                 
-                videoStream = await getUserMedia(constraints);
-                const video = document.getElementById('video');
-                video.srcObject = videoStream;
+                await html5QrCode.start(
+                    currentCameraId,
+                    config,
+                    onScanSuccess,
+                    onScanFailure
+                );
                 
-                await new Promise((resolve) => {
-                    video.onloadedmetadata = () => {
-                        video.play();
-                        resolve();
-                    };
-                });
-                
-                // إظهار الفيديو وإخفاء placeholder
-                video.classList.add('active');
-                document.getElementById('camera-placeholder').style.display = 'none';
-                document.getElementById('scan-overlay').classList.add('active');
-                
-                // إنشاء BarcodeDetector
-                if (checkBarcodeDetectorSupport()) {
-                    barcodeDetector = new BarcodeDetector({
-                        formats: ['code_128', 'code_39', 'ean_13', 'ean_8', 'upc_a', 'upc_e', 'codabar', 'qr_code']
-                    });
-                    console.log('✅ BarcodeDetector جاهز');
-                } else {
-                    console.log('⚠️ BarcodeDetector غير متوفر — سنعتمد على ZXing');
-                }
-                
-                // بدء حلقة المسح
                 isScanning = true;
                 document.getElementById('start-btn').style.display = 'none';
                 document.getElementById('stop-btn').style.display = 'block';
-                updateStatus('scanning', '✅ الكاميرا تعمل! وجه الباركود نحو الإطار الأخضر');
+                document.getElementById('torch-btn').style.display = 'block';
                 
-                // مسح كل 200ms
-                scanInterval = setInterval(scanFrame, 200);
+                updateStatus('scanning', '✅ الكاميرا تعمل!\n📱 ضع الباركود في المربع الأخضر\n💡 اضغط 🔦 إذا كانت الإضاءة ضعيفة');
                 
             } catch (err) {
-                console.error('Camera error:', err);
-                let errorMsg = '❌ خطأ في الكاميرا: ' + err.message;
-                
-                if (err.name === 'NotAllowedError') {
-                    errorMsg = '❌ تم رفض إذن الكاميرا.\nالرجاء السماح بالوصول للكاميرا من إعدادات المتصفح.';
-                } else if (err.name === 'NotFoundError') {
-                    errorMsg = '❌ لم يتم العثور على كاميرا.\nتأكد من توصيل كاميرا.';
-                } else if (err.name === 'NotReadableError') {
-                    errorMsg = '❌ الكاميرا مشغولة ببرنامج آخر.\nأغلق برامج الكاميرا الأخرى.';
+                console.error(err);
+                let msg = err.message || 'خطأ غير معروف';
+                if (msg.includes('Permission') || msg.includes('denied')) {
+                    msg = '❌ تم رفض إذن الكاميرا.\nالرجاء السماح بالوصول من إعدادات المتصفح.';
+                } else if (msg.includes('NotFound')) {
+                    msg = '❌ لم يتم العثور على كاميرا.\nتأكد من توصيل كاميرا أو استخدم رفع صورة.';
                 } else if (window.location.protocol === 'file:') {
-                    errorMsg = '❌ الكاميرا تحتاج HTTPS أو localhost.\n\nالحلول:\n1. افتح VS Code واضغط "Go Live"\n2. أو اكتب في Terminal: npx serve\n3. ثم افتح الرابط الذي يظهر';
+                    msg = '❌ الكاميرا تحتاج HTTPS أو localhost.\n\nالحلول:\n1. VS Code → "Go Live"\n2. Terminal: npx serve\n3. افتح http://localhost:3000';
                 }
-                
-                updateStatus('error', errorMsg);
-                resetCamera();
+                updateStatus('error', msg);
             }
         }
         
-        // ═══════════════════════════════════════════════════════════════
-        // مسح الإطار الحالي
-        // ═══════════════════════════════════════════════════════════════
-        async function scanFrame() {
-            if (!isScanning || scanCooldown) return;
-            
-            const video = document.getElementById('video');
-            if (!video.readyState || video.readyState < 2) return;
-            
-            try {
-                let detected = false;
-                
-                // المحاولة 1: BarcodeDetector API (أسرع وأدق)
-                if (barcodeDetector) {
-                    const barcodes = await barcodeDetector.detect(video);
-                    if (barcodes.length > 0) {
-                        handleBarcodeResult(barcodes[0].rawValue);
-                        detected = true;
-                    }
-                }
-                
-                // المحاولة 2: ZXing (إذا فشل BarcodeDetector)
-                if (!detected && typeof ZXingBrowser !== 'undefined') {
-                    // ZXing Browser كبديل
-                    try {
-                        const codeReader = new ZXingBrowser.BrowserMultiFormatReader();
-                        const result = await codeReader.decodeFromVideoElement(video);
-                        if (result) {
-                            handleBarcodeResult(result.getText());
-                        }
-                    } catch (e) {
-                        // لا شيء — هذا طبيعي عند عدم وجود باركود
-                    }
-                }
-                
-            } catch (err) {
-                // أخطاء المسح الطبيعية — نتجاهلها
-            }
-        }
-        
-        // ═══════════════════════════════════════════════════════════════
-        // إيقاف الماسح
-        // ═══════════════════════════════════════════════════════════════
         function stopScanner() {
-            if (!isScanning) return;
+            if (!isScanning || !html5QrCode) return;
             
-            if (scanInterval) {
-                clearInterval(scanInterval);
-                scanInterval = null;
-            }
-            
-            if (videoStream) {
-                videoStream.getTracks().forEach(track => track.stop());
-                videoStream = null;
-            }
-            
-            isScanning = false;
-            lastScannedCode = null;
-            
-            const video = document.getElementById('video');
-            video.classList.remove('active');
-            video.srcObject = null;
-            
-            document.getElementById('camera-placeholder').style.display = 'flex';
-            document.getElementById('scan-overlay').classList.remove('active');
-            document.getElementById('start-btn').style.display = 'block';
-            document.getElementById('stop-btn').style.display = 'none';
-            document.getElementById('security-warning').classList.remove('visible');
-            
-            updateStatus('waiting', '⏳ تم إيقاف الكاميرا');
-        }
-        
-        function resetCamera() {
-            stopScanner();
+            html5QrCode.stop().then(() => {
+                isScanning = false;
+                torchOn = false;
+                document.getElementById('start-btn').style.display = 'block';
+                document.getElementById('stop-btn').style.display = 'none';
+                document.getElementById('torch-btn').style.display = 'none';
+                document.getElementById('torch-btn').classList.add('off');
+                document.getElementById('torch-btn').textContent = '🔦 فلاش';
+                updateStatus('waiting', '⏳ تم إيقاف الكاميرا');
+            }).catch(err => {
+                console.error(err);
+            });
         }
         
         // ═══════════════════════════════════════════════════════════════
-        // معالجة نتيجة الباركود
+        // نجاح المسح
         // ═══════════════════════════════════════════════════════════════
-        function handleBarcodeResult(code) {
+        function onScanSuccess(decodedText, decodedResult) {
             if (scanCooldown) return;
-            if (code === lastScannedCode) return;
+            if (decodedText === lastCode) return;
             
-            lastScannedCode = code;
+            lastCode = decodedText;
             scanCooldown = true;
             
             if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
             
-            updateStatus('loading', '📡 تم قراءة الباركود: ' + code + '\nجاري البحث في جميع المصادر...');
-            lookupProduct(code);
+            updateStatus('loading', '📡 تم قراءة الباركود: ' + decodedText + '\nجاري البحث في جميع المصادر...');
+            lookupProduct(decodedText);
             
-            setTimeout(() => { scanCooldown = false; }, 4000);
+            setTimeout(() => { scanCooldown = false; }, 3000);
+        }
+        
+        function onScanFailure(error) {
+            // أخطاء المسح الطبيعية — نتجاهلها
+        }
+        
+        // ═══════════════════════════════════════════════════════════════
+        // تبديل الفلاش
+        // ═══════════════════════════════════════════════════════════════
+        async function toggleTorch() {
+            if (!isScanning || !html5QrCode) return;
+            
+            try {
+                const btn = document.getElementById('torch-btn');
+                const track = html5QrCode.getRunningTrackCapabilities();
+                
+                if (track && track.torch) {
+                    torchOn = !torchOn;
+                    await html5QrCode.applyVideoConstraints({
+                        advanced: [{ torch: torchOn }]
+                    });
+                    
+                    if (torchOn) {
+                        btn.classList.remove('off');
+                        btn.textContent = '🔦 فلاش (مُفعّل)';
+                    } else {
+                        btn.classList.add('off');
+                        btn.textContent = '🔦 فلاش';
+                    }
+                } else {
+                    updateStatus('warning', '⚠️ الفلاش غير مدعوم في هذا الجهاز');
+                }
+            } catch (err) {
+                console.error('Torch error:', err);
+                updateStatus('warning', '⚠️ لا يمكن تفعيل الفلاش في هذا المتصفح');
+            }
         }
         
         // ═══════════════════════════════════════════════════════════════
@@ -720,45 +637,15 @@
             updateStatus('loading', '📁 جاري قراءة الباركود من الصورة...');
             
             try {
-                const imageUrl = URL.createObjectURL(file);
-                const img = new Image();
-                img.src = imageUrl;
-                
-                await new Promise((resolve, reject) => {
-                    img.onload = resolve;
-                    img.onerror = reject;
-                });
-                
-                let detected = false;
-                
-                // المحاولة 1: BarcodeDetector API
-                if (checkBarcodeDetectorSupport()) {
-                    const detector = new BarcodeDetector({
-                        formats: ['code_128', 'code_39', 'ean_13', 'ean_8', 'upc_a', 'upc_e', 'codabar', 'qr_code']
-                    });
-                    const barcodes = await detector.detect(img);
-                    if (barcodes.length > 0) {
-                        handleBarcodeResult(barcodes[0].rawValue);
-                        detected = true;
-                    }
+                if (!html5QrCode) {
+                    html5QrCode = new Html5Qrcode("reader");
                 }
                 
-                // المحاولة 2: ZXing
-                if (!detected && typeof ZXingBrowser !== 'undefined') {
-                    const codeReader = new ZXingBrowser.BrowserMultiFormatReader();
-                    const result = await codeReader.decodeFromImageUrl(imageUrl);
-                    if (result) {
-                        handleBarcodeResult(result.getText());
-                        detected = true;
-                    }
-                }
-                
-                if (!detected) {
-                    updateStatus('error', '❌ لم يتم العثور على باركود في الصورة.\nحاول صورة أوضح أو أدخل الرقم يدوياً.');
-                }
+                const result = await html5QrCode.scanFile(file, true);
+                onScanSuccess(result, null);
                 
             } catch (err) {
-                updateStatus('error', '❌ خطأ في قراءة الصورة: ' + err.message);
+                updateStatus('error', '❌ لم يتم العثور على باركود في الصورة.\nحاول صورة أوضح أو أدخل الرقم يدوياً.');
             }
             
             event.target.value = '';
@@ -795,7 +682,7 @@
                 const data = await res.json();
                 if (data.status === 1 && data.product) {
                     displayOpenFoodFactsData(data.product, barcode);
-                    updateStatus('success', '✅ تم العثور على البيانات! (المصدر: Open Food Facts)');
+                    updateStatus('success', '✅ تم العثور على البيانات! (Open Food Facts)');
                     return;
                 }
                 attempts.push('Open Food Facts: غير موجود');
@@ -808,52 +695,52 @@
                 const data = await res.json();
                 if (data.status === 1 && data.product) {
                     displayOpenBeautyFactsData(data.product, barcode);
-                    updateStatus('success', '✅ تم العثور على البيانات! (المصدر: Open Beauty Facts)');
+                    updateStatus('success', '✅ تم العثور على البيانات! (Open Beauty Facts)');
                     return;
                 }
                 attempts.push('Open Beauty Facts: غير موجود');
             } catch (e) { attempts.push('Open Beauty Facts: خطأ'); }
             
-            // 3️⃣ UPCitemdb (مع CORS Proxy)
+            // 3️⃣ UPCitemdb (CORS Proxy)
             try {
                 updateStatus('loading', '📦 المحاولة 3/5: UPCitemdb...');
                 const res = await fetch(`${CORS_PROXY}https://api.upcitemdb.com/prod/trial/lookup?upc=${barcode}`);
                 const data = await res.json();
                 if (data.items && data.items.length > 0) {
                     displayUPCItemDBData(data.items[0], barcode);
-                    updateStatus('success', '✅ تم العثور على البيانات! (المصدر: UPCitemdb)');
+                    updateStatus('success', '✅ تم العثور على البيانات! (UPCitemdb)');
                     return;
                 }
                 attempts.push('UPCitemdb: غير موجود');
             } catch (e) { attempts.push('UPCitemdb: خطأ'); }
             
-            // 4️⃣ Brocade.io (مع CORS Proxy)
+            // 4️⃣ Brocade.io (CORS Proxy)
             try {
                 updateStatus('loading', '🌐 المحاولة 4/5: Brocade.io...');
                 const res = await fetch(`${CORS_PROXY}https://brocade.io/api/v1/products/${barcode}`);
                 const data = await res.json();
                 if (data && data.title) {
                     displayBrocadeData(data, barcode);
-                    updateStatus('success', '✅ تم العثور على البيانات! (المصدر: Brocade.io)');
+                    updateStatus('success', '✅ تم العثور على البيانات! (Brocade.io)');
                     return;
                 }
                 attempts.push('Brocade.io: غير موجود');
             } catch (e) { attempts.push('Brocade.io: خطأ'); }
             
-            // 5️⃣ BarcodeSpider (مع CORS Proxy)
+            // 5️⃣ BarcodeSpider (CORS Proxy)
             try {
                 updateStatus('loading', '🕷️ المحاولة 5/5: BarcodeSpider...');
                 const res = await fetch(`${CORS_PROXY}https://api.barcodespider.com/v1/lookup?token=free&upc=${barcode}`);
                 const data = await res.json();
                 if (data.item_response && data.item_response.code === 200 && data.item_attributes) {
                     displayBarcodeSpiderData(data.item_attributes, barcode);
-                    updateStatus('success', '✅ تم العثور على البيانات! (المصدر: BarcodeSpider)');
+                    updateStatus('success', '✅ تم العثور على البيانات! (BarcodeSpider)');
                     return;
                 }
                 attempts.push('BarcodeSpider: غير موجود');
             } catch (e) { attempts.push('BarcodeSpider: خطأ'); }
             
-            updateStatus('error', '❌ المنتج غير موجود في أي من قواعد البيانات المجانية\n\nالتفاصيل:\n' + attempts.join('\n'));
+            updateStatus('error', '❌ المنتج غير موجود في أي قاعدة بيانات\n\nالتفاصيل:\n' + attempts.join('\n'));
         }
         
         // ═══════════════════════════════════════════════════════════════
@@ -914,12 +801,11 @@
                 { label: 'اللون', value: item.color || 'غير متوفر' },
                 { label: 'الحجم', value: item.size || 'غير متوفر' },
                 { label: 'الوزن', value: item.weight || 'غير متوفر' },
-                { label: 'الأبعاد', value: item.dimension || 'غير متوفر' },
-                { label: 'أقل سعر مسجل', value: item.lowest_recorded_price ? '$' + item.lowest_recorded_price : 'غير متوفر' }
+                { label: 'أقل سعر', value: item.lowest_recorded_price ? '$' + item.lowest_recorded_price : 'غير متوفر' }
             ];
             
             renderFields(fields);
-            setSource('source-upc', '📦 UPCitemdb (100 طلب/يوم مجاني)');
+            setSource('source-upc', '📦 UPCitemdb (100 طلب/يوم)');
             showSection();
         }
         
@@ -932,8 +818,7 @@
                 { label: 'الوصف', value: item.description || 'غير متوفر' },
                 { label: 'العلامة التجارية', value: item.brand || 'غير متوفر' },
                 { label: 'التصنيف', value: item.category || 'غير متوفر' },
-                { label: 'الشركة المصنعة', value: item.manufacturer || 'غير متوفر' },
-                { label: 'البلد', value: item.country || 'غير متوفر' }
+                { label: 'الشركة المصنعة', value: item.manufacturer || 'غير متوفر' }
             ];
             
             renderFields(fields);
@@ -950,8 +835,7 @@
                 { label: 'العلامة التجارية', value: item.brand || 'غير متوفر' },
                 { label: 'الوصف', value: item.description || 'غير متوفر' },
                 { label: 'التصنيف', value: item.category || 'غير متوفر' },
-                { label: 'الشركة المصنعة', value: item.manufacturer || 'غير متوفر' },
-                { label: 'البلد', value: item.country || 'غير متوفر' }
+                { label: 'الشركة المصنعة', value: item.manufacturer || 'غير متوفر' }
             ];
             
             renderFields(fields);
@@ -960,7 +844,7 @@
         }
         
         // ═══════════════════════════════════════════════════════════════
-        // مساعدات العرض
+        // مساعدات
         // ═══════════════════════════════════════════════════════════════
         function setImage(url) {
             const container = document.getElementById('image-container');
@@ -1002,16 +886,8 @@
             status.innerHTML = type === 'loading' ? message + '<span class="spinner"></span>' : message.replace(/\n/g, '<br>');
         }
         
-        // إدخال يدوي بالضغط على Enter
         document.getElementById('manual-barcode').addEventListener('keypress', function(e) {
             if (e.key === 'Enter') lookupManual();
-        });
-        
-        // فحص عند التحميل
-        window.addEventListener('load', () => {
-            console.log('🔍 دعم BarcodeDetector:', checkBarcodeDetectorSupport());
-            console.log('🔍 دعم getUserMedia:', checkGetUserMediaSupport());
-            console.log('🔍 البروتوكول:', window.location.protocol);
         });
     </script>
 </body>
