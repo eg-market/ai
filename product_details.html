@@ -405,120 +405,91 @@
         function renderCroppedImage(container, item) {
             container.innerHTML = '';
             const fullImageUrl = getProductImageUrl(item);
-            
+
             if (!fullImageUrl) {
                 container.innerHTML = '<div style="display:flex;justify-content:center;align-items:center;width:100%;height:100%;color:white;font-size:1.2rem;">لا توجد صورة</div>';
                 return;
             }
 
-            const x = parseFloat(item.X) || 0;
-            const y = parseFloat(item.Y) || 0;
-            const w = parseFloat(item['العرض']) || 0;
-            const h = parseFloat(item['الارتفاع']) || 0;
+            const x = parseFloat(item.X) || parseFloat(item.crop?.x) || 0;
+            const y = parseFloat(item.Y) || parseFloat(item.crop?.y) || 0;
+            const w = parseFloat(item['العرض']) || parseFloat(item.crop?.w) || 0;
+            const h = parseFloat(item['الارتفاع']) || parseFloat(item.crop?.h) || 0;
 
-            // الوضع البسيط: لا إحداثيات → صورة كاملة
+            // No crop coords → show full image
             if (x === 0 && y === 0 && w === 0 && h === 0) {
-                const img = document.createElement('img');
-                img.src = fullImageUrl;
-                img.style.cssText = 'max-width:100%; max-height:100%; object-fit:contain; border-radius:16px; box-shadow:0 8px 25px rgba(0,0,0,0.3);';
-                container.appendChild(img);
+                const el = document.createElement('img');
+                el.src = fullImageUrl;
+                el.style.cssText = 'max-width:100%;max-height:100%;object-fit:contain;border-radius:16px;box-shadow:0 8px 25px rgba(0,0,0,0.3);';
+                container.appendChild(el);
                 return;
             }
 
+            // Use CSS background-image — works without CORS, no canvas needed
             const PAD_LEFT   = 0.40;
             const PAD_RIGHT  = 0.11;
             const PAD_TOP    = 0.17;
             const PAD_BOTTOM = 0.05;
 
-            // نستخدم Image() لمعرفة الأبعاد الحقيقية للصورة، ثم نرسم على Canvas
-            // هذا هو الحل الوحيد الموثوق عبر Desktop + Mobile بدون مشاكل height:100%
             const img = new Image();
-            img.crossOrigin = 'anonymous';
+            // NO crossOrigin — mobappsbaker.com blocks CORS requests
+
+            img.onerror = function() {
+                container.innerHTML = '<div style="display:flex;justify-content:center;align-items:center;width:100%;height:100%;color:white;font-size:1.2rem;">فشل تحميل الصورة</div>';
+            };
 
             img.onload = function() {
-                const img_w = img.naturalWidth;
-                const img_h = img.naturalHeight;
+                const iw = img.naturalWidth;
+                const ih = img.naturalHeight;
 
-                let left_px = (x <= 1.0) ? x * img_w : x;
-                let top_px  = (y <= 1.0) ? y * img_h : y;
-                let box_w_px = (w <= 1.0) ? w * img_w : w;
-                let box_h_px = (h <= 1.0) ? h * img_h : h;
+                const lx     = (x <= 1.0) ? x * iw : x;
+                const ty     = (y <= 1.0) ? y * ih : y;
+                const box_w  = (w <= 1.0) ? w * iw : w;
+                const box_h  = (h <= 1.0) ? h * ih : h;
 
-                let final_left   = Math.max(0, left_px - (img_w * PAD_LEFT));
-                let final_right  = Math.min(img_w, left_px + box_w_px + (img_w * PAD_RIGHT));
-                let final_top    = Math.max(0, top_px - (img_h * PAD_TOP));
-                let final_bottom = Math.min(img_h, top_px + box_h_px + (img_h * PAD_BOTTOM));
+                const fl = Math.max(0,  lx - iw * PAD_LEFT);
+                const fr = Math.min(iw, lx + box_w + iw * PAD_RIGHT);
+                const ft = Math.max(0,  ty - ih * PAD_TOP);
+                const fb = Math.min(ih, ty + box_h + ih * PAD_BOTTOM);
 
-                if (final_right <= final_left || final_bottom <= final_top) {
-                    container.innerHTML = '<div style="display:flex;justify-content:center;align-items:center;width:100%;height:100%;color:white;font-size:1.2rem;">إحداثيات غير صالحة</div>';
+                if (fr <= fl || fb <= ft) {
+                    const el = document.createElement('img');
+                    el.src = fullImageUrl;
+                    el.style.cssText = 'max-width:100%;max-height:100%;object-fit:contain;border-radius:16px;';
+                    container.appendChild(el);
                     return;
                 }
 
-                const crop_w = final_right - final_left;
-                const crop_h = final_bottom - final_top;
+                const cw = fr - fl;
+                const ch = fb - ft;
 
-                // ──────────────────────────────────────────────────────────────
-                // الحل الأساسي: Canvas
-                // يعمل على الموبايل والكمبيوتر بدون مشاكل height/background-image
-                // ──────────────────────────────────────────────────────────────
-                const canvas = document.createElement('canvas');
-
-                // اقرأ الأبعاد الفعلية لـ container AFTER layout
-                const cW = container.clientWidth  || window.innerWidth;
-                const cH = container.clientHeight || Math.round(window.innerHeight * 0.35);
-
-                // حجم الـ canvas = حجم الجزء المقتص مع scale للملاءمة
-                const scaleX = cW / crop_w;
-                const scaleY = cH / crop_h;
-                const scale  = Math.min(scaleX, scaleY, 1.5); // لا نكبّر أكثر من 150%
-
-                canvas.width  = Math.round(crop_w * scale);
-                canvas.height = Math.round(crop_h * scale);
-                canvas.style.cssText = 'border-radius:16px; box-shadow:0 8px 25px rgba(0,0,0,0.3); max-width:100%; max-height:100%; display:block;';
-
-                const ctx = canvas.getContext('2d');
-                ctx.drawImage(
-                    img,
-                    final_left, final_top, crop_w, crop_h,  // source
-                    0, 0, canvas.width, canvas.height         // destination
-                );
-
-                container.style.cssText += '; display:flex; justify-content:center; align-items:center; position:relative;';
-                container.innerHTML = '';
-                container.appendChild(canvas);
-
-                const badge = document.createElement('span');
-                badge.style.cssText = 'position:absolute; bottom:15px; right:15px; background:rgba(0,0,0,0.7); color:#fff; padding:4px 14px; border-radius:20px; font-size:0.8rem; pointer-events:none; z-index:2;';
-                badge.innerHTML = '<i class="fas fa-crop-alt"></i> مقتصصة';
-                container.appendChild(badge);
-            };
-
-            img.onerror = function() {
-                // فالباك: background-image عادي لو فشل Canvas (CORS)
-                container.innerHTML = '';
-                const crop_w_rel = final_right - final_left || 1;
-                const crop_h_rel = final_bottom - final_top || 1;
-                const bgSizeW = ((img.naturalWidth || 1000) / (crop_w_rel || 1)) * 100;
-                const bgSizeH = ((img.naturalHeight || 1000) / (crop_h_rel || 1)) * 100;
-                const bgPosX  = ((final_left || 0) / (((img.naturalWidth || 1000) - crop_w_rel) || 1)) * 100;
-                const bgPosY  = ((final_top || 0)  / (((img.naturalHeight || 1000) - crop_h_rel) || 1)) * 100;
-
-                const cH = container.clientHeight || Math.round(window.innerHeight * 0.35);
-                const cW = container.clientWidth  || window.innerWidth;
+                const bgSizeW = (iw / cw) * 100;
+                const bgSizeH = (ih / ch) * 100;
+                const bgPosX  = (iw - cw) > 0.5 ? (fl / (iw - cw)) * 100 : 0;
+                const bgPosY  = (ih - ch) > 0.5 ? (ft / (ih - ch)) * 100 : 0;
 
                 const cropDiv = document.createElement('div');
-                cropDiv.style.cssText = `
-                    width: ${cW}px;
-                    height: ${cH}px;
-                    background-image: url('${fullImageUrl}');
-                    background-size: ${bgSizeW}% ${bgSizeH}%;
-                    background-position: ${bgPosX}% ${bgPosY}%;
-                    background-repeat: no-repeat;
-                    border-radius: 16px;
-                    box-shadow: 0 8px 25px rgba(0,0,0,0.3);
-                `;
-                container.style.cssText += '; display:flex; justify-content:center; align-items:center; position:relative;';
+                cropDiv.style.cssText = [
+                    'width:100%',
+                    'height:100%',
+                    'max-width:95%',
+                    'max-height:95%',
+                    `background-image:url('${fullImageUrl}')`,
+                    `background-size:${bgSizeW.toFixed(2)}% ${bgSizeH.toFixed(2)}%`,
+                    `background-position:${bgPosX.toFixed(2)}% ${bgPosY.toFixed(2)}%`,
+                    'background-repeat:no-repeat',
+                    'border-radius:16px',
+                    'box-shadow:0 8px 25px rgba(0,0,0,0.3)'
+                ].join(';');
+
+                container.style.cssText += ';display:flex;justify-content:center;align-items:center;position:relative;overflow:hidden;';
+                container.innerHTML = '';
                 container.appendChild(cropDiv);
+
+                const badge = document.createElement('span');
+                badge.style.cssText = 'position:absolute;bottom:15px;right:15px;background:rgba(0,0,0,0.7);color:#fff;padding:4px 14px;border-radius:20px;font-size:0.8rem;pointer-events:none;z-index:2;';
+                badge.innerHTML = '<i class="fas fa-crop-alt"></i> مقتصصة';
+                container.appendChild(badge);
             };
 
             img.src = fullImageUrl;
