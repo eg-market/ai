@@ -6,6 +6,7 @@
     <title>تفاصيل المنتج - عروض السوبرماركت</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&amp;display=swap"
+
       rel="stylesheet">
     <script src="https://cdn.sheetjs.com/xlsx-0.20.2/package/dist/xlsx.full.min.js"></script>
     <style>
@@ -387,9 +388,14 @@
     </div>
     <div id="imageModal" class="modal" onclick="handleModalClick(event)">
       <div class="close" onclick="closeModal()">×</div>
-      <button class="modal-nav modal-nav-prev" id="modalPrev" onclick="event.stopPropagation(); navigateModal(-1)" title="الصفحة السابقة"><i class="fas fa-chevron-right"></i></button>
-      <img id="modalImage" src="" alt="صورة مكبرة" onclick="event.stopPropagation()">
-      <button class="modal-nav modal-nav-next" id="modalNext" onclick="event.stopPropagation(); navigateModal(1)" title="الصفحة التالية"><i class="fas fa-chevron-left"></i></button>
+      <button class="modal-nav modal-nav-prev" id="modalPrev" onclick="event.stopPropagation(); navigateModal(-1)"
+
+        title="الصفحة السابقة"><i class="fas fa-chevron-right"></i></button> <img
+
+        id="modalImage" src="" alt="صورة مكبرة" onclick="event.stopPropagation()">
+      <button class="modal-nav modal-nav-next" id="modalNext" onclick="event.stopPropagation(); navigateModal(1)"
+
+        title="الصفحة التالية"><i class="fas fa-chevron-left"></i></button>
       <div class="modal-page-indicator" id="modalPageIndicator"></div>
     </div>
     <script>
@@ -513,7 +519,7 @@
             if (!data.currentPrice) data.currentPrice = data['السعر الحالي'] || data['current_price'] || data['price'] || 0;
             if (!data.originalPrice) data.originalPrice = data['السعر الأصلي'] || data['original_price'] || data['old_price'] || 0;
             if (!data._discount_pct) data._discount_pct = data['الخصم %'] || data['discount_pct'] || data['discount'] || 0;
-            if (!data.currency) data.currency = data['العملة'] || data['currency'] || 'EGP';
+            if (!data.currency) data.currency = data['العملة'] || data['currency'] || 'AED';
             if (!data.validUntil) data.validUntil = data['تاريخ انتهاء العرض'] || data['valid_until'] || data['expiry_date'] || 'غير متاح';
             if (!data.supermarket) data.supermarket = data['اسم السوبر ماركت'] || data['supermarket_name'] || 'غير معروف';
             if (!data.pageNo) data.pageNo = data['اسم ملف الفلاير'] || data['page_file'] || '';
@@ -585,19 +591,19 @@
         function getProductImageUrl(item) {
             let flyerId = item.pageNo?.match(/flyer_(\d+)/)?.[1] || item.solution_key;
             let pageNumber = item.pageNo?.match(/page_(\d+)/)?.[1] || '';
-            if (flyerId && pageNumber) return `https://www.mobappsbaker.com/catalogs/thwr/offers/${flyerId}/${pageNumber}.jpg`;
+            if (flyerId && pageNumber) return `https://www.mobappsbaker.com/aecatalogs/thwr/offers/${flyerId}/${pageNumber}.jpg`;
             return null;
         }
 
         function getGeneralFlyerUrl(item) {
             let flyerId = item.pageNo?.match(/flyer_(\d+)/)?.[1] || item.solution_key;
-            if (flyerId) return `https://www.mobappsbaker.com/catalogs/thwr/offers/${flyerId}/1.jpg`;
+            if (flyerId) return `https://www.mobappsbaker.com/aecatalogs/thwr/offers/${flyerId}/1.jpg`;
             return null;
         }
 
         window.shareProduct = function() {
             if (!productData) return;
-            const text = `${productData.product} - بسعر ${productData.currentPrice} جنيه - ${productData.supermarket}`;
+            const text = `${productData.product} - بسعر ${productData.currentPrice} AED - ${productData.supermarket}`;
             if (navigator.share) navigator.share({ title: productData.product, text: text });
             else navigator.clipboard.writeText(text + ' ' + window.location.href) && alert('تم نسخ الرابط');
         };
@@ -657,7 +663,7 @@
         }
 
         function buildPageUrl(flyerId, pageNum) {
-            return `https://www.mobappsbaker.com/catalogs/thwr/offers/${flyerId}/${pageNum}.jpg`;
+            return `https://www.mobappsbaker.com/aecatalogs/thwr/offers/${flyerId}/${pageNum}.jpg`;
         }
 
         // اكتشاف آخر صفحة في المجلد عبر binary-search بسيط
@@ -771,7 +777,7 @@
                         <div class="product-title">${productData.product}</div>
                     </div>
                     <div class="price-box">
-                        <div><span class="current-price">${productData.currentPrice} ${productData.currency}</span><span class="original-price">${productData.originalPrice} ج.م</span></div>
+                        <div><span class="current-price">${productData.currentPrice} ${productData.currency}</span><span class="original-price">${productData.originalPrice} AED</span></div>
                         <span class="discount-badge">-${productData._discount_pct}%</span>
                     </div>
                     <div class="actions-row">
