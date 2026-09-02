@@ -609,6 +609,13 @@
             }
         }
 
+        function imgFallback(imgEl){
+            // No dependency on any external placeholder service — swap in a local message instead.
+            const box = document.createElement('div');
+            box.style.cssText = 'text-align:center;';
+            box.innerHTML = '<i class="fas fa-image" style="font-size:3rem;color:#ccc"></i><p>لا توجد صورة</p>';
+            imgEl.replaceWith(box);
+        }
         function isValidFlyerId(id){
             return /^\d+$/.test(String(id||'').trim());
         }
@@ -826,11 +833,11 @@
                 <div class="flyer-images-row">
                     <div class="flyer-image-box" onclick="openModal('${fullFlyerUrl || ''}', '${flyerInfo.flyerId}', ${flyerInfo.pageNum})">
                         <h4><i class="fas fa-file-image"></i> الصفحة الحالية</h4>
-                        ${fullFlyerUrl ? `<img src="${fullFlyerUrl}" alt="الصفحة الحالية" onerror="this.src='https://via.placeholder.com/300?text=No+Image'">` : '<i class="fas fa-image" style="font-size:3rem;color:#ccc"></i><p>لا توجد صورة</p>'}
+                        ${fullFlyerUrl ? `<img src="${fullFlyerUrl}" alt="الصفحة الحالية" onerror="imgFallback(this)">` : '<i class="fas fa-image" style="font-size:3rem;color:#ccc"></i><p>لا توجد صورة</p>'}
                     </div>
                     <div class="flyer-image-box" onclick="openModal('${generalImageUrl || ''}', '${flyerInfo.flyerId}', 1)">
                         <h4><i class="fas fa-book-open"></i> غلاف الفلاير</h4>
-                        ${generalImageUrl ? `<img src="${generalImageUrl}" alt="غلاف الفلاير" onerror="this.src='https://via.placeholder.com/300?text=No+Cover'">` : '<i class="fas fa-image" style="font-size:3rem;color:#ccc"></i><p>لا توجد صورة</p>'}
+                        ${generalImageUrl ? `<img src="${generalImageUrl}" alt="غلاف الفلاير" onerror="imgFallback(this)">` : '<i class="fas fa-image" style="font-size:3rem;color:#ccc"></i><p>لا توجد صورة</p>'}
                     </div>
                 </div>
                 <button class="back-btn" onclick="window.close()"><i class="fas fa-arrow-right"></i> إغلاق</button>
