@@ -443,10 +443,29 @@
             // NO crossOrigin — mobappsbaker.com blocks CORS requests
 
             img.onerror = function() {
+                // The specific page failed — try page 1 of the same flyer before giving up
+                const fallbackUrl = getGeneralFlyerUrl(item);
+                if (fallbackUrl && fallbackUrl !== fullImageUrl && !img.dataset.triedFallback) {
+                    img.dataset.triedFallback = '1';
+                    img.src = fallbackUrl;
+                    return;
+                }
                 container.innerHTML = '<div style="display:flex;justify-content:center;align-items:center;width:100%;height:100%;color:white;font-size:1.2rem;">فشل تحميل الصورة</div>';
             };
 
             img.onload = function() {
+                const isFallback = img.dataset.triedFallback === '1';
+                const loadedUrl = img.src;
+                if (isFallback) {
+                    // The crop coordinates were computed for a different page than the one
+                    // that actually loaded — show it uncropped rather than a nonsense crop.
+                    const el = document.createElement('img');
+                    el.src = loadedUrl;
+                    el.style.cssText = 'max-width:100%;max-height:100%;object-fit:contain;border-radius:16px;box-shadow:0 8px 25px rgba(0,0,0,0.3);';
+                    container.innerHTML = '';
+                    container.appendChild(el);
+                    return;
+                }
                 const iw = img.naturalWidth;
                 const ih = img.naturalHeight;
 
@@ -462,7 +481,7 @@
 
                 if (fr <= fl || fb <= ft) {
                     const el = document.createElement('img');
-                    el.src = fullImageUrl;
+                    el.src = loadedUrl;
                     el.style.cssText = 'max-width:100%;max-height:100%;object-fit:contain;border-radius:16px;';
                     container.appendChild(el);
                     return;
@@ -482,7 +501,7 @@
                     'height:100%',
                     'max-width:95%',
                     'max-height:95%',
-                    `background-image:url('${fullImageUrl}')`,
+                    `background-image:url('${loadedUrl}')`,
                     `background-size:${bgSizeW.toFixed(2)}% ${bgSizeH.toFixed(2)}%`,
                     `background-position:${bgPosX.toFixed(2)}% ${bgPosY.toFixed(2)}%`,
                     'background-repeat:no-repeat',
@@ -590,16 +609,19 @@
             }
         }
 
+        function isValidFlyerId(id){
+            return /^\d+$/.test(String(id||'').trim());
+        }
         function getProductImageUrl(item) {
             let flyerId = item.pageNo?.match(/flyer_(\d+)/)?.[1] || item.solution_key;
             let pageNumber = item.pageNo?.match(/page_(\d+)/)?.[1] || '';
-            if (flyerId && pageNumber) return `https://www.mobappsbaker.com/aecatalogs/thwr/offers/${flyerId}/${pageNumber}.jpg`;
+            if (isValidFlyerId(flyerId) && pageNumber) return `https://www.mobappsbaker.com/aecatalogs/thwr/offers/${flyerId}/${pageNumber}.jpg`;
             return null;
         }
 
         function getGeneralFlyerUrl(item) {
             let flyerId = item.pageNo?.match(/flyer_(\d+)/)?.[1] || item.solution_key;
-            if (flyerId) return `https://www.mobappsbaker.com/aecatalogs/thwr/offers/${flyerId}/1.jpg`;
+            if (isValidFlyerId(flyerId)) return `https://www.mobappsbaker.com/aecatalogs/thwr/offers/${flyerId}/1.jpg`;
             return null;
         }
 
@@ -658,6 +680,7 @@
             let flyerId = String(folder).trim() ||
                           (pageFile.match(/flyer_(\d+)/)?.[1]) ||
                           item.solution_key || '';
+            if (!isValidFlyerId(flyerId)) flyerId = '';
             // pageNum: من اسم ملف الفلاير (page_(\d+)) أو (_(\d+)\.)
             let pageNum = parseInt(pageFile.match(/page_(\d+)/)?.[1] ||
                                    pageFile.match(/_(\d+)\./)?.[1] || '1', 10);
