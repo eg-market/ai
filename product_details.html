@@ -411,10 +411,10 @@
         };
 
         function renderCroppedImage(container, item) {
-            container.innerHTML = '';
-            const fullImageUrl = getProductImageUrl(item);
+            container.innerHTML = '<div style="display:flex;justify-content:center;align-items:center;width:100%;height:100%;color:rgba(255,255,255,0.6);font-size:1rem;">جارٍ تحميل الصورة…</div>';
+            const pageCandidates = getProductImageUrlCandidates(item);
 
-            if (!fullImageUrl) {
+            if (!pageCandidates.length) {
                 container.innerHTML = '<div style="display:flex;justify-content:center;align-items:center;width:100%;height:100%;color:white;font-size:1.2rem;">لا توجد صورة</div>';
                 return;
             }
@@ -423,49 +423,22 @@
             const y = parseFloat(item.Y) || parseFloat(item.crop?.y) || 0;
             const w = parseFloat(item['العرض']) || parseFloat(item.crop?.w) || 0;
             const h = parseFloat(item['الارتفاع']) || parseFloat(item.crop?.h) || 0;
+            const hasCrop = !(x === 0 && y === 0 && w === 0 && h === 0);
 
-            // No crop coords → show full image
-            if (x === 0 && y === 0 && w === 0 && h === 0) {
-                const el = document.createElement('img');
-                el.src = fullImageUrl;
-                el.style.cssText = 'max-width:100%;max-height:100%;object-fit:contain;border-radius:16px;box-shadow:0 8px 25px rgba(0,0,0,0.3);';
-                container.appendChild(el);
-                return;
-            }
-
-            // Use CSS background-image — works without CORS, no canvas needed
             const PAD_LEFT   = 0.40;
             const PAD_RIGHT  = 0.11;
             const PAD_TOP    = 0.17;
             const PAD_BOTTOM = 0.05;
 
-            const img = new Image();
-            // NO crossOrigin — mobappsbaker.com blocks CORS requests
+            function showUncropped(loadedUrl){
+                const el = document.createElement('img');
+                el.src = loadedUrl;
+                el.style.cssText = 'max-width:100%;max-height:100%;object-fit:contain;border-radius:16px;box-shadow:0 8px 25px rgba(0,0,0,0.3);';
+                container.innerHTML = '';
+                container.appendChild(el);
+            }
 
-            img.onerror = function() {
-                // The specific page failed — try page 1 of the same flyer before giving up
-                const fallbackUrl = getGeneralFlyerUrl(item);
-                if (fallbackUrl && fallbackUrl !== fullImageUrl && !img.dataset.triedFallback) {
-                    img.dataset.triedFallback = '1';
-                    img.src = fallbackUrl;
-                    return;
-                }
-                container.innerHTML = '<div style="display:flex;justify-content:center;align-items:center;width:100%;height:100%;color:white;font-size:1.2rem;">فشل تحميل الصورة</div>';
-            };
-
-            img.onload = function() {
-                const isFallback = img.dataset.triedFallback === '1';
-                const loadedUrl = img.src;
-                if (isFallback) {
-                    // The crop coordinates were computed for a different page than the one
-                    // that actually loaded — show it uncropped rather than a nonsense crop.
-                    const el = document.createElement('img');
-                    el.src = loadedUrl;
-                    el.style.cssText = 'max-width:100%;max-height:100%;object-fit:contain;border-radius:16px;box-shadow:0 8px 25px rgba(0,0,0,0.3);';
-                    container.innerHTML = '';
-                    container.appendChild(el);
-                    return;
-                }
+            function showCropped(loadedUrl, img){
                 const iw = img.naturalWidth;
                 const ih = img.naturalHeight;
 
@@ -479,13 +452,7 @@
                 const ft = Math.max(0,  ty - ih * PAD_TOP);
                 const fb = Math.min(ih, ty + box_h + ih * PAD_BOTTOM);
 
-                if (fr <= fl || fb <= ft) {
-                    const el = document.createElement('img');
-                    el.src = loadedUrl;
-                    el.style.cssText = 'max-width:100%;max-height:100%;object-fit:contain;border-radius:16px;';
-                    container.appendChild(el);
-                    return;
-                }
+                if (fr <= fl || fb <= ft) { showUncropped(loadedUrl); return; }
 
                 const cw = fr - fl;
                 const ch = fb - ft;
@@ -517,9 +484,26 @@
                 badge.style.cssText = 'position:absolute;bottom:15px;right:15px;background:rgba(0,0,0,0.7);color:#fff;padding:4px 14px;border-radius:20px;font-size:0.8rem;pointer-events:none;z-index:2;';
                 badge.innerHTML = '<i class="fas fa-crop-alt"></i> مقتصصة';
                 container.appendChild(badge);
-            };
+            }
 
-            img.src = fullImageUrl;
+            // Try the specific page across every known country-catalog prefix first.
+            loadFirstWorkingImage(pageCandidates, (url, img) => {
+                if (hasCrop) showCropped(url, img); else showUncropped(url);
+            }, () => {
+                // No prefix worked for that exact page — fall back to page 1 of the same
+                // flyer (also tried across every prefix). Coordinates don't apply to a
+                // different page, so show it uncropped.
+                const generalCandidates = getGeneralFlyerUrlCandidates(item);
+                if (!generalCandidates.length) {
+                    container.innerHTML = '<div style="display:flex;justify-content:center;align-items:center;width:100%;height:100%;color:white;font-size:1.2rem;">فشل تحميل الصورة</div>';
+                    return;
+                }
+                loadFirstWorkingImage(generalCandidates, (url) => {
+                    showUncropped(url);
+                }, () => {
+                    container.innerHTML = '<div style="display:flex;justify-content:center;align-items:center;width:100%;height:100%;color:white;font-size:1.2rem;">فشل تحميل الصورة</div>';
+                });
+            });
         }
 
         function normalizeProductData(rawData) {
@@ -619,17 +603,56 @@
         function isValidFlyerId(id){
             return /^\d+$/.test(String(id||'').trim());
         }
-        function getProductImageUrl(item) {
+        // The same mobappsbaker.com CDN hosts flyers for several countries under different
+        // path prefixes (confirmed: UAE="aecatalogs", KSA="sacatalogs", Egypt="catalogs" with
+        // no prefix). Our data mixes retailers across countries under the same brand name
+        // (e.g. "Carrefour" in both UAE and KSA), so a single hardcoded prefix 404s for any
+        // flyer that isn't from the country it was tuned for. This tries every known prefix
+        // and remembers whichever one actually worked for a given flyer, so we only pay the
+        // extra lookups once per flyer.
+        const COUNTRY_PREFIXES = ['aecatalogs','sacatalogs','catalogs','kwcatalogs','qacatalogs','omcatalogs'];
+        const discoveredPrefix = {}; // flyerId -> prefix that worked
+        function buildCatalogUrl(prefix, flyerId, page){
+            return `https://www.mobappsbaker.com/${prefix}/thwr/offers/${flyerId}/${page}.jpg`;
+        }
+        function prefixCandidates(flyerId){
+            const known = discoveredPrefix[flyerId];
+            return known ? [known, ...COUNTRY_PREFIXES.filter(p=>p!==known)] : COUNTRY_PREFIXES;
+        }
+        function getProductImageUrlCandidates(item) {
             let flyerId = item.pageNo?.match(/flyer_(\d+)/)?.[1] || item.solution_key;
             let pageNumber = item.pageNo?.match(/page_(\d+)/)?.[1] || '';
-            if (isValidFlyerId(flyerId) && pageNumber) return `https://www.mobappsbaker.com/aecatalogs/thwr/offers/${flyerId}/${pageNumber}.jpg`;
-            return null;
+            if (!isValidFlyerId(flyerId) || !pageNumber) return [];
+            return prefixCandidates(flyerId).map(p => ({prefix:p, flyerId, url: buildCatalogUrl(p, flyerId, pageNumber)}));
         }
-
-        function getGeneralFlyerUrl(item) {
+        function getGeneralFlyerUrlCandidates(item) {
             let flyerId = item.pageNo?.match(/flyer_(\d+)/)?.[1] || item.solution_key;
-            if (isValidFlyerId(flyerId)) return `https://www.mobappsbaker.com/aecatalogs/thwr/offers/${flyerId}/1.jpg`;
-            return null;
+            if (!isValidFlyerId(flyerId)) return [];
+            return prefixCandidates(flyerId).map(p => ({prefix:p, flyerId, url: buildCatalogUrl(p, flyerId, 1)}));
+        }
+        // Simple single-URL versions kept for callers that just need "a" URL (thumbnails,
+        // share links) — they still benefit from an already-discovered prefix if one exists.
+        function getProductImageUrl(item) {
+            const c = getProductImageUrlCandidates(item);
+            return c.length ? c[0].url : null;
+        }
+        function getGeneralFlyerUrl(item) {
+            const c = getGeneralFlyerUrlCandidates(item);
+            return c.length ? c[0].url : null;
+        }
+        // Tries a list of {url} candidates in order; calls onSuccess(url) on the first that
+        // loads, or onAllFailed() once every candidate has failed.
+        function loadFirstWorkingImage(candidates, onSuccess, onAllFailed){
+            let i = 0;
+            function tryNext(){
+                if (i >= candidates.length){ onAllFailed(); return; }
+                const c = candidates[i++];
+                const probe = new Image();
+                probe.onload = () => { discoveredPrefix[c.flyerId] = c.prefix; onSuccess(c.url, probe); };
+                probe.onerror = tryNext;
+                probe.src = c.url;
+            }
+            tryNext();
         }
 
         window.shareProduct = function() {
@@ -695,7 +718,8 @@
         }
 
         function buildPageUrl(flyerId, pageNum) {
-            return `https://www.mobappsbaker.com/aecatalogs/thwr/offers/${flyerId}/${pageNum}.jpg`;
+            const prefix = discoveredPrefix[flyerId] || COUNTRY_PREFIXES[0];
+            return buildCatalogUrl(prefix, flyerId, pageNum);
         }
 
         // اكتشاف آخر صفحة في المجلد عبر binary-search بسيط
