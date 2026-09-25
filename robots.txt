@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://ishopping.fit/amazon/sitemap.xml
