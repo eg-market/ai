@@ -1,0 +1,13 @@
+{
+  "name": "my-shop",
+  "version": "1.0.0",
+  "description": "SEO product pages generator",
+  "main": "generate.js",
+  "scripts": {
+    "generate": "node generate.js",
+    "watch": "node generate.js --watch"
+  },
+  "dependencies": {
+    "xlsx": "^0.18.5"
+  }
+}
