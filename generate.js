@@ -457,6 +457,16 @@ a{text-decoration:none;color:inherit}
 .p{margin-top:8px;font-size:19px;font-weight:900;color:#d81b3c}
 .p small{font-size:12px;font-weight:700;margin-inline-start:3px}
 </style>
+
+<!-- Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-MYLTZC366Z"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-MYLTZC366Z');
+</script>
+
 </head>
 <body>
 <div class="top"><h1>🛍️ ${escapeHTML(CONFIG.siteName)} — كل المنتجات</h1><p>${products.length} منتج متوفر</p></div>
