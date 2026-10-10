@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-
+  
   <!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-MYLTZC366Z"></script>
 <script>
@@ -11,7 +11,7 @@
 
   gtag('config', 'G-MYLTZC366Z');
 </script>
-  
+
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>سوقي | متجرك الإلكتروني</title>
@@ -391,45 +391,240 @@ function findCol(headers, ...candidates){
   return -1;
 }
 
+  /* =====================================================================
+   خريطة الأعمدة الموحّدة — تدعم كل الأشكال
+   ===================================================================== */
+const COLUMN_MAP = {
+  asin:             ['asin', 'ASIN', 'ASIN_INPUT'],
+  title:            ['title', 'title_from_file', 'Product Name', 'name', 'اسم المنتج', 'العنوان'],
+  brand:            ['brand', 'Brand', 'product_information.Brand Name', 'اسم العلامة التجارية'],
+  price:            ['price', 'Current Price', 'pricing', 'السعر'],
+  price_original:   ['price_original', 'Original/List Price', 'list_price', 'السعر الأصلي'],
+  discount_percent: ['discount_percent', 'Discount', 'نسبة الخصم'],
+  rating:           ['rating', 'Rating', 'average_rating'],
+  reviews_count:    ['reviews_count', 'Review Count', 'total_reviews', 'total_ratings'],
+  availability:     ['availability', 'Availability', 'availability_status', 'التوفر'],
+  seller:           ['seller', 'Seller', 'sold_by'],
+  description:      ['description', 'Description', 'full_description', 'الوصف'],
+  images:           ['images', 'Images', 'highResImages'],
+  link:             ['link', 'Product URL', 'shipping_details_url', 'الرابط'],
+  highlights:       ['highlights', 'Features', 'feature_bullets', 'المميزات'],
+  category:         ['product_category', 'category', 'Product Category'],
+  product_information: ['Product Information', 'product_information']
+};
+
+const EXCLUDED_SPEC_COLS = new Set([
+  'asin','ASIN','ASIN_INPUT','title','title_from_file','Product Name','name','اسم المنتج',
+  'brand','Brand','price','Current Price','pricing','السعر','price_original','Original/List Price',
+  'list_price','discount_percent','Discount','rating','Rating','average_rating','reviews_count',
+  'Review Count','total_reviews','total_ratings','availability','Availability','availability_status',
+  'seller','Seller','sold_by','description','Description','full_description','الوصف','images','Images',
+  'highResImages','link','Product URL','shipping_details_url','الرابط','highlights','Features',
+  'feature_bullets','المميزات','Product Information','product_information','category','product_category',
+  'Date','Currency','Checked At','HTTP Status','Error','coupon_text','Variations','Prime',
+  'Fulfilled By Amazon','ships_from','reviews','brand_url','sold_by_link','shipping_price','shipping_time',
+  'shipping_condition','is_coupon_exists','ships_from','aplus_present'
+]);
+
+function tryParseJSON(str){
+  if(!str) return null;
+  const s = String(str).trim();
+  if(!s || (s[0] !== '[' && s[0] !== '{')) return null;
+  try { return JSON.parse(s); } catch(e){ return null; }
+}
+function toArray(val){
+  if(val === null || val === undefined) return [];
+  if(Array.isArray(val)) return val.filter(x => x != null && x !== '');
+  const parsed = tryParseJSON(val);
+  if(Array.isArray(parsed)) return parsed.filter(x => x != null && x !== '');
+  return String(val).split(/\s*[|\n•·]\s*/).map(s => s.trim()).filter(Boolean);
+}
+function formatSpecValue(v){
+  const s = safeStr(v);
+  if(s.startsWith('[') || s.startsWith('{')){
+    const parsed = tryParseJSON(s);
+    if(Array.isArray(parsed)) return parsed.map(x => typeof x === 'object' ? JSON.stringify(x) : String(x)).join(' | ');
+    if(parsed && typeof parsed === 'object') return Object.keys(parsed).map(k => `${k}: ${parsed[k]}`).join(' | ');
+  }
+  return s;
+}
+function extractProductInformation(row, headers){
+  const specs = []; const seen = new Set();
+  for(let i=0;i<headers.length;i++){
+    const h = safeStr(headers[i]);
+    if(!h) continue;
+    if(h.toLowerCase().startsWith('product_information.')){
+      const v = safeStr(row[i]);
+      if(!v || seen.has(h)) continue;
+      seen.add(h); specs.push([h, formatSpecValue(v)]);
+    }
+    if(h.startsWith('تفاصيل::')){
+      const v = safeStr(row[i]);
+      if(!v || seen.has(h)) continue;
+      seen.add(h); specs.push([h, formatSpecValue(v)]);
+    }
+  }
+  const piIdx = findCol(headers, 'Product Information', 'product_information');
+  if(piIdx !== -1){
+    const raw = safeStr(row[piIdx]);
+    if(raw){
+      const obj = tryParseJSON(raw);
+      if(obj && typeof obj === 'object' && !Array.isArray(obj)){
+        for(const key of Object.keys(obj)){
+          const fullKey = `product_information.${key}`;
+          if(seen.has(fullKey)) continue;
+          const v = obj[key];
+          if(v === null || v === undefined || v === '') continue;
+          let str;
+          if(Array.isArray(v)) str = v.filter(x => x != null && x !== '').map(x => typeof x === 'object' ? JSON.stringify(x) : String(x)).join(' | ');
+          else if(typeof v === 'object'){
+            const parts = [];
+            for(const k of Object.keys(v)) if(v[k] != null && v[k] !== '') parts.push(`${k}: ${v[k]}`);
+            str = parts.join(' | ');
+          } else str = String(v);
+          if(!str) continue;
+          seen.add(fullKey); specs.push([fullKey, formatSpecValue(str)]);
+        }
+      }
+    }
+  }
+  return specs;
+}
+function normalizeCategory(amazonCat, fallbackText){
+  if(!amazonCat) return guessCategory(fallbackText);
+  const first = safeStr(amazonCat).split('›')[0].trim();
+  if(!first) return guessCategory(fallbackText);
+  const map = {
+    'Home & Kitchen': 'أجهزة منزلية', 'Electronics': 'إلكترونيات', 'Beauty': 'العناية الشخصية',
+    'Baby Products': 'مستلزمات الأطفال', 'Health & Personal Care': 'العناية الشخصية',
+    'Sports & Outdoors': 'رياضة', 'Clothing, Shoes & Jewelry': 'ملابس',
+    'Toys & Games': 'ألعاب', 'Automotive': 'سيارات', 'Books': 'كتب'
+  };
+  return map[first] || guessCategory(fallbackText) || first;
+}
+
 /* تحويل صف إلى منتج */
 function rowToProduct(row, headers, index){
   const col = (...names) => {
     const i = findCol(headers, ...names);
     return i === -1 ? '' : safeStr(row[i]);
   };
-  const asin = col('asin','ASIN') || ('ROW_' + index);
-  const title = col('title_from_file','title','اسم المنتج','العنوان') || 'منتج بدون عنوان';
-  const brand = col('brand','manufacturer','العلامة التجارية') || '';
-  const price = parseNum(col('price','السعر')) || 0;
-  const oldPrice = parseNum(col('price_original','السعر الأصلي')) || 0;
-  let discount = parseNum(col('discount_percent','نسبة الخصم'));
-  if(!discount && oldPrice > price && oldPrice > 0) discount = Math.round((1 - price / oldPrice) * 100);
 
-  const rating = parseRating(col('rating','التقييم'));
-  const reviews = parseReviews(col('reviews_count','عدد التقييمات'));
+  const asin = col('asin', 'ASIN', 'ASIN_INPUT') || ('ROW_' + index);
+  const title = col('title', 'title_from_file', 'Product Name', 'name', 'اسم المنتج', 'العنوان') || 'منتج بدون عنوان';
+
+  let brand = col('brand', 'Brand', 'product_information.Brand Name', 'اسم العلامة التجارية');
+  brand = brand.replace(/^Brand:\s*/i, '').trim();
+
+  const price = parseNum(col('price', 'Current Price', 'pricing', 'السعر')) || 0;
+  const oldPrice = parseNum(col('price_original', 'Original/List Price', 'list_price', 'السعر الأصلي')) || 0;
+  let discount = parseNum(col('discount_percent', 'Discount', 'نسبة الخصم'));
+  if(!discount && oldPrice > price && oldPrice > 0) discount = Math.round((1 - price/oldPrice) * 100);
+
+  const rating = parseRating(col('rating', 'Rating', 'average_rating'));
+  const reviews = parseReviews(col('reviews_count', 'Review Count', 'total_reviews', 'total_ratings'));
+
   const images = collectImages(row);
   const mainImage = images[0] || 'data:image/svg+xml;utf8,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="400" height="400"><rect fill="#eef2f8" width="400" height="400"/><text x="200" y="220" font-size="70" text-anchor="middle" fill="#c7cede">🛍️</text></svg>');
-  const link = col('link','الرابط') || '#';
-  const description = col('description','الوصف') || '';
-  const highlightsRaw = col('highlights','المميزات');
-  const availability = col('availability','التوفر') || 'متوفر';
-  const returns = col('returns','الإرجاع') || '';
-  const delivery = col('delivery','التوصيل') || '';
-  const seller = col('seller','البائع') || '';
-  const byline = col('byline') || '';
-  const highlights = highlightsRaw ? highlightsRaw.split(/\s*[|\n•·]\s*/).map(s=>s.trim()).filter(Boolean) : [];
-  const category = guessCategory(title + ' ' + description + ' ' + brand);
 
-  const rawSpecs = [];
-  for(let i=0;i<headers.length;i++){
-    const h = safeStr(headers[i]); const v = safeStr(row[i]);
+  let link = col('link', 'Product URL', 'shipping_details_url', 'الرابط');
+  if(!link && asin) link = `https://www.amazon.eg/dp/${asin}`;
+
+  const description = col('description', 'Description', 'full_description', 'الوصف');
+
+  const highlightsRaw = col('highlights', 'Features', 'feature_bullets', 'المميزات');
+  const highlights = toArray(highlightsRaw).map(h => typeof h === 'string' ? h : JSON.stringify(h)).filter(Boolean);
+
+  let availability = col('availability', 'Availability', 'availability_status', 'التوفر') || 'متوفر';
+  if(availability.length > 100){
+    if(/currently unavailable|غير متوفر/i.test(availability)) availability = 'غير متوفر حالياً';
+    else availability = 'متوفر';
+  }
+
+  const returns = col('returns', 'الإرجاع') || '';
+  const delivery = col('delivery', 'shipping_time') || '';
+  const seller = col('seller', 'Seller', 'sold_by') || '';
+  const byline = col('byline') || '';
+  const currency = col('Currency') || CFG.currency;
+  const fulfilledBy = col('Fulfilled By Amazon', 'ships_from');
+  const prime = col('Prime');
+
+  const amazonCat = col('product_category', 'category', 'Product Category');
+  const category = amazonCat ? normalizeCategory(amazonCat, title + ' ' + description + ' ' + brand) : guessCategory(title + ' ' + description + ' ' + brand);
+
+  // المواصفات
+  const specs = [];
+  const seenSpecKeys = new Set();
+  const piSpecs = extractProductInformation(row, headers);
+  for(const [k, v] of piSpecs){
+    if(seenSpecKeys.has(k)) continue;
+    seenSpecKeys.add(k);
+    specs.push([k, v]);
+  }
+  for(let j=0;j<headers.length;j++){
+    const h = safeStr(headers[j]);
+    const v = safeStr(row[j]);
     if(!h || !v) continue;
-    if(h.toLowerCase() === 'images') continue;
+    if(EXCLUDED_SPEC_COLS.has(h)) continue;
+    if(h.toLowerCase() === 'images' || h.toLowerCase() === 'highresimages') continue;
+    if(h.toLowerCase().startsWith('product_information.')) continue;
+    if(h.startsWith('تفاصيل::')) continue;
+    if(seenSpecKeys.has(h)) continue;
     IMG_RE.lastIndex = 0;
     if(IMG_RE.test(v)) continue;
-    rawSpecs.push([h, v]);
+    seenSpecKeys.add(h);
+    specs.push([h, formatSpecValue(v)]);
   }
-  return { asin, title, brand, price, oldPrice, discount, rating, reviews, image: mainImage, images, link, description, highlights, availability, returns, delivery, seller, byline, category, specs: rawSpecs };
+
+  return {
+    asin, title, brand, price, oldPrice, discount, rating, reviews,
+    image: mainImage, images, link, description, highlights,
+    availability, returns, delivery, seller, byline, category, specs,
+    currency, fulfilledBy, prime
+  };
+}
+
+/* قراءة الإكسل — كشف تلقائي للورقة */
+function pickBestSheet(wb){
+  if(CFG.sheetName && wb.SheetNames.includes(CFG.sheetName)) return CFG.sheetName;
+  let best = { name: wb.SheetNames[0], score: -1 };
+  for(const name of wb.SheetNames){
+    const ws = wb.Sheets[name];
+    const rows = XLSX.utils.sheet_to_json(ws, { header:1, defval:'', blankrows:false });
+    if(!rows.length) continue;
+    const headers = rows[0].map(h => safeStr(h));
+    const asinCol = findCol(headers, 'asin', 'ASIN', 'ASIN_INPUT');
+    if(asinCol === -1) continue;
+    const dataRows = rows.slice(1).filter(r => Array.isArray(r) && r.some(c => safeStr(c) !== ''));
+    if(dataRows.length > best.score) best = { name, score: dataRows.length };
+  }
+  return best.name;
+}
+
+function parseWorkbook(data, sourceName){
+  const wb = XLSX.read(data, { type:'array' });
+  const sheetName = pickBestSheet(wb);
+  const ws = wb.Sheets[sheetName];
+  const rows = XLSX.utils.sheet_to_json(ws, { header:1, defval:'', blankrows:false });
+  if(!rows.length) throw new Error('الملف فارغ');
+
+  const headers = rows[0].map(h => safeStr(h));
+  ALL_HEADERS = headers;
+  const asinCol = findCol(headers, 'asin', 'ASIN', 'ASIN_INPUT');
+  const dataRows = [];
+  for(let i=1;i<rows.length;i++){
+    const r = rows[i];
+    if(!r || !r.length) continue;
+    if(!r.some(c => safeStr(c) !== '')) continue;
+    if(asinCol !== -1){
+      const v = safeStr(r[asinCol]);
+      if(!v || /^asin(_input)?$/i.test(v)) continue;
+    }
+    dataRows.push(r);
+  }
+  PRODUCTS = dataRows.map((row, i) => rowToProduct(row, headers, i));
+  setTime();
+  setStatus('', `تم تحميل ${PRODUCTS.length} منتج من "${sourceName}" (ورقة: ${sheetName})`);
 }
 function guessCategory(text){
   const t = safeStr(text).toLowerCase();
@@ -440,31 +635,6 @@ function guessCategory(text){
   return 'عام';
 }
 
-/* قراءة الإكسل */
-function parseWorkbook(data, sourceName){
-  const wb = XLSX.read(data, { type:'array' });
-  const sheetName = CFG.sheetName && wb.SheetNames.includes(CFG.sheetName) ? CFG.sheetName : wb.SheetNames[0];
-  const ws = wb.Sheets[sheetName];
-  const rows = XLSX.utils.sheet_to_json(ws, { header:1, defval:'', blankrows:false });
-  if(!rows.length) throw new Error('الملف فارغ.');
-  const headers = rows[0].map(h => safeStr(h));
-  ALL_HEADERS = headers;
-  const asinCol = findCol(headers, 'asin');
-  const dataRows = [];
-  for(let i=1;i<rows.length;i++){
-    const r = rows[i];
-    if(!r || !r.length) continue;
-    if(!r.some(c => safeStr(c) !== '')) continue;
-    if(asinCol !== -1){
-      const v = safeStr(r[asinCol]);
-      if(!v || /^(asin)$/i.test(v)) continue;
-    }
-    dataRows.push(r);
-  }
-  PRODUCTS = dataRows.map((row, i) => rowToProduct(row, headers, i));
-  setTime();
-  setStatus('', `تم تحميل ${PRODUCTS.length} منتج من "${sourceName}"`);
-}
 async function loadFromURL(url){
   const sep = url.includes('?') ? '&' : '?';
   const res = await fetch(url + sep + '_t=' + Date.now(), { cache:'no-store' });
