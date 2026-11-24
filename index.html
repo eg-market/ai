@@ -33,6 +33,54 @@
   </head>
   <body class="bg-white text-gray-700 __className_fd82b7">
 <!-- زر الشراء -->
+
+<!-- زر الانتقال أعلى الصفحة -->
+<style>
+  #top-ishopping-bar {
+    width: 100%;
+    background: #111827;
+    padding: 10px 16px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    position: sticky;
+    top: 0;
+    z-index: 99998;
+  }
+  #top-ishopping-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: #10b981;
+    color: #ffffff;
+    font-family: 'Cairo', Tahoma, Arial, sans-serif;
+    font-size: 18px;
+    font-weight: 700;
+    padding: 10px 26px;
+    border-radius: 50px;
+    text-decoration: none;
+    transition: transform 0.2s ease, background 0.2s ease;
+  }
+  #top-ishopping-btn:hover {
+    background: #059669;
+    transform: translateY(-1px);
+  }
+  @media (max-width: 900px) {
+    #top-ishopping-btn {
+      font-size: 22px;
+      padding: 14px 32px;
+    }
+  }
+</style>
+
+<div id="top-ishopping-bar">
+  <a href="https://ishopping.fit/index1.html" id="top-ishopping-btn">
+    <span>🚀</span>
+    <span>اضغط للانتقال إلى الشوبنج</span>
+  </a>
+</div>
+
 <style>
 @media (pointer:coarse), (hover:none), (max-width:900px) {
   #buy-now-btn{
