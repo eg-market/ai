@@ -46,7 +46,7 @@ a:focus-visible,button:focus-visible,select:focus-visible{outline:3px solid #ffb
 .bd{padding:12px 14px 14px;display:flex;flex-direction:column;gap:6px;flex:1}
 .t{font-size:14px;font-weight:600;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;min-height:2.9em}
 .rt{font-size:13px;color:var(--mute)}.rt s{color:#f0a500;text-decoration:none;letter-spacing:1px}
-.pr{display:flex;align-items:baseline;gap:8px;margin-top:auto}.pr strong{font-size:20px;color:var(--b1)}.pr small{color:var(--mute);text-decoration:line-through;font-size:13px}
+.pr{display:flex;align-items:baseline;gap:8px;margin-top:auto}.pr strong{font-size:20px;color:var(--b1)}.pr .np{font-size:14px;color:var(--mute)}.pr small{color:var(--mute);text-decoration:line-through;font-size:13px}
 .cp{font-size:12px;font-weight:700;color:#a35c00;background:#fff1d6;border-radius:999px;padding:1px 10px;align-self:flex-start}
 .go{font-size:13px;font-weight:700;color:var(--b2)}
 .more{display:flex;width:fit-content;margin:8px auto 4px;background:var(--g);color:#fff;border:0;border-radius:999px;padding:14px 34px;font:800 17px Cairo,sans-serif;text-decoration:none;cursor:pointer;box-shadow:0 8px 22px #5a3fd650;transition:.2s}
@@ -80,20 +80,20 @@ const $=id=>document.getElementById(id);
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const num=x=>{if(x==null)return 0;if(typeof x==='number')return x;const m=String(x).replace(/,/g,'').match(/\d+(\.\d+)?/);return m?+m[0]:0};
 const fmt=n=>Math.round(n).toLocaleString('ar-EG');
+const UNC='منتجات غير مصنّفة';
 function norm(r){
   if(!r.asin||!String(r.asin).trim())return null;
   let path=[];for(let i=1;i<=10;i++){const v=r['breadcrumb_'+i];if(v&&String(v).trim())path.push(String(v).trim())}
   if(!path.length&&r.breadcrumb_full)path=String(r.breadcrumb_full).split('›').map(s=>s.trim()).filter(Boolean);
-  if(!path.length)return null;
-  const price=num(r.coupon_pay_price)||num(r.price_num)||num(r.price)||num(r.original_price);
-  if(!price)return null;
-  let old=Math.max(num(r.price_original),num(r.original_price));if(old<=price)old=0;
+  if(!path.length)path=[UNC];
+  const price=num(r.coupon_pay_price)||num(r.price_final_num)||num(r.price_num)||num(r.listing_price_num)||num(r.price)||num(r.original_price);
+  let old=Math.max(num(r.price_original),num(r.original_price));if(!price||old<=price)old=0;
   let disc=old?Math.round((1-price/old)*100):Math.abs(num(r.discount_percent));
   const rating=num(r.rating_listing),rev=num(r.reviews_count),sales=num(r.sales_estimate);
   const img=String(r.images||'').split('|')[0].trim().replace(/\._[^/]*_\.(jpg|png|jpeg)/i,'._AC_UL320_.$1');
   return{path,price,old,disc,rating,rev,sales,img,cp:num(r.coupon_discount_percent),
     title:r.title||r.Title_from_file||'',url:'https://ishopping.fit/product/'+encodeURIComponent(String(r.asin).trim())+'.html',asin:r.asin,
-    score:Math.log1p(sales)*3+Math.log1p(rev)*(rating||3)+(img?4:0)+Math.min(disc,70)/10+(r.affiliate_link?1:0)};
+    score:Math.log1p(sales)*3+Math.log1p(rev)*(rating||3)+(img?4:0)+Math.min(disc,70)/10+(price?3:0)};
 }
 function build(rows){
   const seen=new Set(),items=[];
@@ -109,7 +109,7 @@ function card(p,i,rk){
   <div class="bd"><div class="t">${esc(p.title)}</div>
   ${p.rating?`<div class="rt"><s>${st}</s> ${p.rating}${p.rev?` (${fmt(p.rev)})`:''}</div>`:''}
   ${p.cp?`<span class="cp">كوبون إضافي ${fmt(p.cp)}%</span>`:''}
-  <div class="pr"><strong>${fmt(p.price)} جنيه</strong>${p.old?`<small>${fmt(p.old)}</small>`:''}</div><span class="go">عرض المنتج ←</span></div></a>`;
+  <div class="pr">${p.price?`<strong>${fmt(p.price)} جنيه</strong>${p.old?`<small>${fmt(p.old)}</small>`:''}`:'<strong class="np">السعر غير متاح حالياً</strong>'}</div><span class="go">عرض المنتج ←</span></div></a>`;
 }
 
 const href=(p,pg)=>'#c='+encodeURIComponent(p.join('›'))+(pg>1?'&p='+pg:'');
@@ -138,7 +138,7 @@ function render(){
   for(const s of p){cur=cur.kids.get(s);pk=pick(cur,shown);pk.forEach(x=>shown.add(x))}
   const rest=[...n.items].filter(x=>!pk.includes(x)).sort((a,b)=>b.score-a.score);
   const pages=Math.max(1,Math.ceil(rest.length/PER)),pg=Math.min(r.pg,pages);
-  const kids=[...n.kids.values()].sort((a,b)=>b.items.length-a.items.length);
+  const kids=[...n.kids.values()].sort((a,b)=>(a.name===UNC)-(b.name===UNC)||b.items.length-a.items.length);
   const bk=p.length?`<a class="back" href="${href(p.slice(0,-1))}">→ رجوع</a>`:'';
   let h=`<div class="trail">${t}</div><div class="screen"><div class="head">${bk}<div><h2>${esc(nm)}</h2><small>${fmt(n.items.length)} منتج${kids.length?` • ${fmt(kids.length)} قسم فرعي`:''}</small></div></div>`;
   if(pg===1){
