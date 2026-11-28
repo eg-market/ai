@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>مجموعة منتجات أمازون: عطور وولاعة تكتيكية</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    font-family: "Segoe UI", "Tahoma", "Arial", sans-serif;
+    background: #f4f6f8;
+    margin: 0;
+    padding: 20px;
+    color: #222;
+    line-height: 1.75;
+  }
+  .container {
+    max-width: 900px;
+    margin: 0 auto 26px;
+    background: #fff;
+    border-radius: 12px;
+    padding: 28px;
+    box-shadow: 0 2px 14px rgba(0,0,0,.06);
+    scroll-margin-top: 16px;
+  }
+  h1 { font-size: 1.5rem; margin: 0 0 10px; color: #111; }
+
+  .breadcrumb {
+    color: #565959; font-size: .85rem; margin-bottom: 14px;
+    padding-bottom: 10px; border-bottom: 1px dashed #eee;
+  }
+  .byline { color: #007185; font-size: .95rem; margin-bottom: 10px; }
+
+  .images {
+    display: flex; gap: 10px; overflow-x: auto;
+    margin: 16px 0; padding-bottom: 6px;
+  }
+  .images img {
+    height: 130px; border-radius: 8px;
+    background: #fafafa; border: 1px solid #eee; padding: 4px;
+  }
+
+  .price-block {
+    background: #fdf6f6; border: 1px solid #f3d5d5;
+    padding: 14px 18px; border-radius: 10px; margin: 16px 0;
+  }
+  .price { font-size: 1.6rem; font-weight: 800; color: #b12704; }
+  .price-original {
+    font-size: 1rem; color: #777; text-decoration: line-through;
+    margin-inline-start: 12px;
+  }
+  .discount {
+    background: #b12704; color: #fff; padding: 3px 9px;
+    border-radius: 6px; font-size: .9rem; margin-inline-start: 8px;
+  }
+  .rating { color: #e67e22; font-size: .95rem; margin: 8px 0; }
+  .availability { color: #067d62; font-weight: 700; margin: 6px 0; }
+
+  .coupon {
+    background: #e7f5eb; border: 1px dashed #067d62; color: #045c48;
+    padding: 12px 14px; border-radius: 8px; margin: 14px 0;
+    font-weight: 600;
+  }
+
+  .section-title {
+    font-size: 1.05rem; font-weight: 800; margin: 24px 0 10px;
+    border-inline-start: 4px solid #ff9900; padding-inline-start: 10px;
+  }
+  .description { color: #333; white-space: pre-line; }
+  ul.highlights { padding-inline-start: 20px; margin: 8px 0; }
+  ul.highlights li { margin-bottom: 6px; }
+
+  .specs {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 6px 18px; margin: 10px 0;
+  }
+  .specs div { padding: 6px 0; border-bottom: 1px dashed #eee; }
+  .specs strong { color: #555; }
+
+  /* ========== تاريخ التحديث + الزر ========== */
+  .last-updated {
+    margin: 26px 0 12px; font-size: .95rem; color: #4a3a00;
+    background: #fffbea; border-inline-start: 4px solid #ffb700;
+    padding: 10px 14px; border-radius: 6px;
+  }
+  .last-updated strong { color: #111; }
+
+  .btn-amazon {
+    display: block; width: 100%; text-align: center;
+    background: #ffd814; color: #111; font-weight: 800;
+    text-decoration: none; padding: 14px 20px;
+    border-radius: 30px; border: 1px solid #f7c800;
+    font-size: 1.05rem; transition: background .2s;
+  }
+  .btn-amazon:hover { background: #f7ca00; }
+
+  .btn-note {
+    margin-top: 10px; font-size: .88rem; color: #555;
+    text-align: center; background: #f8f9fa;
+    padding: 10px 14px; border-radius: 6px;
+  }
+  .btn-note .lbl { color: #b12704; font-weight: 700; }
+
+  .btn-hidden-warning {
+    margin: 26px 0 0; padding: 12px 14px; text-align: center;
+    background: #fdecea; color: #b12704; border-radius: 8px;
+    font-size: .9rem; border: 1px dashed #e74c3c;
+  }
+
+  .meta-footer {
+    margin-top: 26px; padding-top: 14px;
+    border-top: 1px solid #eee; color: #999;
+    font-size: .8rem; text-align: center;
+  }
+
+  /* ========== إضافات الدمج: الفهرس والتنقل ========== */
+  .page-header {
+    max-width: 900px;
+    margin: 0 auto 26px;
+    background: #fff;
+    border-radius: 12px;
+    padding: 22px 28px;
+    box-shadow: 0 2px 14px rgba(0,0,0,.06);
+  }
+  .page-header h1 {
+    font-size: 1.35rem; margin: 0 0 6px; color: #111;
+  }
+  .page-header p {
+    margin: 0 0 14px; font-size: .92rem; color: #555;
+  }
+  .toc {
+    list-style: none; margin: 0; padding: 0;
+    display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
+  }
+  .toc a {
+    display: block;
+    padding: 10px 14px;
+    background: #f8f9fa;
+    border: 1px solid #eee;
+    border-inline-start: 4px solid #ff9900;
+    border-radius: 8px;
+    color: #0f4c81;
+    text-decoration: none;
+    font-size: .92rem;
+    font-weight: 600;
+    transition: background .2s, border-color .2s;
+  }
+  .toc a:hover {
+    background: #fffbea;
+    border-color: #ffd814;
+  }
+  .toc .toc-price {
+    display: block;
+    font-size: .82rem;
+    font-weight: 700;
+    color: #b12704;
+  }
+  .back-top {
+    display: inline-block;
+    margin-top: 12px;
+    font-size: .85rem;
+    color: #007185;
+    text-decoration: none;
+  }
+  .back-top:hover { text-decoration: underline; }
+
+  @media (max-width: 600px) {
+    .container { padding: 18px; }
+    h1 { font-size: 1.2rem; }
+    .specs { grid-template-columns: 1fr; }
+    .page-header { padding: 18px; }
+    .toc { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ============ الفهرس العلوي ============ -->
+<div class="page-header">
+  <h1>مجموعة المنتجات (4 منتجات)</h1>
+  <p>اضغط على أي منتج للانتقال مباشرة إلى تفاصيله، أو استخدم زر أمازون داخل كل بطاقة.</p>
+  <ul class="toc">
+    <li>
+      <a href="#product-B00HZ3UGWM">
+        ① عطر بيوتي للنساء من كالفن كلاين — 100 مل
+        <span class="toc-price">جنيه 1,907.29</span>
+      </a>
+    </li>
+    <li>
+      <a href="#product-B0BK9QM6HD">
+        ② ولاعة ميكانيكية من كوزيلايف — تكتيكية سوداء
+        <span class="toc-price">جنيه 89.20</span>
+      </a>
+    </li>
+    <li>
+      <a href="#product-B001FWXIL0">
+        ③ عطر ادفينتشر للرجال من دافيدوف — 100 مل
+        <span class="toc-price">جنيه 1,185.92</span>
+      </a>
+    </li>
+    <li>
+      <a href="#product-B07N6R7T2Z">
+        ④ الرحاب الوردة الحمراء للنساء — 35 مل
+        <span class="toc-price">جنيه 198.00</span>
+      </a>
+    </li>
+  </ul>
+</div>
+
+<!-- =========================================================
+     المنتج 1: B00HZ3UGWM
+     ========================================================= -->
+<div class="container" id="product-B00HZ3UGWM">
+
+  <div class="breadcrumb">التجميل › عطور › نساء › او دي بارفان</div>
+
+  <h1>عطر او دي بارفان بيوتي للنساء من كالفن كلاين، 100 مل</h1>
+
+  <div class="byline">العلامة التجارية: كالفن كلاين</div>
+
+  <div class="images">
+    <img src="https://m.media-amazon.com/images/I/41kaIA7vsnL._AC_US40_.jpg" alt="عطر او دي بارفان بيوتي للنساء من كالفن كلاين، 100 مل" loading="lazy">
+    <img src="https://m.media-amazon.com/images/I/510PHhbNRjL._AC_AIweblab1392912,T2_SF1358,1358_PQ60_.jpg?aicid=detailPage-mediaBlock" alt="عطر او دي بارفان بيوتي للنساء من كالفن كلاين، 100 مل" loading="lazy">
+  </div>
+
+  <div class="price-block">
+    <span class="price">جنيه 1,907 .29</span>
+  </div>
+
+  <div class="rating">⭐ 4.3 من 5 نجوم (40)</div>
+  <div class="availability">✔ تبقى 3 فقط - اطلبه الآن.</div>
+
+  <div class="section-title">المميزات الرئيسية</div>
+  <ul class="highlights">
+    <li>اشعري بالرقي عندما تضعين بيوتي، إحدى الروائح الأنيقة للنساء من كالفن كلاين.</li>
+    <li>يوفر خشب الأرز من فرجينيا في قاعدة العطر الكمية المثالية من النضارة الحارة، مما ينتج رائحة أنثوية نظيفة تدوم طوال اليوم.</li>
+    <li>ويضيف الياسمين الحلاوة إلى قلب العطر.</li>
+    <li>نوع المنتج_تجميلي</li>
+    <li>3607340213267</li>
+  </ul>
+
+  <div class="section-title">الوصف</div>
+  <div class="description">اشعري بالرقي عندما تضعين بيوتي، إحدى الروائح الأنيقة للنساء من كالفن كلاين. تم إطلاق هذا العطر في عام 2010، وهو خفيف بما فيه الكفاية للارتداء الكاجوال، ولكنه يترك انطباعًا دائمًا أينما ذهبتِ. الروائح الأولية من بذور حب المسك تنعش الحواس، بينما تضيف النفحات الوسطى من الياسمين العذوبة إلى قلب العطر. يوفر خشب الأرز من فرجينيا في قاعدة العطر الكمية المثالية من النضارة الحارة، مما ينتج رائحة أنثوية نظيفة تدوم طوال اليوم.</div>
+
+  <div class="section-title">تفاصيل إضافية</div>
+  <div class="specs">
+    <div><strong>التوصيل:</strong> توصيل مجاني السبت، 28 نوفمبر | السبت، 28 نوفمبر | أو توصيل أسرع غداً، 27 نوفمبر. قم بالطلب خلال 3 ساعات 38 دقائق | غداً، 27 نوفمبر | 3 ساعات 38 دقائق</div>
+    <div><strong>الإرجاع:</strong> 15 يوم للإرجاع</div>
+    <div><strong>الوزن:</strong> 100 غ</div>
+  </div>
+
+  <p class="last-updated">
+    🕒 آخر تحديث لهذا المنتج: <strong>2026-11-26 20:44</strong>
+  </p>
+
+  <a href="https://www.amazon.eg/dp/B00HZ3UGWM?linkCode=ll2&amp;tag=reels0f9-21&amp;linkId=3b4ade072ee920f41a03fd6b05a68a25&amp;ref_=as_li_ss_tl"
+     class="btn-amazon"
+     target="_blank"
+     rel="nofollow sponsored noopener">
+    اضغط للشراء أو لمشاهدة بيانات المنتج المحدَّثة
+  </a>
+
+  <p class="btn-note">
+    <span class="lbl">هذا الزر يفيدك في أمرين:</span><br>
+    ① شراء المنتج من أمازون عبر رابط الأفليت.<br>
+    ② مشاهدة أحدث بيانات وسعر لهذا المنتج
+    (آخر تحديث: <strong>2026-11-26 20:44</strong>).
+  </p>
+
+  <div class="meta-footer">
+    ASIN: B00HZ3UGWM — آخر تحديث: 2026-11-26 20:44
+  </div>
+
+  <a href="#top" class="back-top">↑ العودة إلى الفهرس</a>
+</div>
+
+<!-- =========================================================
+     المنتج 2: B0BK9QM6HD
+     ========================================================= -->
+<div class="container" id="product-B0BK9QM6HD">
+
+  <div class="breadcrumb">أدوات وتحسين المنزل › السلامة والأمن › أضواء فلاش › أضواء فلاش يدوية</div>
+
+  <h1>ولاعة ميكانيكية من كوزيلايف مصنوعة من الفولاذ المقاوم للصدأ بتصميم خارجي تكتيكي باللون الأسود</h1>
+
+  <div class="byline">العلامة التجارية: كازي لايف</div>
+
+  <div class="images">
+    <img src="https://m.media-amazon.com/images/I/41S5K0ijz9L._AC_US40_.jpg" alt="ولاعة ميكانيكية من كوزيلايف مصنوعة من الفولاذ المقاوم للصدأ بتصميم خارجي تكتيكي باللون الأسود" loading="lazy">
+    <img src="https://m.media-amazon.com/images/I/41vxrKJ-p6L._AC_US40_.jpg" alt="ولاعة ميكانيكية من كوزيلايف مصنوعة من الفولاذ المقاوم للصدأ بتصميم خارجي تكتيكي باللون الأسود" loading="lazy">
+    <img src="https://m.media-amazon.com/images/I/41ljYX7exOL._AC_US40_.jpg" alt="ولاعة ميكانيكية من كوزيلايف مصنوعة من الفولاذ المقاوم للصدأ بتصميم خارجي تكتيكي باللون الأسود" loading="lazy">
+    <img src="https://m.media-amazon.com/images/I/41JdJHAIusL._AC_US40_.jpg" alt="ولاعة ميكانيكية من كوزيلايف مصنوعة من الفولاذ المقاوم للصدأ بتصميم خارجي تكتيكي باللون الأسود" loading="lazy">
+    <img src="https://m.media-amazon.com/images/I/514MEpiOfvL._AC_US40_.jpg" alt="ولاعة ميكانيكية من كوزيلايف مصنوعة من الفولاذ المقاوم للصدأ بتصميم خارجي تكتيكي باللون الأسود" loading="lazy">
+  </div>
+
+  <div class="price-block">
+    <span class="price">جنيه 89 .20</span>
+    <span class="price-original">جنيه 140.00</span>
+    <span class="discount">-36 %</span>
+  </div>
+
+  <div class="rating">⭐ 3.2 من 5 نجوم (21)</div>
+  <div class="availability">✔ متوفر</div>
+
+  <div class="section-title">المميزات الرئيسية</div>
+  <ul class="highlights">
+    <li>نوع الوقود كهربائي مع نظام إشعال بلازما بقوس مزدوج، قابل لإعادة الشحن عبر USB مع كابل الشحن المرفق، لا يتطلب غاز أو سائل</li>
+    <li>هيكل من الفولاذ المقاوم للصدأ بتصميم عصري باللون الأسود، يتميز بوظيفة مصباح يدوي LED مدمج</li>
+    <li>يقيس 12.7 × 12.7 × 22.9 سم ويزن 90.7 جرام، يتضمن بطارية ليثيوم بوليمر بسعة 350 mAh تشحن بالكامل خلال ساعتين</li>
+    <li>ولاعة كوزي لايف الكهربائية بالقوس للاستخدام الخارجي بتصميم مقاوم للماء والرياح، بطارية المصباح تدوم لمدة ثلاث ساعات عند الشحن الكامل</li>
+    <li>تصميم مدمج يسمح بالتعليق على الرقبة أو حقيبة الظهر، يتضمن بطارية ليثيوم بوليمر واحدة وكابل شحن USB</li>
+  </ul>
+
+  <div class="section-title">الوصف</div>
+  <div class="description">ولاعة كوزي لايف الكهربائية بالقوس للاستخدام الخارجي هي ولاعة كهربائية تتميز بتقنية إشعال البلازما بالقوس المزدوج ومصباح يدوي LED مدمج. تعمل ببطارية ليثيوم بوليمر بسعة 350 mAh تشحن بالكامل خلال ساعتين عبر كابل USB. لا تتطلب غازاً أو سائلاً للتشغيل. توفر وظيفة المصباح اليدوي ثلاث ساعات من الإضاءة عند الشحن الكامل. مصنوعة من الفولاذ المقاوم للصدأ بتصميم عصري باللون الأسود. الأبعاد 12.7 × 12.7 × 22.9 سم بوزن 90.7 جرام. تصميم مقاوم للماء والرياح. مناسبة للتخييم والمشي لمسافات طويلة والسفر وإشعال مواقد الغاز والشواء وإشعال النار. التصميم المدمج يسمح بالتعليق على الرقبة أو حقيبة الظهر.</div>
+
+  <div class="section-title">تفاصيل إضافية</div>
+  <div class="specs">
+    <div><strong>التوصيل:</strong> توصيل مجاني السبت، 28 نوفمبر على طلبك الأول | السبت، 28 نوفمبر | أو توصيل أسرع غداً، 27 نوفمبر. قم بالطلب خلال 3 ساعات 39 دقائق | غداً، 27 نوفمبر | 3 ساعات 39 دقائق</div>
+    <div><strong>الإرجاع:</strong> 15 يوم للإرجاع</div>
+    <div><strong>الوزن:</strong> 40 غ</div>
+    <div><strong>الأبعاد:</strong> 12,7الطول x 12,7العرض x 22,9السُمك سم</div>
+    <div><strong>العدد:</strong> 1 العد</div>
+  </div>
+
+  <p class="last-updated">
+    🕒 آخر تحديث لهذا المنتج: <strong>2026-11-26 20:44</strong>
+  </p>
+
+  <a href="https://www.amazon.eg/dp/B0BK9QM6HD?linkCode=ll2&amp;tag=reels0f9-21&amp;linkId=018e67eac347c12529e516563ac08d9e&amp;ref_=as_li_ss_tl"
+     class="btn-amazon"
+     target="_blank"
+     rel="nofollow sponsored noopener">
+    اضغط للشراء أو لمشاهدة بيانات المنتج المحدَّثة
+  </a>
+
+  <p class="btn-note">
+    <span class="lbl">هذا الزر يفيدك في أمرين:</span><br>
+    ① شراء المنتج من أمازون عبر رابط الأفليت.<br>
+    ② مشاهدة أحدث بيانات وسعر لهذا المنتج
+    (آخر تحديث: <strong>2026-11-26 20:44</strong>).
+  </p>
+
+  <div class="meta-footer">
+    ASIN: B0BK9QM6HD — آخر تحديث: 2026-11-26 20:44
+  </div>
+
+  <a href="#top" class="back-top">↑ العودة إلى الفهرس</a>
+</div>
+
+<!-- =========================================================
+     المنتج 3: B001FWXIL0
+     ========================================================= -->
+<div class="container" id="product-B001FWXIL0">
+
+  <div class="breadcrumb">التجميل › عطور › رجال › او دي تواليت</div>
+
+  <h1>عطر ادفينتشر للرجال من دافيدوف - او دو تواليت سبري - 100 مل - 3.4 اونصة</h1>
+
+  <div class="byline">قم بزيارة متجر دافيدوف</div>
+
+  <div class="images">
+    <img src="https://m.media-amazon.com/images/I/41inLQ8SvpL._AC_US40_.jpg" alt="عطر ادفينتشر للرجال من دافيدوف - او دو تواليت سبري - 100 مل - 3.4 اونصة" loading="lazy">
+    <img src="https://m.media-amazon.com/images/I/41+j3PEL0TL._AC_US40_.jpg" alt="عطر ادفينتشر للرجال من دافيدوف - او دو تواليت سبري - 100 مل - 3.4 اونصة" loading="lazy">
+    <img src="https://m.media-amazon.com/images/I/41vrhIhlTNL._AC_US40_.jpg" alt="عطر ادفينتشر للرجال من دافيدوف - او دو تواليت سبري - 100 مل - 3.4 اونصة" loading="lazy">
+    <img src="https://m.media-amazon.com/images/I/51Zquqh+IuL._AC_US40_.jpg" alt="عطر ادفينتشر للرجال من دافيدوف - او دو تواليت سبري - 100 مل - 3.4 اونصة" loading="lazy">
+    <img src="https://m.media-amazon.com/images/I/51Cp6--vMeL._AC_US40_.jpg" alt="عطر ادفينتشر للرجال من دافيدوف - او دو تواليت سبري - 100 مل - 3.4 اونصة" loading="lazy">
+  </div>
+
+  <div class="price-block">
+    <span class="price">جنيه 1,185 .92</span>
+    <span class="price-original">جنيه 2,016.00</span>
+    <span class="discount">-41 %</span>
+  </div>
+
+  <div class="rating">⭐ 4.4 من 5 نجوم (7,503)</div>
+  <div class="availability">✔ متوفر</div>
+
+  <div class="section-title">المميزات الرئيسية</div>
+  <ul class="highlights">
+    <li>عطر خشبي ومسكي بنفحات الأرز والفيتيفر والمسك الأبيض</li>
+    <li>تركيز أو دو تواليت في زجاجة رذاذ بحجم 100 مل</li>
+    <li>مناسب لمناسبات المساء والنهار والحفلات والأعراس وليالي المواعيد</li>
+    <li>تركيبة خالية من القسوة على الحيوانات مصممة للرجال</li>
+    <li>شكل رذاذ سائل بنفحات علوية من البرتقال الماندريني والليمون والليم</li>
+  </ul>
+
+  <div class="section-title">الوصف</div>
+  <div class="description">ادفنتشر باي دافيدوف للرجال</div>
+
+  <div class="section-title">تفاصيل إضافية</div>
+  <div class="specs">
+    <div><strong>التوصيل:</strong> توصيل مجاني السبت، 28 نوفمبر | السبت، 28 نوفمبر | أو توصيل أسرع غداً، 27 نوفمبر. قم بالطلب خلال 3 ساعات 38 دقائق | غداً، 27 نوفمبر | 3 ساعات 38 دقائق</div>
+    <div><strong>الإرجاع:</strong> 15 يوم للإرجاع</div>
+    <div><strong>الوزن:</strong> 348 غ</div>
+  </div>
+
+  <p class="last-updated">
+    🕒 آخر تحديث لهذا المنتج: <strong>2026-11-26 20:44</strong>
+  </p>
+
+  <a href="https://www.amazon.eg/dp/B001FWXIL0?linkCode=ll2&amp;tag=reels0f9-21&amp;linkId=87cf65bc9b6dac02cc9d15e741ae4ac8&amp;ref_=as_li_ss_tl"
+     class="btn-amazon"
+     target="_blank"
+     rel="nofollow sponsored noopener">
+    اضغط للشراء أو لمشاهدة بيانات المنتج المحدَّثة
+  </a>
+
+  <p class="btn-note">
+    <span class="lbl">هذا الزر يفيدك في أمرين:</span><br>
+    ① شراء المنتج من أمازون عبر رابط الأفليت.<br>
+    ② مشاهدة أحدث بيانات وسعر لهذا المنتج
+    (آخر تحديث: <strong>2026-11-26 20:44</strong>).
+  </p>
+
+  <div class="meta-footer">
+    ASIN: B001FWXIL0 — آخر تحديث: 2026-11-26 20:44
+  </div>
+
+  <a href="#top" class="back-top">↑ العودة إلى الفهرس</a>
+</div>
+
+<!-- =========================================================
+     المنتج 4: B07N6R7T2Z
+     ========================================================= -->
+<div class="container" id="product-B07N6R7T2Z">
+
+  <div class="breadcrumb">التجميل › عطور › نساء › او دي بارفان</div>
+
+  <h1>الرحاب الوردة الحمراء لل نساء 35 مل - او دى بارفان</h1>
+
+  <div class="byline">العلامة التجارية: الرحاب</div>
+
+  <div class="images">
+    <img src="https://m.media-amazon.com/images/I/21RJt16iGvL._AC_US40_.jpg" alt="الرحاب الوردة الحمراء لل نساء 35 مل - او دى بارفان" loading="lazy">
+    <img src="https://m.media-amazon.com/images/I/511KQhjj9wL._AC_AIweblab1392912,T2_SF1358,1358_PQ60_.jpg?aicid=detailPage-mediaBlock" alt="الرحاب الوردة الحمراء لل نساء 35 مل - او دى بارفان" loading="lazy">
+  </div>
+
+  <div class="price-block">
+    <span class="price">جنيه 198 .00</span>
+    <span class="price-original">جنيه 198.00</span>
+  </div>
+
+  <div class="rating">⭐ 4.0 من 5 نجوم (32)</div>
+  <div class="availability">✔ متوفر</div>
+
+  <div class="section-title">المميزات الرئيسية</div>
+  <ul class="highlights">
+    <li>تركيز أو دو بارفان يمنح كثافة عطرية تدوم طوال اليوم</li>
+    <li>رائحة منعشة وحمضية مع مكونات الورد تخلق طابعاً عطرياً عصرياً</li>
+    <li>الشكل السائل يُطبق بسهولة على نقاط النبض بما في ذلك المعصمين والرقبة وخلف الأذنين</li>
+    <li>زجاجة بحجم السفر 35 مل مصممة للنساء الباحثات عن خيارات عطور محمولة</li>
+    <li>الرحاب الوردة الحمراء يتميز بتركيبة من مواد طبيعية وخالية من الصبغات</li>
+  </ul>
+
+  <div class="section-title">الوصف</div>
+  <div class="description">ضعي كمية معتدلة على نقاط النبض مثل المعصمين والرقبة وخلف الأذنين للحصول على توزيع مثالي للعطر. تحتوي العبوة على قطعة واحدة بسعة 35 مليلتر من العطر السائل. أبعاد عبوة المنتج تبلغ 12.6 سنتيمتر في الارتفاع و6.4 سنتيمتر في العرض و3.0 سنتيمتر في الطول مع وزن عبوة 0.12 كيلوجرام. مواصفات المنتج تشمل سعة 35 مل ووزن المنتج 370 جرام في الحالة السائلة.</div>
+
+  <div class="section-title">تفاصيل إضافية</div>
+  <div class="specs">
+    <div><strong>التوصيل:</strong> توصيل مجاني السبت، 28 نوفمبر على طلبك الأول | السبت، 28 نوفمبر | أو توصيل أسرع غداً، 27 نوفمبر. قم بالطلب خلال 3 ساعات 46 دقائق | غداً، 27 نوفمبر | 3 ساعات 46 دقائق</div>
+    <div><strong>البائع:</strong> 3arba</div>
+    <div><strong>الإرجاع:</strong> 15 يوم للإرجاع</div>
+    <div><strong>الوزن:</strong> 120 غ</div>
+  </div>
+
+  <p class="last-updated">
+    🕒 آخر تحديث لهذا المنتج: <strong>2026-11-26 20:44</strong>
+  </p>
+
+  <a href="https://www.amazon.eg/dp/B07N6R7T2Z?linkCode=ll2&amp;tag=reels0f9-21&amp;linkId=929666b68dcf096b872b63b23f267cd2&amp;ref_=as_li_ss_tl"
+     class="btn-amazon"
+     target="_blank"
+     rel="nofollow sponsored noopener">
+    اضغط للشراء أو لمشاهدة بيانات المنتج المحدَّثة
+  </a>
+
+  <p class="btn-note">
+    <span class="lbl">هذا الزر يفيدك في أمرين:</span><br>
+    ① شراء المنتج من أمازون عبر رابط الأفليت.<br>
+    ② مشاهدة أحدث بيانات وسعر لهذا المنتج
+    (آخر تحديث: <strong>2026-11-26 20:44</strong>).
+  </p>
+
+  <div class="meta-footer">
+    ASIN: B07N6R7T2Z — آخر تحديث: 2026-11-26 20:44
+  </div>
+
+  <a href="#top" class="back-top">↑ العودة إلى الفهرس</a>
+</div>
+
+</body>
+</html>
